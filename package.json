@@ -1,0 +1,50 @@
+{
+  "name": "clubmanager-v3",
+  "version": "3.0.0",
+  "private": true,
+  "description": "ClubManager v3 - Plateforme complète de gestion de club de jiu-jitsu",
+  "author": "Benoit Houthoofd",
+  "license": "MIT",
+  "workspaces": [
+    "backend",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=backend",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "test:watch": "npm run test:watch --workspace=backend",
+    "test:coverage": "npm run test:coverage --workspace=backend",
+    "lint": "npm run lint --workspaces",
+    "lint:fix": "npm run lint:fix --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "clean": "npm run clean --workspaces && rimraf node_modules",
+    "install:all": "npm install",
+    "backend:dev": "npm run dev --workspace=backend",
+    "backend:build": "npm run build --workspace=backend",
+    "backend:test": "npm run test --workspace=backend",
+    "db:migrate": "mysql -u root -p < db/creation/SCHEMA_CONSOLIDATE.sql",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Houthoofd/ClubManager"
+  },
+  "keywords": [
+    "clubmanager",
+    "jiu-jitsu",
+    "club-management",
+    "typescript",
+    "clean-architecture",
+    "rest-api"
+  ]
+}

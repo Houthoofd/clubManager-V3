@@ -1,0 +1,259 @@
+# ============================================================
+# CLUBMANAGER V3 - GIT IGNORE
+# ============================================================
+
+# ------------------------------------------------------------
+# Node.js
+# ------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Dependency directories
+jspm_packages/
+
+# Package lock files (keep package-lock.json)
+# yarn.lock
+# pnpm-lock.yaml
+
+# ------------------------------------------------------------
+# Environment Variables
+# ------------------------------------------------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Keep example files
+!.env.example
+!.env.test.example
+
+# ------------------------------------------------------------
+# Build & Distribution
+# ------------------------------------------------------------
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# ------------------------------------------------------------
+# TypeScript
+# ------------------------------------------------------------
+*.js.map
+*.d.ts.map
+
+# ------------------------------------------------------------
+# Testing
+# ------------------------------------------------------------
+coverage/
+.nyc_output/
+*.lcov
+junit.xml
+test-results/
+
+# ------------------------------------------------------------
+# Logs
+# ------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ------------------------------------------------------------
+# IDEs & Editors
+# ------------------------------------------------------------
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains IDEs (WebStorm, IntelliJ, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ------------------------------------------------------------
+# Operating Systems
+# ------------------------------------------------------------
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ------------------------------------------------------------
+# Database
+# ------------------------------------------------------------
+*.sql.backup
+*.sqlite
+*.sqlite3
+*.db
+
+# MySQL dumps (keep schema files)
+!db/creation/*.sql
+!db/procedures/*.sql
+!db/triggers/*.sql
+!db/query/*.sql
+
+# Database data directories
+data/
+mysql-data/
+postgres-data/
+
+# ------------------------------------------------------------
+# Docker
+# ------------------------------------------------------------
+docker-compose.override.yml
+.dockerignore
+
+# ------------------------------------------------------------
+# Temporary Files
+# ------------------------------------------------------------
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# ------------------------------------------------------------
+# Upload & Media
+# ------------------------------------------------------------
+uploads/
+public/uploads/
+storage/
+
+# ------------------------------------------------------------
+# Documentation Build
+# ------------------------------------------------------------
+docs/_build/
+docs/.vuepress/dist/
+
+# ------------------------------------------------------------
+# Miscellaneous
+# ------------------------------------------------------------
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist/
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.vscode-test
+
+# ------------------------------------------------------------
+# Package Manager
+# ------------------------------------------------------------
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# ------------------------------------------------------------
+# AWS
+# ------------------------------------------------------------
+.aws-sam/
+.elasticbeanstalk/
+
+# ------------------------------------------------------------
+# Sentry
+# ------------------------------------------------------------
+.sentryclirc
+
+# ------------------------------------------------------------
+# SSL Certificates (NEVER commit these!)
+# ------------------------------------------------------------
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# ------------------------------------------------------------
+# Backup Files
+# ------------------------------------------------------------
+*.backup
+*.bak
+*.old
+*.orig
+
+# ------------------------------------------------------------
+# Project Specific
+# ------------------------------------------------------------
+# Uncomment if you don't want to track these
+
+# Test databases
+# clubmanager_test
+
+# Generated API documentation
+# api-docs/
+
+# Benchmark results
+# benchmarks/results/
+
+# End of .gitignore
