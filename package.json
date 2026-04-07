@@ -11,7 +11,9 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=backend",
+    "dev": "concurrently -n \"backend,frontend\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "test:watch": "npm run test:watch --workspace=backend",
@@ -33,6 +35,7 @@
     "docker:logs": "docker-compose logs -f"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "rimraf": "^5.0.5"
   },
   "engines": {
