@@ -91,3 +91,67 @@ export interface VerifyUserExistsDto {
   prenom: string;
   date_naissance: string; // YYYY-MM-DD
 }
+
+/**
+ * Payload du JWT Access Token
+ */
+export interface JwtPayload {
+  userId: number;
+  email: string;
+  userIdString: string; // Format U-YYYY-XXXX
+  type: "access" | "refresh";
+}
+
+/**
+ * Token décodé avec metadata
+ */
+export interface DecodedToken extends JwtPayload {
+  iat: number; // Issued at
+  exp: number; // Expiration
+}
+
+/**
+ * Paire de tokens (access + refresh)
+ */
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number; // Secondes jusqu'à expiration de l'access token
+}
+
+/**
+ * DTO pour refresh token request
+ */
+export interface RefreshTokenDto {
+  refreshToken: string;
+}
+
+/**
+ * DTO pour réponse d'authentification complète avec tokens
+ */
+export interface AuthResponseDto {
+  success: true;
+  message: string;
+  data: {
+    user: {
+      id: number;
+      userId: string;
+      first_name: string;
+      last_name: string;
+      nom_utilisateur: string;
+      email: string;
+      email_verified: boolean;
+      status_id: number;
+      grade_id?: number;
+      abonnement_id?: number;
+    };
+    tokens: TokenPair;
+  };
+}
+
+/**
+ * DTO pour logout
+ */
+export interface LogoutDto {
+  refreshToken: string;
+}
