@@ -15,9 +15,9 @@ lerna-debug.log*
 # Dependency directories
 jspm_packages/
 
-# Package lock files (keep package-lock.json)
-# yarn.lock
-# pnpm-lock.yaml
+# Package lock files (keep pnpm-lock.yaml tracked)
+package-lock.json
+yarn.lock
 
 # ------------------------------------------------------------
 # Environment Variables
