@@ -17,7 +17,7 @@
  * - Read status (lu) is boolean with default false
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   USER_ALERT_MESSAGE_MAX_LENGTH,
   USER_ALERT_MESSAGE_MIN_LENGTH,
@@ -27,11 +27,19 @@ import {
   MESSAGING_MAX_PAGE_SIZE,
   MESSAGING_MIN_PAGE_SIZE,
   MESSAGING_DEFAULT_PAGE,
-  VALID_SORT_ORDERS,
-  DEFAULT_SORT_ORDER,
-} from '../../constants/messaging.constants.js';
-import { AlertStatus, ALERT_STATUSES, AlertSeverity } from '../../enums/messaging.enums.js';
-import { idSchema, idStringSchema, paginationSchema } from '../common/common.validators.js';
+  MESSAGING_VALID_SORT_ORDERS,
+  MESSAGING_DEFAULT_SORT_ORDER,
+} from "../../constants/messaging.constants.js";
+import {
+  AlertStatus,
+  ALERT_STATUSES,
+  AlertSeverity,
+} from "../../enums/messaging.enums.js";
+import {
+  idSchema,
+  idStringSchema,
+  paginationSchema,
+} from "../common/common.validators.js";
 
 // ============================================================================
 // BASE SCHEMAS
@@ -41,9 +49,9 @@ import { idSchema, idStringSchema, paginationSchema } from '../common/common.val
  * Schema for alert status validation
  * DB: alertes_utilisateurs.statut ENUM('active', 'resolue', 'ignoree')
  */
-export const alertStatusSchema = z.enum(['active', 'resolue', 'ignoree'], {
+export const alertStatusSchema = z.enum(["active", "resolue", "ignoree"], {
   errorMap: () => ({
-    message: `Le statut doit être l'un des suivants: ${ALERT_STATUSES.join(', ')}`,
+    message: `Le statut doit être l'un des suivants: ${ALERT_STATUSES.join(", ")}`,
   }),
 });
 
@@ -51,7 +59,10 @@ export const alertStatusSchema = z.enum(['active', 'resolue', 'ignoree'], {
  * Schema for alert context data (JSON field)
  * DB: alertes_utilisateurs.donnees_contexte JSON
  */
-export const alertContextDataSchema = z.record(z.unknown()).nullable().optional();
+export const alertContextDataSchema = z
+  .record(z.unknown())
+  .nullable()
+  .optional();
 
 /**
  * Base user alert schema with all fields
@@ -160,14 +171,17 @@ export const updateUserAlertSchema = z
     (data) => {
       // If status is 'resolue', date_resolution and resolu_par should be provided
       if (data.statut === AlertStatus.RESOLVED) {
-        return data.date_resolution !== undefined && data.resolu_par !== undefined;
+        return (
+          data.date_resolution !== undefined && data.resolu_par !== undefined
+        );
       }
       return true;
     },
     {
-      message: "Une alerte résolue doit avoir une date de résolution et un utilisateur résolveur",
-      path: ['statut'],
-    }
+      message:
+        "Une alerte résolue doit avoir une date de résolution et un utilisateur résolveur",
+      path: ["statut"],
+    },
   );
 
 /**
@@ -231,14 +245,16 @@ export const listUserAlertsSchema = paginationSchema.extend({
   statut: alertStatusSchema.optional(),
   lu: z
     .string()
-    .transform((val) => val === 'true' || val === '1')
+    .transform((val) => val === "true" || val === "1")
     .pipe(z.boolean())
     .optional(),
   date_debut: z.coerce.date().optional(),
   date_fin: z.coerce.date().optional(),
   resolu_par: idSchema.optional(),
-  sort_by: z.enum(['date_detection', 'date_resolution', 'statut']).default('date_detection'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z
+    .enum(["date_detection", "date_resolution", "statut"])
+    .default("date_detection"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -252,8 +268,8 @@ export type ListUserAlertsQuery = z.infer<typeof listUserAlertsSchema>;
 export const activeAlertsSchema = paginationSchema.extend({
   utilisateur_id: idSchema.optional(),
   alerte_type_id: idSchema.optional(),
-  sort_by: z.enum(['date_detection']).default('date_detection'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z.enum(["date_detection"]).default("date_detection"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -269,8 +285,10 @@ export const resolvedAlertsSchema = paginationSchema.extend({
   resolu_par: idSchema.optional(),
   date_debut: z.coerce.date().optional(),
   date_fin: z.coerce.date().optional(),
-  sort_by: z.enum(['date_resolution', 'date_detection']).default('date_resolution'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z
+    .enum(["date_resolution", "date_detection"])
+    .default("date_resolution"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -314,8 +332,10 @@ export type UserAlertIdParam = z.infer<typeof userAlertIdParamSchema>;
 export const bulkMarkReadAlertsSchema = z.object({
   alert_ids: z
     .array(idSchema)
-    .min(1, { message: 'Au moins une alerte doit être sélectionnée' })
-    .max(100, { message: 'Vous ne pouvez pas marquer plus de 100 alertes à la fois' }),
+    .min(1, { message: "Au moins une alerte doit être sélectionnée" })
+    .max(100, {
+      message: "Vous ne pouvez pas marquer plus de 100 alertes à la fois",
+    }),
 });
 
 /**
@@ -329,8 +349,10 @@ export type BulkMarkReadAlerts = z.infer<typeof bulkMarkReadAlertsSchema>;
 export const bulkResolveAlertsSchema = z.object({
   alert_ids: z
     .array(idSchema)
-    .min(1, { message: 'Au moins une alerte doit être sélectionnée' })
-    .max(50, { message: 'Vous ne pouvez pas résoudre plus de 50 alertes à la fois' }),
+    .min(1, { message: "Au moins une alerte doit être sélectionnée" })
+    .max(50, {
+      message: "Vous ne pouvez pas résoudre plus de 50 alertes à la fois",
+    }),
   resolu_par: idSchema,
   notes: z
     .string()
@@ -379,7 +401,9 @@ export const userAlertsListResponseSchema = z.object({
 /**
  * Inferred TypeScript type for UserAlertsListResponse
  */
-export type UserAlertsListResponse = z.infer<typeof userAlertsListResponseSchema>;
+export type UserAlertsListResponse = z.infer<
+  typeof userAlertsListResponseSchema
+>;
 
 /**
  * Schema for user alert statistics

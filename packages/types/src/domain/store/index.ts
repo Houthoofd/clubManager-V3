@@ -3,29 +3,9 @@
  * Exports centralisés de tous les types du domaine Store
  */
 
-// Category (catégories d'articles)
-export * from "./Category.types.js";
-
-// Size (tailles d'articles)
-export * from "./Size.types.js";
-
-// Article (articles de la boutique)
-export * from "./Article.types.js";
-
-// Image (images additionnelles des articles)
-export * from "./Image.types.js";
-
-// Stock (gestion des stocks par article et taille)
-export * from "./Stock.types.js";
-
-// Order (commandes)
-export * from "./Order.types.js";
-
-// OrderItem (articles dans les commandes)
-export * from "./OrderItem.types.js";
-
-// StockMovement (mouvements de stock)
-export * from "./StockMovement.types.js";
+// NOTE: Wildcard exports removed to prevent duplicate exports
+// Base types (Article, Category, etc.) are exported from validators
+// Only extended domain types are exported below
 
 /**
  * Re-export des types les plus utilisés
@@ -33,7 +13,6 @@ export * from "./StockMovement.types.js";
 
 // Category
 export type {
-  Category,
   CategoryWithRelations,
   CategoryWithStats,
   CategoryWithArticles,
@@ -45,7 +24,6 @@ export type {
 
 // Size
 export type {
-  Size,
   SizeWithRelations,
   SizeWithStats,
   SizeWithArticles,
@@ -58,7 +36,6 @@ export type {
 
 // Article
 export type {
-  Article,
   ArticleWithRelations,
   ArticleWithImages,
   ArticleWithStocks,
@@ -75,7 +52,6 @@ export type {
 
 // Image
 export type {
-  Image,
   ImageWithRelations,
   ImageWithArticle,
   ImagePublic,
@@ -89,7 +65,6 @@ export type {
 
 // Stock
 export type {
-  Stock,
   StockWithRelations,
   StockWithDetails,
   StockWithStatus,
@@ -110,7 +85,6 @@ export type {
 
 // Order
 export type {
-  Order,
   OrderWithRelations,
   OrderWithItems,
   OrderWithDetails,
@@ -131,7 +105,6 @@ export type {
 
 // OrderItem
 export type {
-  OrderItem,
   OrderItemWithRelations,
   OrderItemWithDetails,
   OrderItemWithOrder,
@@ -153,7 +126,6 @@ export type {
 
 // StockMovement
 export type {
-  StockMovement,
   StockMovementWithRelations,
   StockMovementWithDetails,
   StockMovementPublic,
@@ -172,10 +144,7 @@ export type {
 } from "./StockMovement.types.js";
 
 // Re-export constants and enums from Order and StockMovement
-export {
-  ORDER_STATUS_LABELS,
-  ORDER_STATUS_COLORS,
-} from "./Order.types.js";
+export { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "./Order.types.js";
 
 export {
   STOCK_MOVEMENT_TYPE_LABELS,

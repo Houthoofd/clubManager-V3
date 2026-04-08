@@ -50,14 +50,14 @@ export const STATISTIC_VALUE_MIN_LENGTH = 1;
  * Common statistic types
  */
 export const STATISTIC_TYPES = {
-  ATTENDANCE: 'frequentation',
-  REVENUE: 'revenue',
-  REGISTRATIONS: 'inscriptions',
-  PAYMENTS: 'paiements',
-  COURSES: 'cours',
-  USERS: 'utilisateurs',
-  RESERVATIONS: 'reservations',
-  STORE: 'magasin',
+  ATTENDANCE: "frequentation",
+  REVENUE: "revenue",
+  REGISTRATIONS: "inscriptions",
+  PAYMENTS: "paiements",
+  COURSES: "cours",
+  USERS: "utilisateurs",
+  RESERVATIONS: "reservations",
+  STORE: "magasin",
 } as const;
 
 // ============================================================================
@@ -96,18 +96,18 @@ export const INFORMATION_DESCRIPTION_MAX_LENGTH = 65535;
  * Common information keys
  */
 export const INFORMATION_KEYS = {
-  CLUB_NAME: 'club_name',
-  CLUB_ADDRESS: 'club_address',
-  CLUB_PHONE: 'club_phone',
-  CLUB_EMAIL: 'club_email',
-  CLUB_WEBSITE: 'club_website',
-  OPENING_HOURS: 'opening_hours',
-  SOCIAL_FACEBOOK: 'social_facebook',
-  SOCIAL_INSTAGRAM: 'social_instagram',
-  SOCIAL_TWITTER: 'social_twitter',
-  BANK_ACCOUNT: 'bank_account',
-  VAT_NUMBER: 'vat_number',
-  LEGAL_INFO: 'legal_info',
+  CLUB_NAME: "club_name",
+  CLUB_ADDRESS: "club_address",
+  CLUB_PHONE: "club_phone",
+  CLUB_EMAIL: "club_email",
+  CLUB_WEBSITE: "club_website",
+  OPENING_HOURS: "opening_hours",
+  SOCIAL_FACEBOOK: "social_facebook",
+  SOCIAL_INSTAGRAM: "social_instagram",
+  SOCIAL_TWITTER: "social_twitter",
+  BANK_ACCOUNT: "bank_account",
+  VAT_NUMBER: "vat_number",
+  LEGAL_INFO: "legal_info",
 } as const;
 
 // ============================================================================
@@ -139,14 +139,14 @@ export const STATISTICS_DEFAULT_PAGE = 1;
 // ============================================================================
 
 /**
- * Valid sort orders
+ * Valid sort orders for statistics queries
  */
-export const VALID_SORT_ORDERS = ['asc', 'desc'] as const;
+export const STATISTICS_VALID_SORT_ORDERS = ["asc", "desc"] as const;
 
 /**
- * Default sort order
+ * Default sort order for statistics queries
  */
-export const DEFAULT_SORT_ORDER = 'desc';
+export const STATISTICS_DEFAULT_SORT_ORDER = "desc";
 
 /**
  * Maximum number of days for statistics date range queries

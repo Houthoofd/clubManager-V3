@@ -3,10 +3,14 @@
  * Client Axios configuré avec auto-refresh des tokens
  */
 
-import axios, { type AxiosInstance, type InternalAxiosRequestConfig, type AxiosError } from 'axios';
+import axios, {
+  type AxiosInstance,
+  type InternalAxiosRequestConfig,
+  type AxiosError,
+} from "axios";
 
-// Configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+// Configuration - Use relative URL for Vite proxy
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 /**
  * Instance Axios principale
@@ -14,7 +18,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   withCredentials: true, // Important pour les cookies HTTP-only
 });
@@ -44,35 +48,35 @@ const onRefreshed = (token: string) => {
  * Récupère le token d'accès du localStorage
  */
 export const getAccessToken = (): string | null => {
-  return localStorage.getItem('accessToken');
+  return localStorage.getItem("accessToken");
 };
 
 /**
  * Stocke le token d'accès dans le localStorage
  */
 export const setAccessToken = (token: string): void => {
-  localStorage.setItem('accessToken', token);
+  localStorage.setItem("accessToken", token);
 };
 
 /**
  * Supprime le token d'accès du localStorage
  */
 export const removeAccessToken = (): void => {
-  localStorage.removeItem('accessToken');
+  localStorage.removeItem("accessToken");
 };
 
 /**
  * Stocke les informations utilisateur dans le localStorage
  */
 export const setUserData = (user: any): void => {
-  localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem("user", JSON.stringify(user));
 };
 
 /**
  * Récupère les informations utilisateur du localStorage
  */
 export const getUserData = (): any | null => {
-  const userData = localStorage.getItem('user');
+  const userData = localStorage.getItem("user");
   return userData ? JSON.parse(userData) : null;
 };
 
@@ -80,7 +84,7 @@ export const getUserData = (): any | null => {
  * Supprime les informations utilisateur du localStorage
  */
 export const removeUserData = (): void => {
-  localStorage.removeItem('user');
+  localStorage.removeItem("user");
 };
 
 /**
@@ -101,7 +105,7 @@ const refreshAccessToken = async (): Promise<string> => {
       {},
       {
         withCredentials: true, // Envoie le refresh token cookie
-      }
+      },
     );
 
     const { accessToken, user } = response.data.data;
@@ -116,8 +120,8 @@ const refreshAccessToken = async (): Promise<string> => {
     clearAuthData();
 
     // Rediriger vers la page de login
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login';
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
     }
 
     throw error;
@@ -140,7 +144,7 @@ apiClient.interceptors.request.use(
   },
   (error: AxiosError) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 /**
@@ -161,7 +165,7 @@ apiClient.interceptors.response.use(
       // Vérifier si c'est une erreur de token expiré
       const errorData = error.response.data as any;
 
-      if (errorData?.error === 'TOKEN_EXPIRED') {
+      if (errorData?.error === "TOKEN_EXPIRED") {
         if (isRefreshing) {
           // Si un refresh est déjà en cours, attendre qu'il se termine
           return new Promise((resolve) => {
@@ -195,7 +199,7 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 /**
@@ -211,7 +215,7 @@ export const handleApiError = (error: unknown): string => {
     return error.message;
   }
 
-  return 'An unexpected error occurred';
+  return "An unexpected error occurred";
 };
 
 /**

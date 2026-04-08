@@ -15,7 +15,7 @@
  * - Value can be JSON or plain text depending on statistic type
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   STATISTIC_TYPE_MAX_LENGTH,
   STATISTIC_TYPE_MIN_LENGTH,
@@ -27,11 +27,15 @@ import {
   STATISTICS_MAX_PAGE_SIZE,
   STATISTICS_MIN_PAGE_SIZE,
   STATISTICS_DEFAULT_PAGE,
-  VALID_SORT_ORDERS,
-  DEFAULT_SORT_ORDER,
+  STATISTICS_VALID_SORT_ORDERS,
+  STATISTICS_DEFAULT_SORT_ORDER,
   MAX_STATISTICS_DATE_RANGE_DAYS,
-} from '../../constants/statistics.constants.js';
-import { idSchema, idStringSchema, paginationSchema } from '../common/common.validators.js';
+} from "../../constants/statistics.constants.js";
+import {
+  idSchema,
+  idStringSchema,
+  paginationSchema,
+} from "../common/common.validators.js";
 
 // ============================================================================
 // BASE SCHEMAS
@@ -124,7 +128,9 @@ export const createStatisticWithJsonSchema = z.object({
 /**
  * Inferred TypeScript type for CreateStatisticWithJson
  */
-export type CreateStatisticWithJson = z.infer<typeof createStatisticWithJsonSchema>;
+export type CreateStatisticWithJson = z.infer<
+  typeof createStatisticWithJsonSchema
+>;
 
 // ============================================================================
 // UPDATE SCHEMA
@@ -160,13 +166,17 @@ export const listStatisticsSchema = paginationSchema
     cle: z.string().trim().optional(),
     date_debut: z.coerce.date().optional(),
     date_fin: z.coerce.date().optional(),
-    sort_by: z.enum(['date_stat', 'type', 'cle', 'created_at']).default('date_stat'),
-    sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+    sort_by: z
+      .enum(["date_stat", "type", "cle", "created_at"])
+      .default("date_stat"),
+    sort_order: z.enum(["asc", "desc"]).default(STATISTICS_DEFAULT_SORT_ORDER),
   })
   .refine(
     (data) => {
       if (data.date_debut && data.date_fin) {
-        const diffTime = Math.abs(data.date_fin.getTime() - data.date_debut.getTime());
+        const diffTime = Math.abs(
+          data.date_fin.getTime() - data.date_debut.getTime(),
+        );
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays <= MAX_STATISTICS_DATE_RANGE_DAYS;
       }
@@ -174,8 +184,8 @@ export const listStatisticsSchema = paginationSchema
     },
     {
       message: `La plage de dates ne peut pas dépasser ${MAX_STATISTICS_DATE_RANGE_DAYS} jours`,
-      path: ['date_fin'],
-    }
+      path: ["date_fin"],
+    },
   );
 
 /**
@@ -190,8 +200,8 @@ export const statisticsByTypeSchema = paginationSchema.extend({
   type: z.string().trim(),
   date_debut: z.coerce.date().optional(),
   date_fin: z.coerce.date().optional(),
-  sort_by: z.enum(['date_stat', 'cle']).default('date_stat'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z.enum(["date_stat", "cle"]).default("date_stat"),
+  sort_order: z.enum(["asc", "desc"]).default(STATISTICS_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -209,25 +219,29 @@ export const statisticsByDateRangeSchema = z
     type: z.string().trim().optional(),
   })
   .refine((data) => data.date_fin >= data.date_debut, {
-    message: 'La date de fin doit être supérieure ou égale à la date de début',
-    path: ['date_fin'],
+    message: "La date de fin doit être supérieure ou égale à la date de début",
+    path: ["date_fin"],
   })
   .refine(
     (data) => {
-      const diffTime = Math.abs(data.date_fin.getTime() - data.date_debut.getTime());
+      const diffTime = Math.abs(
+        data.date_fin.getTime() - data.date_debut.getTime(),
+      );
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       return diffDays <= MAX_STATISTICS_DATE_RANGE_DAYS;
     },
     {
       message: `La plage de dates ne peut pas dépasser ${MAX_STATISTICS_DATE_RANGE_DAYS} jours`,
-      path: ['date_fin'],
-    }
+      path: ["date_fin"],
+    },
   );
 
 /**
  * Inferred TypeScript type for StatisticsByDateRange query
  */
-export type StatisticsByDateRangeQuery = z.infer<typeof statisticsByDateRangeSchema>;
+export type StatisticsByDateRangeQuery = z.infer<
+  typeof statisticsByDateRangeSchema
+>;
 
 // ============================================================================
 // ID VALIDATION SCHEMAS
@@ -265,8 +279,10 @@ export type StatisticIdParam = z.infer<typeof statisticIdParamSchema>;
 export const bulkCreateStatisticsSchema = z.object({
   statistics: z
     .array(createStatisticSchema)
-    .min(1, { message: 'Au moins une statistique doit être fournie' })
-    .max(100, { message: 'Vous ne pouvez pas créer plus de 100 statistiques à la fois' }),
+    .min(1, { message: "Au moins une statistique doit être fournie" })
+    .max(100, {
+      message: "Vous ne pouvez pas créer plus de 100 statistiques à la fois",
+    }),
 });
 
 /**
@@ -280,8 +296,11 @@ export type BulkCreateStatistics = z.infer<typeof bulkCreateStatisticsSchema>;
 export const bulkDeleteStatisticsSchema = z.object({
   statistic_ids: z
     .array(idSchema)
-    .min(1, { message: 'Au moins une statistique doit être sélectionnée' })
-    .max(100, { message: 'Vous ne pouvez pas supprimer plus de 100 statistiques à la fois' }),
+    .min(1, { message: "Au moins une statistique doit être sélectionnée" })
+    .max(100, {
+      message:
+        "Vous ne pouvez pas supprimer plus de 100 statistiques à la fois",
+    }),
 });
 
 /**
@@ -319,7 +338,9 @@ export const statisticsListResponseSchema = z.object({
 /**
  * Inferred TypeScript type for StatisticsListResponse
  */
-export type StatisticsListResponse = z.infer<typeof statisticsListResponseSchema>;
+export type StatisticsListResponse = z.infer<
+  typeof statisticsListResponseSchema
+>;
 
 /**
  * Schema for statistics summary by type

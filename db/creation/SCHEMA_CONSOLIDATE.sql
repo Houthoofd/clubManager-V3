@@ -289,7 +289,56 @@ CREATE TABLE password_reset_attempts (
 COMMENT='Suivi des tentatives de réinitialisation (anti-bruteforce)';
 
 -- ------------------------------------------------------------
--- 2.5 auth_attempts - Tentatives d'authentification
+-- 2.5 refresh_tokens - Tokens de rafraîchissement JWT
+-- ------------------------------------------------------------
+CREATE TABLE refresh_tokens (
+    id INT UNSIGNED AUTO_INCREMENT,
+    utilisateur_id INT UNSIGNED NOT NULL,
+    token_hash VARCHAR(64) NOT NULL UNIQUE COMMENT 'SHA-256 hash du refresh token',
+    expires_at TIMESTAMP NOT NULL,
+    revoked BOOLEAN NOT NULL DEFAULT FALSE,
+    ip_address VARCHAR(45) NULL COMMENT 'IP de création du token',
+    user_agent TEXT NULL COMMENT 'Navigateur/device info',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+
+    CONSTRAINT fk_refresh_tokens_utilisateur
+        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+
+    INDEX idx_token_hash (token_hash),
+    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_expires_at (expires_at),
+    INDEX idx_revoked (revoked),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Refresh tokens JWT avec révocation et tracking';
+
+-- ------------------------------------------------------------
+-- 2.6 login_attempts - Logs des tentatives de connexion
+-- ------------------------------------------------------------
+CREATE TABLE login_attempts (
+    id INT UNSIGNED AUTO_INCREMENT,
+    email VARCHAR(255) NOT NULL,
+    ip_address VARCHAR(45) NOT NULL COMMENT 'Support IPv4 et IPv6',
+    success BOOLEAN NOT NULL,
+    user_agent TEXT NULL,
+    failure_reason VARCHAR(255) NULL COMMENT 'wrong_password, account_disabled, email_not_verified, etc.',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_email (email),
+    INDEX idx_ip_address (ip_address),
+    INDEX idx_success (success),
+    INDEX idx_created_at (created_at),
+    INDEX idx_email_ip (email, ip_address)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Logs des tentatives de connexion pour audit et sécurité';
+
+-- ------------------------------------------------------------
+-- 2.7 auth_attempts - Tentatives d'authentification
 -- ------------------------------------------------------------
 CREATE TABLE auth_attempts (
     id INT UNSIGNED AUTO_INCREMENT,
@@ -310,7 +359,7 @@ CREATE TABLE auth_attempts (
 COMMENT='Historique des tentatives d''authentification';
 
 -- ------------------------------------------------------------
--- 2.6 manual_recovery_requests - Demandes de récupération manuelle
+-- 2.8 manual_recovery_requests - Demandes de récupération manuelle
 -- ------------------------------------------------------------
 CREATE TABLE manual_recovery_requests (
     id INT UNSIGNED AUTO_INCREMENT,
@@ -329,7 +378,7 @@ CREATE TABLE manual_recovery_requests (
 COMMENT='Demandes de récupération manuelle de compte';
 
 -- ------------------------------------------------------------
--- 2.7 validation_tokens - Tokens de validation génériques
+-- 2.9 validation_tokens - Tokens de validation génériques
 -- ------------------------------------------------------------
 CREATE TABLE validation_tokens (
     id INT UNSIGNED AUTO_INCREMENT,

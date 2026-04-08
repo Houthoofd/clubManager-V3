@@ -74,11 +74,11 @@ export const GROUPS_DEFAULT_PAGE = 1;
 // ============================================================================
 
 /**
- * Valid sort orders
+ * Valid sort orders for groups queries
  */
-export const VALID_SORT_ORDERS = ['asc', 'desc'] as const;
+export const GROUPS_VALID_SORT_ORDERS = ["asc", "desc"] as const;
 
 /**
- * Default sort order
+ * Default sort order for groups queries
  */
-export const DEFAULT_SORT_ORDER = 'asc';
+export const GROUPS_DEFAULT_SORT_ORDER = "asc";

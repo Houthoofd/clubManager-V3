@@ -81,6 +81,27 @@ const SettingsPage = () => (
 );
 
 /**
+ * RootRedirect Component
+ * Redirects to login if not authenticated, otherwise to dashboard
+ */
+const RootRedirect = () => {
+  const { isAuthenticated, isLoading } = useAuthStore();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />;
+};
+
+/**
  * App Component
  */
 function App() {
@@ -98,8 +119,8 @@ function App() {
 
       <BrowserRouter>
         <Routes>
-          {/* Redirect root to dashboard or login */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Redirect root based on auth state */}
+          <Route path="/" element={<RootRedirect />} />
 
           {/* Public Routes */}
           <Route element={<PublicLayout />}>

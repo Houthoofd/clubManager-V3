@@ -14,7 +14,7 @@
  * - Used for club settings, contact info, hours, etc.
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   INFORMATION_KEY_MAX_LENGTH,
   INFORMATION_KEY_MIN_LENGTH,
@@ -25,10 +25,14 @@ import {
   STATISTICS_MAX_PAGE_SIZE,
   STATISTICS_MIN_PAGE_SIZE,
   STATISTICS_DEFAULT_PAGE,
-  VALID_SORT_ORDERS,
-  DEFAULT_SORT_ORDER,
-} from '../../constants/statistics.constants.js';
-import { idSchema, idStringSchema, paginationSchema } from '../common/common.validators.js';
+  STATISTICS_VALID_SORT_ORDERS,
+  STATISTICS_DEFAULT_SORT_ORDER,
+} from "../../constants/statistics.constants.js";
+import {
+  idSchema,
+  idStringSchema,
+  paginationSchema,
+} from "../common/common.validators.js";
 
 // ============================================================================
 // BASE SCHEMAS
@@ -132,8 +136,8 @@ export type UpdateInformation = z.infer<typeof updateInformationSchema>;
 export const listInformationsSchema = paginationSchema.extend({
   search: z.string().trim().optional(),
   cle: z.string().trim().optional(),
-  sort_by: z.enum(['cle', 'updated_at']).default('cle'),
-  sort_order: z.enum(['asc', 'desc']).default('asc'),
+  sort_by: z.enum(["cle", "updated_at"]).default("cle"),
+  sort_order: z.enum(["asc", "desc"]).default(STATISTICS_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -217,14 +221,19 @@ export type InformationKeyParam = z.infer<typeof informationKeyParamSchema>;
 export const bulkUpsertInformationsSchema = z.object({
   informations: z
     .array(createInformationSchema)
-    .min(1, { message: 'Au moins une information doit être fournie' })
-    .max(50, { message: 'Vous ne pouvez pas créer/modifier plus de 50 informations à la fois' }),
+    .min(1, { message: "Au moins une information doit être fournie" })
+    .max(50, {
+      message:
+        "Vous ne pouvez pas créer/modifier plus de 50 informations à la fois",
+    }),
 });
 
 /**
  * Inferred TypeScript type for BulkUpsertInformations
  */
-export type BulkUpsertInformations = z.infer<typeof bulkUpsertInformationsSchema>;
+export type BulkUpsertInformations = z.infer<
+  typeof bulkUpsertInformationsSchema
+>;
 
 /**
  * Schema for bulk deleting information entries
@@ -232,14 +241,18 @@ export type BulkUpsertInformations = z.infer<typeof bulkUpsertInformationsSchema
 export const bulkDeleteInformationsSchema = z.object({
   information_ids: z
     .array(idSchema)
-    .min(1, { message: 'Au moins une information doit être sélectionnée' })
-    .max(50, { message: 'Vous ne pouvez pas supprimer plus de 50 informations à la fois' }),
+    .min(1, { message: "Au moins une information doit être sélectionnée" })
+    .max(50, {
+      message: "Vous ne pouvez pas supprimer plus de 50 informations à la fois",
+    }),
 });
 
 /**
  * Inferred TypeScript type for BulkDeleteInformations
  */
-export type BulkDeleteInformations = z.infer<typeof bulkDeleteInformationsSchema>;
+export type BulkDeleteInformations = z.infer<
+  typeof bulkDeleteInformationsSchema
+>;
 
 // ============================================================================
 // RESPONSE SCHEMAS
@@ -271,7 +284,9 @@ export const informationsListResponseSchema = z.object({
 /**
  * Inferred TypeScript type for InformationsListResponse
  */
-export type InformationsListResponse = z.infer<typeof informationsListResponseSchema>;
+export type InformationsListResponse = z.infer<
+  typeof informationsListResponseSchema
+>;
 
 /**
  * Schema for information statistics

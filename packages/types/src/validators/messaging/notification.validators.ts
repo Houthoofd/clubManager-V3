@@ -15,7 +15,7 @@
  * - Notifications are read-only after creation (except marking as read)
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   NOTIFICATION_TITLE_MAX_LENGTH,
   NOTIFICATION_TITLE_MIN_LENGTH,
@@ -25,11 +25,18 @@ import {
   MESSAGING_MAX_PAGE_SIZE,
   MESSAGING_MIN_PAGE_SIZE,
   MESSAGING_DEFAULT_PAGE,
-  VALID_SORT_ORDERS,
-  DEFAULT_SORT_ORDER,
-} from '../../constants/messaging.constants.js';
-import { NotificationType, NOTIFICATION_TYPES } from '../../enums/messaging.enums.js';
-import { idSchema, idStringSchema, paginationSchema } from '../common/common.validators.js';
+  MESSAGING_VALID_SORT_ORDERS,
+  MESSAGING_DEFAULT_SORT_ORDER,
+} from "../../constants/messaging.constants.js";
+import {
+  NotificationType,
+  NOTIFICATION_TYPES,
+} from "../../enums/messaging.enums.js";
+import {
+  idSchema,
+  idStringSchema,
+  paginationSchema,
+} from "../common/common.validators.js";
 
 // ============================================================================
 // BASE SCHEMAS
@@ -39,11 +46,14 @@ import { idSchema, idStringSchema, paginationSchema } from '../common/common.val
  * Schema for notification type validation
  * DB: notifications.type ENUM('info', 'warning', 'error', 'success')
  */
-export const notificationTypeSchema = z.enum(['info', 'warning', 'error', 'success'], {
-  errorMap: () => ({
-    message: `Le type de notification doit être l'un des suivants: ${NOTIFICATION_TYPES.join(', ')}`,
-  }),
-});
+export const notificationTypeSchema = z.enum(
+  ["info", "warning", "error", "success"],
+  {
+    errorMap: () => ({
+      message: `Le type de notification doit être l'un des suivants: ${NOTIFICATION_TYPES.join(", ")}`,
+    }),
+  },
+);
 
 /**
  * Base notification schema with all fields
@@ -129,14 +139,14 @@ export const listNotificationsSchema = paginationSchema.extend({
   type: notificationTypeSchema.optional(),
   lu: z
     .string()
-    .transform((val) => val === 'true' || val === '1')
+    .transform((val) => val === "true" || val === "1")
     .pipe(z.boolean())
     .optional(),
   date_debut: z.coerce.date().optional(),
   date_fin: z.coerce.date().optional(),
   search: z.string().trim().optional(),
-  sort_by: z.enum(['created_at', 'type', 'titre']).default('created_at'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z.enum(["created_at", "type", "titre"]).default("created_at"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -151,11 +161,11 @@ export const userNotificationsSchema = paginationSchema.extend({
   type: notificationTypeSchema.optional(),
   lu: z
     .string()
-    .transform((val) => val === 'true' || val === '1')
+    .transform((val) => val === "true" || val === "1")
     .pipe(z.boolean())
     .optional(),
-  sort_by: z.enum(['created_at']).default('created_at'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z.enum(["created_at"]).default("created_at"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -199,14 +209,18 @@ export type NotificationIdParam = z.infer<typeof notificationIdParamSchema>;
 export const bulkMarkReadNotificationsSchema = z.object({
   notification_ids: z
     .array(idSchema)
-    .min(1, { message: 'Au moins une notification doit être sélectionnée' })
-    .max(100, { message: 'Vous ne pouvez pas marquer plus de 100 notifications à la fois' }),
+    .min(1, { message: "Au moins une notification doit être sélectionnée" })
+    .max(100, {
+      message: "Vous ne pouvez pas marquer plus de 100 notifications à la fois",
+    }),
 });
 
 /**
  * Inferred TypeScript type for BulkMarkReadNotifications
  */
-export type BulkMarkReadNotifications = z.infer<typeof bulkMarkReadNotificationsSchema>;
+export type BulkMarkReadNotifications = z.infer<
+  typeof bulkMarkReadNotificationsSchema
+>;
 
 /**
  * Schema for deleting multiple notifications
@@ -214,14 +228,19 @@ export type BulkMarkReadNotifications = z.infer<typeof bulkMarkReadNotifications
 export const bulkDeleteNotificationsSchema = z.object({
   notification_ids: z
     .array(idSchema)
-    .min(1, { message: 'Au moins une notification doit être sélectionnée' })
-    .max(100, { message: 'Vous ne pouvez pas supprimer plus de 100 notifications à la fois' }),
+    .min(1, { message: "Au moins une notification doit être sélectionnée" })
+    .max(100, {
+      message:
+        "Vous ne pouvez pas supprimer plus de 100 notifications à la fois",
+    }),
 });
 
 /**
  * Inferred TypeScript type for BulkDeleteNotifications
  */
-export type BulkDeleteNotifications = z.infer<typeof bulkDeleteNotificationsSchema>;
+export type BulkDeleteNotifications = z.infer<
+  typeof bulkDeleteNotificationsSchema
+>;
 
 /**
  * Schema for marking all user notifications as read
@@ -266,7 +285,9 @@ export const notificationsListResponseSchema = z.object({
 /**
  * Inferred TypeScript type for NotificationsListResponse
  */
-export type NotificationsListResponse = z.infer<typeof notificationsListResponseSchema>;
+export type NotificationsListResponse = z.infer<
+  typeof notificationsListResponseSchema
+>;
 
 /**
  * Schema for notification statistics

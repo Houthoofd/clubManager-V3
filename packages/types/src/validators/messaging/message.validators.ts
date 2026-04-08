@@ -15,7 +15,7 @@
  * - date_lecture is set when lu becomes true
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   MESSAGE_SUBJECT_MAX_LENGTH,
   MESSAGE_SUBJECT_MIN_LENGTH,
@@ -25,10 +25,14 @@ import {
   MESSAGING_MAX_PAGE_SIZE,
   MESSAGING_MIN_PAGE_SIZE,
   MESSAGING_DEFAULT_PAGE,
-  VALID_SORT_ORDERS,
-  DEFAULT_SORT_ORDER,
-} from '../../constants/messaging.constants.js';
-import { idSchema, idStringSchema, paginationSchema } from '../common/common.validators.js';
+  MESSAGING_VALID_SORT_ORDERS,
+  MESSAGING_DEFAULT_SORT_ORDER,
+} from "../../constants/messaging.constants.js";
+import {
+  idSchema,
+  idStringSchema,
+  paginationSchema,
+} from "../common/common.validators.js";
 
 // ============================================================================
 // BASE SCHEMAS
@@ -89,7 +93,7 @@ export const createMessageSchema = messageBaseSchema
   })
   .refine((data) => data.expediteur_id !== data.destinataire_id, {
     message: "L'expéditeur et le destinataire doivent être différents",
-    path: ['destinataire_id'],
+    path: ["destinataire_id"],
   });
 
 /**
@@ -127,14 +131,16 @@ export const listMessagesSchema = paginationSchema.extend({
   destinataire_id: idSchema.optional(),
   lu: z
     .string()
-    .transform((val) => val === 'true' || val === '1')
+    .transform((val) => val === "true" || val === "1")
     .pipe(z.boolean())
     .optional(),
   sujet: z.string().trim().optional(),
   date_debut: z.coerce.date().optional(),
   date_fin: z.coerce.date().optional(),
-  sort_by: z.enum(['created_at', 'date_lecture', 'sujet']).default('created_at'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z
+    .enum(["created_at", "date_lecture", "sujet"])
+    .default("created_at"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -148,12 +154,12 @@ export type ListMessagesQuery = z.infer<typeof listMessagesSchema>;
 export const messageInboxSchema = paginationSchema.extend({
   lu: z
     .string()
-    .transform((val) => val === 'true' || val === '1')
+    .transform((val) => val === "true" || val === "1")
     .pipe(z.boolean())
     .optional(),
   expediteur_id: idSchema.optional(),
-  sort_by: z.enum(['created_at', 'date_lecture']).default('created_at'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z.enum(["created_at", "date_lecture"]).default("created_at"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -166,8 +172,8 @@ export type MessageInboxQuery = z.infer<typeof messageInboxSchema>;
  */
 export const messageOutboxSchema = paginationSchema.extend({
   destinataire_id: idSchema.optional(),
-  sort_by: z.enum(['created_at']).default('created_at'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z.enum(["created_at"]).default("created_at"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -211,8 +217,10 @@ export type MessageIdParam = z.infer<typeof messageIdParamSchema>;
 export const bulkMarkReadSchema = z.object({
   message_ids: z
     .array(idSchema)
-    .min(1, { message: 'Au moins un message doit être sélectionné' })
-    .max(100, { message: 'Vous ne pouvez pas marquer plus de 100 messages à la fois' }),
+    .min(1, { message: "Au moins un message doit être sélectionné" })
+    .max(100, {
+      message: "Vous ne pouvez pas marquer plus de 100 messages à la fois",
+    }),
 });
 
 /**
@@ -226,8 +234,10 @@ export type BulkMarkRead = z.infer<typeof bulkMarkReadSchema>;
 export const bulkDeleteMessagesSchema = z.object({
   message_ids: z
     .array(idSchema)
-    .min(1, { message: 'Au moins un message doit être sélectionné' })
-    .max(100, { message: 'Vous ne pouvez pas supprimer plus de 100 messages à la fois' }),
+    .min(1, { message: "Au moins un message doit être sélectionné" })
+    .max(100, {
+      message: "Vous ne pouvez pas supprimer plus de 100 messages à la fois",
+    }),
 });
 
 /**

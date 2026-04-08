@@ -4,7 +4,7 @@
  * Utilise bcrypt pour le hashing sécurisé
  */
 
-import bcrypt from 'bcrypt';
+import bcrypt from "bcryptjs";
 
 export class PasswordService {
   private static readonly SALT_ROUNDS = 12;
@@ -18,22 +18,26 @@ export class PasswordService {
    */
   static async hash(password: string): Promise<string> {
     if (!password) {
-      throw new Error('Password is required');
+      throw new Error("Password is required");
     }
 
     if (password.length < this.MIN_PASSWORD_LENGTH) {
-      throw new Error(`Password must be at least ${this.MIN_PASSWORD_LENGTH} characters long`);
+      throw new Error(
+        `Password must be at least ${this.MIN_PASSWORD_LENGTH} characters long`,
+      );
     }
 
     if (password.length > this.MAX_PASSWORD_LENGTH) {
-      throw new Error(`Password must not exceed ${this.MAX_PASSWORD_LENGTH} characters`);
+      throw new Error(
+        `Password must not exceed ${this.MAX_PASSWORD_LENGTH} characters`,
+      );
     }
 
     try {
       const hash = await bcrypt.hash(password, this.SALT_ROUNDS);
       return hash;
     } catch (error) {
-      throw new Error('Failed to hash password');
+      throw new Error("Failed to hash password");
     }
   }
 
@@ -68,37 +72,41 @@ export class PasswordService {
     const errors: string[] = [];
 
     if (!password) {
-      errors.push('Password is required');
+      errors.push("Password is required");
       return { isValid: false, errors };
     }
 
     // Longueur
     if (password.length < this.MIN_PASSWORD_LENGTH) {
-      errors.push(`Password must be at least ${this.MIN_PASSWORD_LENGTH} characters long`);
+      errors.push(
+        `Password must be at least ${this.MIN_PASSWORD_LENGTH} characters long`,
+      );
     }
 
     if (password.length > this.MAX_PASSWORD_LENGTH) {
-      errors.push(`Password must not exceed ${this.MAX_PASSWORD_LENGTH} characters`);
+      errors.push(
+        `Password must not exceed ${this.MAX_PASSWORD_LENGTH} characters`,
+      );
     }
 
     // Au moins une lettre majuscule
     if (!/[A-Z]/.test(password)) {
-      errors.push('Password must contain at least one uppercase letter');
+      errors.push("Password must contain at least one uppercase letter");
     }
 
     // Au moins une lettre minuscule
     if (!/[a-z]/.test(password)) {
-      errors.push('Password must contain at least one lowercase letter');
+      errors.push("Password must contain at least one lowercase letter");
     }
 
     // Au moins un chiffre
     if (!/\d/.test(password)) {
-      errors.push('Password must contain at least one number');
+      errors.push("Password must contain at least one number");
     }
 
     // Au moins un caractère spécial
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-      errors.push('Password must contain at least one special character');
+      errors.push("Password must contain at least one special character");
     }
 
     return {
@@ -113,13 +121,13 @@ export class PasswordService {
    * @returns string - Mot de passe généré
    */
   static generateSecurePassword(length: number = 16): string {
-    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-    const numbers = '0123456789';
-    const special = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    const numbers = "0123456789";
+    const special = "!@#$%^&*()_+-=[]{}|;:,.<>?";
     const allChars = uppercase + lowercase + numbers + special;
 
-    let password = '';
+    let password = "";
 
     // Garantir au moins un caractère de chaque type
     password += uppercase[Math.floor(Math.random() * uppercase.length)];
@@ -134,8 +142,8 @@ export class PasswordService {
 
     // Mélanger les caractères
     return password
-      .split('')
+      .split("")
       .sort(() => Math.random() - 0.5)
-      .join('');
+      .join("");
   }
 }

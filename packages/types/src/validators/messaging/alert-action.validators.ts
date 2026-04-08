@@ -16,7 +16,7 @@
  * - Alert actions are immutable (no updates, only creates)
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   ALERT_ACTION_DESCRIPTION_MAX_LENGTH,
   ALERT_ACTION_DESCRIPTION_MIN_LENGTH,
@@ -24,11 +24,18 @@ import {
   MESSAGING_MAX_PAGE_SIZE,
   MESSAGING_MIN_PAGE_SIZE,
   MESSAGING_DEFAULT_PAGE,
-  VALID_SORT_ORDERS,
-  DEFAULT_SORT_ORDER,
-} from '../../constants/messaging.constants.js';
-import { AlertActionType, ALERT_ACTION_TYPES } from '../../enums/messaging.enums.js';
-import { idSchema, idStringSchema, paginationSchema } from '../common/common.validators.js';
+  MESSAGING_VALID_SORT_ORDERS,
+  MESSAGING_DEFAULT_SORT_ORDER,
+} from "../../constants/messaging.constants.js";
+import {
+  AlertActionType,
+  ALERT_ACTION_TYPES,
+} from "../../enums/messaging.enums.js";
+import {
+  idSchema,
+  idStringSchema,
+  paginationSchema,
+} from "../common/common.validators.js";
 
 // ============================================================================
 // BASE SCHEMAS
@@ -40,12 +47,18 @@ import { idSchema, idStringSchema, paginationSchema } from '../common/common.val
  *     'paiement_recu', 'statut_change', 'autre')
  */
 export const alertActionTypeSchema = z.enum(
-  ['message_envoye', 'information_mise_a_jour', 'paiement_recu', 'statut_change', 'autre'],
+  [
+    "message_envoye",
+    "information_mise_a_jour",
+    "paiement_recu",
+    "statut_change",
+    "autre",
+  ],
   {
     errorMap: () => ({
-      message: `Le type d'action doit être l'un des suivants: ${ALERT_ACTION_TYPES.join(', ')}`,
+      message: `Le type d'action doit être l'un des suivants: ${ALERT_ACTION_TYPES.join(", ")}`,
     }),
-  }
+  },
 );
 
 /**
@@ -109,8 +122,8 @@ export const listAlertActionsSchema = paginationSchema.extend({
   effectue_par: idSchema.optional(),
   date_debut: z.coerce.date().optional(),
   date_fin: z.coerce.date().optional(),
-  sort_by: z.enum(['date_action', 'action_type']).default('date_action'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z.enum(["date_action", "action_type"]).default("date_action"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -130,7 +143,7 @@ export const alertHistorySchema = z.object({
     .min(MESSAGING_MIN_PAGE_SIZE)
     .max(MESSAGING_MAX_PAGE_SIZE)
     .default(MESSAGING_DEFAULT_PAGE_SIZE),
-  sort_order: z.enum(['asc', 'desc']).default('asc'),
+  sort_order: z.enum(["asc", "desc"]).default("asc"),
 });
 
 /**
@@ -161,8 +174,8 @@ export const actionsByUserSchema = paginationSchema.extend({
   action_type: alertActionTypeSchema.optional(),
   date_debut: z.coerce.date().optional(),
   date_fin: z.coerce.date().optional(),
-  sort_by: z.enum(['date_action']).default('date_action'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z.enum(["date_action"]).default("date_action"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -238,7 +251,9 @@ export const alertActionsListResponseSchema = z.object({
 /**
  * Inferred TypeScript type for AlertActionsListResponse
  */
-export type AlertActionsListResponse = z.infer<typeof alertActionsListResponseSchema>;
+export type AlertActionsListResponse = z.infer<
+  typeof alertActionsListResponseSchema
+>;
 
 /**
  * Schema for alert action statistics

@@ -16,7 +16,7 @@
  * - Used for automated email/SMS sending
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   CUSTOM_MESSAGE_TITLE_MAX_LENGTH,
   CUSTOM_MESSAGE_TITLE_MIN_LENGTH,
@@ -26,10 +26,14 @@ import {
   MESSAGING_MAX_PAGE_SIZE,
   MESSAGING_MIN_PAGE_SIZE,
   MESSAGING_DEFAULT_PAGE,
-  VALID_SORT_ORDERS,
-  DEFAULT_SORT_ORDER,
-} from '../../constants/messaging.constants.js';
-import { idSchema, idStringSchema, paginationSchema } from '../common/common.validators.js';
+  MESSAGING_VALID_SORT_ORDERS,
+  MESSAGING_DEFAULT_SORT_ORDER,
+} from "../../constants/messaging.constants.js";
+import {
+  idSchema,
+  idStringSchema,
+  paginationSchema,
+} from "../common/common.validators.js";
 
 // ============================================================================
 // BASE SCHEMAS
@@ -123,14 +127,16 @@ export const listCustomMessagesSchema = paginationSchema.extend({
   type_id: idSchema.optional(),
   actif: z
     .string()
-    .transform((val) => val === 'true' || val === '1')
+    .transform((val) => val === "true" || val === "1")
     .pipe(z.boolean())
     .optional(),
   search: z.string().trim().optional(),
   date_debut: z.coerce.date().optional(),
   date_fin: z.coerce.date().optional(),
-  sort_by: z.enum(['created_at', 'updated_at', 'titre', 'actif']).default('created_at'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z
+    .enum(["created_at", "updated_at", "titre", "actif"])
+    .default("created_at"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
@@ -143,28 +149,32 @@ export type ListCustomMessagesQuery = z.infer<typeof listCustomMessagesSchema>;
  */
 export const activeCustomMessagesByTypeSchema = z.object({
   type_id: idSchema,
-  sort_by: z.enum(['created_at', 'titre']).default('titre'),
-  sort_order: z.enum(['asc', 'desc']).default('asc'),
+  sort_by: z.enum(["created_at", "titre"]).default("titre"),
+  sort_order: z.enum(["asc", "desc"]).default("asc"),
 });
 
 /**
  * Inferred TypeScript type for ActiveCustomMessagesByType query
  */
-export type ActiveCustomMessagesByTypeQuery = z.infer<typeof activeCustomMessagesByTypeSchema>;
+export type ActiveCustomMessagesByTypeQuery = z.infer<
+  typeof activeCustomMessagesByTypeSchema
+>;
 
 /**
  * Schema for getting all active custom messages
  */
 export const activeCustomMessagesSchema = paginationSchema.extend({
   type_id: idSchema.optional(),
-  sort_by: z.enum(['created_at', 'titre']).default('titre'),
-  sort_order: z.enum(['asc', 'desc']).default('asc'),
+  sort_by: z.enum(["created_at", "titre"]).default("titre"),
+  sort_order: z.enum(["asc", "desc"]).default("asc"),
 });
 
 /**
  * Inferred TypeScript type for ActiveCustomMessages query
  */
-export type ActiveCustomMessagesQuery = z.infer<typeof activeCustomMessagesSchema>;
+export type ActiveCustomMessagesQuery = z.infer<
+  typeof activeCustomMessagesSchema
+>;
 
 // ============================================================================
 // ID VALIDATION SCHEMAS
@@ -218,7 +228,9 @@ export const deactivateCustomMessageSchema = z.object({
 /**
  * Inferred TypeScript type for DeactivateCustomMessage
  */
-export type DeactivateCustomMessage = z.infer<typeof deactivateCustomMessageSchema>;
+export type DeactivateCustomMessage = z.infer<
+  typeof deactivateCustomMessageSchema
+>;
 
 /**
  * Schema for bulk activation/deactivation
@@ -226,15 +238,19 @@ export type DeactivateCustomMessage = z.infer<typeof deactivateCustomMessageSche
 export const bulkToggleCustomMessagesSchema = z.object({
   message_ids: z
     .array(idSchema)
-    .min(1, { message: 'Au moins un message doit être sélectionné' })
-    .max(50, { message: 'Vous ne pouvez pas modifier plus de 50 messages à la fois' }),
+    .min(1, { message: "Au moins un message doit être sélectionné" })
+    .max(50, {
+      message: "Vous ne pouvez pas modifier plus de 50 messages à la fois",
+    }),
   actif: z.boolean(),
 });
 
 /**
  * Inferred TypeScript type for BulkToggleCustomMessages
  */
-export type BulkToggleCustomMessages = z.infer<typeof bulkToggleCustomMessagesSchema>;
+export type BulkToggleCustomMessages = z.infer<
+  typeof bulkToggleCustomMessagesSchema
+>;
 
 // ============================================================================
 // TEMPLATE VARIABLE SCHEMAS
@@ -311,7 +327,9 @@ export const customMessagesListResponseSchema = z.object({
 /**
  * Inferred TypeScript type for CustomMessagesListResponse
  */
-export type CustomMessagesListResponse = z.infer<typeof customMessagesListResponseSchema>;
+export type CustomMessagesListResponse = z.infer<
+  typeof customMessagesListResponseSchema
+>;
 
 /**
  * Schema for custom message statistics
