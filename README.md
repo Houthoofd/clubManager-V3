@@ -30,35 +30,42 @@
 - Soft Delete + Anonymisation RGPD
 - Gestion des grades (ceintures)
 
-### 2. 📅 Planning & Cours
+### 2. 👨‍👩‍👧‍👦 Gestion des Familles
+- Création de comptes enfants sans email ni mot de passe
+- Groupes familiaux avec rôles (parent, tuteur, enfant, conjoint)
+- Chaque membre reçoit son propre `userId` unique
+- Le parent gère inscriptions, paiements et suivi de ses enfants
+- Connexion directe bloquée pour les comptes enfants (sécurité)
+
+### 3. 📅 Planning & Cours
 - Cours récurrents automatiques
 - Réservations en ligne
 - Gestion multi-professeurs
 - Suivi des présences
 
-### 3. 💰 Paiements & Abonnements
+### 4. 💰 Paiements & Abonnements
 - Intégration Stripe
 - Plans tarifaires flexibles
 - Échéances automatiques
 - Historique complet
 
-### 4. 🛒 Boutique E-commerce
+### 5. 🛒 Boutique E-commerce
 - Catalogue articles (kimonos, ceintures)
 - Gestion stocks par taille
 - Panier et commandes
 - Inventaire temps réel
 
-### 5. 💬 Messagerie
+### 6. 💬 Messagerie
 - Messages internes
 - Templates personnalisés
 - Notifications multi-canal
 
-### 6. 🔔 Alertes Intelligentes
+### 7. 🔔 Alertes Intelligentes
 - Détection proactive
 - Prioritisation (basse → critique)
 - Actions traçables
 
-### 7. 📊 Statistiques & Analytics
+### 8. 📊 Statistiques & Analytics
 - Tableaux de bord
 - Rapports personnalisables
 - Métriques en temps réel
@@ -74,6 +81,7 @@ clubManager-V3/
 │   │   ├── modules/           # Modules fonctionnels
 │   │   │   ├── auth/          # Authentification
 │   │   │   ├── users/         # Gestion utilisateurs
+│   │   │   ├── families/      # Gestion des familles ← nouveau
 │   │   │   ├── payments/      # Paiements Stripe
 │   │   │   ├── courses/       # Cours & planning
 │   │   │   ├── store/         # E-commerce
@@ -191,12 +199,12 @@ Le serveur démarre sur `http://localhost:3000` 🎉
 ### Base de Données
 
 - **MySQL 8.0+** / **MariaDB 10.6+**
-- **39 tables** organisées en 9 domaines
+- **43 tables** organisées en 10 domaines (dont `familles` + `membres_famille`)
 - **45 Foreign Keys** (intégrité référentielle)
-- **~154 Index** (performance optimisée)
-- **17 CHECK constraints** (validation métier)
+- **~162 Index** (performance optimisée)
+- **13 CHECK constraints** (validation métier)
 - **10 Procédures stockées** + **4 Triggers**
-- **Score sécurité : 9.6/10** (RGPD v4.1)
+- **Score sécurité : 9.6/10** (RGPD v4.3)
 
 ---
 
@@ -385,15 +393,17 @@ Fichier `docker-compose.yml` inclut :
 
 ### ✅ Phase 1 : Avril 2025 (TERMINÉ)
 - [x] Architecture projet
-- [x] Base de données v4.2
+- [x] Base de données v4.3
 - [x] Module Auth
 - [x] Module Users
 - [x] Module Payments
+- [x] Module Families (V1 — comptes enfants + groupes familiaux)
 
 ### 🚧 Phase 2 : Mai 2025 (EN COURS)
 - [ ] Module Courses
 - [ ] Module Store
 - [ ] Tests complets (70%+)
+- [ ] Module Families V2 — niveaux d'accès (lecture seule pour ados)
 
 ### 📅 Phase 3 : Juin 2025
 - [ ] Module Messaging
@@ -462,6 +472,7 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 ## 📚 Documentation Additionnelle
 
 - [📖 Architecture détaillée](./docs/ARCHITECTURE.md) _(à venir)_
+- [👨‍👩‍👧‍👦 Système Familles — V1 & Roadmap V2](./docs/FAMILY_SYSTEM.md)
 - [🗃️ Documentation Base de données](./db/README.md)
 - [🔒 Guide Sécurité](./db/SECURITY_V4.0.md)
 - [🧪 Guide Tests](./docs/TESTING.md) _(à venir)_
