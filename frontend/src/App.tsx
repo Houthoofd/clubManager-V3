@@ -31,6 +31,7 @@ import { EmailVerificationPage } from "./features/auth/pages/EmailVerificationPa
 import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 import { FamilyPage } from "./features/families/pages";
+import { UsersPage } from "./features/users/pages";
 
 // Dashboard (placeholder)
 const DashboardPage = () => (
@@ -47,12 +48,6 @@ const DashboardPage = () => (
 const CoursesPage = () => (
   <div className="bg-white rounded-lg shadow p-6">
     <h1 className="text-2xl font-bold text-gray-900">Courses</h1>
-  </div>
-);
-
-const UsersPage = () => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <h1 className="text-2xl font-bold text-gray-900">Users</h1>
   </div>
 );
 

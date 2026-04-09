@@ -18,6 +18,7 @@ import dotenv from "dotenv";
 // Import routes
 import authRoutes from "./modules/auth/presentation/routes/authRoutes.js";
 import familyRoutes from "./modules/families/presentation/routes/familyRoutes.js";
+import userRoutes from "./modules/users/presentation/routes/userRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -86,10 +87,10 @@ const createApp = (): Express => {
   // Mount auth routes
   app.use("/api/auth", authRoutes);
   app.use("/api/families", familyRoutes);
+  app.use("/api/users", userRoutes);
 
   // TODO: Mount other module routes
   // app.use("/api/courses", courseRoutes);
-  // app.use("/api/users", userRoutes);
   // app.use("/api/payments", paymentRoutes);
   // app.use("/api/store", storeRoutes);
 
