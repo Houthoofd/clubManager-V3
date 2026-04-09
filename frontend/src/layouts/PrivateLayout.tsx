@@ -39,6 +39,11 @@ export const PrivateLayout: React.FC = () => {
       icon: "●",
     },
     {
+      name: "Ma famille",
+      path: "/family",
+      icon: "👨‍👩‍👧",
+    },
+    {
       name: "Payments",
       path: "/payments",
       icon: "▲",

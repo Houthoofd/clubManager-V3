@@ -28,6 +28,7 @@ import { RegisterPage } from "./features/auth/pages/RegisterPage";
 import { EmailVerificationPage } from "./features/auth/pages/EmailVerificationPage";
 import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
+import { FamilyPage } from "./features/families/pages";
 
 // Dashboard (placeholder)
 const DashboardPage = () => (
@@ -208,6 +209,7 @@ function App() {
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/statistics" element={<StatisticsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/family" element={<FamilyPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
 

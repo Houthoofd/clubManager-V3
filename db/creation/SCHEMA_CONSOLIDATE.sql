@@ -1,8 +1,8 @@
 -- ============================================================
 -- CLUBMANAGER - SCHÉMA BASE DE DONNÉES v4.1
 -- ============================================================
--- Version: 4.1 (RGPD + Soft Delete)
--- Date: 2025-01-25
+-- Version: 4.3 (Gestion des familles)
+-- Date: 2025-01-26
 -- Author: Benoit Houthoofd
 -- Database: MySQL 8.0+ / MariaDB 10.6+
 -- Encoding: UTF8MB4
@@ -20,10 +20,17 @@
 --   - Validation email et tokens SHA-256
 --   - Index stratégiques optimisés
 --
--- Tables: 39 tables
--- Foreign Keys: 43
--- Indexes: ~154
--- CHECK Constraints: 13
+-- Nouveautés v4.3:
+--   - Système de gestion des familles (tables familles + membres_famille)
+--   - email / password / nom_utilisateur rendus nullables (comptes enfants)
+--   - Nouvelle colonne tuteur_id dans utilisateurs (FK auto-référente)
+--   - Nouvelles colonnes est_mineur et peut_se_connecter
+--   - Contrainte CHECK email mise à jour (accepte NULL)
+--
+-- Tables: 43 tables (41 existantes + 2 : familles, membres_famille)
+-- Foreign Keys: 45 (+2 : fk_mf_famille, fk_mf_user, fk_utilisateurs_tuteur)
+-- Indexes: ~162 (+8)
+-- CHECK Constraints: 13 (chk_utilisateurs_email mis à jour)
 -- ============================================================
 
 -- Suppression et création de la base de données
@@ -144,9 +151,12 @@ CREATE TABLE utilisateurs (
     userId VARCHAR(20) NOT NULL UNIQUE COMMENT 'Format: U-YYYY-XXXX',
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
-    nom_utilisateur VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL COMMENT 'Hash bcrypt ou argon2',
+    nom_utilisateur VARCHAR(50) NULL
+                        COMMENT 'NULL pour les comptes enfants gérés par un tuteur',
+    email VARCHAR(255) NULL
+              COMMENT 'NULL autorisé pour les comptes enfants gérés par un tuteur',
+    password VARCHAR(255) NULL
+                 COMMENT 'Hash bcrypt ou argon2 — NULL pour les comptes gérés (mineurs)',
     date_of_birth DATE NULL,
     telephone VARCHAR(20) NULL,
     adresse TEXT NULL,
@@ -156,6 +166,14 @@ CREATE TABLE utilisateurs (
     grade_id INT UNSIGNED NULL,
     abonnement_id INT UNSIGNED NULL COMMENT 'Plan tarifaire actuel',
     status_id INT UNSIGNED NULL,
+
+    -- Gestion familiale v4.3
+    tuteur_id INT UNSIGNED NULL
+                  COMMENT 'Référence au parent/tuteur légal gérant ce compte (NULL si compte autonome)',
+    est_mineur BOOLEAN NOT NULL DEFAULT FALSE
+                   COMMENT 'TRUE si ce membre est un enfant mineur géré par un tuteur légal',
+    peut_se_connecter BOOLEAN NOT NULL DEFAULT TRUE
+                          COMMENT 'FALSE pour les comptes enfants gérés exclusivement par le tuteur',
 
     -- Statut compte
     active BOOLEAN NOT NULL DEFAULT TRUE,
@@ -192,6 +210,9 @@ CREATE TABLE utilisateurs (
     CONSTRAINT fk_utilisateurs_deleted_by
         FOREIGN KEY (deleted_by) REFERENCES utilisateurs(id)
         ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT fk_utilisateurs_tuteur
+        FOREIGN KEY (tuteur_id) REFERENCES utilisateurs(id)
+        ON DELETE SET NULL ON UPDATE CASCADE,
 
     -- Indexes stratégiques
     INDEX idx_userId (userId),
@@ -207,16 +228,22 @@ CREATE TABLE utilisateurs (
     INDEX idx_grade_id (grade_id),
     INDEX idx_abonnement_id (abonnement_id),
     INDEX idx_status_id (status_id),
-    INDEX idx_date_inscription (date_inscription),
+    INDEX idx_date_inscription   (date_inscription),
     INDEX idx_derniere_connexion (derniere_connexion),
+    INDEX idx_tuteur_id          (tuteur_id),
+    INDEX idx_est_mineur         (est_mineur),
+    INDEX idx_peut_se_connecter  (peut_se_connecter),
 
-    -- CHECK constraints v4.1
+    -- CHECK constraints v4.3
     CONSTRAINT chk_utilisateurs_email
-        CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'),
+        CHECK (
+            email IS NULL
+            OR email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'
+        ),
     CONSTRAINT chk_utilisateurs_userId
         CHECK (userId REGEXP '^U-[0-9]{4}-[0-9]{4}$')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Utilisateurs avec soft delete et conformité RGPD v4.1';
+COMMENT='Utilisateurs avec soft delete, conformité RGPD et gestion familiale v4.3';
 
 -- ------------------------------------------------------------
 -- 2.2 email_validation_tokens - Tokens de validation email
@@ -1149,14 +1176,80 @@ CREATE TABLE informations (
 COMMENT='Informations et paramètres système';
 
 -- ============================================================
--- FIN DU SCHÉMA v4.1
+-- 10. TABLES FAMILLES (2 tables) — v4.3
+-- ============================================================
+-- Gestion des liens familiaux entre membres du club.
+-- Permet notamment aux parents de gérer les comptes de leurs
+-- enfants mineurs qui n'ont pas d'adresse email propre.
+
+-- ------------------------------------------------------------
+-- 10.1 familles - Groupes familiaux
+-- ------------------------------------------------------------
+CREATE TABLE familles (
+    id         INT UNSIGNED AUTO_INCREMENT,
+    nom        VARCHAR(100) NULL
+                   COMMENT 'Nom optionnel du groupe (ex: Famille Dupont)',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_nom (nom)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Groupes familiaux — relie les membres d''une même famille';
+
+-- ------------------------------------------------------------
+-- 10.2 membres_famille - Liens utilisateurs <-> familles
+-- ------------------------------------------------------------
+CREATE TABLE membres_famille (
+    id               INT UNSIGNED AUTO_INCREMENT,
+    famille_id       INT UNSIGNED NOT NULL,
+    user_id          INT UNSIGNED NOT NULL,
+
+    role             ENUM('parent', 'tuteur', 'enfant', 'conjoint', 'autre')
+                         NOT NULL DEFAULT 'autre'
+                         COMMENT 'Rôle du membre dans la famille',
+
+    est_responsable  BOOLEAN NOT NULL DEFAULT FALSE
+                         COMMENT 'Peut gérer les autres membres (inscrire, payer, etc.)',
+
+    est_tuteur_legal BOOLEAN NOT NULL DEFAULT FALSE
+                         COMMENT 'Tuteur légal des mineurs de la famille',
+
+    date_ajout       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+
+    UNIQUE KEY uk_famille_user (famille_id, user_id),
+
+    CONSTRAINT fk_mf_famille
+        FOREIGN KEY (famille_id) REFERENCES familles(id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_mf_user
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+
+    INDEX idx_famille_id          (famille_id),
+    INDEX idx_user_id             (user_id),
+    INDEX idx_role                (role),
+    INDEX idx_est_responsable     (est_responsable),
+    INDEX idx_est_tuteur_legal    (est_tuteur_legal),
+    INDEX idx_famille_responsable (famille_id, est_responsable)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Liens entre utilisateurs et familles avec rôles et responsabilités';
+
+-- ============================================================
+-- FIN DU SCHÉMA v4.3
 -- ============================================================
 -- Récapitulatif:
---   - 39 tables créées
---   - 43 Foreign Keys
---   - ~154 index stratégiques
---   - 13 CHECK constraints
+--   - 43 tables créées (41 existantes + 2 : familles, membres_famille)
+--   - 45 Foreign Keys (+2 : fk_mf_famille, fk_mf_user, fk_utilisateurs_tuteur)
+--   - ~162 index stratégiques (+8)
+--   - 13 CHECK constraints (chk_utilisateurs_email mis à jour)
 --   - Support Soft Delete + RGPD sur utilisateurs
+--   - Gestion des groupes familiaux (v4.3)
 --   - Tokens sécurisés SHA-256
 --   - Encoding UTF8MB4
 --   - Engine InnoDB
