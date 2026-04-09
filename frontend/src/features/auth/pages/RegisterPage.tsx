@@ -215,12 +215,18 @@ export const RegisterPage = () => {
       console.log("✅ API Response:", result);
 
       if (result.success) {
-        toast.success("Inscription réussie !", {
-          description: "Votre compte a été créé avec succès.",
+        toast.success("Compte créé !", {
+          description:
+            "Un email de vérification vous a été envoyé. Consultez votre boîte mail pour activer votre compte.",
         });
 
-        // Redirection vers le dashboard ou page de vérification email
-        navigate("/dashboard", { replace: true });
+        navigate("/login", {
+          replace: true,
+          state: {
+            message:
+              "Compte créé ! Votre identifiant de connexion vous a été envoyé par email. Vérifiez votre boîte mail avant de vous connecter.",
+          },
+        });
       } else {
         toast.error("Erreur d'inscription", {
           description:

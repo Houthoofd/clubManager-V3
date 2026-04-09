@@ -90,7 +90,8 @@ export interface IAuthRepository {
   storeEmailVerificationToken(
     userId: number,
     token: string,
-    expiresAt: Date
+    expiresAt: Date,
+    email: string,
   ): Promise<void>;
 
   /**
@@ -119,7 +120,7 @@ export interface IAuthRepository {
   storePasswordResetToken(
     userId: number,
     token: string,
-    expiresAt: Date
+    expiresAt: Date,
   ): Promise<void>;
 
   /**
@@ -155,7 +156,7 @@ export interface IAuthRepository {
   storeRefreshToken(
     userId: number,
     token: string,
-    expiresAt: Date
+    expiresAt: Date,
   ): Promise<void>;
 
   /**

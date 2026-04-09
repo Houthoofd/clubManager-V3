@@ -3,7 +3,12 @@
  * Configuration principale de l'application Express
  */
 
-import express, { type Express, type Request, type Response, type NextFunction } from "express";
+import express, {
+  type Express,
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -114,6 +119,7 @@ const createApp = (): Express => {
     res.status(statusCode).json({
       success: false,
       message: error.message || "Internal server error",
+      ...(error.code && { code: error.code }),
       ...(process.env.NODE_ENV === "development" && {
         stack: error.stack,
         error: error,

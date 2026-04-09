@@ -145,7 +145,7 @@ CREATE TABLE utilisateurs (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     nom_utilisateur VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL COMMENT 'Hash bcrypt ou argon2',
     date_of_birth DATE NULL,
     telephone VARCHAR(20) NULL,
@@ -223,7 +223,7 @@ COMMENT='Utilisateurs avec soft delete et conformité RGPD v4.1';
 -- ------------------------------------------------------------
 CREATE TABLE email_validation_tokens (
     id INT UNSIGNED AUTO_INCREMENT,
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     token_hash VARCHAR(64) NOT NULL UNIQUE COMMENT 'SHA-256 hash du token',
     token_type ENUM('verification', 'change_email') NOT NULL DEFAULT 'verification',
     expires_at TIMESTAMP NOT NULL,
@@ -233,11 +233,11 @@ CREATE TABLE email_validation_tokens (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_email_tokens_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
 
     INDEX idx_token_hash (token_hash),
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_expires_at (expires_at),
     INDEX idx_used (used),
     INDEX idx_token_type (token_type)
@@ -249,7 +249,7 @@ COMMENT='Tokens de validation email (SHA-256)';
 -- ------------------------------------------------------------
 CREATE TABLE password_reset_tokens (
     id INT UNSIGNED AUTO_INCREMENT,
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     token_hash VARCHAR(64) NOT NULL UNIQUE COMMENT 'SHA-256 hash du token',
     expires_at TIMESTAMP NOT NULL,
     used BOOLEAN NOT NULL DEFAULT FALSE,
@@ -258,11 +258,11 @@ CREATE TABLE password_reset_tokens (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_pwd_reset_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
 
     INDEX idx_token_hash (token_hash),
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_expires_at (expires_at),
     INDEX idx_used (used)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -293,7 +293,7 @@ COMMENT='Suivi des tentatives de réinitialisation (anti-bruteforce)';
 -- ------------------------------------------------------------
 CREATE TABLE refresh_tokens (
     id INT UNSIGNED AUTO_INCREMENT,
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     token_hash VARCHAR(64) NOT NULL UNIQUE COMMENT 'SHA-256 hash du refresh token',
     expires_at TIMESTAMP NOT NULL,
     revoked BOOLEAN NOT NULL DEFAULT FALSE,
@@ -304,11 +304,11 @@ CREATE TABLE refresh_tokens (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_refresh_tokens_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
 
     INDEX idx_token_hash (token_hash),
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_expires_at (expires_at),
     INDEX idx_revoked (revoked),
     INDEX idx_created_at (created_at)
@@ -382,7 +382,7 @@ COMMENT='Demandes de récupération manuelle de compte';
 -- ------------------------------------------------------------
 CREATE TABLE validation_tokens (
     id INT UNSIGNED AUTO_INCREMENT,
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     token VARCHAR(255) NOT NULL UNIQUE,
     type ENUM('email', 'password_reset', 'other') NOT NULL,
     expires_at TIMESTAMP NOT NULL,
@@ -392,11 +392,11 @@ CREATE TABLE validation_tokens (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_validation_tokens_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
 
     INDEX idx_token (token),
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_type (type),
     INDEX idx_expires_at (expires_at),
     INDEX idx_used (used)
@@ -520,7 +520,7 @@ COMMENT='Association cours récurrents et professeurs';
 -- ------------------------------------------------------------
 CREATE TABLE inscriptions (
     id INT UNSIGNED AUTO_INCREMENT,
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     cours_id INT UNSIGNED NOT NULL,
     status_id INT UNSIGNED NULL,
     commentaire TEXT NULL,
@@ -530,7 +530,7 @@ CREATE TABLE inscriptions (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_inscriptions_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_inscriptions_cours
         FOREIGN KEY (cours_id) REFERENCES cours(id)
@@ -539,8 +539,8 @@ CREATE TABLE inscriptions (
         FOREIGN KEY (status_id) REFERENCES status(id)
         ON DELETE SET NULL ON UPDATE CASCADE,
 
-    UNIQUE KEY uk_utilisateur_cours (utilisateur_id, cours_id),
-    INDEX idx_utilisateur_id (utilisateur_id),
+    UNIQUE KEY uk_utilisateur_cours (user_id, cours_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_cours_id (cours_id),
     INDEX idx_status_id (status_id),
     INDEX idx_created_at (created_at)
@@ -552,7 +552,7 @@ COMMENT='Inscriptions des utilisateurs aux cours';
 -- ------------------------------------------------------------
 CREATE TABLE reservations (
     id INT UNSIGNED AUTO_INCREMENT,
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     cours_id INT UNSIGNED NOT NULL,
     statut ENUM('confirmee', 'annulee', 'en_attente') NOT NULL DEFAULT 'confirmee',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -561,13 +561,13 @@ CREATE TABLE reservations (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_reservations_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_reservations_cours
         FOREIGN KEY (cours_id) REFERENCES cours(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
 
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_cours_id (cours_id),
     INDEX idx_statut (statut),
     INDEX idx_created_at (created_at)
@@ -584,7 +584,7 @@ COMMENT='Réservations de cours par les utilisateurs';
 -- ------------------------------------------------------------
 CREATE TABLE paiements (
     id INT UNSIGNED AUTO_INCREMENT,
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     plan_tarifaire_id INT UNSIGNED NULL,
     montant DECIMAL(10,2) NOT NULL,
     methode_paiement ENUM('stripe', 'especes', 'virement', 'autre') NOT NULL,
@@ -599,13 +599,13 @@ CREATE TABLE paiements (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_paiements_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_paiements_plan
         FOREIGN KEY (plan_tarifaire_id) REFERENCES plans_tarifaires(id)
         ON DELETE SET NULL ON UPDATE CASCADE,
 
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_plan_tarifaire_id (plan_tarifaire_id),
     INDEX idx_statut (statut),
     INDEX idx_methode_paiement (methode_paiement),
@@ -622,7 +622,7 @@ COMMENT='Paiements des utilisateurs';
 -- ------------------------------------------------------------
 CREATE TABLE echeances_paiements (
     id INT UNSIGNED AUTO_INCREMENT,
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     plan_tarifaire_id INT UNSIGNED NULL,
     montant DECIMAL(10,2) NOT NULL,
     date_echeance DATE NOT NULL,
@@ -634,7 +634,7 @@ CREATE TABLE echeances_paiements (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_echeances_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_echeances_plan
         FOREIGN KEY (plan_tarifaire_id) REFERENCES plans_tarifaires(id)
@@ -643,7 +643,7 @@ CREATE TABLE echeances_paiements (
         FOREIGN KEY (paiement_id) REFERENCES paiements(id)
         ON DELETE SET NULL ON UPDATE CASCADE,
 
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_plan_tarifaire_id (plan_tarifaire_id),
     INDEX idx_date_echeance (date_echeance),
     INDEX idx_statut (statut),
@@ -751,7 +751,7 @@ CREATE TABLE commandes (
     id INT UNSIGNED AUTO_INCREMENT,
     unique_id VARCHAR(50) NOT NULL UNIQUE COMMENT 'Identifiant unique de commande',
     numero_commande VARCHAR(50) NOT NULL UNIQUE COMMENT 'Numéro de commande lisible',
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     total DECIMAL(10,2) NOT NULL,
     date_commande TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     statut ENUM('en_attente', 'payee', 'expediee', 'livree', 'annulee') NOT NULL DEFAULT 'en_attente',
@@ -763,12 +763,12 @@ CREATE TABLE commandes (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_commandes_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
 
     INDEX idx_unique_id (unique_id),
     INDEX idx_numero_commande (numero_commande),
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_statut (statut),
     INDEX idx_date_commande (date_commande),
     INDEX idx_created_at (created_at),
@@ -822,7 +822,7 @@ CREATE TABLE mouvements_stock (
     quantite_apres INT NOT NULL,
     quantite_mouvement INT NOT NULL COMMENT 'Quantité du mouvement (+ ou -)',
     commande_id INT UNSIGNED NULL,
-    utilisateur_id INT UNSIGNED NULL COMMENT 'Utilisateur ayant effectué le mouvement',
+    user_id INT UNSIGNED NULL COMMENT 'Utilisateur ayant effectué le mouvement',
     motif TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -835,13 +835,13 @@ CREATE TABLE mouvements_stock (
         FOREIGN KEY (commande_id) REFERENCES commandes(id)
         ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT fk_mouvements_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE SET NULL ON UPDATE CASCADE,
 
     INDEX idx_article_id (article_id),
     INDEX idx_type_mouvement (type_mouvement),
     INDEX idx_commande_id (commande_id),
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_created_at (created_at),
     INDEX idx_article_date (article_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -948,7 +948,7 @@ COMMENT='Templates de messages personnalisés';
 -- ------------------------------------------------------------
 CREATE TABLE notifications (
     id INT UNSIGNED AUTO_INCREMENT,
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     type ENUM('info', 'warning', 'error', 'success') NOT NULL DEFAULT 'info',
     titre VARCHAR(200) NOT NULL,
     contenu TEXT NOT NULL,
@@ -958,14 +958,14 @@ CREATE TABLE notifications (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_notifications_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
 
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_type (type),
     INDEX idx_lu (lu),
     INDEX idx_created_at (created_at),
-    INDEX idx_utilisateur_lu (utilisateur_id, lu)
+    INDEX idx_utilisateur_lu (user_id, lu)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='Notifications système pour les utilisateurs';
 
@@ -1000,7 +1000,7 @@ COMMENT='Types d''alertes système';
 -- ------------------------------------------------------------
 CREATE TABLE alertes_utilisateurs (
     id INT UNSIGNED AUTO_INCREMENT,
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     alerte_type_id INT UNSIGNED NOT NULL,
     statut ENUM('active', 'resolue', 'ignoree') NOT NULL DEFAULT 'active',
     donnees_contexte JSON NULL COMMENT 'Données contextuelles de l''alerte',
@@ -1014,7 +1014,7 @@ CREATE TABLE alertes_utilisateurs (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_alertes_util_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_alertes_util_type
         FOREIGN KEY (alerte_type_id) REFERENCES alertes_types(id)
@@ -1023,13 +1023,13 @@ CREATE TABLE alertes_utilisateurs (
         FOREIGN KEY (resolu_par) REFERENCES utilisateurs(id)
         ON DELETE SET NULL ON UPDATE CASCADE,
 
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_alerte_type_id (alerte_type_id),
     INDEX idx_statut (statut),
     INDEX idx_date_detection (date_detection),
     INDEX idx_date_resolution (date_resolution),
     INDEX idx_resolu_par (resolu_par),
-    INDEX idx_utilisateur_statut (utilisateur_id, statut)
+    INDEX idx_utilisateur_statut (user_id, statut)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='Alertes actives pour les utilisateurs';
 
@@ -1038,8 +1038,8 @@ COMMENT='Alertes actives pour les utilisateurs';
 -- ------------------------------------------------------------
 CREATE TABLE alertes_actions (
     id INT UNSIGNED AUTO_INCREMENT,
-    alerte_utilisateur_id INT UNSIGNED NOT NULL,
-    utilisateur_id INT UNSIGNED NULL COMMENT 'Admin ayant effectué l''action',
+    alerte_user_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NULL COMMENT 'Admin ayant effectué l''action',
     action_type ENUM('message_envoye', 'information_mise_a_jour', 'paiement_recu', 'statut_change', 'autre') NOT NULL,
     description TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -1047,14 +1047,14 @@ CREATE TABLE alertes_actions (
     PRIMARY KEY (id),
 
     CONSTRAINT fk_alertes_actions_alerte
-        FOREIGN KEY (alerte_utilisateur_id) REFERENCES alertes_utilisateurs(id)
+        FOREIGN KEY (alerte_user_id) REFERENCES alertes_utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_alertes_actions_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE SET NULL ON UPDATE CASCADE,
 
-    INDEX idx_alerte_utilisateur_id (alerte_utilisateur_id),
-    INDEX idx_utilisateur_id (utilisateur_id),
+    INDEX idx_alerte_user_id (alerte_user_id),
+    INDEX idx_user_id (user_id),
     INDEX idx_action_type (action_type),
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -1087,7 +1087,7 @@ COMMENT='Groupes d''utilisateurs (compétition, enfants, etc.)';
 CREATE TABLE groupes_utilisateurs (
     id INT UNSIGNED AUTO_INCREMENT,
     groupe_id INT UNSIGNED NOT NULL,
-    utilisateur_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (id),
@@ -1096,12 +1096,12 @@ CREATE TABLE groupes_utilisateurs (
         FOREIGN KEY (groupe_id) REFERENCES groupes(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_groupes_util_utilisateur
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+        FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
 
-    UNIQUE KEY uk_groupe_utilisateur (groupe_id, utilisateur_id),
+    UNIQUE KEY uk_groupe_utilisateur (groupe_id, user_id),
     INDEX idx_groupe_id (groupe_id),
-    INDEX idx_utilisateur_id (utilisateur_id)
+    INDEX idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='Association entre groupes et utilisateurs';
 

@@ -3,10 +3,11 @@
  * Store Zustand pour gérer l'état d'authentification
  */
 
-import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
-import type { AuthResponseDto, LoginDto, RegisterDto } from '@clubmanager/types';
-import * as authApi from '../api/authApi';
+import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
+import type { LoginDto, RegisterDto } from "@clubmanager/types";
+import * as authApi from "../api/authApi";
+import { clearAuthData } from "../api/apiClient";
 
 /**
  * User minimal pour le store
@@ -36,7 +37,9 @@ interface AuthState {
 
   // Actions
   login: (data: LoginDto) => Promise<void>;
-  register: (data: RegisterDto) => Promise<void>;
+  register: (
+    data: RegisterDto,
+  ) => Promise<{ userId: string; email: string; firstName: string }>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
   refreshToken: () => Promise<void>;
@@ -76,7 +79,7 @@ export const useAuthStore = create<AuthState>()(
             });
           } catch (error: any) {
             const errorMessage =
-              error.response?.data?.message || error.message || 'Login failed';
+              error.response?.data?.message || error.message || "Login failed";
 
             set({
               user: null,
@@ -90,24 +93,33 @@ export const useAuthStore = create<AuthState>()(
         },
 
         /**
-         * Inscription
+         * Inscription — ne connecte pas l'utilisateur automatiquement
+         * L'utilisateur doit d'abord vérifier son email
          */
         register: async (data: RegisterDto) => {
           set({ isLoading: true, error: null });
 
           try {
             const response = await authApi.register(data);
-            const user = response.data.user;
 
+            // Ne pas connecter l'utilisateur — vérification email requise
             set({
-              user,
-              isAuthenticated: true,
+              user: null,
+              isAuthenticated: false,
               isLoading: false,
               error: null,
             });
+
+            return {
+              userId: response.userId,
+              email: response.email,
+              firstName: response.firstName,
+            };
           } catch (error: any) {
             const errorMessage =
-              error.response?.data?.message || error.message || 'Registration failed';
+              error.response?.data?.message ||
+              error.message ||
+              "Registration failed";
 
             set({
               user: null,
@@ -136,7 +148,7 @@ export const useAuthStore = create<AuthState>()(
               error: null,
             });
           } catch (error: any) {
-            console.error('Logout error:', error);
+            console.error("Logout error:", error);
 
             // Nettoyer l'état même en cas d'erreur
             set({
@@ -170,7 +182,7 @@ export const useAuthStore = create<AuthState>()(
               error: null,
             });
           } catch (error: any) {
-            console.error('Logout all error:', error);
+            console.error("Logout all error:", error);
 
             // Nettoyer l'état même en cas d'erreur
             set({
@@ -196,12 +208,12 @@ export const useAuthStore = create<AuthState>()(
               error: null,
             });
           } catch (error: any) {
-            console.error('Refresh token error:', error);
+            console.error("Refresh token error:", error);
 
             set({
               user: null,
               isAuthenticated: false,
-              error: 'Session expired',
+              error: "Session expired",
             });
 
             throw error;
@@ -215,6 +227,7 @@ export const useAuthStore = create<AuthState>()(
           const isAuth = authApi.isAuthenticated();
           const storedUser = authApi.getStoredUser();
 
+          // Nettoyer tout état incohérent (isAuthenticated:true mais user:null)
           if (isAuth && storedUser) {
             set({
               user: storedUser,
@@ -222,6 +235,8 @@ export const useAuthStore = create<AuthState>()(
               error: null,
             });
           } else {
+            // État invalide ou absent → reset complet + nettoyage localStorage
+            clearAuthData();
             set({
               user: null,
               isAuthenticated: false,
@@ -248,23 +263,24 @@ export const useAuthStore = create<AuthState>()(
         },
       }),
       {
-        name: 'auth-storage',
+        name: "auth-storage",
         partialize: (state) => ({
           user: state.user,
           isAuthenticated: state.isAuthenticated,
         }),
-      }
+      },
     ),
     {
-      name: 'AuthStore',
-    }
-  )
+      name: "AuthStore",
+    },
+  ),
 );
 
 /**
  * Sélecteurs pour optimiser les re-renders
  */
 export const selectUser = (state: AuthState) => state.user;
-export const selectIsAuthenticated = (state: AuthState) => state.isAuthenticated;
+export const selectIsAuthenticated = (state: AuthState) =>
+  state.isAuthenticated;
 export const selectIsLoading = (state: AuthState) => state.isLoading;
 export const selectError = (state: AuthState) => state.error;

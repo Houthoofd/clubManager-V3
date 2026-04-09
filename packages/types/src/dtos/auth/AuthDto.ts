@@ -4,10 +4,10 @@
  */
 
 /**
- * DTO pour connexion par email
+ * DTO pour connexion par userId
  */
 export interface LoginDto {
-  email: string;
+  userId: string;
   password: string;
 }
 

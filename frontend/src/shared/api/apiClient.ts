@@ -69,6 +69,10 @@ export const removeAccessToken = (): void => {
  * Stocke les informations utilisateur dans le localStorage
  */
 export const setUserData = (user: any): void => {
+  if (user === undefined || user === null) {
+    localStorage.removeItem("user");
+    return;
+  }
   localStorage.setItem("user", JSON.stringify(user));
 };
 
@@ -77,7 +81,16 @@ export const setUserData = (user: any): void => {
  */
 export const getUserData = (): any | null => {
   const userData = localStorage.getItem("user");
-  return userData ? JSON.parse(userData) : null;
+  if (!userData || userData === "undefined" || userData === "null") {
+    localStorage.removeItem("user");
+    return null;
+  }
+  try {
+    return JSON.parse(userData);
+  } catch {
+    localStorage.removeItem("user");
+    return null;
+  }
 };
 
 /**

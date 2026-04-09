@@ -13,6 +13,7 @@ export * from "./api/responses/ApiResponse.types.js";
 
 // Domain Types - Users
 export * from "./domain/user/User.types.js";
+export * from "./domain/user/EmailToken.types.js";
 
 // Domain Types - Courses
 export * from "./domain/course/index.js";

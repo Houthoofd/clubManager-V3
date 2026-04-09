@@ -82,10 +82,10 @@ const tokenSchema = z
   .max(255, "Le token ne peut pas dépasser 255 caractères");
 
 /**
- * Schéma pour connexion par email
+ * Schéma pour connexion par userId
  */
 export const loginSchema = z.object({
-  email: emailSchema,
+  userId: userIdSchema,
   password: passwordSchema,
 });
 

@@ -4,11 +4,24 @@
  */
 
 import type { Request, Response, NextFunction } from "express";
-import type { RegisterDto, LoginDto, RefreshTokenDto, LogoutDto } from "@clubmanager/types";
+import type {
+  RegisterDto,
+  LoginDto,
+  RefreshTokenDto,
+  LogoutDto,
+  VerifyEmailInput,
+  ResendVerificationEmailInput,
+  RequestPasswordResetInput,
+  ResetPasswordInput,
+} from "@clubmanager/types";
 import { RegisterUseCase } from "../../application/use-cases/RegisterUseCase.js";
 import { LoginUseCase } from "../../application/use-cases/LoginUseCase.js";
 import { RefreshTokenUseCase } from "../../application/use-cases/RefreshTokenUseCase.js";
 import { LogoutUseCase } from "../../application/use-cases/LogoutUseCase.js";
+import { VerifyEmailUseCase } from "../../application/use-cases/VerifyEmailUseCase.js";
+import { ResendVerificationEmailUseCase } from "../../application/use-cases/ResendVerificationEmailUseCase.js";
+import { RequestPasswordResetUseCase } from "../../application/use-cases/RequestPasswordResetUseCase.js";
+import { ResetPasswordUseCase } from "../../application/use-cases/ResetPasswordUseCase.js";
 import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
 
 export class AuthController {
@@ -16,12 +29,24 @@ export class AuthController {
   private loginUseCase: LoginUseCase;
   private refreshTokenUseCase: RefreshTokenUseCase;
   private logoutUseCase: LogoutUseCase;
+  private verifyEmailUseCase: VerifyEmailUseCase;
+  private resendVerificationEmailUseCase: ResendVerificationEmailUseCase;
+  private requestPasswordResetUseCase: RequestPasswordResetUseCase;
+  private resetPasswordUseCase: ResetPasswordUseCase;
 
   constructor(authRepository: IAuthRepository) {
     this.registerUseCase = new RegisterUseCase(authRepository);
     this.loginUseCase = new LoginUseCase(authRepository);
     this.refreshTokenUseCase = new RefreshTokenUseCase(authRepository);
     this.logoutUseCase = new LogoutUseCase(authRepository);
+    this.verifyEmailUseCase = new VerifyEmailUseCase(authRepository);
+    this.resendVerificationEmailUseCase = new ResendVerificationEmailUseCase(
+      authRepository,
+    );
+    this.requestPasswordResetUseCase = new RequestPasswordResetUseCase(
+      authRepository,
+    );
+    this.resetPasswordUseCase = new ResetPasswordUseCase(authRepository);
   }
 
   /**
@@ -31,7 +56,7 @@ export class AuthController {
   register = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const dto: RegisterDto = {
@@ -47,21 +72,13 @@ export class AuthController {
 
       const result = await this.registerUseCase.execute(dto);
 
-      // Définir le refresh token dans un cookie HTTP-only
-      res.cookie("refreshToken", result.data.tokens.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
-      });
-
       res.status(201).json({
         success: true,
         message: result.message,
         data: {
-          user: result.data.user,
-          accessToken: result.data.tokens.accessToken,
-          expiresIn: result.data.tokens.expiresIn,
+          userId: result.data.userId,
+          email: result.data.email,
+          firstName: result.data.firstName,
         },
       });
     } catch (error) {
@@ -76,11 +93,11 @@ export class AuthController {
   login = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const dto: LoginDto = {
-        email: req.body.email,
+        userId: req.body.userId,
         password: req.body.password,
       };
 
@@ -115,12 +132,11 @@ export class AuthController {
   refresh = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       // Récupérer le refresh token depuis le cookie ou le body
-      const refreshToken =
-        req.cookies?.refreshToken || req.body.refreshToken;
+      const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
 
       if (!refreshToken) {
         res.status(401).json({
@@ -165,12 +181,11 @@ export class AuthController {
   logout = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       // Récupérer le refresh token depuis le cookie ou le body
-      const refreshToken =
-        req.cookies?.refreshToken || req.body.refreshToken;
+      const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
 
       if (!refreshToken) {
         res.status(401).json({
@@ -205,7 +220,7 @@ export class AuthController {
   logoutAll = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const userId = req.body.userId;
@@ -239,7 +254,7 @@ export class AuthController {
   me = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       // L'utilisateur est déjà attaché à req par le middleware d'authentification
@@ -256,6 +271,116 @@ export class AuthController {
       res.status(200).json({
         success: true,
         data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * POST /api/auth/verify-email
+   * Vérification de l'email d'un utilisateur
+   */
+  verifyEmail = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const input: VerifyEmailInput = {
+        token: req.body.token,
+      };
+
+      const result = await this.verifyEmailUseCase.execute(input);
+
+      res.status(200).json({
+        success: true,
+        message: result.message,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * POST /api/auth/resend-verification
+   * Renvoi de l'email de vérification
+   */
+  resendVerification = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const input: ResendVerificationEmailInput = {
+        email: req.body.email,
+      };
+
+      const result = await this.resendVerificationEmailUseCase.execute(input);
+
+      res.status(200).json({
+        success: true,
+        message: result.message,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * POST /api/auth/forgot-password
+   * Demande de réinitialisation de mot de passe
+   */
+  forgotPassword = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const input: RequestPasswordResetInput = {
+        email: req.body.email,
+      };
+
+      // Récupérer l'IP et user agent pour audit/rate limiting
+      const ipAddress = req.ip || req.socket.remoteAddress;
+      const userAgent = req.get("user-agent");
+
+      const result = await this.requestPasswordResetUseCase.execute(
+        input,
+        ipAddress,
+        userAgent,
+      );
+
+      res.status(200).json({
+        success: true,
+        message: result.message,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * POST /api/auth/reset-password
+   * Réinitialisation du mot de passe
+   */
+  resetPassword = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const input: ResetPasswordInput = {
+        token: req.body.token,
+        newPassword: req.body.newPassword,
+        confirmPassword: req.body.confirmPassword,
+      };
+
+      const result = await this.resetPasswordUseCase.execute(input);
+
+      res.status(200).json({
+        success: true,
+        message: result.message,
       });
     } catch (error) {
       next(error);

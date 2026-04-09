@@ -3,44 +3,52 @@
  * Use case pour l'inscription d'un nouvel utilisateur
  */
 
-import type { RegisterDto, AuthResponseDto } from "@clubmanager/types";
+import type { RegisterDto } from "@clubmanager/types";
 import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
 import { PasswordService } from "@/shared/services/PasswordService.js";
-import { JwtService } from "@/shared/services/JwtService.js";
 import { TokenService } from "@/shared/services/TokenService.js";
+import { EmailService } from "../services/EmailService.js";
+
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
+  data: {
+    userId: string;
+    email: string;
+    firstName: string;
+  };
+}
 
 export class RegisterUseCase {
-  constructor(private authRepository: IAuthRepository) {}
+  private emailService: EmailService;
+
+  constructor(private authRepository: IAuthRepository) {
+    this.emailService = new EmailService();
+  }
 
   /**
    * Execute le use case d'inscription
    * @param dto - Données d'inscription
    * @returns Promise<AuthResponseDto> - Réponse avec utilisateur et tokens
    */
-  async execute(dto: RegisterDto): Promise<AuthResponseDto> {
+  async execute(dto: RegisterDto): Promise<RegisterResponse> {
     // 1. Valider les données d'entrée
     this.validateInput(dto);
 
-    // 2. Vérifier si l'email existe déjà
-    const emailExists = await this.authRepository.emailExists(dto.email);
-    if (emailExists) {
-      throw new Error("Email already registered");
-    }
-
-    // 3. Valider la force du mot de passe
+    // 2. Valider la force du mot de passe
     const passwordValidation = PasswordService.validatePasswordStrength(
-      dto.password
+      dto.password,
     );
     if (!passwordValidation.isValid) {
       throw new Error(
-        `Password validation failed: ${passwordValidation.errors.join(", ")}`
+        `Password validation failed: ${passwordValidation.errors.join(", ")}`,
       );
     }
 
-    // 4. Hasher le mot de passe
+    // 3. Hasher le mot de passe
     const hashedPassword = await PasswordService.hash(dto.password);
 
-    // 5. Créer l'utilisateur
+    // 4. Créer l'utilisateur
     const user = await this.authRepository.createUser({
       first_name: dto.first_name,
       last_name: dto.last_name,
@@ -52,52 +60,54 @@ export class RegisterUseCase {
       abonnement_id: dto.abonnement_id,
     });
 
-    // 6. Générer les tokens JWT
-    const tokens = JwtService.generateTokenPair({
-      userId: user.id,
-      email: user.email,
-      userIdString: user.userId,
-    });
-
-    // 7. Stocker le refresh token en base
-    const refreshTokenExpiry = new Date();
-    refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // 7 jours
-    await this.authRepository.storeRefreshToken(
-      user.id,
-      tokens.refreshToken,
-      refreshTokenExpiry
-    );
-
-    // 8. Générer et stocker le token de vérification email
+    // 5. Générer et stocker le token de vérification email
     const emailVerificationToken =
       TokenService.generateEmailVerificationToken();
     await this.authRepository.storeEmailVerificationToken(
       user.id,
       emailVerificationToken.token,
-      emailVerificationToken.expiresAt
+      emailVerificationToken.expiresAt,
+      user.email,
     );
 
-    // TODO: Envoyer l'email de vérification (Sprint 3)
-    // await EmailService.sendVerificationEmail(user.email, emailVerificationToken.token);
+    // 6. Construire l'URL de vérification
+    const verificationUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/verify-email?token=${emailVerificationToken.token}`;
 
-    // 9. Retourner la réponse
+    // 7. Envoyer l'email de vérification avec l'userId
+    const emailResult = await this.emailService.sendVerificationEmail(
+      user.email,
+      user.first_name,
+      verificationUrl,
+      user.userId,
+    );
+
+    if (!emailResult.success) {
+      // On log l'erreur mais on ne bloque pas l'inscription
+      // L'utilisateur peut redemander l'email depuis la page de connexion
+      console.error(
+        "Failed to send verification email after registration:",
+        emailResult.error,
+      );
+      // En dev, logger le lien pour pouvoir tester sans domaine vérifié
+      if (process.env.NODE_ENV !== "production") {
+        console.log(
+          `\n[RegisterUseCase][DEV] 📧 Lien de vérification (email non envoyé)\n` +
+            `  UserId:  ${user.userId}\n` +
+            `  Email:   ${user.email}\n` +
+            `  Lien:    ${verificationUrl}\n`,
+        );
+      }
+    }
+
+    // 8. Retourner la réponse sans tokens — connexion impossible avant vérification email
     return {
       success: true,
-      message: "User registered successfully. Please verify your email.",
+      message:
+        "Compte créé avec succès. Veuillez vérifier votre adresse email pour activer votre compte.",
       data: {
-        user: {
-          id: user.id,
-          userId: user.userId,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          nom_utilisateur: user.nom_utilisateur,
-          email: user.email,
-          email_verified: user.email_verified,
-          status_id: user.status_id,
-          grade_id: user.grade_id,
-          abonnement_id: user.abonnement_id,
-        },
-        tokens,
+        userId: user.userId,
+        email: user.email,
+        firstName: user.first_name,
       },
     };
   }

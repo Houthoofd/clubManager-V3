@@ -12,6 +12,9 @@ export * from "./users/user.validators.js";
 // Auth validators
 export * from "./users/auth.validators.js";
 
+// Email validators
+export * from "./users/email.validators.js";
+
 // Course validators
 export * from "./courses/index.js";
 
@@ -71,6 +74,13 @@ export type {
   LogoutInput,
   ResendEmailValidationInput,
 } from "./users/auth.validators.js";
+
+export type {
+  VerifyEmailInput,
+  ResendVerificationEmailInput,
+  RequestPasswordResetInput,
+  ResetPasswordInput,
+} from "./users/email.validators.js";
 
 export type {
   CreateCourseRecurrentInput,

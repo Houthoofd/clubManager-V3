@@ -4,21 +4,30 @@
  */
 
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import { Toaster } from "sonner";
 import { useAuthStore } from "./shared/stores/authStore";
 
 // Layouts
 import { PublicLayout } from "./layouts/PublicLayout";
 import { PrivateLayout } from "./layouts/PrivateLayout";
+import { useAuth } from "./shared/hooks/useAuth";
 
 // Route Guards
 import { PublicRoute } from "./shared/components/PublicRoute";
-import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 
 // Auth Pages
 import { LoginPage } from "./features/auth/pages/LoginPage";
 import { RegisterPage } from "./features/auth/pages/RegisterPage";
+import { EmailVerificationPage } from "./features/auth/pages/EmailVerificationPage";
+import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 
 // Dashboard (placeholder)
 const DashboardPage = () => (
@@ -81,6 +90,36 @@ const SettingsPage = () => (
 );
 
 /**
+ * AuthenticatedLayout Component
+ * Combines ProtectedRoute + PrivateLayout to ensure Outlet works correctly
+ */
+const AuthenticatedLayout = () => {
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    // Nettoyer le localStorage si état incohérent (isAuthenticated:true mais user:null)
+    if (isAuthenticated && !user) {
+      localStorage.clear();
+    }
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <PrivateLayout />;
+};
+
+/**
  * RootRedirect Component
  * Redirects to login if not authenticated, otherwise to dashboard
  */
@@ -140,16 +179,27 @@ function App() {
                 </PublicRoute>
               }
             />
+            <Route path="/verify-email" element={<EmailVerificationPage />} />
+            <Route
+              path="/forgot-password"
+              element={
+                <PublicRoute>
+                  <ForgotPasswordPage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/reset-password"
+              element={
+                <PublicRoute>
+                  <ResetPasswordPage />
+                </PublicRoute>
+              }
+            />
           </Route>
 
           {/* Private Routes */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <PrivateLayout />
-              </ProtectedRoute>
-            }
-          >
+          <Route element={<AuthenticatedLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/courses" element={<CoursesPage />} />
             <Route path="/users" element={<UsersPage />} />

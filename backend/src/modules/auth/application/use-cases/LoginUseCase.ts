@@ -20,10 +20,10 @@ export class LoginUseCase {
     // 1. Valider les données d'entrée
     this.validateInput(dto);
 
-    // 2. Trouver l'utilisateur par email
-    const user = await this.authRepository.findUserByEmail(dto.email);
+    // 2. Trouver l'utilisateur par userId
+    const user = await this.authRepository.findUserByUserId(dto.userId);
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw new Error("Identifiant ou mot de passe invalide");
     }
 
     // 3. Vérifier que le compte est actif
@@ -39,17 +39,22 @@ export class LoginUseCase {
     // 5. Comparer le mot de passe
     const isPasswordValid = await PasswordService.compare(
       dto.password,
-      user.password
+      user.password,
     );
 
     if (!isPasswordValid) {
-      throw new Error("Invalid email or password");
+      throw new Error("Identifiant ou mot de passe invalide");
     }
 
-    // 6. Vérifier si l'email est vérifié (optionnel, selon la configuration)
-    // if (!user.email_verified) {
-    //   throw new Error("Please verify your email before logging in");
-    // }
+    // 6. Vérifier si l'email est vérifié
+    if (!user.email_verified) {
+      const error = new Error(
+        "Veuillez vérifier votre adresse email avant de vous connecter.",
+      ) as any;
+      error.statusCode = 403;
+      error.code = "EMAIL_NOT_VERIFIED";
+      throw error;
+    }
 
     // 7. Générer les tokens JWT
     const tokens = JwtService.generateTokenPair({
@@ -64,7 +69,7 @@ export class LoginUseCase {
     await this.authRepository.storeRefreshToken(
       user.id,
       tokens.refreshToken,
-      refreshTokenExpiry
+      refreshTokenExpiry,
     );
 
     // 9. Mettre à jour la dernière connexion
@@ -96,18 +101,18 @@ export class LoginUseCase {
    * Valide les données d'entrée
    */
   private validateInput(dto: LoginDto): void {
-    if (!dto.email || dto.email.trim().length === 0) {
-      throw new Error("Email is required");
+    if (!dto.userId || dto.userId.trim().length === 0) {
+      throw new Error("L'identifiant est requis");
     }
 
     if (!dto.password || dto.password.trim().length === 0) {
-      throw new Error("Password is required");
+      throw new Error("Le mot de passe est requis");
     }
 
-    // Valider le format de l'email
-    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    if (!emailRegex.test(dto.email)) {
-      throw new Error("Invalid email format");
+    // Valider le format de l'identifiant (ex: U-2024-0001)
+    const userIdRegex = /^U-\d{4}-\d{4}$/;
+    if (!userIdRegex.test(dto.userId)) {
+      throw new Error("Format d'identifiant invalide (attendu: U-YYYY-XXXX)");
     }
   }
 }

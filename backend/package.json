@@ -30,7 +30,6 @@
   },
   "dependencies": {
     "@clubmanager/types": "file:../packages/types",
-    "@sendgrid/mail": "^8.1.6",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -42,6 +41,7 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "mysql2": "^3.11.5",
+    "resend": "^6.10.0",
     "stripe": "^17.7.0",
     "uuid": "^9.0.0",
     "winston": "^3.11.0",

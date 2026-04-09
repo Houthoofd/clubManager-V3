@@ -3,9 +3,15 @@
  * Hook personnalisé pour accéder facilement à l'authentification
  */
 
-import { useCallback } from 'react';
-import { useAuthStore, selectUser, selectIsAuthenticated, selectIsLoading, selectError } from '../stores/authStore';
-import type { LoginDto, RegisterDto } from '@clubmanager/types';
+import { useCallback } from "react";
+import {
+  useAuthStore,
+  selectUser,
+  selectIsAuthenticated,
+  selectIsLoading,
+  selectError,
+} from "../stores/authStore";
+import type { LoginDto, RegisterDto } from "@clubmanager/types";
 
 /**
  * Hook d'authentification
@@ -39,11 +45,12 @@ export const useAuth = () => {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.message || error.message || 'Login failed',
+          error:
+            error.response?.data?.message || error.message || "Login failed",
         };
       }
     },
-    [login]
+    [login],
   );
 
   /**
@@ -52,16 +59,19 @@ export const useAuth = () => {
   const handleRegister = useCallback(
     async (data: RegisterDto) => {
       try {
-        await register(data);
-        return { success: true };
+        const result = await register(data);
+        return { success: true, data: result };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.message || error.message || 'Registration failed',
+          error:
+            error.response?.data?.message ||
+            error.message ||
+            "Registration failed",
         };
       }
     },
-    [register]
+    [register],
   );
 
   /**
@@ -74,7 +84,7 @@ export const useAuth = () => {
     } catch (error: any) {
       return {
         success: false,
-        error: error.message || 'Logout failed',
+        error: error.message || "Logout failed",
       };
     }
   }, [logout]);
@@ -89,7 +99,7 @@ export const useAuth = () => {
     } catch (error: any) {
       return {
         success: false,
-        error: error.message || 'Logout all failed',
+        error: error.message || "Logout all failed",
       };
     }
   }, [logoutAll]);
@@ -101,7 +111,7 @@ export const useAuth = () => {
     (roleId: number): boolean => {
       return user?.grade_id === roleId;
     },
-    [user]
+    [user],
   );
 
   /**
@@ -111,7 +121,7 @@ export const useAuth = () => {
     (statusId: number): boolean => {
       return user?.status_id === statusId;
     },
-    [user]
+    [user],
   );
 
   /**
@@ -125,7 +135,7 @@ export const useAuth = () => {
    * Obtient le nom complet de l'utilisateur
    */
   const getFullName = useCallback((): string => {
-    if (!user) return '';
+    if (!user) return "";
     return `${user.first_name} ${user.last_name}`;
   }, [user]);
 
@@ -133,7 +143,7 @@ export const useAuth = () => {
    * Obtient les initiales de l'utilisateur
    */
   const getInitials = useCallback((): string => {
-    if (!user) return '';
+    if (!user) return "";
     return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
   }, [user]);
 

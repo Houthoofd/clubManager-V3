@@ -3,13 +3,18 @@
  * Page de connexion avec formulaire de login
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
-import { EnvelopeIcon, LockIcon } from "@patternfly/react-icons";
+import {
+  EyeIcon,
+  EyeSlashIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+} from "@patternfly/react-icons";
+import { UserIcon, LockIcon } from "@patternfly/react-icons";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { loginSchema, type LoginDto } from "@clubmanager/types";
 
@@ -21,6 +26,10 @@ export const LoginPage = () => {
   const location = useLocation();
   const { login, isLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [registerSuccessMessage, setRegisterSuccessMessage] = useState<
+    string | null
+  >(null);
 
   // React Hook Form avec Zod validation
   const {
@@ -32,10 +41,19 @@ export const LoginPage = () => {
     mode: "onBlur",
   });
 
+  // Afficher le message de succès si on vient de l'inscription
+  useEffect(() => {
+    const state = location.state as { message?: string } | null;
+    if (state?.message) {
+      setRegisterSuccessMessage(state.message);
+    }
+  }, [location.state]);
+
   /**
    * Soumission du formulaire de connexion
    */
   const onSubmit = async (data: LoginDto) => {
+    setEmailNotVerified(false);
     try {
       const result = await login(data);
 
@@ -49,15 +67,22 @@ export const LoginPage = () => {
         navigate(from, { replace: true });
       } else {
         toast.error("Erreur de connexion", {
-          description: result.error || "Email ou mot de passe incorrect.",
+          description: result.error || "Identifiant ou mot de passe incorrect.",
         });
       }
     } catch (error: any) {
       console.error("Login error:", error);
-      toast.error("Erreur de connexion", {
-        description:
-          error.message || "Une erreur est survenue lors de la connexion.",
-      });
+      const code = error.response?.data?.code;
+      if (code === "EMAIL_NOT_VERIFIED") {
+        setEmailNotVerified(true);
+      } else {
+        toast.error("Erreur de connexion", {
+          description:
+            error.response?.data?.message ||
+            error.message ||
+            "Une erreur est survenue lors de la connexion.",
+        });
+      }
     }
   };
 
@@ -74,35 +99,66 @@ export const LoginPage = () => {
 
         {/* Formulaire de connexion */}
         <div className="bg-white shadow-2xl rounded-2xl p-8">
+          {/* Bandeau succès inscription */}
+          {registerSuccessMessage && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-300 rounded-lg">
+              <p className="text-sm font-medium text-green-800 mb-1 flex items-center gap-1.5">
+                <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                Inscription réussie !
+              </p>
+              <p className="text-sm text-green-700">{registerSuccessMessage}</p>
+            </div>
+          )}
+
+          {/* Bandeau email non vérifié */}
+          {emailNotVerified && (
+            <div className="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
+              <p className="text-sm font-medium text-amber-800 mb-1 flex items-center gap-1.5">
+                <ExclamationTriangleIcon className="h-4 w-4 text-amber-600" />
+                Adresse email non vérifiée
+              </p>
+              <p className="text-sm text-amber-700 mb-3">
+                Veuillez vérifier votre adresse email avant de vous connecter.
+                Consultez votre boîte de réception.
+              </p>
+              <Link
+                to="/resend-verification"
+                className="text-sm font-medium text-amber-800 underline hover:text-amber-900 transition-colors"
+              >
+                Renvoyer l'email de vérification →
+              </Link>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Email */}
+            {/* Identifiant membre */}
             <div>
               <label
-                htmlFor="email"
+                htmlFor="userId"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Adresse email
+                Identifiant membre
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+                  <UserIcon className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  {...register("email")}
+                  id="userId"
+                  type="text"
+                  autoComplete="username"
+                  {...register("userId")}
                   className={`block w-full pl-10 pr-3 py-3 border ${
-                    errors.email
+                    errors.userId
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                       : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                   } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors`}
-                  placeholder="exemple@email.com"
+                  placeholder="U-2025-0001"
                 />
               </div>
-              {errors.email && (
+              {errors.userId && (
                 <p className="mt-2 text-sm text-red-600">
-                  {errors.email.message}
+                  {errors.userId.message}
                 </p>
               )}
             </div>

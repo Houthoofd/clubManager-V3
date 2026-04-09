@@ -4,8 +4,8 @@
  */
 
 import type { User } from "@clubmanager/types";
-import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.ts";
-import { pool } from "@/core/database/connection.ts";
+import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
+import { pool } from "@/core/database/connection.js";
 import type { RowDataPacket, ResultSetHeader } from "mysql2/promise";
 import crypto from "crypto";
 
@@ -65,7 +65,7 @@ export class MySQLAuthRepository implements IAuthRepository {
       const year = new Date().getFullYear();
       const countResult = await connection.query<RowDataPacket[]>(
         "SELECT COUNT(*) as count FROM utilisateurs WHERE userId LIKE ?",
-        [`U-${year}-%`]
+        [`U-${year}-%`],
       );
       const count = (countResult[0][0] as { count: number }).count + 1;
       const userId = `U-${year}-${count.toString().padStart(4, "0")}`;
@@ -77,7 +77,7 @@ export class MySQLAuthRepository implements IAuthRepository {
 
       // Récupérer le status_id par défaut (actif)
       const statusResult = await connection.query<RowDataPacket[]>(
-        "SELECT id FROM status WHERE nom = 'actif' LIMIT 1"
+        "SELECT id FROM status WHERE nom = 'actif' LIMIT 1",
       );
       const status_id =
         statusResult[0].length > 0
@@ -101,7 +101,7 @@ export class MySQLAuthRepository implements IAuthRepository {
           userData.genre_id,
           userData.abonnement_id || null,
           status_id,
-        ]
+        ],
       );
 
       await connection.commit();
@@ -129,14 +129,14 @@ export class MySQLAuthRepository implements IAuthRepository {
       `SELECT * FROM utilisateurs
        WHERE email = ? AND deleted_at IS NULL AND anonymized = FALSE
        LIMIT 1`,
-      [email]
+      [email],
     );
 
     if (rows.length === 0) {
       return null;
     }
 
-    return this.mapRowToUser(rows[0]);
+    return this.mapRowToUser(rows[0]!);
   }
 
   /**
@@ -147,14 +147,14 @@ export class MySQLAuthRepository implements IAuthRepository {
       `SELECT * FROM utilisateurs
        WHERE id = ? AND deleted_at IS NULL AND anonymized = FALSE
        LIMIT 1`,
-      [id]
+      [id],
     );
 
     if (rows.length === 0) {
       return null;
     }
 
-    return this.mapRowToUser(rows[0]);
+    return this.mapRowToUser(rows[0]!);
   }
 
   /**
@@ -165,14 +165,14 @@ export class MySQLAuthRepository implements IAuthRepository {
       `SELECT * FROM utilisateurs
        WHERE userId = ? AND deleted_at IS NULL AND anonymized = FALSE
        LIMIT 1`,
-      [userId]
+      [userId],
     );
 
     if (rows.length === 0) {
       return null;
     }
 
-    return this.mapRowToUser(rows[0]);
+    return this.mapRowToUser(rows[0]!);
   }
 
   /**
@@ -182,7 +182,7 @@ export class MySQLAuthRepository implements IAuthRepository {
     const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT COUNT(*) as count FROM utilisateurs
        WHERE email = ? AND deleted_at IS NULL AND anonymized = FALSE`,
-      [email]
+      [email],
     );
 
     return (rows[0] as { count: number }).count > 0;
@@ -194,7 +194,7 @@ export class MySQLAuthRepository implements IAuthRepository {
   async updatePassword(userId: number, hashedPassword: string): Promise<void> {
     await pool.query(
       "UPDATE utilisateurs SET password = ?, updated_at = NOW() WHERE id = ?",
-      [hashedPassword, userId]
+      [hashedPassword, userId],
     );
   }
 
@@ -204,7 +204,7 @@ export class MySQLAuthRepository implements IAuthRepository {
   async updateLastLogin(userId: number): Promise<void> {
     await pool.query(
       "UPDATE utilisateurs SET derniere_connexion = NOW() WHERE id = ?",
-      [userId]
+      [userId],
     );
   }
 
@@ -215,8 +215,8 @@ export class MySQLAuthRepository implements IAuthRepository {
    */
   async markEmailAsVerified(userId: number): Promise<void> {
     await pool.query(
-      "UPDATE utilisateurs SET email_verified = TRUE, updated_at = NOW() WHERE id = ?",
-      [userId]
+      "UPDATE utilisateurs SET email_verified = TRUE, email_verified_at = NOW(), updated_at = NOW() WHERE id = ?",
+      [userId],
     );
   }
 
@@ -226,14 +226,15 @@ export class MySQLAuthRepository implements IAuthRepository {
   async storeEmailVerificationToken(
     userId: number,
     token: string,
-    expiresAt: Date
+    expiresAt: Date,
+    email: string,
   ): Promise<void> {
     const tokenHash = this.hashToken(token);
 
     await pool.query(
-      `INSERT INTO email_validation_tokens (utilisateur_id, token_hash, token_type, expires_at)
-       VALUES (?, ?, 'verification', ?)`,
-      [userId, tokenHash, expiresAt]
+      `INSERT INTO email_validation_tokens (user_id, token_hash, expires_at, email)
+       VALUES (?, ?, ?, ?)`,
+      [userId, tokenHash, expiresAt, email],
     );
   }
 
@@ -244,23 +245,23 @@ export class MySQLAuthRepository implements IAuthRepository {
     const tokenHash = this.hashToken(token);
 
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT utilisateur_id FROM email_validation_tokens
-       WHERE token_hash = ? AND expires_at > NOW() AND used = FALSE
+      `SELECT user_id FROM email_validation_tokens
+       WHERE token_hash = ? AND expires_at > NOW()
        LIMIT 1`,
-      [tokenHash]
+      [tokenHash],
     );
 
     if (rows.length === 0) {
       return null;
     }
 
-    // Marquer le token comme utilisé
+    // Supprimer le token après usage (ne peut pas être réutilisé)
     await pool.query(
-      "UPDATE email_validation_tokens SET used = TRUE WHERE token_hash = ?",
-      [tokenHash]
+      "DELETE FROM email_validation_tokens WHERE token_hash = ?",
+      [tokenHash],
     );
 
-    return (rows[0] as { utilisateur_id: number }).utilisateur_id;
+    return (rows[0] as { user_id: number }).user_id;
   }
 
   /**
@@ -269,9 +270,10 @@ export class MySQLAuthRepository implements IAuthRepository {
   async deleteEmailVerificationToken(token: string): Promise<void> {
     const tokenHash = this.hashToken(token);
 
-    await pool.query("DELETE FROM email_validation_tokens WHERE token_hash = ?", [
-      tokenHash,
-    ]);
+    await pool.query(
+      "DELETE FROM email_validation_tokens WHERE token_hash = ?",
+      [tokenHash],
+    );
   }
 
   // ==================== PASSWORD RESET ====================
@@ -282,14 +284,14 @@ export class MySQLAuthRepository implements IAuthRepository {
   async storePasswordResetToken(
     userId: number,
     token: string,
-    expiresAt: Date
+    expiresAt: Date,
   ): Promise<void> {
     const tokenHash = this.hashToken(token);
 
     await pool.query(
-      `INSERT INTO password_reset_tokens (utilisateur_id, token_hash, expires_at)
+      `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
        VALUES (?, ?, ?)`,
-      [userId, tokenHash, expiresAt]
+      [userId, tokenHash, expiresAt],
     );
   }
 
@@ -300,17 +302,17 @@ export class MySQLAuthRepository implements IAuthRepository {
     const tokenHash = this.hashToken(token);
 
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT utilisateur_id FROM password_reset_tokens
-       WHERE token_hash = ? AND expires_at > NOW() AND used = FALSE
+      `SELECT user_id FROM password_reset_tokens
+       WHERE token_hash = ? AND expires_at > NOW()
        LIMIT 1`,
-      [tokenHash]
+      [tokenHash],
     );
 
     if (rows.length === 0) {
       return null;
     }
 
-    return (rows[0] as { utilisateur_id: number }).utilisateur_id;
+    return (rows[0] as { user_id: number }).user_id;
   }
 
   /**
@@ -319,21 +321,19 @@ export class MySQLAuthRepository implements IAuthRepository {
   async deletePasswordResetToken(token: string): Promise<void> {
     const tokenHash = this.hashToken(token);
 
-    // Marquer comme utilisé au lieu de supprimer (pour audit)
-    await pool.query(
-      "UPDATE password_reset_tokens SET used = TRUE WHERE token_hash = ?",
-      [tokenHash]
-    );
+    // Supprimer le token après usage (ne peut pas être réutilisé)
+    await pool.query("DELETE FROM password_reset_tokens WHERE token_hash = ?", [
+      tokenHash,
+    ]);
   }
 
   /**
    * Supprime tous les tokens de reset d'un utilisateur
    */
   async deleteAllPasswordResetTokens(userId: number): Promise<void> {
-    await pool.query(
-      "UPDATE password_reset_tokens SET used = TRUE WHERE utilisateur_id = ?",
-      [userId]
-    );
+    await pool.query("DELETE FROM password_reset_tokens WHERE user_id = ?", [
+      userId,
+    ]);
   }
 
   // ==================== REFRESH TOKENS ====================
@@ -344,14 +344,14 @@ export class MySQLAuthRepository implements IAuthRepository {
   async storeRefreshToken(
     userId: number,
     token: string,
-    expiresAt: Date
+    expiresAt: Date,
   ): Promise<void> {
     const tokenHash = this.hashToken(token);
 
     await pool.query(
-      `INSERT INTO refresh_tokens (utilisateur_id, token_hash, expires_at)
+      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
        VALUES (?, ?, ?)`,
-      [userId, tokenHash, expiresAt]
+      [userId, tokenHash, expiresAt],
     );
   }
 
@@ -362,17 +362,17 @@ export class MySQLAuthRepository implements IAuthRepository {
     const tokenHash = this.hashToken(token);
 
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT utilisateur_id FROM refresh_tokens
+      `SELECT user_id FROM refresh_tokens
        WHERE token_hash = ? AND expires_at > NOW() AND revoked = FALSE
        LIMIT 1`,
-      [tokenHash]
+      [tokenHash],
     );
 
     if (rows.length === 0) {
       return null;
     }
 
-    return (rows[0] as { utilisateur_id: number }).utilisateur_id;
+    return (rows[0] as { user_id: number }).user_id;
   }
 
   /**
@@ -383,7 +383,7 @@ export class MySQLAuthRepository implements IAuthRepository {
 
     await pool.query(
       "UPDATE refresh_tokens SET revoked = TRUE WHERE token_hash = ?",
-      [tokenHash]
+      [tokenHash],
     );
   }
 
@@ -392,8 +392,8 @@ export class MySQLAuthRepository implements IAuthRepository {
    */
   async deleteAllRefreshTokens(userId: number): Promise<void> {
     await pool.query(
-      "UPDATE refresh_tokens SET revoked = TRUE WHERE utilisateur_id = ?",
-      [userId]
+      "UPDATE refresh_tokens SET revoked = TRUE WHERE user_id = ?",
+      [userId],
     );
   }
 
@@ -408,15 +408,15 @@ export class MySQLAuthRepository implements IAuthRepository {
 
       // Nettoyer les tokens expirés de toutes les tables
       await connection.query(
-        "DELETE FROM email_validation_tokens WHERE expires_at < NOW()"
+        "DELETE FROM email_validation_tokens WHERE expires_at < NOW()",
       );
 
       await connection.query(
-        "DELETE FROM password_reset_tokens WHERE expires_at < NOW()"
+        "DELETE FROM password_reset_tokens WHERE expires_at < NOW()",
       );
 
       await connection.query(
-        "DELETE FROM refresh_tokens WHERE expires_at < NOW()"
+        "DELETE FROM refresh_tokens WHERE expires_at < NOW()",
       );
 
       await connection.commit();
