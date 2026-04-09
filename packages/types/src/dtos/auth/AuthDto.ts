@@ -3,6 +3,8 @@
  * Utilisés pour login, register, token validation
  */
 
+import type { UserRole } from "../../enums/UserRole.enum.js";
+
 /**
  * DTO pour connexion par userId
  */
@@ -99,6 +101,7 @@ export interface JwtPayload {
   userId: number;
   email: string;
   userIdString: string; // Format U-YYYY-XXXX
+  role_app: UserRole;
   type: "access" | "refresh";
 }
 
@@ -144,6 +147,7 @@ export interface AuthResponseDto {
       status_id: number;
       grade_id?: number;
       abonnement_id?: number;
+      role_app: UserRole;
     };
     tokens: TokenPair;
   };

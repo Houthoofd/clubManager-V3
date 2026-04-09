@@ -15,7 +15,9 @@ import {
   ShoppingCartIcon,
   EnvelopeIcon,
   ChartBarIcon,
+  CogIcon,
 } from "@patternfly/react-icons";
+import { UserRole } from "@clubmanager/types";
 import { useAuth } from "../shared/hooks/useAuth";
 
 export const PrivateLayout: React.FC = () => {
@@ -47,6 +49,7 @@ export const PrivateLayout: React.FC = () => {
       name: "Users",
       path: "/users",
       icon: <UserIcon />,
+      roles: [UserRole.ADMIN, UserRole.PROFESSOR],
     },
     {
       name: "Ma famille",
@@ -57,6 +60,7 @@ export const PrivateLayout: React.FC = () => {
       name: "Payments",
       path: "/payments",
       icon: <CreditCardIcon />,
+      roles: [UserRole.ADMIN, UserRole.MEMBER],
     },
     {
       name: "Store",
@@ -72,8 +76,21 @@ export const PrivateLayout: React.FC = () => {
       name: "Statistics",
       path: "/statistics",
       icon: <ChartBarIcon />,
+      roles: [UserRole.ADMIN, UserRole.PROFESSOR],
+    },
+    {
+      name: "Settings",
+      path: "/settings",
+      icon: <CogIcon />,
+      roles: [UserRole.ADMIN],
     },
   ];
+
+  const userRole = (user?.role_app as UserRole | undefined) ?? UserRole.MEMBER;
+
+  const visibleMenuItems = menuItems.filter(
+    (item) => !item.roles || item.roles.includes(userRole),
+  );
 
   const isActive = (path: string) => {
     return (
@@ -108,7 +125,7 @@ export const PrivateLayout: React.FC = () => {
         {/* Navigation */}
         <nav className="flex-1 py-4 overflow-y-auto">
           <ul className="space-y-1 px-3">
-            {menuItems.map((item) => (
+            {visibleMenuItems.map((item) => (
               <li key={item.path}>
                 <Link
                   to={item.path}
@@ -157,7 +174,7 @@ export const PrivateLayout: React.FC = () => {
         <header className="h-16 bg-white shadow-sm flex items-center justify-between px-6">
           <div className="flex items-center">
             <h2 className="text-xl font-semibold text-gray-800">
-              {menuItems.find((item) => isActive(item.path))?.name ||
+              {visibleMenuItems.find((item) => isActive(item.path))?.name ||
                 "Dashboard"}
             </h2>
           </div>

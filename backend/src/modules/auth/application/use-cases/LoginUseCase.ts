@@ -4,6 +4,7 @@
  */
 
 import type { LoginDto, AuthResponseDto } from "@clubmanager/types";
+import { UserRole } from "@clubmanager/types";
 import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
 import { PasswordService } from "@/shared/services/PasswordService.js";
 import { JwtService } from "@/shared/services/JwtService.js";
@@ -81,6 +82,7 @@ export class LoginUseCase {
       userId: user.id,
       email: user.email,
       userIdString: user.userId,
+      role_app: user.role_app ?? UserRole.MEMBER,
     });
 
     // 9. Stocker le refresh token en base
@@ -111,6 +113,7 @@ export class LoginUseCase {
           status_id: user.status_id,
           grade_id: user.grade_id,
           abonnement_id: user.abonnement_id,
+          role_app: user.role_app ?? UserRole.MEMBER,
         },
         tokens,
       },

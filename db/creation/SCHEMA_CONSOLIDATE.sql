@@ -1,7 +1,7 @@
 -- ============================================================
 -- CLUBMANAGER - SCHÉMA BASE DE DONNÉES v4.1
 -- ============================================================
--- Version: 4.3 (Gestion des familles)
+-- Version: 4.4 (RBAC - Rôles applicatifs)
 -- Date: 2025-01-26
 -- Author: Benoit Houthoofd
 -- Database: MySQL 8.0+ / MariaDB 10.6+
@@ -19,6 +19,10 @@
 --   - CHECK constraints renforcés
 --   - Validation email et tokens SHA-256
 --   - Index stratégiques optimisés
+--
+-- Nouveautés v4.4:
+--   - Colonne role_app ENUM('admin','member','professor') dans utilisateurs
+--   - RBAC : contrôle d'accès par rôle applicatif
 --
 -- Nouveautés v4.3:
 --   - Système de gestion des familles (tables familles + membres_famille)
@@ -175,6 +179,10 @@ CREATE TABLE utilisateurs (
     peut_se_connecter BOOLEAN NOT NULL DEFAULT TRUE
                           COMMENT 'FALSE pour les comptes enfants gérés exclusivement par le tuteur',
 
+    -- Rôle applicatif RBAC v4.4
+    role_app ENUM('admin', 'member', 'professor') NOT NULL DEFAULT 'member'
+                 COMMENT 'Rôle applicatif pour le contrôle d\'accès (RBAC)',
+
     -- Statut compte
     active BOOLEAN NOT NULL DEFAULT TRUE,
     email_verified BOOLEAN NOT NULL DEFAULT FALSE,
@@ -233,6 +241,7 @@ CREATE TABLE utilisateurs (
     INDEX idx_tuteur_id          (tuteur_id),
     INDEX idx_est_mineur         (est_mineur),
     INDEX idx_peut_se_connecter  (peut_se_connecter),
+    INDEX idx_role_app           (role_app),
 
     -- CHECK constraints v4.3
     CONSTRAINT chk_utilisateurs_email

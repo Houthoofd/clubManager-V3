@@ -21,6 +21,8 @@ import { useAuth } from "./shared/hooks/useAuth";
 
 // Route Guards
 import { PublicRoute } from "./shared/components/PublicRoute";
+import { RoleGuard } from "./shared/components/RoleGuard";
+import { UserRole } from "@clubmanager/types";
 
 // Auth Pages
 import { LoginPage } from "./features/auth/pages/LoginPage";
@@ -203,14 +205,42 @@ function App() {
           <Route element={<AuthenticatedLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/courses" element={<CoursesPage />} />
-            <Route path="/users" element={<UsersPage />} />
-            <Route path="/payments" element={<PaymentsPage />} />
+            <Route
+              path="/users"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.PROFESSOR]}>
+                  <UsersPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/payments"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.MEMBER]}>
+                  <PaymentsPage />
+                </RoleGuard>
+              }
+            />
             <Route path="/store" element={<StorePage />} />
             <Route path="/messages" element={<MessagesPage />} />
-            <Route path="/statistics" element={<StatisticsPage />} />
+            <Route
+              path="/statistics"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.PROFESSOR]}>
+                  <StatisticsPage />
+                </RoleGuard>
+              }
+            />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/family" element={<FamilyPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route
+              path="/settings"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                  <SettingsPage />
+                </RoleGuard>
+              }
+            />
           </Route>
 
           {/* 404 Not Found */}

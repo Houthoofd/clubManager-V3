@@ -4,6 +4,7 @@
  */
 
 import type { User } from "@clubmanager/types";
+import { UserRole } from "@clubmanager/types";
 import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
 import { pool } from "@/core/database/connection.js";
 import type { RowDataPacket, ResultSetHeader } from "mysql2/promise";
@@ -32,6 +33,7 @@ interface UserRow extends RowDataPacket {
   email_verified: boolean;
   est_mineur: boolean;
   peut_se_connecter: boolean;
+  role_app: string;
   photo_url?: string;
   deleted_at?: Date | null;
   deleted_by?: number | null;
@@ -464,6 +466,7 @@ export class MySQLAuthRepository implements IAuthRepository {
       email_verified: Boolean(row.email_verified),
       est_mineur: Boolean(row.est_mineur),
       peut_se_connecter: Boolean(row.peut_se_connecter),
+      role_app: (row.role_app as UserRole) ?? UserRole.MEMBER,
       photo_url: row.photo_url,
       deleted_at: row.deleted_at ? new Date(row.deleted_at) : null,
       deleted_by: row.deleted_by,

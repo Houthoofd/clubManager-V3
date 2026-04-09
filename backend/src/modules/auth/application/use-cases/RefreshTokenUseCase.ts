@@ -4,6 +4,7 @@
  */
 
 import type { RefreshTokenDto, AuthResponseDto } from "@clubmanager/types";
+import { UserRole } from "@clubmanager/types";
 import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
 import { JwtService } from "@/shared/services/JwtService.js";
 
@@ -29,7 +30,7 @@ export class RefreshTokenUseCase {
 
     // 3. Vérifier que le token existe en base et n'est pas révoqué
     const userId = await this.authRepository.validateRefreshToken(
-      dto.refreshToken
+      dto.refreshToken,
     );
 
     if (!userId) {
@@ -65,6 +66,7 @@ export class RefreshTokenUseCase {
       userId: user.id,
       email: user.email,
       userIdString: user.userId,
+      role_app: user.role_app ?? UserRole.MEMBER,
     });
 
     // 10. Stocker le nouveau refresh token
@@ -73,7 +75,7 @@ export class RefreshTokenUseCase {
     await this.authRepository.storeRefreshToken(
       user.id,
       newTokens.refreshToken,
-      refreshTokenExpiry
+      refreshTokenExpiry,
     );
 
     // 11. Mettre à jour la dernière connexion
@@ -95,6 +97,7 @@ export class RefreshTokenUseCase {
           status_id: user.status_id,
           grade_id: user.grade_id,
           abonnement_id: user.abonnement_id,
+          role_app: user.role_app ?? UserRole.MEMBER,
         },
         tokens: newTokens,
       },

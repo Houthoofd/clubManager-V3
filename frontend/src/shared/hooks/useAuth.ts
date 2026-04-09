@@ -108,11 +108,18 @@ export const useAuth = () => {
    * Vérifie si l'utilisateur a un rôle spécifique
    */
   const hasRole = useCallback(
-    (roleId: number): boolean => {
-      return user?.grade_id === roleId;
+    (role: string): boolean => {
+      return user?.role_app === role;
     },
     [user],
   );
+
+  /**
+   * Retourne le rôle applicatif de l'utilisateur
+   */
+  const getRole = useCallback((): string => {
+    return user?.role_app ?? "member";
+  }, [user]);
 
   /**
    * Vérifie si l'utilisateur a un statut spécifique
@@ -166,6 +173,7 @@ export const useAuth = () => {
 
     // Helpers
     hasRole,
+    getRole,
     hasStatus,
     isEmailVerified,
     getFullName,

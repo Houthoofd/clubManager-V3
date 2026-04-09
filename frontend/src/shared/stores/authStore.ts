@@ -23,6 +23,7 @@ interface User {
   status_id: number;
   grade_id?: number;
   abonnement_id?: number;
+  role_app?: string;
 }
 
 /**

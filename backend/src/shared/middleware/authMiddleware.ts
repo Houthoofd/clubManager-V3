@@ -6,6 +6,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { JwtService } from "@/shared/services/JwtService.js";
 import type { DecodedToken } from "@clubmanager/types";
+import { UserRole } from "@clubmanager/types";
 
 /**
  * Interface pour étendre Request avec les données utilisateur
@@ -15,6 +16,7 @@ export interface AuthRequest extends Request {
     userId: number;
     email: string;
     userIdString: string;
+    role_app?: UserRole;
   };
   token?: string;
 }
@@ -26,7 +28,7 @@ export interface AuthRequest extends Request {
 export const authMiddleware = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     // 1. Extraire le token du header Authorization
@@ -72,6 +74,7 @@ export const authMiddleware = async (
       userId: decoded.userId,
       email: decoded.email,
       userIdString: decoded.userIdString,
+      role_app: decoded.role_app,
     };
 
     (req as AuthRequest).token = token;
@@ -95,7 +98,7 @@ export const authMiddleware = async (
 export const optionalAuthMiddleware = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
@@ -114,6 +117,7 @@ export const optionalAuthMiddleware = async (
         userId: decoded.userId,
         email: decoded.email,
         userIdString: decoded.userIdString,
+        role_app: decoded.role_app,
       };
 
       (req as AuthRequest).token = token;
@@ -133,11 +137,11 @@ export const optionalAuthMiddleware = async (
  * Middleware pour vérifier un rôle spécifique
  * À utiliser après authMiddleware
  */
-export const requireRole = (allowedRoles: number[]) => {
+export const requireRole = (...allowedRoles: UserRole[]) => {
   return async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const user = (req as AuthRequest).user;
@@ -151,17 +155,14 @@ export const requireRole = (allowedRoles: number[]) => {
         return;
       }
 
-      // TODO: Vérifier le rôle de l'utilisateur dans la base de données
-      // Pour l'instant, on laisse passer
-      // const userRole = await getUserRole(user.userId);
-      // if (!allowedRoles.includes(userRole)) {
-      //   res.status(403).json({
-      //     success: false,
-      //     message: "Insufficient permissions",
-      //     error: "FORBIDDEN",
-      //   });
-      //   return;
-      // }
+      if (!user.role_app || !allowedRoles.includes(user.role_app)) {
+        res.status(403).json({
+          success: false,
+          message: "Insufficient permissions",
+          error: "FORBIDDEN",
+        });
+        return;
+      }
 
       next();
     } catch (error) {
@@ -183,7 +184,7 @@ export const requireEmailVerified = () => {
   return async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const user = (req as AuthRequest).user;

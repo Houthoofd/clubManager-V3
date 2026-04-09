@@ -3,6 +3,8 @@
  * Basé sur la table `utilisateurs` de la DB
  */
 
+import type { UserRole } from "../../enums/UserRole.enum.js";
+
 /**
  * Interface principale User
  * Correspond à la structure de la table `utilisateurs`
@@ -37,6 +39,9 @@ export interface User {
   tuteur_id?: number | null;
   est_mineur?: boolean;
   peut_se_connecter?: boolean;
+
+  // Rôle applicatif RBAC v4.4
+  role_app?: UserRole;
 
   // RGPD v4.1 - Soft Delete
   deleted_at?: Date | null;
