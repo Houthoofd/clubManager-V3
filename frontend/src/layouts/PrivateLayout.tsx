@@ -6,6 +6,16 @@
 
 import { useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
+import {
+  TachometerAltIcon,
+  GraduationCapIcon,
+  UserIcon,
+  UsersIcon,
+  CreditCardIcon,
+  ShoppingCartIcon,
+  EnvelopeIcon,
+  ChartBarIcon,
+} from "@patternfly/react-icons";
 import { useAuth } from "../shared/hooks/useAuth";
 
 export const PrivateLayout: React.FC = () => {
@@ -26,42 +36,42 @@ export const PrivateLayout: React.FC = () => {
     {
       name: "Dashboard",
       path: "/dashboard",
-      icon: "■",
+      icon: <TachometerAltIcon />,
     },
     {
       name: "Courses",
       path: "/courses",
-      icon: "◆",
+      icon: <GraduationCapIcon />,
     },
     {
       name: "Users",
       path: "/users",
-      icon: "●",
+      icon: <UserIcon />,
     },
     {
       name: "Ma famille",
       path: "/family",
-      icon: "👨‍👩‍👧",
+      icon: <UsersIcon />,
     },
     {
       name: "Payments",
       path: "/payments",
-      icon: "▲",
+      icon: <CreditCardIcon />,
     },
     {
       name: "Store",
       path: "/store",
-      icon: "♦",
+      icon: <ShoppingCartIcon />,
     },
     {
       name: "Messages",
       path: "/messages",
-      icon: "✉",
+      icon: <EnvelopeIcon />,
     },
     {
       name: "Statistics",
       path: "/statistics",
-      icon: "▬",
+      icon: <ChartBarIcon />,
     },
   ];
 

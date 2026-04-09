@@ -4,58 +4,17 @@
  * et permet d'en ajouter ou retirer.
  */
 
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
-import { useFamily } from '../hooks/useFamily'
-import { useAuth } from '../../../shared/hooks/useAuth'
-import { FamilyMemberCard } from '../components/FamilyMemberCard'
-import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal'
-
-// ─── Icônes inline ───────────────────────────────────────────────────────────
-
-function SpinnerIcon() {
-  return (
-    <svg
-      className="animate-spin h-8 w-8 text-blue-600"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-  )
-}
-
-function PlusIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-4 w-4"
-      viewBox="0 0 20 20"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        fillRule="evenodd"
-        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-        clipRule="evenodd"
-      />
-    </svg>
-  )
-}
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import {
+  UsersIcon,
+  PlusCircleIcon,
+  InProgressIcon,
+} from "@patternfly/react-icons";
+import { useFamily } from "../hooks/useFamily";
+import { useAuth } from "../../../shared/hooks/useAuth";
+import { FamilyMemberCard } from "../components/FamilyMemberCard";
+import { AddFamilyMemberModal } from "../components/AddFamilyMemberModal";
 
 // ─── Composant ───────────────────────────────────────────────────────────────
 
@@ -76,59 +35,57 @@ export function FamilyPage() {
     fetchMyFamily,
     removeMember,
     clearError,
-  } = useFamily()
+  } = useFamily();
 
-  const { user } = useAuth()
+  const { user } = useAuth();
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
   /** userId du membre en cours de suppression (null = aucun) */
-  const [removingUserId, setRemovingUserId] = useState<string | null>(null)
+  const [removingUserId, setRemovingUserId] = useState<string | null>(null);
 
   // ── Chargement initial ───────────────────────────────────────────────────
   useEffect(() => {
-    fetchMyFamily()
+    fetchMyFamily();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   // ── Nettoyage de l'erreur si elle change ─────────────────────────────────
   useEffect(() => {
     if (error) {
-      toast.error('Erreur famille', { description: error })
-      clearError()
+      toast.error("Erreur famille", { description: error });
+      clearError();
     }
-  }, [error, clearError])
+  }, [error, clearError]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
   const handleRemoveMember = async (userId: string) => {
-    setRemovingUserId(userId)
-    const result = await removeMember(userId)
-    setRemovingUserId(null)
+    setRemovingUserId(userId);
+    const result = await removeMember(userId);
+    setRemovingUserId(null);
 
     if (result.success) {
-      toast.success('Membre retiré', {
-        description: 'Le membre a été retiré de la famille.',
-      })
-      await fetchMyFamily()
+      toast.success("Membre retiré", {
+        description: "Le membre a été retiré de la famille.",
+      });
+      await fetchMyFamily();
     } else {
-      toast.error('Erreur lors du retrait', {
-        description: result.error ?? 'Une erreur est survenue.',
-      })
+      toast.error("Erreur lors du retrait", {
+        description: result.error ?? "Une erreur est survenue.",
+      });
     }
-  }
+  };
 
   const handleModalSuccess = async () => {
-    setIsModalOpen(false)
-    await fetchMyFamily()
-  }
+    setIsModalOpen(false);
+    await fetchMyFamily();
+  };
 
   // ── Détermine si l'utilisateur courant est responsable dans cette famille ─
   const currentUserIsResponsable =
     hasFamily &&
     family !== null &&
-    family.membres.some(
-      (m) => m.userId === user?.userId && m.est_responsable,
-    )
+    family.membres.some((m) => m.userId === user?.userId && m.est_responsable);
 
   // ── Rendu ─────────────────────────────────────────────────────────────────
 
@@ -138,16 +95,16 @@ export function FamilyPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <span aria-hidden="true">👨‍👩‍👧‍👦</span>
-            {family?.nom ? family.nom : 'Ma famille'}
+            <UsersIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
+            {family?.nom ? family.nom : "Ma famille"}
           </h1>
           {hasFamily && (
             <p className="mt-1 text-sm text-gray-500">
               {user?.userId && (
                 <span className="font-medium text-gray-600">{user.userId}</span>
               )}
-              {user?.userId && ' — '}
-              {memberCount} membre{memberCount > 1 ? 's' : ''}
+              {user?.userId && " — "}
+              {memberCount} membre{memberCount > 1 ? "s" : ""}
             </p>
           )}
         </div>
@@ -158,7 +115,7 @@ export function FamilyPage() {
           onClick={() => setIsModalOpen(true)}
           className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm transition-colors self-start sm:self-auto"
         >
-          <PlusIcon />
+          <PlusCircleIcon className="h-4 w-4" aria-hidden="true" />
           Ajouter un membre
         </button>
       </div>
@@ -168,7 +125,10 @@ export function FamilyPage() {
       {/* Chargement */}
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
-          <SpinnerIcon />
+          <InProgressIcon
+            className="animate-spin h-8 w-8 text-blue-600"
+            aria-hidden="true"
+          />
           <p className="text-sm text-gray-500">Chargement de la famille…</p>
         </div>
       )}
@@ -176,9 +136,7 @@ export function FamilyPage() {
       {/* État vide */}
       {!isLoading && !hasFamily && (
         <div className="flex flex-col items-center justify-center py-24 gap-5 bg-white rounded-2xl shadow-sm border border-gray-100">
-          <span className="text-6xl" aria-hidden="true">
-            👨‍👩‍👧‍👦
-          </span>
+          <UsersIcon className="h-16 w-16 text-gray-300" aria-hidden="true" />
           <div className="text-center">
             <h2 className="text-lg font-semibold text-gray-800">
               Aucun membre de famille
@@ -192,7 +150,7 @@ export function FamilyPage() {
             onClick={() => setIsModalOpen(true)}
             className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm transition-colors"
           >
-            <PlusIcon />
+            <PlusCircleIcon className="h-4 w-4" aria-hidden="true" />
             Ajouter un membre
           </button>
         </div>
@@ -220,5 +178,5 @@ export function FamilyPage() {
         onSuccess={handleModalSuccess}
       />
     </div>
-  )
+  );
 }
