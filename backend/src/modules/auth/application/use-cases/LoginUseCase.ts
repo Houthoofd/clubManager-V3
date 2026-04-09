@@ -26,17 +26,37 @@ export class LoginUseCase {
       throw new Error("Identifiant ou mot de passe invalide");
     }
 
-    // 3. Vérifier que le compte est actif
+    // 3. Vérifier que ce compte peut se connecter directement
+    //    Les comptes enfants (peut_se_connecter = false) ne peuvent pas
+    //    se connecter eux-mêmes — ils sont gérés par le tuteur légal.
+    if (user.peut_se_connecter === false) {
+      const error = new Error(
+        "Ce compte ne peut pas se connecter directement. " +
+          "Veuillez vous connecter avec le compte du responsable légal.",
+      ) as any;
+      error.statusCode = 403;
+      error.code = "DIRECT_LOGIN_DISABLED";
+      throw error;
+    }
+
+    // 4. Vérifier que le compte est actif
     if (!user.active) {
       throw new Error("Account is disabled");
     }
 
-    // 4. Vérifier que le compte n'est pas supprimé
+    // 5. Vérifier que le compte n'est pas supprimé
     if (user.deleted_at || user.anonymized) {
       throw new Error("Account not found");
     }
 
-    // 5. Comparer le mot de passe
+    // 6. Comparer le mot de passe
+    //    Pour les comptes sans mot de passe (ne devrait pas arriver ici
+    //    grâce à la vérification peut_se_connecter ci-dessus, mais par
+    //    sécurité on refuse si le hash est vide).
+    if (!user.password) {
+      throw new Error("Identifiant ou mot de passe invalide");
+    }
+
     const isPasswordValid = await PasswordService.compare(
       dto.password,
       user.password,
@@ -46,7 +66,7 @@ export class LoginUseCase {
       throw new Error("Identifiant ou mot de passe invalide");
     }
 
-    // 6. Vérifier si l'email est vérifié
+    // 7. Vérifier si l'email est vérifié
     if (!user.email_verified) {
       const error = new Error(
         "Veuillez vérifier votre adresse email avant de vous connecter.",
@@ -56,14 +76,14 @@ export class LoginUseCase {
       throw error;
     }
 
-    // 7. Générer les tokens JWT
+    // 8. Générer les tokens JWT
     const tokens = JwtService.generateTokenPair({
       userId: user.id,
       email: user.email,
       userIdString: user.userId,
     });
 
-    // 8. Stocker le refresh token en base
+    // 9. Stocker le refresh token en base
     const refreshTokenExpiry = new Date();
     refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // 7 jours
     await this.authRepository.storeRefreshToken(
@@ -72,10 +92,10 @@ export class LoginUseCase {
       refreshTokenExpiry,
     );
 
-    // 9. Mettre à jour la dernière connexion
+    // 10. Mettre à jour la dernière connexion
     await this.authRepository.updateLastLogin(user.id);
 
-    // 10. Retourner la réponse
+    // 11. Retourner la réponse
     return {
       success: true,
       message: "Login successful",

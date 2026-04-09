@@ -33,6 +33,11 @@ export interface User {
   email_verified: boolean;
   photo_url?: string;
 
+  // Gestion familiale v4.3
+  tuteur_id?: number | null;
+  est_mineur?: boolean;
+  peut_se_connecter?: boolean;
+
   // RGPD v4.1 - Soft Delete
   deleted_at?: Date | null;
   deleted_by?: number | null;

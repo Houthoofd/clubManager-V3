@@ -17,18 +17,21 @@ interface UserRow extends RowDataPacket {
   userId: string;
   first_name: string;
   last_name: string;
-  nom_utilisateur: string;
-  email: string;
-  password: string;
+  nom_utilisateur: string | null;
+  email: string | null;
+  password: string | null;
   date_of_birth: Date;
   telephone?: string;
   adresse?: string;
   genre_id: number;
   grade_id?: number;
   abonnement_id?: number;
+  tuteur_id?: number | null;
   status_id: number;
   active: boolean;
   email_verified: boolean;
+  est_mineur: boolean;
+  peut_se_connecter: boolean;
   photo_url?: string;
   deleted_at?: Date | null;
   deleted_by?: number | null;
@@ -446,23 +449,26 @@ export class MySQLAuthRepository implements IAuthRepository {
       userId: row.userId,
       first_name: row.first_name,
       last_name: row.last_name,
-      nom_utilisateur: row.nom_utilisateur,
-      email: row.email,
-      password: row.password,
+      nom_utilisateur: row.nom_utilisateur ?? "",
+      email: row.email ?? "",
+      password: row.password ?? "",
       date_of_birth: new Date(row.date_of_birth),
       telephone: row.telephone,
       adresse: row.adresse,
       genre_id: row.genre_id,
       grade_id: row.grade_id,
       abonnement_id: row.abonnement_id,
+      tuteur_id: row.tuteur_id ?? null,
       status_id: row.status_id,
-      active: row.active,
-      email_verified: row.email_verified,
+      active: Boolean(row.active),
+      email_verified: Boolean(row.email_verified),
+      est_mineur: Boolean(row.est_mineur),
+      peut_se_connecter: Boolean(row.peut_se_connecter),
       photo_url: row.photo_url,
       deleted_at: row.deleted_at ? new Date(row.deleted_at) : null,
       deleted_by: row.deleted_by,
       deletion_reason: row.deletion_reason,
-      anonymized: row.anonymized,
+      anonymized: Boolean(row.anonymized),
       date_inscription: new Date(row.date_inscription),
       derniere_connexion: row.derniere_connexion
         ? new Date(row.derniere_connexion)
