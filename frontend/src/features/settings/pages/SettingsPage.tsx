@@ -12,7 +12,14 @@ import type { CreateInformation } from "@clubmanager/types";
 
 // ─── Tab type ─────────────────────────────────────────────────────────────────
 
-type TabId = "club" | "horaires" | "social" | "finance";
+type TabId =
+  | "club"
+  | "horaires"
+  | "social"
+  | "finance"
+  | "apparence"
+  | "navigation"
+  | "localisation";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -116,6 +123,60 @@ function BanknotesIcon({ className = "h-5 w-5" }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"
+      />
+    </svg>
+  );
+}
+
+function PaintBrushIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42"
+      />
+    </svg>
+  );
+}
+
+function Squares2x2Icon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"
+      />
+    </svg>
+  );
+}
+
+function LanguageIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802"
       />
     </svg>
   );
@@ -270,6 +331,134 @@ function TextAreaField({
   );
 }
 
+// ─── Select field ─────────────────────────────────────────────────────────────
+
+interface SelectFieldProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  description?: string;
+}
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  description,
+}: SelectFieldProps) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label}
+      </label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      {description && (
+        <p className="mt-1 text-xs text-gray-500">{description}</p>
+      )}
+    </div>
+  );
+}
+
+// ─── Color field ──────────────────────────────────────────────────────────────
+
+interface ColorFieldProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  description?: string;
+}
+
+function ColorField({ label, value, onChange, description }: ColorFieldProps) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label}
+      </label>
+      <div className="flex items-center gap-3">
+        <input
+          type="color"
+          value={value || "#2563eb"}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-10 w-20 cursor-pointer rounded border border-gray-300 p-0.5"
+        />
+        <input
+          type="text"
+          value={value || "#2563eb"}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="#2563eb"
+          className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+        />
+        <div
+          className="h-8 w-8 rounded-full border border-gray-300"
+          style={{ backgroundColor: value || "#2563eb" }}
+        />
+      </div>
+      {description && (
+        <p className="mt-1 text-xs text-gray-500">{description}</p>
+      )}
+    </div>
+  );
+}
+
+// ─── Module toggle ────────────────────────────────────────────────────────────
+
+interface ModuleToggleProps {
+  label: string;
+  moduleKey: string;
+  enabled: boolean;
+  disabled?: boolean;
+  onChange: (key: string, enabled: boolean) => void;
+}
+
+function ModuleToggle({
+  label,
+  moduleKey,
+  enabled,
+  disabled = false,
+  onChange,
+}: ModuleToggleProps) {
+  return (
+    <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+      <div>
+        <p
+          className={`text-sm font-medium ${disabled ? "text-gray-400" : "text-gray-900"}`}
+        >
+          {label}
+        </p>
+        {disabled && <p className="text-xs text-gray-400">Toujours actif</p>}
+      </div>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => !disabled && onChange(moduleKey, !enabled)}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+          enabled ? "bg-blue-600" : "bg-gray-200"
+        } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+        aria-checked={enabled}
+        role="switch"
+      >
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+            enabled ? "translate-x-6" : "translate-x-1"
+          }`}
+        />
+      </button>
+    </div>
+  );
+}
+
 // ─── Save button ──────────────────────────────────────────────────────────────
 
 interface SaveButtonProps {
@@ -420,6 +609,30 @@ export const SettingsPage = () => {
     legal_info: "",
   });
 
+  const [apparenceForm, setApparenceForm] = useState({
+    theme_primary_color: "#2563eb",
+    club_logo_url: "",
+    navbar_name: "",
+  });
+
+  const [activeModules, setActiveModules] = useState<Record<string, boolean>>({
+    dashboard: true,
+    courses: true,
+    users: true,
+    families: true,
+    payments: true,
+    store: true,
+    messages: true,
+    statistics: true,
+  });
+
+  const [localisationForm, setLocalisationForm] = useState({
+    app_language: "fr",
+    date_format: "DD/MM/YYYY",
+    time_format: "24h",
+    timezone: "Europe/Paris",
+  });
+
   // ── Sync forms when store data loads ─────────────────────────────────────
   useEffect(() => {
     if (settings.length > 0 || !isLoading) {
@@ -444,6 +657,36 @@ export const SettingsPage = () => {
         bank_account: getByKey(INFORMATION_KEYS.BANK_ACCOUNT)?.valeur ?? "",
         vat_number: getByKey(INFORMATION_KEYS.VAT_NUMBER)?.valeur ?? "",
         legal_info: getByKey(INFORMATION_KEYS.LEGAL_INFO)?.valeur ?? "",
+      });
+
+      setApparenceForm({
+        theme_primary_color:
+          getByKey(INFORMATION_KEYS.THEME_PRIMARY_COLOR)?.valeur ?? "#2563eb",
+        club_logo_url: getByKey(INFORMATION_KEYS.CLUB_LOGO_URL)?.valeur ?? "",
+        navbar_name: getByKey(INFORMATION_KEYS.NAVBAR_NAME)?.valeur ?? "",
+      });
+
+      const savedModules = getByKey(INFORMATION_KEYS.ACTIVE_MODULES)?.valeur;
+      if (savedModules) {
+        const moduleList = savedModules.split(",").map((m) => m.trim());
+        setActiveModules({
+          dashboard: true, // always on
+          courses: moduleList.includes("courses"),
+          users: moduleList.includes("users"),
+          families: moduleList.includes("families"),
+          payments: moduleList.includes("payments"),
+          store: moduleList.includes("store"),
+          messages: moduleList.includes("messages"),
+          statistics: moduleList.includes("statistics"),
+        });
+      }
+
+      setLocalisationForm({
+        app_language: getByKey(INFORMATION_KEYS.APP_LANGUAGE)?.valeur ?? "fr",
+        date_format:
+          getByKey(INFORMATION_KEYS.DATE_FORMAT)?.valeur ?? "DD/MM/YYYY",
+        time_format: getByKey(INFORMATION_KEYS.TIME_FORMAT)?.valeur ?? "24h",
+        timezone: getByKey(INFORMATION_KEYS.TIMEZONE)?.valeur ?? "Europe/Paris",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -512,6 +755,41 @@ export const SettingsPage = () => {
       "Informations financières sauvegardées",
     );
 
+  const handleSaveApparence = () =>
+    saveSection(
+      buildPayload([
+        [
+          INFORMATION_KEYS.THEME_PRIMARY_COLOR,
+          apparenceForm.theme_primary_color,
+        ],
+        [INFORMATION_KEYS.CLUB_LOGO_URL, apparenceForm.club_logo_url],
+        [INFORMATION_KEYS.NAVBAR_NAME, apparenceForm.navbar_name],
+      ]),
+      "Apparence sauvegardée",
+    );
+
+  const handleSaveNavigation = () => {
+    const enabledModules = Object.entries(activeModules)
+      .filter(([key, enabled]) => enabled && key !== "dashboard")
+      .map(([key]) => key)
+      .join(",");
+    saveSection(
+      [{ cle: INFORMATION_KEYS.ACTIVE_MODULES, valeur: enabledModules }],
+      "Navigation sauvegardée",
+    );
+  };
+
+  const handleSaveLocalisation = () =>
+    saveSection(
+      buildPayload([
+        [INFORMATION_KEYS.APP_LANGUAGE, localisationForm.app_language],
+        [INFORMATION_KEYS.DATE_FORMAT, localisationForm.date_format],
+        [INFORMATION_KEYS.TIME_FORMAT, localisationForm.time_format],
+        [INFORMATION_KEYS.TIMEZONE, localisationForm.timezone],
+      ]),
+      "Localisation sauvegardée",
+    );
+
   // ── Tab definitions ───────────────────────────────────────────────────────
   const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
     {
@@ -533,6 +811,17 @@ export const SettingsPage = () => {
       id: "finance",
       label: "Finance & Légal",
       icon: <BanknotesIcon />,
+    },
+    { id: "apparence" as TabId, label: "Apparence", icon: <PaintBrushIcon /> },
+    {
+      id: "navigation" as TabId,
+      label: "Navigation",
+      icon: <Squares2x2Icon />,
+    },
+    {
+      id: "localisation" as TabId,
+      label: "Localisation",
+      icon: <LanguageIcon />,
     },
   ];
 
@@ -800,6 +1089,209 @@ export const SettingsPage = () => {
 
           <div className="mt-6 flex justify-end border-t border-gray-100 pt-5">
             <SaveButton onClick={handleSaveFinance} isSaving={isSaving} />
+          </div>
+        </div>
+      )}
+
+      {/* ── Section: Apparence ────────────────────────────────────────────── */}
+      {activeTab === "apparence" && (
+        <div className="bg-white rounded-lg shadow p-6 space-y-6">
+          <SectionHeader
+            icon={<PaintBrushIcon className="h-6 w-6" />}
+            iconBg="bg-pink-50"
+            iconColor="text-pink-600"
+            title="Apparence"
+            description="Personnalisez l'interface de l'application."
+          />
+          <div className="space-y-4">
+            <ColorField
+              label="Couleur principale"
+              value={apparenceForm.theme_primary_color}
+              onChange={(v) =>
+                setApparenceForm((f) => ({ ...f, theme_primary_color: v }))
+              }
+              description="Couleur utilisée pour les éléments actifs, boutons et accents de l'interface."
+            />
+            <Field
+              label="URL du logo du club"
+              id="club_logo_url"
+              value={apparenceForm.club_logo_url}
+              onChange={(v) =>
+                setApparenceForm((f) => ({ ...f, club_logo_url: v }))
+              }
+              placeholder="https://example.com/logo.png"
+              hint="Affiché dans la barre de navigation latérale."
+            />
+            {apparenceForm.club_logo_url && (
+              <div className="mt-2">
+                <p className="text-xs text-gray-500 mb-1">Aperçu :</p>
+                <img
+                  src={apparenceForm.club_logo_url}
+                  alt="Logo aperçu"
+                  className="h-12 w-auto object-contain border border-gray-200 rounded p-1"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              </div>
+            )}
+            <Field
+              label="Nom affiché dans la sidebar"
+              id="navbar_name"
+              value={apparenceForm.navbar_name}
+              onChange={(v) =>
+                setApparenceForm((f) => ({ ...f, navbar_name: v }))
+              }
+              placeholder="ClubManager"
+              hint="Nom court affiché en haut de la barre de navigation. Si vide, le nom officiel du club est utilisé."
+            />
+          </div>
+          <div className="flex justify-end border-t border-gray-100 pt-5">
+            <SaveButton onClick={handleSaveApparence} isSaving={isSaving} />
+          </div>
+        </div>
+      )}
+
+      {/* ── Section: Navigation ───────────────────────────────────────────── */}
+      {activeTab === "navigation" && (
+        <div className="bg-white rounded-lg shadow p-6 space-y-6">
+          <SectionHeader
+            icon={<Squares2x2Icon className="h-6 w-6" />}
+            iconBg="bg-indigo-50"
+            iconColor="text-indigo-600"
+            title="Navigation"
+            description="Choisissez les modules visibles dans la barre de navigation latérale."
+          />
+          <div className="bg-gray-50 rounded-lg px-4 divide-y divide-gray-100">
+            <ModuleToggle
+              label="Tableau de bord"
+              moduleKey="dashboard"
+              enabled={true}
+              disabled={true}
+              onChange={() => {}}
+            />
+            <ModuleToggle
+              label="Cours"
+              moduleKey="courses"
+              enabled={activeModules["courses"] ?? true}
+              onChange={(k, v) => setActiveModules((m) => ({ ...m, [k]: v }))}
+            />
+            <ModuleToggle
+              label="Utilisateurs"
+              moduleKey="users"
+              enabled={activeModules["users"] ?? true}
+              onChange={(k, v) => setActiveModules((m) => ({ ...m, [k]: v }))}
+            />
+            <ModuleToggle
+              label="Famille"
+              moduleKey="families"
+              enabled={activeModules["families"] ?? true}
+              onChange={(k, v) => setActiveModules((m) => ({ ...m, [k]: v }))}
+            />
+            <ModuleToggle
+              label="Paiements"
+              moduleKey="payments"
+              enabled={activeModules["payments"] ?? true}
+              onChange={(k, v) => setActiveModules((m) => ({ ...m, [k]: v }))}
+            />
+            <ModuleToggle
+              label="Boutique"
+              moduleKey="store"
+              enabled={activeModules["store"] ?? true}
+              onChange={(k, v) => setActiveModules((m) => ({ ...m, [k]: v }))}
+            />
+            <ModuleToggle
+              label="Messages"
+              moduleKey="messages"
+              enabled={activeModules["messages"] ?? true}
+              onChange={(k, v) => setActiveModules((m) => ({ ...m, [k]: v }))}
+            />
+            <ModuleToggle
+              label="Statistiques"
+              moduleKey="statistics"
+              enabled={activeModules["statistics"] ?? true}
+              onChange={(k, v) => setActiveModules((m) => ({ ...m, [k]: v }))}
+            />
+          </div>
+          <div className="flex justify-end border-t border-gray-100 pt-5">
+            <SaveButton onClick={handleSaveNavigation} isSaving={isSaving} />
+          </div>
+        </div>
+      )}
+
+      {/* ── Section: Localisation ─────────────────────────────────────────── */}
+      {activeTab === "localisation" && (
+        <div className="bg-white rounded-lg shadow p-6 space-y-6">
+          <SectionHeader
+            icon={<LanguageIcon className="h-6 w-6" />}
+            iconBg="bg-teal-50"
+            iconColor="text-teal-600"
+            title="Localisation"
+            description="Configurez la langue et les formats d'affichage."
+          />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <SelectField
+              label="Langue de l'interface"
+              value={localisationForm.app_language}
+              onChange={(v) =>
+                setLocalisationForm((f) => ({ ...f, app_language: v }))
+              }
+              options={[
+                { value: "fr", label: "Français" },
+                { value: "en", label: "English" },
+              ]}
+            />
+            <SelectField
+              label="Format de date"
+              value={localisationForm.date_format}
+              onChange={(v) =>
+                setLocalisationForm((f) => ({ ...f, date_format: v }))
+              }
+              options={[
+                { value: "DD/MM/YYYY", label: "DD/MM/YYYY (31/12/2024)" },
+                { value: "MM/DD/YYYY", label: "MM/DD/YYYY (12/31/2024)" },
+                { value: "YYYY-MM-DD", label: "YYYY-MM-DD (2024-12-31)" },
+              ]}
+            />
+            <SelectField
+              label="Format d'heure"
+              value={localisationForm.time_format}
+              onChange={(v) =>
+                setLocalisationForm((f) => ({ ...f, time_format: v }))
+              }
+              options={[
+                { value: "24h", label: "24h (14:30)" },
+                { value: "12h", label: "12h (2:30 PM)" },
+              ]}
+            />
+            <SelectField
+              label="Fuseau horaire"
+              value={localisationForm.timezone}
+              onChange={(v) =>
+                setLocalisationForm((f) => ({ ...f, timezone: v }))
+              }
+              options={[
+                { value: "Europe/Paris", label: "Europe/Paris (UTC+1/+2)" },
+                { value: "Europe/London", label: "Europe/London (UTC+0/+1)" },
+                {
+                  value: "Europe/Brussels",
+                  label: "Europe/Brussels (UTC+1/+2)",
+                },
+                { value: "Europe/Zurich", label: "Europe/Zurich (UTC+1/+2)" },
+                {
+                  value: "America/New_York",
+                  label: "America/New_York (UTC-5/-4)",
+                },
+                {
+                  value: "America/Montreal",
+                  label: "America/Montreal (UTC-5/-4)",
+                },
+                { value: "UTC", label: "UTC (UTC+0)" },
+              ]}
+            />
+          </div>
+          <div className="flex justify-end border-t border-gray-100 pt-5">
+            <SaveButton onClick={handleSaveLocalisation} isSaving={isSaving} />
           </div>
         </div>
       )}

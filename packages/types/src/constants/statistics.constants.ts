@@ -108,6 +108,16 @@ export const INFORMATION_KEYS = {
   BANK_ACCOUNT: "bank_account",
   VAT_NUMBER: "vat_number",
   LEGAL_INFO: "legal_info",
+  // UI / theming
+  THEME_PRIMARY_COLOR: "theme_primary_color", // hex color e.g. "#2563eb"
+  CLUB_LOGO_URL: "club_logo_url", // URL of the club logo image
+  NAVBAR_NAME: "navbar_name", // Short name shown in sidebar header
+  ACTIVE_MODULES: "active_modules", // comma-separated: "dashboard,courses,users,families,payments,store,messages,statistics"
+  // Localisation
+  APP_LANGUAGE: "app_language", // "fr" | "en"
+  DATE_FORMAT: "date_format", // "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD"
+  TIME_FORMAT: "time_format", // "24h" | "12h"
+  TIMEZONE: "timezone", // e.g. "Europe/Paris"
 } as const;
 
 // ============================================================================
