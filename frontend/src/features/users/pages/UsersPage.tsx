@@ -13,6 +13,8 @@ import { UserStatusBadge } from "../components/UserStatusBadge";
 import { EditUserRoleModal } from "../components/EditUserRoleModal";
 import { EditUserStatusModal } from "../components/EditUserStatusModal";
 import { DeleteUserModal } from "../components/DeleteUserModal";
+import { SendToUserModal } from "../components/SendToUserModal";
+import { NotifyUsersModal } from "../components/NotifyUsersModal";
 import { UserRole } from "@clubmanager/types";
 import type { UserListItemDto } from "@clubmanager/types";
 
@@ -143,13 +145,31 @@ function CheckIcon() {
   );
 }
 
+function EnvelopeIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+    </svg>
+  );
+}
+
+function BellAlertIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
+    </svg>
+  );
+}
+
 // ─── Types état modal ─────────────────────────────────────────────────────────
 
 type ModalState =
   | { type: "none" }
   | { type: "editRole"; user: UserListItemDto }
   | { type: "editStatus"; user: UserListItemDto }
-  | { type: "delete"; user: UserListItemDto };
+  | { type: "delete"; user: UserListItemDto }
+  | { type: "sendEmail"; user: UserListItemDto }
+  | { type: "notifyBulk" };
 
 // ─── Helpers pagination ───────────────────────────────────────────────────────
 
@@ -346,6 +366,19 @@ export function UsersPage() {
               Total : {pagination.total} utilisateur
               {pagination.total > 1 ? "s" : ""}
             </span>
+          )}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setModal({ type: "notifyBulk" })}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-orange-200
+                         bg-orange-50 text-orange-700 text-sm font-medium
+                         hover:bg-orange-100 hover:border-orange-300 transition-colors"
+              title="Envoyer une notification aux membres non-conformes"
+            >
+              <BellAlertIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">Notifier</span>
+            </button>
           )}
           <button
             type="button"
@@ -605,6 +638,19 @@ export function UsersPage() {
                           <PencilIcon />
                         </button>
 
+                        {/* Envoyer un message — visible aux admins et professeurs */}
+                        {user.status_id !== 5 && (
+                          <button
+                            type="button"
+                            onClick={() => setModal({ type: "sendEmail", user })}
+                            className="p-1.5 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            title={`Envoyer un message à ${user.first_name} ${user.last_name}`}
+                            aria-label={`Envoyer un message à ${user.first_name} ${user.last_name}`}
+                          >
+                            <EnvelopeIcon className="h-4 w-4" />
+                          </button>
+                        )}
+
                         {/* Supprimer (admin uniquement) */}
                         {isAdmin && user.status_id !== 5 && (
                           <button
@@ -780,6 +826,19 @@ export function UsersPage() {
         isOpen={modal.type === "delete"}
         onClose={closeModal}
         onConfirm={handleDeleteConfirm}
+      />
+
+      {/* Envoyer un email à un utilisateur */}
+      <SendToUserModal
+        user={modal.type === "sendEmail" ? modal.user : null}
+        isOpen={modal.type === "sendEmail"}
+        onClose={closeModal}
+      />
+
+      {/* Notification en masse */}
+      <NotifyUsersModal
+        isOpen={modal.type === "notifyBulk"}
+        onClose={closeModal}
       />
     </div>
   );
