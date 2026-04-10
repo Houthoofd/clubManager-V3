@@ -11,6 +11,15 @@ import { ComposeModal } from "../components/ComposeModal";
 import { MessageListItem } from "../components/MessageListItem";
 import { MessageDetail } from "../components/MessageDetail";
 import { TemplatesTab } from "../components/TemplatesTab";
+import {
+  AngleLeftIcon,
+  AngleRightIcon,
+  EnvelopeIcon,
+  InboxIcon,
+  PaperPlaneIcon,
+  PencilAltIcon,
+  PficonTemplateIcon,
+} from "@patternfly/react-icons";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -31,7 +40,9 @@ const MessageSkeleton = () => (
 
 const EmptyList = ({ tab }: { tab: "inbox" | "sent" }) => (
   <div className="flex flex-col items-center justify-center h-full py-16 text-gray-400 select-none">
-    <span className="text-5xl mb-4">{tab === "inbox" ? "📭" : "📤"}</span>
+    <div className="text-gray-300 mb-4" style={{ fontSize: "48px" }}>
+      {tab === "inbox" ? <InboxIcon /> : <PaperPlaneIcon />}
+    </div>
     <p className="text-sm font-medium">
       {tab === "inbox" ? "Aucun message reçu" : "Aucun message envoyé"}
     </p>
@@ -42,7 +53,9 @@ const EmptyList = ({ tab }: { tab: "inbox" | "sent" }) => (
 
 const NoSelection = () => (
   <div className="flex flex-col items-center justify-center h-full text-gray-400 select-none">
-    <span className="text-6xl mb-4">✉️</span>
+    <div className="text-gray-300 mb-4" style={{ fontSize: "48px" }}>
+      <EnvelopeIcon />
+    </div>
     <p className="text-base font-medium text-gray-500">
       Sélectionnez un message
     </p>
@@ -73,9 +86,10 @@ const PaginationBar = ({
       <button
         onClick={onPrev}
         disabled={page <= 1}
-        className="text-xs px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
-        ◀ Préc.
+        <AngleLeftIcon style={{ fontSize: "12px" }} />
+        Préc.
       </button>
       <span className="text-xs text-gray-500">
         {page} / {totalPages}
@@ -83,9 +97,10 @@ const PaginationBar = ({
       <button
         onClick={onNext}
         disabled={page >= totalPages}
-        className="text-xs px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
-        Suiv. ▶
+        Suiv.
+        <AngleRightIcon style={{ fontSize: "12px" }} />
       </button>
     </div>
   );
@@ -200,7 +215,7 @@ export const MessagesPage = () => {
             onClick={() => setIsComposeOpen(true)}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
           >
-            <span className="text-base">✏️</span>
+            <PencilAltIcon style={{ fontSize: "16px" }} />
             Nouveau message
           </button>
         </div>
@@ -219,7 +234,7 @@ export const MessagesPage = () => {
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
                 ].join(" ")}
               >
-                <span className="text-base">📥</span>
+                <InboxIcon style={{ fontSize: "16px" }} />
                 <span className="flex-1 truncate">Boîte de réception</span>
                 {unreadCount > 0 && (
                   <span className="flex-shrink-0 bg-blue-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none">
@@ -240,7 +255,7 @@ export const MessagesPage = () => {
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
                 ].join(" ")}
               >
-                <span className="text-base">📤</span>
+                <PaperPlaneIcon style={{ fontSize: "16px" }} />
                 <span className="flex-1 truncate">Messages envoyés</span>
               </button>
             </li>
@@ -257,7 +272,7 @@ export const MessagesPage = () => {
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
                   ].join(" ")}
                 >
-                  <span className="text-base">📋</span>
+                  <PficonTemplateIcon style={{ fontSize: "16px" }} />
                   <span className="flex-1 truncate">Templates</span>
                 </button>
               </li>

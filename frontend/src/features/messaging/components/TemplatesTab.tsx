@@ -11,6 +11,17 @@ import type { Template, TemplateType } from "../api/templatesApi";
 import { TemplateEditorModal } from "./TemplateEditorModal";
 import { TemplateTypeModal } from "./TemplateTypeModal";
 import { SendFromTemplateModal } from "./SendFromTemplateModal";
+import {
+  CircleIcon,
+  EnvelopeIcon,
+  FolderOpenIcon,
+  PaperPlaneIcon,
+  PencilAltIcon,
+  PficonTemplateIcon,
+  PlusCircleIcon,
+  SearchIcon,
+  TrashIcon,
+} from "@patternfly/react-icons";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -77,7 +88,10 @@ const TemplateCard = ({
     >
       {/* Titre */}
       <div className="flex items-start gap-2">
-        <span className="text-base flex-shrink-0 mt-0.5">📧</span>
+        <EnvelopeIcon
+          className="flex-shrink-0 mt-0.5 text-gray-400"
+          style={{ fontSize: "16px" }}
+        />
         <p className="text-sm font-semibold text-gray-800 leading-snug flex-1 min-w-0 break-words">
           {template.titre}
         </p>
@@ -123,7 +137,17 @@ const TemplateCard = ({
               : "bg-gray-100 text-gray-500 hover:bg-gray-200",
           ].join(" ")}
         >
-          <span>{template.actif ? "●" : "○"}</span>
+          {template.actif ? (
+            <CircleIcon
+              className="text-green-500"
+              style={{ fontSize: "10px" }}
+            />
+          ) : (
+            <CircleIcon
+              className="text-gray-300"
+              style={{ fontSize: "10px" }}
+            />
+          )}
           {template.actif ? "Actif" : "Inactif"}
         </button>
 
@@ -136,7 +160,7 @@ const TemplateCard = ({
             title="Modifier ce template"
             className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
           >
-            <span className="text-sm">✏️</span>
+            <PencilAltIcon style={{ fontSize: "14px" }} />
           </button>
 
           {/* Envoyer */}
@@ -149,7 +173,7 @@ const TemplateCard = ({
             }
             className="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <span className="text-sm">📤</span>
+            <PaperPlaneIcon style={{ fontSize: "14px" }} />
           </button>
 
           {/* Supprimer */}
@@ -182,7 +206,7 @@ const TemplateCard = ({
                 />
               </svg>
             ) : (
-              <span className="text-sm">🗑️</span>
+              <TrashIcon style={{ fontSize: "14px" }} />
             )}
           </button>
         </div>
@@ -289,7 +313,7 @@ const CategoryPanel = ({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-            <span>🗂️</span>
+            <FolderOpenIcon style={{ fontSize: "16px" }} />
             Gérer les catégories
           </h2>
           <button
@@ -367,7 +391,7 @@ const CategoryPanel = ({
                     title="Modifier"
                     className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                   >
-                    <span className="text-xs">✏️</span>
+                    <PencilAltIcon style={{ fontSize: "12px" }} />
                   </button>
                   <button
                     type="button"
@@ -398,7 +422,7 @@ const CategoryPanel = ({
                         />
                       </svg>
                     ) : (
-                      <span className="text-xs">🗑️</span>
+                      <TrashIcon style={{ fontSize: "12px" }} />
                     )}
                   </button>
                 </div>
@@ -414,7 +438,7 @@ const CategoryPanel = ({
             onClick={onNewType}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
           >
-            <span>➕</span>
+            <PlusCircleIcon style={{ fontSize: "16px" }} />
             Nouvelle catégorie
           </button>
         </div>
@@ -663,7 +687,7 @@ export const TemplatesTab = () => {
             onClick={() => setIsCategoryPanelOpen(true)}
             className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-gray-200 hover:border-blue-200"
           >
-            <span>🗂️</span>
+            <FolderOpenIcon style={{ fontSize: "16px" }} />
             Gérer les catégories
           </button>
         </div>
@@ -705,7 +729,9 @@ export const TemplatesTab = () => {
         ) : types.length === 0 ? (
           /* No categories yet */
           <div className="flex flex-col items-center justify-center h-full py-20 text-gray-400">
-            <span className="text-6xl mb-4">📋</span>
+            <div className="text-gray-300 mb-4" style={{ fontSize: "48px" }}>
+              <PficonTemplateIcon />
+            </div>
             <p className="text-base font-medium text-gray-500 mb-2">
               Aucune catégorie de templates
             </p>
@@ -722,14 +748,16 @@ export const TemplatesTab = () => {
               }}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
             >
-              <span>🗂️</span>
+              <FolderOpenIcon style={{ fontSize: "16px" }} />
               Créer une première catégorie
             </button>
           </div>
         ) : filteredTypes.length === 0 ? (
           /* Filter yields no results */
           <div className="flex flex-col items-center justify-center h-full py-20 text-gray-400">
-            <span className="text-4xl mb-3">🔍</span>
+            <div className="text-gray-300 mb-3" style={{ fontSize: "48px" }}>
+              <SearchIcon />
+            </div>
             <p className="text-sm font-medium text-gray-500">
               Aucun résultat pour ce filtre.
             </p>

@@ -11,6 +11,11 @@ import { useMessagingStore } from "../stores/messagingStore";
 import type { SendMessagePayload } from "../api/messagingApi";
 import { getTemplates } from "../api/templatesApi";
 import type { Template } from "../api/templatesApi";
+import {
+  PaperPlaneIcon,
+  PencilAltIcon,
+  PficonTemplateIcon,
+} from "@patternfly/react-icons";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -204,7 +209,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
               id="compose-modal-title"
               className="text-lg font-semibold text-gray-900 flex items-center gap-2"
             >
-              <span>✏️</span>
+              <PencilAltIcon style={{ fontSize: "16px" }} />
               Nouveau message
             </h2>
             <button
@@ -251,7 +256,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                   ].join(" ")}
                 >
                   <span className="flex items-center gap-2">
-                    <span>📋</span>
+                    <PficonTemplateIcon style={{ fontSize: "16px" }} />
                     <span className="font-medium">Utiliser un template</span>
                   </span>
                   <svg
@@ -568,7 +573,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <span>📤</span>
+                    <PaperPlaneIcon className="w-4 h-4" />
                     Envoyer
                   </>
                 )}

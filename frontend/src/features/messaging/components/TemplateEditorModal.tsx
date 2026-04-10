@@ -7,6 +7,15 @@ import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { createTemplate, updateTemplate } from "../api/templatesApi";
 import type { Template, TemplateType } from "../api/templatesApi";
+import {
+  CheckCircleIcon,
+  EyeIcon,
+  ExclamationTriangleIcon,
+  InfoCircleIcon,
+  PencilAltIcon,
+  PlusCircleIcon,
+  SaveIcon,
+} from "@patternfly/react-icons";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -203,7 +212,11 @@ export const TemplateEditorModal = ({
               id="template-editor-title"
               className="text-base font-semibold text-gray-900 flex items-center gap-2"
             >
-              <span>{isEditing ? "✏️" : "➕"}</span>
+              {isEditing ? (
+                <PencilAltIcon style={{ fontSize: "16px" }} />
+              ) : (
+                <PlusCircleIcon style={{ fontSize: "16px" }} />
+              )}
               {isEditing
                 ? `Modifier « ${template!.titre} »`
                 : "Nouveau template"}
@@ -377,7 +390,12 @@ export const TemplateEditorModal = ({
                     {contenu.trim() === "" && titre.trim() === "" ? (
                       <div className="flex items-center justify-center h-full min-h-[200px] text-gray-400 text-sm">
                         <div className="text-center">
-                          <span className="text-3xl block mb-2">👁️</span>
+                          <div
+                            className="text-gray-300 mb-2 flex justify-center"
+                            style={{ fontSize: "48px" }}
+                          >
+                            <EyeIcon />
+                          </div>
                           L'aperçu apparaît ici
                         </div>
                       </div>
@@ -412,7 +430,10 @@ export const TemplateEditorModal = ({
                         key={v}
                         className="flex items-center gap-1.5 bg-white border border-green-200 rounded-lg px-2.5 py-1.5 shadow-sm"
                       >
-                        <span className="text-green-600 text-xs">✅</span>
+                        <CheckCircleIcon
+                          className="text-green-600"
+                          style={{ fontSize: "12px" }}
+                        />
                         <code className="text-xs font-mono text-gray-700">{`{{${v}}}`}</code>
                         <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
                           Auto
@@ -424,7 +445,10 @@ export const TemplateEditorModal = ({
                         key={v}
                         className="flex items-center gap-1.5 bg-white border border-orange-200 rounded-lg px-2.5 py-1.5 shadow-sm"
                       >
-                        <span className="text-orange-500 text-xs">✏️</span>
+                        <PencilAltIcon
+                          className="text-orange-500"
+                          style={{ fontSize: "12px" }}
+                        />
                         <code className="text-xs font-mono text-gray-700">{`{{${v}}}`}</code>
                         <span className="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium">
                           Manuel
@@ -434,8 +458,9 @@ export const TemplateEditorModal = ({
                   </div>
                   {manualVars.length > 0 && (
                     <p className="mt-2.5 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
-                      <span className="font-medium">
-                        ⚠️ Variables manuelles :
+                      <span className="font-medium flex items-center gap-1">
+                        <ExclamationTriangleIcon style={{ fontSize: "12px" }} />
+                        Variables manuelles :
                       </span>{" "}
                       Ces variables devront être renseignées manuellement à
                       chaque envoi.
@@ -446,7 +471,7 @@ export const TemplateEditorModal = ({
 
               {detectedVars.length === 0 && contenu.trim() !== "" && (
                 <p className="text-xs text-gray-400 flex items-center gap-1.5">
-                  <span>ℹ️</span>
+                  <InfoCircleIcon style={{ fontSize: "12px" }} />
                   Aucune variable détectée. Utilisez{" "}
                   <code className="bg-gray-100 px-1 rounded font-mono">{`{{prenom}}`}</code>
                   ,{" "}
@@ -510,7 +535,7 @@ export const TemplateEditorModal = ({
                   </>
                 ) : (
                   <>
-                    <span>💾</span>
+                    <SaveIcon className="w-4 h-4" />
                     Enregistrer
                   </>
                 )}

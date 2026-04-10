@@ -5,20 +5,31 @@
  *   2. Aperçu (optionnel) → confirmation
  */
 
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { previewTemplate, sendFromTemplate } from '../api/templatesApi';
-import type { Template, PreviewResult } from '../api/templatesApi';
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { previewTemplate, sendFromTemplate } from "../api/templatesApi";
+import type { Template, PreviewResult } from "../api/templatesApi";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  EyeIcon,
+  InfoCircleIcon,
+  PaperPlaneIcon,
+  PencilAltIcon,
+  UsersIcon,
+} from "@patternfly/react-icons";
 
 // ─── Types internes ───────────────────────────────────────────────────────────
 
-type RecipientType = 'user' | 'all' | 'role';
-type RoleCible = 'member' | 'professor' | 'admin';
-type Step = 'compose' | 'preview';
+type RecipientType = "user" | "all" | "role";
+type RoleCible = "member" | "professor" | "admin";
+type Step = "compose" | "preview";
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
-const AUTO_VAR_NAMES = new Set(['prenom', 'nom', 'nom_complet', 'userId']);
+const AUTO_VAR_NAMES = new Set(["prenom", "nom", "nom_complet", "userId"]);
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -38,14 +49,16 @@ export const SendFromTemplateModal = ({
   onSent,
 }: SendFromTemplateModalProps) => {
   // Calcul des variables manuelles (celles non auto)
-  const manualVarNames = template.variables.filter((v) => !AUTO_VAR_NAMES.has(v));
+  const manualVarNames = template.variables.filter(
+    (v) => !AUTO_VAR_NAMES.has(v),
+  );
 
   // ── State ───────────────────────────────────────────────────────────────────
-  const [step, setStep] = useState<Step>('compose');
+  const [step, setStep] = useState<Step>("compose");
   const [manualVars, setManualVars] = useState<Record<string, string>>({});
-  const [recipientType, setRecipientType] = useState<RecipientType>('user');
-  const [destinataireId, setDestinatataireId] = useState('');
-  const [roleCible, setRoleCible] = useState<RoleCible>('member');
+  const [recipientType, setRecipientType] = useState<RecipientType>("user");
+  const [destinataireId, setDestinatataireId] = useState("");
+  const [roleCible, setRoleCible] = useState<RoleCible>("member");
   const [envoyeParEmail, setEnvoyeParEmail] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -59,13 +72,11 @@ export const SendFromTemplateModal = ({
   // ── Reset on open ───────────────────────────────────────────────────────────
   useEffect(() => {
     if (isOpen) {
-      setStep('compose');
-      setManualVars(
-        Object.fromEntries(manualVarNames.map((v) => [v, ''])),
-      );
-      setRecipientType('user');
-      setDestinatataireId('');
-      setRoleCible('member');
+      setStep("compose");
+      setManualVars(Object.fromEntries(manualVarNames.map((v) => [v, ""])));
+      setRecipientType("user");
+      setDestinatataireId("");
+      setRoleCible("member");
       setEnvoyeParEmail(false);
       setErrors({});
       setPreview(null);
@@ -76,23 +87,23 @@ export const SendFromTemplateModal = ({
   // ── Close on Escape ─────────────────────────────────────────────────────────
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen && !isSending && !isLoadingPreview) {
-        if (step === 'preview') {
-          setStep('compose');
+      if (e.key === "Escape" && isOpen && !isSending && !isLoadingPreview) {
+        if (step === "preview") {
+          setStep("compose");
         } else {
           onClose();
         }
       }
     };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
   }, [isOpen, isSending, isLoadingPreview, step, onClose]);
 
   // ── Validation ──────────────────────────────────────────────────────────────
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (recipientType === 'user') {
+    if (recipientType === "user") {
       if (!destinataireId.trim()) {
         newErrors.destinataire = "L'ID du destinataire est obligatoire.";
       } else if (isNaN(Number(destinataireId)) || Number(destinataireId) <= 0) {
@@ -112,10 +123,12 @@ export const SendFromTemplateModal = ({
     try {
       const result = await previewTemplate(template.id, manualVars);
       setPreview(result);
-      setStep('preview');
+      setStep("preview");
     } catch (err: any) {
       const msg =
-        err?.response?.data?.message ?? err?.message ?? 'Erreur lors de la génération de l\'aperçu.';
+        err?.response?.data?.message ??
+        err?.message ??
+        "Erreur lors de la génération de l'aperçu.";
       toast.error(msg);
     } finally {
       setIsLoadingPreview(false);
@@ -125,7 +138,7 @@ export const SendFromTemplateModal = ({
   // ── Envoyer ─────────────────────────────────────────────────────────────────
   const handleSend = async () => {
     if (!validate()) {
-      setStep('compose');
+      setStep("compose");
       return;
     }
 
@@ -136,25 +149,27 @@ export const SendFromTemplateModal = ({
         manual_vars: manualVars,
       };
 
-      if (recipientType === 'user') {
+      if (recipientType === "user") {
         payload.destinataire_id = Number(destinataireId);
-      } else if (recipientType === 'all') {
-        payload.cible = 'tous';
-      } else if (recipientType === 'role') {
+      } else if (recipientType === "all") {
+        payload.cible = "tous";
+      } else if (recipientType === "role") {
         payload.cible = roleCible;
       }
 
       const result = await sendFromTemplate(template.id, payload);
       toast.success(
         result.count === 1
-          ? 'Message envoyé avec succès !'
+          ? "Message envoyé avec succès !"
           : `${result.count} messages envoyés avec succès !`,
       );
       onSent();
       onClose();
     } catch (err: any) {
       const msg =
-        err?.response?.data?.message ?? err?.message ?? "Erreur lors de l'envoi.";
+        err?.response?.data?.message ??
+        err?.message ??
+        "Erreur lors de l'envoi.";
       toast.error(msg);
     } finally {
       setIsSending(false);
@@ -181,7 +196,11 @@ export const SendFromTemplateModal = ({
         stroke="currentColor"
         strokeWidth={2}
       >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M6 18L18 6M6 6l12 12"
+        />
       </svg>
     </button>
   );
@@ -206,11 +225,10 @@ export const SendFromTemplateModal = ({
           className="bg-white rounded-xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh]"
           onClick={(e) => e.stopPropagation()}
         >
-
           {/* ════════════════════════════════════════
               ÉTAPE 1 — Compose
           ════════════════════════════════════════ */}
-          {step === 'compose' && (
+          {step === "compose" && (
             <>
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
@@ -218,25 +236,34 @@ export const SendFromTemplateModal = ({
                   id="send-template-title"
                   className="text-base font-semibold text-gray-900 flex items-center gap-2 min-w-0"
                 >
-                  <span className="flex-shrink-0">📤</span>
-                  <span className="truncate">Envoyer : « {template.titre} »</span>
+                  <PaperPlaneIcon
+                    className="flex-shrink-0"
+                    style={{ fontSize: "16px" }}
+                  />
+                  <span className="truncate">
+                    Envoyer : « {template.titre} »
+                  </span>
                 </h2>
                 <CloseButton />
               </div>
 
               {/* Body */}
               <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
-
                 {/* ── Variables manuelles ── */}
                 <section>
                   <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <span>📝</span>
+                    <PencilAltIcon style={{ fontSize: "16px" }} />
                     Variables à remplir
                   </h3>
 
                   {manualVarNames.length === 0 ? (
-                    <p className="text-sm text-gray-400 italic bg-gray-50 border border-gray-100 rounded-lg px-4 py-3">
-                      ✅ Aucune variable manuelle pour ce template — prêt à envoyer !
+                    <p className="text-sm text-gray-400 italic bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 flex items-center gap-2">
+                      <CheckCircleIcon
+                        className="text-green-600 flex-shrink-0"
+                        style={{ fontSize: "14px" }}
+                      />
+                      Aucune variable manuelle pour ce template — prêt à envoyer
+                      !
                     </p>
                   ) : (
                     <div className="space-y-3">
@@ -253,7 +280,7 @@ export const SendFromTemplateModal = ({
                           <input
                             id={`var-${varName}`}
                             type="text"
-                            value={manualVars[varName] ?? ''}
+                            value={manualVars[varName] ?? ""}
                             onChange={(e) =>
                               setManualVars((prev) => ({
                                 ...prev,
@@ -272,7 +299,7 @@ export const SendFromTemplateModal = ({
                 {/* ── Destinataires ── */}
                 <section>
                   <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <span>👥</span>
+                    <UsersIcon style={{ fontSize: "16px" }} />
                     Destinataires
                   </h3>
 
@@ -283,24 +310,30 @@ export const SendFromTemplateModal = ({
                         type="radio"
                         name="send-recipientType"
                         value="user"
-                        checked={recipientType === 'user'}
+                        checked={recipientType === "user"}
                         onChange={() => {
-                          setRecipientType('user');
+                          setRecipientType("user");
                           if (errors.destinataire) {
-                            setErrors((prev) => { const n = { ...prev }; delete n.destinataire; return n; });
+                            setErrors((prev) => {
+                              const n = { ...prev };
+                              delete n.destinataire;
+                              return n;
+                            });
                           }
                         }}
                         className="text-blue-600 focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-700">Un utilisateur</span>
+                      <span className="text-sm text-gray-700">
+                        Un utilisateur
+                      </span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
                         name="send-recipientType"
                         value="all"
-                        checked={recipientType === 'all'}
-                        onChange={() => setRecipientType('all')}
+                        checked={recipientType === "all"}
+                        onChange={() => setRecipientType("all")}
                         className="text-blue-600 focus:ring-blue-500"
                       />
                       <span className="text-sm text-gray-700">Tous</span>
@@ -310,8 +343,8 @@ export const SendFromTemplateModal = ({
                         type="radio"
                         name="send-recipientType"
                         value="role"
-                        checked={recipientType === 'role'}
-                        onChange={() => setRecipientType('role')}
+                        checked={recipientType === "role"}
+                        onChange={() => setRecipientType("role")}
                         className="text-blue-600 focus:ring-blue-500"
                       />
                       <span className="text-sm text-gray-700">Par rôle</span>
@@ -319,7 +352,7 @@ export const SendFromTemplateModal = ({
                   </div>
 
                   {/* ID utilisateur */}
-                  {recipientType === 'user' && (
+                  {recipientType === "user" && (
                     <div>
                       <input
                         type="number"
@@ -328,28 +361,36 @@ export const SendFromTemplateModal = ({
                         onChange={(e) => {
                           setDestinatataireId(e.target.value);
                           if (errors.destinataire) {
-                            setErrors((prev) => { const n = { ...prev }; delete n.destinataire; return n; });
+                            setErrors((prev) => {
+                              const n = { ...prev };
+                              delete n.destinataire;
+                              return n;
+                            });
                           }
                         }}
                         placeholder="ID utilisateur (numérique)"
                         className={[
-                          'w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-colors',
+                          "w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-colors",
                           errors.destinataire
-                            ? 'border-red-300 focus:ring-red-200 bg-red-50'
-                            : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400',
-                        ].join(' ')}
+                            ? "border-red-300 focus:ring-red-200 bg-red-50"
+                            : "border-gray-300 focus:ring-blue-200 focus:border-blue-400",
+                        ].join(" ")}
                       />
                       {errors.destinataire && (
-                        <p className="mt-1 text-xs text-red-600">{errors.destinataire}</p>
+                        <p className="mt-1 text-xs text-red-600">
+                          {errors.destinataire}
+                        </p>
                       )}
                     </div>
                   )}
 
                   {/* Sélecteur rôle */}
-                  {recipientType === 'role' && (
+                  {recipientType === "role" && (
                     <select
                       value={roleCible}
-                      onChange={(e) => setRoleCible(e.target.value as RoleCible)}
+                      onChange={(e) =>
+                        setRoleCible(e.target.value as RoleCible)
+                      }
                       className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 bg-white transition-colors"
                     >
                       <option value="member">Membres</option>
@@ -359,11 +400,14 @@ export const SendFromTemplateModal = ({
                   )}
 
                   {/* Info broadcast */}
-                  {recipientType !== 'user' && (
+                  {recipientType !== "user" && (
                     <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                      <span className="font-medium">⚠️ Envoi groupé :</span>{' '}
-                      {recipientType === 'all'
-                        ? 'Le message sera envoyé à tous les utilisateurs actifs.'
+                      <span className="font-medium inline-flex items-center gap-1">
+                        <ExclamationTriangleIcon style={{ fontSize: "14px" }} />{" "}
+                        Envoi groupé :
+                      </span>{" "}
+                      {recipientType === "all"
+                        ? "Le message sera envoyé à tous les utilisateurs actifs."
                         : `Le message sera envoyé à tous les utilisateurs ayant le rôle « ${roleCible} ».`}
                     </p>
                   )}
@@ -393,16 +437,33 @@ export const SendFromTemplateModal = ({
                 >
                   {isLoadingPreview ? (
                     <>
-                      <svg className="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                      <svg
+                        className="w-4 h-4 animate-spin"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        />
                       </svg>
                       Chargement…
                     </>
                   ) : (
                     <>
-                      <span>👁️</span>
-                      Aperçu →
+                      <EyeIcon className="w-4 h-4" />
+                      Aperçu
+                      <ArrowRightIcon className="w-4 h-4" />
                     </>
                   )}
                 </button>
@@ -424,15 +485,31 @@ export const SendFromTemplateModal = ({
                   >
                     {isSending ? (
                       <>
-                        <svg className="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                        <svg
+                          className="w-4 h-4 animate-spin"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                          />
                         </svg>
                         Envoi en cours…
                       </>
                     ) : (
                       <>
-                        <span>📤</span>
+                        <PaperPlaneIcon className="w-4 h-4" />
                         Envoyer
                       </>
                     )}
@@ -445,7 +522,7 @@ export const SendFromTemplateModal = ({
           {/* ════════════════════════════════════════
               ÉTAPE 2 — Aperçu
           ════════════════════════════════════════ */}
-          {step === 'preview' && preview && (
+          {step === "preview" && preview && (
             <>
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
@@ -453,7 +530,7 @@ export const SendFromTemplateModal = ({
                   id="send-template-title"
                   className="text-base font-semibold text-gray-900 flex items-center gap-2"
                 >
-                  <span>👁️</span>
+                  <EyeIcon className="w-4 h-4" />
                   Aperçu du message
                 </h2>
                 <CloseButton />
@@ -461,7 +538,6 @@ export const SendFromTemplateModal = ({
 
               {/* Body */}
               <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-
                 {/* Titre du message */}
                 {preview.titre && (
                   <div>
@@ -487,13 +563,16 @@ export const SendFromTemplateModal = ({
                 {/* Variables manquantes */}
                 {preview.missingVariables.length === 0 ? (
                   <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm">
-                    <span>✅</span>
-                    <span>Toutes les variables sont renseignées — prêt à envoyer.</span>
+                    <CheckCircleIcon className="w-4 h-4 flex-shrink-0" />
+                    <span>
+                      Toutes les variables sont renseignées — prêt à envoyer.
+                    </span>
                   </div>
                 ) : (
                   <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-                    <p className="text-sm font-medium text-red-700 mb-2">
-                      ⚠️ Variables manquantes ({preview.missingVariables.length}) :
+                    <p className="text-sm font-medium text-red-700 mb-2 flex items-center gap-1">
+                      <ExclamationTriangleIcon style={{ fontSize: "14px" }} />
+                      Variables manquantes ({preview.missingVariables.length}) :
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {preview.missingVariables.map((v) => (
@@ -513,10 +592,15 @@ export const SendFromTemplateModal = ({
 
                 {/* Info destinataire */}
                 <div className="text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-lg px-4 py-2.5 flex items-center gap-2">
-                  <span>ℹ️</span>
+                  <InfoCircleIcon
+                    className="flex-shrink-0"
+                    style={{ fontSize: "14px" }}
+                  />
                   <span>
-                    Aperçu généré avec l'exemple :{' '}
-                    <span className="font-medium text-gray-600">Jean Dupont (U-2025-0001)</span>
+                    Aperçu généré avec l'exemple :{" "}
+                    <span className="font-medium text-gray-600">
+                      Jean Dupont (U-2025-0001)
+                    </span>
                     . Le contenu réel variera selon le destinataire.
                   </span>
                 </div>
@@ -526,11 +610,12 @@ export const SendFromTemplateModal = ({
               <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl flex-shrink-0">
                 <button
                   type="button"
-                  onClick={() => setStep('compose')}
+                  onClick={() => setStep("compose")}
                   disabled={isSending}
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  ← Retour
+                  <ArrowLeftIcon className="w-4 h-4" />
+                  Retour
                 </button>
 
                 <button
@@ -541,15 +626,31 @@ export const SendFromTemplateModal = ({
                 >
                   {isSending ? (
                     <>
-                      <svg className="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                      <svg
+                        className="w-4 h-4 animate-spin"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        />
                       </svg>
                       Envoi en cours…
                     </>
                   ) : (
                     <>
-                      <span>✅</span>
+                      <CheckCircleIcon className="w-4 h-4" />
                       Confirmer l'envoi
                     </>
                   )}
