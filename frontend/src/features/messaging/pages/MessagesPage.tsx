@@ -3,11 +3,14 @@
  * Page principale de messagerie — layout 3 colonnes (sidebar / liste / détail)
  */
 
-import { useState } from 'react';
-import { useMessaging } from '../hooks/useMessaging';
-import { ComposeModal } from '../components/ComposeModal';
-import { MessageListItem } from '../components/MessageListItem';
-import { MessageDetail } from '../components/MessageDetail';
+import { useState } from "react";
+import { useMessaging } from "../hooks/useMessaging";
+import { useAuth } from "../../../shared/hooks/useAuth";
+import { UserRole } from "@clubmanager/types";
+import { ComposeModal } from "../components/ComposeModal";
+import { MessageListItem } from "../components/MessageListItem";
+import { MessageDetail } from "../components/MessageDetail";
+import { TemplatesTab } from "../components/TemplatesTab";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -26,11 +29,11 @@ const MessageSkeleton = () => (
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
 
-const EmptyList = ({ tab }: { tab: 'inbox' | 'sent' }) => (
+const EmptyList = ({ tab }: { tab: "inbox" | "sent" }) => (
   <div className="flex flex-col items-center justify-center h-full py-16 text-gray-400 select-none">
-    <span className="text-5xl mb-4">{tab === 'inbox' ? '📭' : '📤'}</span>
+    <span className="text-5xl mb-4">{tab === "inbox" ? "📭" : "📤"}</span>
     <p className="text-sm font-medium">
-      {tab === 'inbox' ? 'Aucun message reçu' : 'Aucun message envoyé'}
+      {tab === "inbox" ? "Aucun message reçu" : "Aucun message envoyé"}
     </p>
   </div>
 );
@@ -40,8 +43,12 @@ const EmptyList = ({ tab }: { tab: 'inbox' | 'sent' }) => (
 const NoSelection = () => (
   <div className="flex flex-col items-center justify-center h-full text-gray-400 select-none">
     <span className="text-6xl mb-4">✉️</span>
-    <p className="text-base font-medium text-gray-500">Sélectionnez un message</p>
-    <p className="text-sm mt-1">Cliquez sur un message dans la liste pour le lire.</p>
+    <p className="text-base font-medium text-gray-500">
+      Sélectionnez un message
+    </p>
+    <p className="text-sm mt-1">
+      Cliquez sur un message dans la liste pour le lire.
+    </p>
   </div>
 );
 
@@ -54,7 +61,12 @@ interface PaginationBarProps {
   onNext: () => void;
 }
 
-const PaginationBar = ({ page, totalPages, onPrev, onNext }: PaginationBarProps) => {
+const PaginationBar = ({
+  page,
+  totalPages,
+  onPrev,
+  onNext,
+}: PaginationBarProps) => {
   if (totalPages <= 1) return null;
   return (
     <div className="flex items-center justify-between px-4 py-2 border-t border-gray-100 bg-white flex-shrink-0">
@@ -101,75 +113,86 @@ export const MessagesPage = () => {
     fetchSent,
   } = useMessaging();
 
+  const { user } = useAuth();
+  const userRole = (user?.role_app ?? UserRole.MEMBER) as UserRole;
+  const canSeeTemplates =
+    userRole === UserRole.ADMIN || userRole === UserRole.PROFESSOR;
+
   const [isComposeOpen, setIsComposeOpen] = useState(false);
 
   // Sur mobile, on affiche soit la liste soit le détail
-  const [mobileView, setMobileView] = useState<'list' | 'detail'>('list');
+  const [mobileView, setMobileView] = useState<"list" | "detail">("list");
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
   const handleSelectMessage = (id: number) => {
     selectMessage(id);
-    setMobileView('detail');
+    setMobileView("detail");
   };
 
   const handleBack = () => {
     clearSelectedMessage();
-    setMobileView('list');
+    setMobileView("list");
   };
 
   const handleDelete = async () => {
     if (!selectedMessage) return;
     await deleteMessage(selectedMessage.id);
-    setMobileView('list');
+    setMobileView("list");
   };
 
-  const handleTabChange = (tab: 'inbox' | 'sent') => {
+  const handleTabChange = (tab: "inbox" | "sent" | "templates") => {
     setActiveTab(tab);
-    setMobileView('list');
+    setMobileView("list");
   };
 
   const handleComposeSent = () => {
     // Recharger les envoyés si on est sur cet onglet
-    if (activeTab === 'sent') {
+    if (activeTab === "sent") {
       fetchSent();
     }
   };
 
   const handlePrevPage = () => {
-    if (activeTab === 'inbox' && inboxPagination.page > 1) {
+    if (activeTab === "inbox" && inboxPagination.page > 1) {
       fetchInbox(inboxPagination.page - 1);
-    } else if (activeTab === 'sent' && sentPagination.page > 1) {
+    } else if (activeTab === "sent" && sentPagination.page > 1) {
       fetchSent(sentPagination.page - 1);
     }
   };
 
   const handleNextPage = () => {
-    if (activeTab === 'inbox' && inboxPagination.page < inboxPagination.totalPages) {
+    if (
+      activeTab === "inbox" &&
+      inboxPagination.page < inboxPagination.totalPages
+    ) {
       fetchInbox(inboxPagination.page + 1);
-    } else if (activeTab === 'sent' && sentPagination.page < sentPagination.totalPages) {
+    } else if (
+      activeTab === "sent" &&
+      sentPagination.page < sentPagination.totalPages
+    ) {
       fetchSent(sentPagination.page + 1);
     }
   };
 
-  const currentMessages = activeTab === 'inbox' ? inbox : sent;
-  const currentPagination = activeTab === 'inbox' ? inboxPagination : sentPagination;
+  const currentMessages = activeTab === "sent" ? sent : inbox;
+  const currentPagination =
+    activeTab === "sent" ? sentPagination : inboxPagination;
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
     <div className="flex h-[calc(100vh-4rem-3rem)] bg-white rounded-xl shadow overflow-hidden border border-gray-200">
-
       {/* ════════════════════════════════════════════════════
           Colonne 1 — Sidebar (200px fixe)
           Cachée sur mobile quand on affiche le détail
       ════════════════════════════════════════════════════ */}
       <aside
         className={[
-          'w-52 flex-shrink-0 border-r border-gray-200 flex flex-col bg-gray-50',
+          "w-52 flex-shrink-0 border-r border-gray-200 flex flex-col bg-gray-50",
           // Mobile : masquer la sidebar quand le détail est visible
-          mobileView === 'detail' ? 'hidden lg:flex' : 'flex',
-        ].join(' ')}
+          mobileView === "detail" ? "hidden lg:flex" : "flex",
+        ].join(" ")}
       >
         {/* Bouton Nouveau message */}
         <div className="p-3">
@@ -188,19 +211,19 @@ export const MessagesPage = () => {
             {/* Boîte de réception */}
             <li>
               <button
-                onClick={() => handleTabChange('inbox')}
+                onClick={() => handleTabChange("inbox")}
                 className={[
-                  'w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
-                  activeTab === 'inbox'
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
-                ].join(' ')}
+                  "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left",
+                  activeTab === "inbox"
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+                ].join(" ")}
               >
                 <span className="text-base">📥</span>
                 <span className="flex-1 truncate">Boîte de réception</span>
                 {unreadCount > 0 && (
                   <span className="flex-shrink-0 bg-blue-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none">
-                    {unreadCount > 99 ? '99+' : unreadCount}
+                    {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
               </button>
@@ -209,49 +232,91 @@ export const MessagesPage = () => {
             {/* Messages envoyés */}
             <li>
               <button
-                onClick={() => handleTabChange('sent')}
+                onClick={() => handleTabChange("sent")}
                 className={[
-                  'w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
-                  activeTab === 'sent'
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
-                ].join(' ')}
+                  "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left",
+                  activeTab === "sent"
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+                ].join(" ")}
               >
                 <span className="text-base">📤</span>
                 <span className="flex-1 truncate">Messages envoyés</span>
               </button>
             </li>
+
+            {/* Templates — admin / professor uniquement */}
+            {canSeeTemplates && (
+              <li>
+                <button
+                  onClick={() => handleTabChange("templates")}
+                  className={[
+                    "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left",
+                    activeTab === "templates"
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+                  ].join(" ")}
+                >
+                  <span className="text-base">📋</span>
+                  <span className="flex-1 truncate">Templates</span>
+                </button>
+              </li>
+            )}
           </ul>
         </nav>
 
         {/* Statistiques rapides */}
         <div className="px-4 py-3 border-t border-gray-200 text-xs text-gray-400">
-          {activeTab === 'inbox' ? (
-            <span>{inboxPagination.total} message{inboxPagination.total !== 1 ? 's' : ''} reçu{inboxPagination.total !== 1 ? 's' : ''}</span>
+          {activeTab === "inbox" ? (
+            <span>
+              {inboxPagination.total} message
+              {inboxPagination.total !== 1 ? "s" : ""} reçu
+              {inboxPagination.total !== 1 ? "s" : ""}
+            </span>
+          ) : activeTab === "sent" ? (
+            <span>
+              {sentPagination.total} message
+              {sentPagination.total !== 1 ? "s" : ""} envoyé
+              {sentPagination.total !== 1 ? "s" : ""}
+            </span>
           ) : (
-            <span>{sentPagination.total} message{sentPagination.total !== 1 ? 's' : ''} envoyé{sentPagination.total !== 1 ? 's' : ''}</span>
+            <span>Templates de messages</span>
           )}
         </div>
       </aside>
 
       {/* ════════════════════════════════════════════════════
+          Colonne 2+3 — Templates (pleine largeur si onglet actif)
+      ════════════════════════════════════════════════════ */}
+      {activeTab === "templates" && (
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <TemplatesTab />
+        </div>
+      )}
+
+      {/* ════════════════════════════════════════════════════
           Colonne 2 — Liste des messages (300px fixe)
           Sur mobile : cachée si on est en vue détail
+          Cachée si onglet Templates actif
       ════════════════════════════════════════════════════ */}
       <div
         className={[
-          'w-72 flex-shrink-0 border-r border-gray-200 flex flex-col',
-          mobileView === 'detail' ? 'hidden lg:flex' : 'flex',
-        ].join(' ')}
+          "w-72 flex-shrink-0 border-r border-gray-200 flex flex-col",
+          activeTab === "templates"
+            ? "hidden"
+            : mobileView === "detail"
+              ? "hidden lg:flex"
+              : "flex",
+        ].join(" ")}
       >
         {/* Titre de l'onglet */}
         <div className="px-4 py-3 border-b border-gray-100 bg-white flex items-center gap-2 flex-shrink-0">
           <h2 className="text-sm font-semibold text-gray-800">
-            {activeTab === 'inbox' ? 'Boîte de réception' : 'Messages envoyés'}
+            {activeTab === "inbox" ? "Boîte de réception" : "Messages envoyés"}
           </h2>
-          {activeTab === 'inbox' && unreadCount > 0 && (
+          {activeTab === "inbox" && unreadCount > 0 && (
             <span className="text-xs text-blue-600 font-medium">
-              ({unreadCount} non lu{unreadCount > 1 ? 's' : ''})
+              ({unreadCount} non lu{unreadCount > 1 ? "s" : ""})
             </span>
           )}
         </div>
@@ -273,14 +338,14 @@ export const MessagesPage = () => {
               ))}
             </>
           ) : currentMessages.length === 0 ? (
-            <EmptyList tab={activeTab} />
+            <EmptyList tab={activeTab === "templates" ? "inbox" : activeTab} />
           ) : (
             currentMessages.map((message) => (
               <MessageListItem
                 key={message.id}
                 message={message}
                 isSelected={selectedMessage?.id === message.id}
-                isInbox={activeTab === 'inbox'}
+                isInbox={activeTab === "inbox"}
                 onClick={() => handleSelectMessage(message.id)}
               />
             ))
@@ -299,12 +364,17 @@ export const MessagesPage = () => {
       {/* ════════════════════════════════════════════════════
           Colonne 3 — Détail du message (flex-1)
           Sur mobile : visible uniquement si mobileView === 'detail'
+          Cachée si onglet Templates actif
       ════════════════════════════════════════════════════ */}
       <div
         className={[
-          'flex-1 flex flex-col min-w-0',
-          mobileView === 'list' ? 'hidden lg:flex' : 'flex',
-        ].join(' ')}
+          "flex-1 flex flex-col min-w-0",
+          activeTab === "templates"
+            ? "hidden"
+            : mobileView === "list"
+              ? "hidden lg:flex"
+              : "flex",
+        ].join(" ")}
       >
         {isLoadingMessage ? (
           // Loader pendant le chargement du message

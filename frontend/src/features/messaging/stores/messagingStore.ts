@@ -30,7 +30,7 @@ interface MessagingStore {
 
   selectedMessage: MessageWithDetails | null;
   unreadCount: number;
-  activeTab: "inbox" | "sent";
+  activeTab: "inbox" | "sent" | "templates";
 
   isLoading: boolean;
   isLoadingMessage: boolean;
@@ -45,7 +45,7 @@ interface MessagingStore {
   sendMessage: (payload: SendMessagePayload) => Promise<void>;
   deleteMessage: (id: number) => Promise<void>;
   fetchUnreadCount: () => Promise<void>;
-  setActiveTab: (tab: "inbox" | "sent") => void;
+  setActiveTab: (tab: "inbox" | "sent" | "templates") => void;
   decrementUnreadCount: () => void;
   clearError: () => void;
 }
@@ -214,13 +214,14 @@ export const useMessagingStore = create<MessagingStore>((set, get) => ({
   },
 
   // ── setActiveTab ──────────────────────────────────────────────────────────
-  setActiveTab: (tab: "inbox" | "sent") => {
+  setActiveTab: (tab: "inbox" | "sent" | "templates") => {
     set({ activeTab: tab, selectedMessage: null });
     if (tab === "inbox") {
       get().fetchInbox();
-    } else {
+    } else if (tab === "sent") {
       get().fetchSent();
     }
+    // "templates" tab: no messaging data to fetch
   },
 
   // ── decrementUnreadCount ──────────────────────────────────────────────────

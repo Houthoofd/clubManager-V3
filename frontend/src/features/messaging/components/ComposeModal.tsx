@@ -3,18 +3,20 @@
  * Modal de composition d'un nouveau message
  */
 
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { useAuth } from '../../../shared/hooks/useAuth';
-import { UserRole } from '@clubmanager/types';
-import { useMessagingStore } from '../stores/messagingStore';
-import type { SendMessagePayload } from '../api/messagingApi';
+import { useState, useEffect, useMemo } from "react";
+import { toast } from "sonner";
+import { useAuth } from "../../../shared/hooks/useAuth";
+import { UserRole } from "@clubmanager/types";
+import { useMessagingStore } from "../stores/messagingStore";
+import type { SendMessagePayload } from "../api/messagingApi";
+import { getTemplates } from "../api/templatesApi";
+import type { Template } from "../api/templatesApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type RecipientType = 'user' | 'all' | 'role';
+type RecipientType = "user" | "all" | "role";
 
-type RoleCible = 'member' | 'professor' | 'admin';
+type RoleCible = "member" | "professor" | "admin";
 
 interface ComposeModalProps {
   isOpen: boolean;
@@ -38,47 +40,96 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
     userRole === UserRole.ADMIN || userRole === UserRole.PROFESSOR;
 
   // ── Form state ────────────────────────────────────────────────────────────
-  const [recipientType, setRecipientType] = useState<RecipientType>('user');
-  const [destinataireId, setDestinatarioId] = useState<string>('');
-  const [roleCible, setRoleCible] = useState<RoleCible>('member');
-  const [sujet, setSujet] = useState('');
-  const [contenu, setContenu] = useState('');
+  const [recipientType, setRecipientType] = useState<RecipientType>("user");
+  const [destinataireId, setDestinatarioId] = useState<string>("");
+  const [roleCible, setRoleCible] = useState<RoleCible>("member");
+  const [sujet, setSujet] = useState("");
+  const [contenu, setContenu] = useState("");
   const [envoyeParEmail, setEnvoyeParEmail] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // ── Template picker state ─────────────────────────────────────────────────
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [pickerTemplates, setPickerTemplates] = useState<Template[]>([]);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
+
+  const groupedPickerTemplates = useMemo(
+    () =>
+      pickerTemplates.reduce<Record<string, Template[]>>((acc, t) => {
+        const key = t.type_nom ?? "Sans catégorie";
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(t);
+        return acc;
+      }, {}),
+    [pickerTemplates],
+  );
 
   // ── Reset form when modal opens ───────────────────────────────────────────
   useEffect(() => {
     if (isOpen) {
-      setRecipientType('user');
-      setDestinatarioId('');
-      setRoleCible('member');
-      setSujet('');
-      setContenu('');
+      setRecipientType("user");
+      setDestinatarioId("");
+      setRoleCible("member");
+      setSujet("");
+      setContenu("");
       setEnvoyeParEmail(false);
       setErrors({});
+      setIsPickerOpen(false);
+      setPickerTemplates([]);
     }
   }, [isOpen]);
 
   // ── Close on Escape ───────────────────────────────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen && !isSending) {
+      if (e.key === "Escape" && isOpen && !isSending) {
         onClose();
       }
     };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, isSending, onClose]);
+
+  // ── Template Picker ───────────────────────────────────────────────────────
+  const loadTemplates = async () => {
+    if (pickerTemplates.length > 0) return; // already loaded
+    setIsLoadingTemplates(true);
+    try {
+      const tpls = await getTemplates(undefined, true);
+      setPickerTemplates(tpls);
+    } catch {
+      toast.error("Impossible de charger les templates.");
+    } finally {
+      setIsLoadingTemplates(false);
+    }
+  };
+
+  const handleOpenPicker = () => {
+    const next = !isPickerOpen;
+    setIsPickerOpen(next);
+    if (next) loadTemplates();
+  };
+
+  const handleSelectTemplate = (template: Template) => {
+    setSujet(template.titre);
+    setContenu(template.contenu);
+    setIsPickerOpen(false);
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.contenu;
+      return next;
+    });
+  };
 
   // ── Validation ────────────────────────────────────────────────────────────
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!contenu.trim()) {
-      newErrors.contenu = 'Le contenu du message est obligatoire.';
+      newErrors.contenu = "Le contenu du message est obligatoire.";
     }
 
-    if (recipientType === 'user') {
+    if (recipientType === "user") {
       if (!destinataireId.trim()) {
         newErrors.destinataire = "L'ID du destinataire est obligatoire.";
       } else if (isNaN(Number(destinataireId)) || Number(destinataireId) <= 0) {
@@ -105,17 +156,17 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
       payload.sujet = sujet.trim();
     }
 
-    if (recipientType === 'user') {
+    if (recipientType === "user") {
       payload.destinataire_id = Number(destinataireId);
-    } else if (recipientType === 'all') {
-      payload.cible = 'tous';
-    } else if (recipientType === 'role') {
+    } else if (recipientType === "all") {
+      payload.cible = "tous";
+    } else if (recipientType === "role") {
       payload.cible = roleCible;
     }
 
     try {
       await sendMessage(payload);
-      toast.success('Message envoyé avec succès !');
+      toast.success("Message envoyé avec succès !");
       onSent();
       onClose();
     } catch {
@@ -187,6 +238,101 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
             noValidate
           >
             <div className="px-6 py-5 space-y-5 flex-1">
+              {/* ── Template Picker ── */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={handleOpenPicker}
+                  className={[
+                    "w-full flex items-center justify-between gap-2 px-3 py-2 text-sm border rounded-lg transition-colors",
+                    isPickerOpen
+                      ? "border-blue-400 bg-blue-50 text-blue-700"
+                      : "border-blue-200 bg-blue-50/40 text-blue-600 hover:bg-blue-50 hover:border-blue-300",
+                  ].join(" ")}
+                >
+                  <span className="flex items-center gap-2">
+                    <span>📋</span>
+                    <span className="font-medium">Utiliser un template</span>
+                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={[
+                      "w-4 h-4 transition-transform",
+                      isPickerOpen ? "rotate-180" : "",
+                    ].join(" ")}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {isPickerOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 border border-gray-200 rounded-lg bg-white shadow-xl z-10 overflow-hidden max-h-64 overflow-y-auto">
+                    {isLoadingTemplates ? (
+                      <div className="flex items-center justify-center gap-2 py-6 text-gray-400 text-sm">
+                        <svg
+                          className="w-4 h-4 animate-spin"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                          />
+                        </svg>
+                        Chargement des templates…
+                      </div>
+                    ) : pickerTemplates.length === 0 ? (
+                      <p className="text-sm text-gray-400 text-center py-6 px-4">
+                        Aucun template actif disponible.
+                      </p>
+                    ) : (
+                      Object.entries(groupedPickerTemplates).map(
+                        ([typeName, tpls]) => (
+                          <div key={typeName}>
+                            <p className="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-50 border-b border-t border-gray-100 sticky top-0">
+                              {typeName}
+                            </p>
+                            {tpls.map((t) => (
+                              <button
+                                key={t.id}
+                                type="button"
+                                onClick={() => handleSelectTemplate(t)}
+                                className="w-full text-left px-3 py-2.5 hover:bg-blue-50 transition-colors border-b border-gray-50 last:border-0 group"
+                              >
+                                <p className="text-sm font-medium text-gray-800 group-hover:text-blue-700 truncate">
+                                  {t.titre}
+                                </p>
+                                <p className="text-xs text-gray-400 truncate mt-0.5 font-mono">
+                                  {t.contenu.slice(0, 80)}
+                                  {t.contenu.length > 80 ? "…" : ""}
+                                </p>
+                              </button>
+                            ))}
+                          </div>
+                        ),
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* ── Destinataire ── */}
               <fieldset>
@@ -202,11 +348,13 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                       type="radio"
                       name="recipientType"
                       value="user"
-                      checked={recipientType === 'user'}
-                      onChange={() => setRecipientType('user')}
+                      checked={recipientType === "user"}
+                      onChange={() => setRecipientType("user")}
                       className="text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">Un utilisateur</span>
+                    <span className="text-sm text-gray-700">
+                      Un utilisateur
+                    </span>
                   </label>
 
                   {/* Options broadcast — admin/professor seulement */}
@@ -217,11 +365,13 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                           type="radio"
                           name="recipientType"
                           value="all"
-                          checked={recipientType === 'all'}
-                          onChange={() => setRecipientType('all')}
+                          checked={recipientType === "all"}
+                          onChange={() => setRecipientType("all")}
                           className="text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Tous les membres</span>
+                        <span className="text-sm text-gray-700">
+                          Tous les membres
+                        </span>
                       </label>
 
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -229,8 +379,8 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                           type="radio"
                           name="recipientType"
                           value="role"
-                          checked={recipientType === 'role'}
-                          onChange={() => setRecipientType('role')}
+                          checked={recipientType === "role"}
+                          onChange={() => setRecipientType("role")}
                           className="text-blue-600 focus:ring-blue-500"
                         />
                         <span className="text-sm text-gray-700">Par rôle</span>
@@ -240,13 +390,13 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                 </div>
 
                 {/* Champ ID utilisateur */}
-                {recipientType === 'user' && (
+                {recipientType === "user" && (
                   <div className="mt-3">
                     <label
                       htmlFor="destinataire-id"
                       className="block text-sm text-gray-600 mb-1"
                     >
-                      ID numérique de l'utilisateur{' '}
+                      ID numérique de l'utilisateur{" "}
                       <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -266,11 +416,11 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                       }}
                       placeholder="Entrez l'ID numérique de l'utilisateur"
                       className={[
-                        'w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-colors',
+                        "w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-colors",
                         errors.destinataire
-                          ? 'border-red-300 focus:ring-red-200 bg-red-50'
-                          : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400',
-                      ].join(' ')}
+                          ? "border-red-300 focus:ring-red-200 bg-red-50"
+                          : "border-gray-300 focus:ring-blue-200 focus:border-blue-400",
+                      ].join(" ")}
                     />
                     {errors.destinataire && (
                       <p className="mt-1 text-xs text-red-600">
@@ -281,7 +431,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                 )}
 
                 {/* Sélecteur de rôle */}
-                {recipientType === 'role' && (
+                {recipientType === "role" && (
                   <div className="mt-3">
                     <label
                       htmlFor="role-cible"
@@ -311,7 +461,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                   htmlFor="sujet"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Sujet{' '}
+                  Sujet{" "}
                   <span className="text-gray-400 font-normal">(optionnel)</span>
                 </label>
                 <input
@@ -349,11 +499,11 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                   placeholder="Écrivez votre message ici…"
                   rows={6}
                   className={[
-                    'w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-colors resize-y min-h-[120px]',
+                    "w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-colors resize-y min-h-[120px]",
                     errors.contenu
-                      ? 'border-red-300 focus:ring-red-200 bg-red-50'
-                      : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400',
-                  ].join(' ')}
+                      ? "border-red-300 focus:ring-red-200 bg-red-50"
+                      : "border-gray-300 focus:ring-blue-200 focus:border-blue-400",
+                  ].join(" ")}
                 />
                 {errors.contenu && (
                   <p className="mt-1 text-xs text-red-600">{errors.contenu}</p>
