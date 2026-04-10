@@ -4,7 +4,7 @@
  * Accessible aux administrateurs uniquement.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useSettings } from "../hooks/useSettings";
 import { INFORMATION_KEYS } from "@clubmanager/types";
@@ -203,6 +203,41 @@ function SpinnerIcon({ className = "h-4 w-4" }: { className?: string }) {
         className="opacity-75"
         fill="currentColor"
         d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"
+      />
+    </svg>
+  );
+}
+
+function ChevronLeftIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15.75 19.5 8.25 12l7.5-7.5"
+      />
+    </svg>
+  );
+}
+function ChevronRightIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m8.25 4.5 7.5 7.5-7.5 7.5"
       />
     </svg>
   );
@@ -536,14 +571,18 @@ function LoadingSkeleton() {
       </div>
 
       {/* Tab bar skeleton */}
-      <div className="flex flex-wrap gap-1 border-b border-gray-200 pb-px">
-        {[160, 170, 140, 140].map((w, i) => (
-          <div
-            key={i}
-            style={{ width: w }}
-            className="h-10 rounded-t-lg bg-gray-200 animate-pulse"
-          />
-        ))}
+      <div className="relative flex items-end border-b border-gray-200">
+        <div className="flex-shrink-0 w-8 h-10 rounded-tl-lg bg-gray-100 animate-pulse" />
+        <div className="flex-1 flex gap-1 overflow-hidden">
+          {[160, 170, 140, 140].map((w, i) => (
+            <div
+              key={i}
+              style={{ width: w }}
+              className="flex-shrink-0 h-10 rounded-t-lg bg-gray-200 animate-pulse"
+            />
+          ))}
+        </div>
+        <div className="flex-shrink-0 w-8 h-10 rounded-tr-lg bg-gray-100 animate-pulse" />
       </div>
 
       {/* Card skeleton */}
@@ -611,6 +650,9 @@ export const SettingsPage = () => {
 
   const [apparenceForm, setApparenceForm] = useState({
     theme_primary_color: "#2563eb",
+    theme_secondary_color: "#7c3aed",
+    theme_sidebar_bg: "#ffffff",
+    theme_sidebar_text: "#374151",
     club_logo_url: "",
     navbar_name: "",
   });
@@ -662,6 +704,12 @@ export const SettingsPage = () => {
       setApparenceForm({
         theme_primary_color:
           getByKey(INFORMATION_KEYS.THEME_PRIMARY_COLOR)?.valeur ?? "#2563eb",
+        theme_secondary_color:
+          getByKey(INFORMATION_KEYS.THEME_SECONDARY_COLOR)?.valeur ?? "#7c3aed",
+        theme_sidebar_bg:
+          getByKey(INFORMATION_KEYS.THEME_SIDEBAR_BG)?.valeur ?? "#ffffff",
+        theme_sidebar_text:
+          getByKey(INFORMATION_KEYS.THEME_SIDEBAR_TEXT)?.valeur ?? "#374151",
         club_logo_url: getByKey(INFORMATION_KEYS.CLUB_LOGO_URL)?.valeur ?? "",
         navbar_name: getByKey(INFORMATION_KEYS.NAVBAR_NAME)?.valeur ?? "",
       });
@@ -762,6 +810,12 @@ export const SettingsPage = () => {
           INFORMATION_KEYS.THEME_PRIMARY_COLOR,
           apparenceForm.theme_primary_color,
         ],
+        [
+          INFORMATION_KEYS.THEME_SECONDARY_COLOR,
+          apparenceForm.theme_secondary_color,
+        ],
+        [INFORMATION_KEYS.THEME_SIDEBAR_BG, apparenceForm.theme_sidebar_bg],
+        [INFORMATION_KEYS.THEME_SIDEBAR_TEXT, apparenceForm.theme_sidebar_text],
         [INFORMATION_KEYS.CLUB_LOGO_URL, apparenceForm.club_logo_url],
         [INFORMATION_KEYS.NAVBAR_NAME, apparenceForm.navbar_name],
       ]),
@@ -825,6 +879,15 @@ export const SettingsPage = () => {
     },
   ];
 
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollTabs = (direction: "left" | "right") => {
+    tabsScrollRef.current?.scrollBy({
+      left: direction === "left" ? -180 : 180,
+      behavior: "smooth",
+    });
+  };
+
   // ── Loading state ─────────────────────────────────────────────────────────
   if (isLoading && settings.length === 0) {
     return <LoadingSkeleton />;
@@ -846,24 +909,54 @@ export const SettingsPage = () => {
         </div>
       </div>
 
-      {/* ── Tab navigation ────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap gap-1 border-b border-gray-200">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setActiveTab(tab.id)}
-            className={`inline-flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 ${
-              activeTab === tab.id
-                ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-            }`}
-            aria-current={activeTab === tab.id ? "page" : undefined}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
+      {/* ── Tab navigation carousel ───────────────────────────────────────── */}
+      <div className="relative flex items-end border-b border-gray-200">
+        {/* Left scroll button */}
+        <button
+          type="button"
+          onClick={() => scrollTabs("left")}
+          className="flex-shrink-0 flex items-center justify-center w-8 h-10 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors rounded-tl-lg"
+          aria-label="Faire défiler les onglets vers la gauche"
+        >
+          <ChevronLeftIcon />
+        </button>
+
+        {/* Scrollable tab list */}
+        <div
+          ref={tabsScrollRef}
+          className="flex-1 flex overflow-x-auto scroll-smooth"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          role="tablist"
+        >
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              onClick={() => setActiveTab(tab.id)}
+              aria-selected={activeTab === tab.id}
+              aria-current={activeTab === tab.id ? "page" : undefined}
+              className={`flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors focus:outline-none ${
+                activeTab === tab.id
+                  ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50"
+                  : "border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Right scroll button */}
+        <button
+          type="button"
+          onClick={() => scrollTabs("right")}
+          className="flex-shrink-0 flex items-center justify-center w-8 h-10 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors rounded-tr-lg"
+          aria-label="Faire défiler les onglets vers la droite"
+        >
+          <ChevronRightIcon />
+        </button>
       </div>
 
       {/* ── Section: Informations du club ─────────────────────────────────── */}
@@ -1112,6 +1205,39 @@ export const SettingsPage = () => {
               }
               description="Couleur utilisée pour les éléments actifs, boutons et accents de l'interface."
             />
+
+            {/* Separator */}
+            <div className="pt-2 pb-1 border-t border-gray-100">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                Couleurs de la sidebar
+              </p>
+            </div>
+
+            <ColorField
+              label="Couleur secondaire"
+              value={apparenceForm.theme_secondary_color}
+              onChange={(v) =>
+                setApparenceForm((f) => ({ ...f, theme_secondary_color: v }))
+              }
+              description="Utilisée pour les éléments d'accentuation secondaires (badges, indicateurs)."
+            />
+            <ColorField
+              label="Fond de la sidebar"
+              value={apparenceForm.theme_sidebar_bg}
+              onChange={(v) =>
+                setApparenceForm((f) => ({ ...f, theme_sidebar_bg: v }))
+              }
+              description="Couleur de fond de la barre de navigation latérale."
+            />
+            <ColorField
+              label="Texte de la sidebar"
+              value={apparenceForm.theme_sidebar_text}
+              onChange={(v) =>
+                setApparenceForm((f) => ({ ...f, theme_sidebar_text: v }))
+              }
+              description="Couleur du texte des éléments inactifs dans la sidebar."
+            />
+
             <Field
               label="URL du logo du club"
               id="club_logo_url"

@@ -179,11 +179,24 @@ export const PrivateLayout: React.FC = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Apply primary color CSS variable when settings change
+  // Apply theme CSS variables when settings change
   useEffect(() => {
-    const color =
+    const primary =
       getByKey(INFORMATION_KEYS.THEME_PRIMARY_COLOR)?.valeur ?? "#2563eb";
-    document.documentElement.style.setProperty("--color-primary", color);
+    const secondary =
+      getByKey(INFORMATION_KEYS.THEME_SECONDARY_COLOR)?.valeur ?? "#7c3aed";
+    const sidebarBg =
+      getByKey(INFORMATION_KEYS.THEME_SIDEBAR_BG)?.valeur ?? "#ffffff";
+    const sidebarTx =
+      getByKey(INFORMATION_KEYS.THEME_SIDEBAR_TEXT)?.valeur ?? "#374151";
+
+    document.documentElement.style.setProperty("--color-primary", primary);
+    document.documentElement.style.setProperty("--color-secondary", secondary);
+    document.documentElement.style.setProperty("--color-sidebar-bg", sidebarBg);
+    document.documentElement.style.setProperty(
+      "--color-sidebar-text",
+      sidebarTx,
+    );
   }, [settings]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogout = async () => {
@@ -290,10 +303,11 @@ export const PrivateLayout: React.FC = () => {
       <aside
         className={`${
           isSidebarOpen ? "w-64" : "w-20"
-        } bg-white shadow-lg transition-all duration-300 ease-in-out flex flex-col`}
+        } shadow-lg transition-all duration-300 ease-in-out flex flex-col`}
+        style={{ backgroundColor: "var(--color-sidebar-bg)" }}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200/60">
           {isSidebarOpen && (
             <Link to="/dashboard" className="flex items-center gap-2 min-w-0">
               {getByKey(INFORMATION_KEYS.CLUB_LOGO_URL)?.valeur ? (
@@ -337,12 +351,12 @@ export const PrivateLayout: React.FC = () => {
                 <Link
                   to={item.path}
                   className={`flex items-center px-3 py-3 rounded-lg transition-colors ${
-                    isActive(item.path)
-                      ? "bg-blue-50"
-                      : "text-gray-700 hover:bg-gray-50"
+                    isActive(item.path) ? "bg-blue-50" : "hover:bg-black/5"
                   }`}
                   style={
-                    isActive(item.path) ? { color: "var(--color-primary)" } : {}
+                    isActive(item.path)
+                      ? { color: "var(--color-primary)" }
+                      : { color: "var(--color-sidebar-text)" }
                   }
                   title={!isSidebarOpen ? item.name : undefined}
                 >
@@ -362,7 +376,7 @@ export const PrivateLayout: React.FC = () => {
         </nav>
 
         {/* User Info */}
-        <div className="border-t border-gray-200 p-4">
+        <div className="border-t border-gray-200/60 p-4">
           {isSidebarOpen ? (
             <div className="flex items-center">
               <div
@@ -372,10 +386,18 @@ export const PrivateLayout: React.FC = () => {
                 {getInitials()}
               </div>
               <div className="ml-3 flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p
+                  className="text-sm font-medium truncate"
+                  style={{ color: "var(--color-sidebar-text)" }}
+                >
                   {getFullName()}
                 </p>
-                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                <p
+                  className="text-xs truncate"
+                  style={{ color: "var(--color-sidebar-text)", opacity: 0.7 }}
+                >
+                  {user?.email}
+                </p>
               </div>
             </div>
           ) : (
@@ -407,7 +429,10 @@ export const PrivateLayout: React.FC = () => {
               aria-label="Notifications"
             >
               <BellIcon className="h-5 w-5 text-gray-600" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span
+                className="absolute top-1 right-1 w-2 h-2 rounded-full"
+                style={{ backgroundColor: "var(--color-secondary)" }}
+              />
             </button>
 
             {/* User Menu */}
