@@ -32,6 +32,7 @@ import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 import { FamilyPage } from "./features/families/pages";
 import { UsersPage } from "./features/users/pages";
+import { MessagesPage } from "./features/messaging/pages";
 
 // Dashboard (placeholder)
 const DashboardPage = () => (
@@ -60,12 +61,6 @@ const PaymentsPage = () => (
 const StorePage = () => (
   <div className="bg-white rounded-lg shadow p-6">
     <h1 className="text-2xl font-bold text-gray-900">Store</h1>
-  </div>
-);
-
-const MessagesPage = () => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
   </div>
 );
 

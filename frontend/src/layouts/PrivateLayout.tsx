@@ -19,9 +19,11 @@ import {
 } from "@patternfly/react-icons";
 import { UserRole } from "@clubmanager/types";
 import { useAuth } from "../shared/hooks/useAuth";
+import { useUnreadCount } from "../features/messaging/hooks/useMessaging";
 
 export const PrivateLayout: React.FC = () => {
   const { user, logout, getFullName, getInitials } = useAuth();
+  const unreadCount = useUnreadCount();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -138,7 +140,12 @@ export const PrivateLayout: React.FC = () => {
                 >
                   <span className="text-xl">{item.icon}</span>
                   {isSidebarOpen && (
-                    <span className="ml-3 font-medium">{item.name}</span>
+                    <span className="ml-3 font-medium flex-1">{item.name}</span>
+                  )}
+                  {item.path === "/messages" && unreadCount > 0 && (
+                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5 min-w-[20px] text-center">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
                   )}
                 </Link>
               </li>
