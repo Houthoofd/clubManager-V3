@@ -21,6 +21,7 @@ import familyRoutes from "./modules/families/presentation/routes/familyRoutes.js
 import userRoutes from "./modules/users/presentation/routes/userRoutes.js";
 import messagingRoutes from "./modules/messaging/presentation/routes/messagingRoutes.js";
 import templateRoutes from "./modules/templates/presentation/routes/templateRoutes.js";
+import settingsRoutes from "./modules/settings/presentation/routes/settingsRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -92,6 +93,7 @@ const createApp = (): Express => {
   app.use("/api/users", userRoutes);
   app.use("/api/messages", messagingRoutes);
   app.use("/api/templates", templateRoutes);
+  app.use("/api/settings", settingsRoutes);
 
   // TODO: Mount other module routes
   // app.use("/api/courses", courseRoutes);

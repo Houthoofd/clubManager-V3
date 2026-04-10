@@ -33,6 +33,7 @@ import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 import { FamilyPage } from "./features/families/pages";
 import { UsersPage } from "./features/users/pages";
 import { MessagesPage } from "./features/messaging/pages";
+import { SettingsPage } from "./features/settings/pages";
 
 // Dashboard (placeholder)
 const DashboardPage = () => (
@@ -73,12 +74,6 @@ const StatisticsPage = () => (
 const ProfilePage = () => (
   <div className="bg-white rounded-lg shadow p-6">
     <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-  </div>
-);
-
-const SettingsPage = () => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
   </div>
 );
 

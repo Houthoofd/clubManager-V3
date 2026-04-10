@@ -1,0 +1,808 @@
+/**
+ * SettingsPage
+ * Page de gestion des paramètres du club.
+ * Accessible aux administrateurs uniquement.
+ */
+
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { useSettings } from "../hooks/useSettings";
+import { INFORMATION_KEYS } from "@clubmanager/types";
+import type { CreateInformation } from "@clubmanager/types";
+
+// ─── Tab type ─────────────────────────────────────────────────────────────────
+
+type TabId = "club" | "horaires" | "social" | "finance";
+
+// ─── Icons ────────────────────────────────────────────────────────────────────
+
+function CogIcon({ className = "h-8 w-8" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+      />
+    </svg>
+  );
+}
+
+function BuildingIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"
+      />
+    </svg>
+  );
+}
+
+function ClockIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+      />
+    </svg>
+  );
+}
+
+function GlobeAltIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"
+      />
+    </svg>
+  );
+}
+
+function BanknotesIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"
+      />
+    </svg>
+  );
+}
+
+function SpinnerIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg
+      className={`${className} animate-spin`}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"
+      />
+    </svg>
+  );
+}
+
+// Brand icons (filled, used in the social section)
+
+function FacebookIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  );
+}
+
+function InstagramIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
+    </svg>
+  );
+}
+
+function TwitterXIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+// ─── Reusable field sub-components ───────────────────────────────────────────
+
+interface FieldProps {
+  label: string;
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+  placeholder?: string;
+  hint?: string;
+}
+
+function Field({
+  label,
+  id,
+  value,
+  onChange,
+  type = "text",
+  placeholder,
+  hint,
+}: FieldProps) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 mb-1"
+      >
+        {label}
+      </label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+      />
+      {hint && <p className="mt-1 text-xs text-gray-500">{hint}</p>}
+    </div>
+  );
+}
+
+interface TextAreaFieldProps {
+  label: string;
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+  rows?: number;
+  placeholder?: string;
+  hint?: string;
+}
+
+function TextAreaField({
+  label,
+  id,
+  value,
+  onChange,
+  rows = 6,
+  placeholder,
+  hint,
+}: TextAreaFieldProps) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 mb-1"
+      >
+        {label}
+      </label>
+      <textarea
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        rows={rows}
+        placeholder={placeholder}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-y"
+      />
+      {hint && <p className="mt-1 text-xs text-gray-500">{hint}</p>}
+    </div>
+  );
+}
+
+// ─── Save button ──────────────────────────────────────────────────────────────
+
+interface SaveButtonProps {
+  onClick: () => void;
+  isSaving: boolean;
+}
+
+function SaveButton({ onClick, isSaving }: SaveButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={isSaving}
+      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+    >
+      {isSaving && <SpinnerIcon className="h-4 w-4" />}
+      {isSaving ? "Sauvegarde..." : "Sauvegarder"}
+    </button>
+  );
+}
+
+// ─── Section header ───────────────────────────────────────────────────────────
+
+interface SectionHeaderProps {
+  icon: React.ReactNode;
+  iconBg: string;
+  iconColor: string;
+  title: string;
+  description: string;
+}
+
+function SectionHeader({
+  icon,
+  iconBg,
+  iconColor,
+  title,
+  description,
+}: SectionHeaderProps) {
+  return (
+    <div className="flex items-center gap-3 mb-6 pb-5 border-b border-gray-100">
+      <span
+        className={`inline-flex items-center justify-center rounded-xl p-2.5 ${iconBg} ${iconColor} flex-shrink-0`}
+      >
+        {icon}
+      </span>
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+        <p className="text-sm text-gray-500">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Loading skeleton ─────────────────────────────────────────────────────────
+
+function SkeletonField() {
+  return (
+    <div className="space-y-1.5">
+      <div className="h-4 w-28 rounded bg-gray-200 animate-pulse" />
+      <div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />
+    </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Page header skeleton */}
+      <div className="flex items-center gap-3">
+        <div className="h-8 w-8 rounded-lg bg-gray-200 animate-pulse" />
+        <div className="space-y-1">
+          <div className="h-7 w-36 rounded bg-gray-200 animate-pulse" />
+          <div className="h-4 w-64 rounded bg-gray-200 animate-pulse" />
+        </div>
+      </div>
+
+      {/* Tab bar skeleton */}
+      <div className="flex flex-wrap gap-1 border-b border-gray-200 pb-px">
+        {[160, 170, 140, 140].map((w, i) => (
+          <div
+            key={i}
+            style={{ width: w }}
+            className="h-10 rounded-t-lg bg-gray-200 animate-pulse"
+          />
+        ))}
+      </div>
+
+      {/* Card skeleton */}
+      <div className="bg-white rounded-lg shadow p-6 space-y-5">
+        <div className="flex items-center gap-3 pb-5 border-b border-gray-100">
+          <div className="h-11 w-11 rounded-xl bg-gray-200 animate-pulse" />
+          <div className="space-y-1.5">
+            <div className="h-5 w-40 rounded bg-gray-200 animate-pulse" />
+            <div className="h-3.5 w-60 rounded bg-gray-200 animate-pulse" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <SkeletonField />
+          </div>
+          <div className="sm:col-span-2">
+            <SkeletonField />
+          </div>
+          <SkeletonField />
+          <SkeletonField />
+          <div className="sm:col-span-2">
+            <SkeletonField />
+          </div>
+        </div>
+        <div className="flex justify-end border-t border-gray-100 pt-5">
+          <div className="h-10 w-32 rounded-md bg-gray-200 animate-pulse" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
+export const SettingsPage = () => {
+  const { settings, isLoading, isSaving, bulkUpsertSettings, getByKey } =
+    useSettings();
+
+  const [activeTab, setActiveTab] = useState<TabId>("club");
+
+  // ── Form states ───────────────────────────────────────────────────────────
+  const [clubForm, setClubForm] = useState({
+    club_name: "",
+    club_address: "",
+    club_phone: "",
+    club_email: "",
+    club_website: "",
+  });
+
+  const [horairesForm, setHorairesForm] = useState({
+    opening_hours: "",
+  });
+
+  const [socialForm, setSocialForm] = useState({
+    social_facebook: "",
+    social_instagram: "",
+    social_twitter: "",
+  });
+
+  const [financeForm, setFinanceForm] = useState({
+    bank_account: "",
+    vat_number: "",
+    legal_info: "",
+  });
+
+  // ── Sync forms when store data loads ─────────────────────────────────────
+  useEffect(() => {
+    if (settings.length > 0 || !isLoading) {
+      setClubForm({
+        club_name: getByKey(INFORMATION_KEYS.CLUB_NAME)?.valeur ?? "",
+        club_address: getByKey(INFORMATION_KEYS.CLUB_ADDRESS)?.valeur ?? "",
+        club_phone: getByKey(INFORMATION_KEYS.CLUB_PHONE)?.valeur ?? "",
+        club_email: getByKey(INFORMATION_KEYS.CLUB_EMAIL)?.valeur ?? "",
+        club_website: getByKey(INFORMATION_KEYS.CLUB_WEBSITE)?.valeur ?? "",
+      });
+      setHorairesForm({
+        opening_hours: getByKey(INFORMATION_KEYS.OPENING_HOURS)?.valeur ?? "",
+      });
+      setSocialForm({
+        social_facebook:
+          getByKey(INFORMATION_KEYS.SOCIAL_FACEBOOK)?.valeur ?? "",
+        social_instagram:
+          getByKey(INFORMATION_KEYS.SOCIAL_INSTAGRAM)?.valeur ?? "",
+        social_twitter: getByKey(INFORMATION_KEYS.SOCIAL_TWITTER)?.valeur ?? "",
+      });
+      setFinanceForm({
+        bank_account: getByKey(INFORMATION_KEYS.BANK_ACCOUNT)?.valeur ?? "",
+        vat_number: getByKey(INFORMATION_KEYS.VAT_NUMBER)?.valeur ?? "",
+        legal_info: getByKey(INFORMATION_KEYS.LEGAL_INFO)?.valeur ?? "",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings]);
+
+  // ── Save helpers ──────────────────────────────────────────────────────────
+  const buildPayload = (fields: [string, string][]): CreateInformation[] =>
+    fields
+      .filter(([, v]) => v.trim() !== "")
+      .map(([cle, valeur]) => ({ cle, valeur: valeur.trim() }));
+
+  const saveSection = async (
+    payload: CreateInformation[],
+    successMessage: string,
+  ): Promise<void> => {
+    if (payload.length === 0) {
+      toast.error("Veuillez remplir au moins un champ avant de sauvegarder.");
+      return;
+    }
+    try {
+      await bulkUpsertSettings(payload);
+      toast.success(successMessage);
+    } catch {
+      toast.error("Erreur lors de la sauvegarde");
+    }
+  };
+
+  // ── Section save handlers ─────────────────────────────────────────────────
+  const handleSaveClub = () =>
+    saveSection(
+      buildPayload([
+        [INFORMATION_KEYS.CLUB_NAME, clubForm.club_name],
+        [INFORMATION_KEYS.CLUB_ADDRESS, clubForm.club_address],
+        [INFORMATION_KEYS.CLUB_PHONE, clubForm.club_phone],
+        [INFORMATION_KEYS.CLUB_EMAIL, clubForm.club_email],
+        [INFORMATION_KEYS.CLUB_WEBSITE, clubForm.club_website],
+      ]),
+      "Informations du club sauvegardées",
+    );
+
+  const handleSaveHoraires = () =>
+    saveSection(
+      buildPayload([
+        [INFORMATION_KEYS.OPENING_HOURS, horairesForm.opening_hours],
+      ]),
+      "Horaires sauvegardés",
+    );
+
+  const handleSaveSocial = () =>
+    saveSection(
+      buildPayload([
+        [INFORMATION_KEYS.SOCIAL_FACEBOOK, socialForm.social_facebook],
+        [INFORMATION_KEYS.SOCIAL_INSTAGRAM, socialForm.social_instagram],
+        [INFORMATION_KEYS.SOCIAL_TWITTER, socialForm.social_twitter],
+      ]),
+      "Réseaux sociaux sauvegardés",
+    );
+
+  const handleSaveFinance = () =>
+    saveSection(
+      buildPayload([
+        [INFORMATION_KEYS.BANK_ACCOUNT, financeForm.bank_account],
+        [INFORMATION_KEYS.VAT_NUMBER, financeForm.vat_number],
+        [INFORMATION_KEYS.LEGAL_INFO, financeForm.legal_info],
+      ]),
+      "Informations financières sauvegardées",
+    );
+
+  // ── Tab definitions ───────────────────────────────────────────────────────
+  const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
+    {
+      id: "club",
+      label: "Informations du club",
+      icon: <BuildingIcon />,
+    },
+    {
+      id: "horaires",
+      label: "Horaires d'ouverture",
+      icon: <ClockIcon />,
+    },
+    {
+      id: "social",
+      label: "Réseaux sociaux",
+      icon: <GlobeAltIcon />,
+    },
+    {
+      id: "finance",
+      label: "Finance & Légal",
+      icon: <BanknotesIcon />,
+    },
+  ];
+
+  // ── Loading state ─────────────────────────────────────────────────────────
+  if (isLoading && settings.length === 0) {
+    return <LoadingSkeleton />;
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  return (
+    <div className="space-y-6">
+      {/* ── Page header ───────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-3">
+        <CogIcon className="h-8 w-8 text-blue-600 flex-shrink-0" />
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Param&egrave;tres
+          </h1>
+          <p className="mt-0.5 text-sm text-gray-500">
+            G&eacute;rez les informations et la configuration de votre club.
+          </p>
+        </div>
+      </div>
+
+      {/* ── Tab navigation ────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap gap-1 border-b border-gray-200">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            className={`inline-flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 ${
+              activeTab === tab.id
+                ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+            }`}
+            aria-current={activeTab === tab.id ? "page" : undefined}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Section: Informations du club ─────────────────────────────────── */}
+      {activeTab === "club" && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <SectionHeader
+            icon={<BuildingIcon className="h-6 w-6" />}
+            iconBg="bg-blue-50"
+            iconColor="text-blue-600"
+            title="Informations du club"
+            description="Coordonn&eacute;es et informations g&eacute;n&eacute;rales visibles par les membres."
+          />
+
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <Field
+                label="Nom du club"
+                id="club_name"
+                value={clubForm.club_name}
+                onChange={(v) => setClubForm((f) => ({ ...f, club_name: v }))}
+                placeholder="Ex. Club Sportif de Paris"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <Field
+                label="Adresse"
+                id="club_address"
+                value={clubForm.club_address}
+                onChange={(v) =>
+                  setClubForm((f) => ({ ...f, club_address: v }))
+                }
+                placeholder="Ex. 12 rue de la Paix, 75001 Paris"
+              />
+            </div>
+
+            <Field
+              label="T&eacute;l&eacute;phone"
+              id="club_phone"
+              type="tel"
+              value={clubForm.club_phone}
+              onChange={(v) => setClubForm((f) => ({ ...f, club_phone: v }))}
+              placeholder="Ex. +33 1 23 45 67 89"
+            />
+
+            <Field
+              label="Email de contact"
+              id="club_email"
+              type="email"
+              value={clubForm.club_email}
+              onChange={(v) => setClubForm((f) => ({ ...f, club_email: v }))}
+              placeholder="contact@monclub.fr"
+            />
+
+            <div className="sm:col-span-2">
+              <Field
+                label="Site web"
+                id="club_website"
+                type="url"
+                value={clubForm.club_website}
+                onChange={(v) =>
+                  setClubForm((f) => ({ ...f, club_website: v }))
+                }
+                placeholder="https://www.monclub.fr"
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-end border-t border-gray-100 pt-5">
+            <SaveButton onClick={handleSaveClub} isSaving={isSaving} />
+          </div>
+        </div>
+      )}
+
+      {/* ── Section: Horaires d'ouverture ─────────────────────────────────── */}
+      {activeTab === "horaires" && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <SectionHeader
+            icon={<ClockIcon className="h-6 w-6" />}
+            iconBg="bg-green-50"
+            iconColor="text-green-600"
+            title="Horaires d'ouverture"
+            description="D&eacute;finissez les horaires d'acc&egrave;s au club affich&eacute;s aux membres."
+          />
+
+          <TextAreaField
+            label="Horaires"
+            id="opening_hours"
+            value={horairesForm.opening_hours}
+            onChange={(v) => setHorairesForm({ opening_hours: v })}
+            rows={9}
+            placeholder={
+              "Lundi - Vendredi : 09h00 - 21h00\nSamedi : 09h00 - 18h00\nDimanche : Ferm\u00e9"
+            }
+            hint="D\u00e9crivez les horaires d'ouverture en texte libre. Chaque ligne correspond \u00e0 un cr\u00e9neau."
+          />
+
+          <div className="mt-6 flex justify-end border-t border-gray-100 pt-5">
+            <SaveButton onClick={handleSaveHoraires} isSaving={isSaving} />
+          </div>
+        </div>
+      )}
+
+      {/* ── Section: Réseaux sociaux ──────────────────────────────────────── */}
+      {activeTab === "social" && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <SectionHeader
+            icon={<GlobeAltIcon className="h-6 w-6" />}
+            iconBg="bg-purple-50"
+            iconColor="text-purple-600"
+            title="R\u00e9seaux sociaux"
+            description="Liens vers les profils officiels de votre club sur les r\u00e9seaux sociaux."
+          />
+
+          <div className="space-y-5">
+            {/* Facebook */}
+            <div className="flex items-start gap-3">
+              <span className="mt-7 flex-shrink-0 text-[#1877F2]">
+                <FacebookIcon className="h-5 w-5" />
+              </span>
+              <div className="flex-1">
+                <Field
+                  label="Facebook"
+                  id="social_facebook"
+                  type="url"
+                  value={socialForm.social_facebook}
+                  onChange={(v) =>
+                    setSocialForm((f) => ({ ...f, social_facebook: v }))
+                  }
+                  placeholder="https://www.facebook.com/monclub"
+                />
+              </div>
+            </div>
+
+            {/* Instagram */}
+            <div className="flex items-start gap-3">
+              <span className="mt-7 flex-shrink-0 text-[#E4405F]">
+                <InstagramIcon className="h-5 w-5" />
+              </span>
+              <div className="flex-1">
+                <Field
+                  label="Instagram"
+                  id="social_instagram"
+                  type="url"
+                  value={socialForm.social_instagram}
+                  onChange={(v) =>
+                    setSocialForm((f) => ({ ...f, social_instagram: v }))
+                  }
+                  placeholder="https://www.instagram.com/monclub"
+                />
+              </div>
+            </div>
+
+            {/* Twitter / X */}
+            <div className="flex items-start gap-3">
+              <span className="mt-7 flex-shrink-0 text-gray-900">
+                <TwitterXIcon className="h-5 w-5" />
+              </span>
+              <div className="flex-1">
+                <Field
+                  label="Twitter / X"
+                  id="social_twitter"
+                  type="url"
+                  value={socialForm.social_twitter}
+                  onChange={(v) =>
+                    setSocialForm((f) => ({ ...f, social_twitter: v }))
+                  }
+                  placeholder="https://twitter.com/monclub"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-end border-t border-gray-100 pt-5">
+            <SaveButton onClick={handleSaveSocial} isSaving={isSaving} />
+          </div>
+        </div>
+      )}
+
+      {/* ── Section: Finance & Légal ──────────────────────────────────────── */}
+      {activeTab === "finance" && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <SectionHeader
+            icon={<BanknotesIcon className="h-6 w-6" />}
+            iconBg="bg-amber-50"
+            iconColor="text-amber-600"
+            title="Finance et informations l\u00e9gales"
+            description="Coordonn\u00e9es bancaires et mentions l\u00e9gales de votre association."
+          />
+
+          <div className="space-y-5">
+            <Field
+              label="Compte bancaire (IBAN)"
+              id="bank_account"
+              value={financeForm.bank_account}
+              onChange={(v) =>
+                setFinanceForm((f) => ({ ...f, bank_account: v }))
+              }
+              placeholder="Ex. FR76 3000 6000 0112 3456 7890 189"
+              hint="L'IBAN sera visible uniquement par les administrateurs."
+            />
+
+            <Field
+              label="Num\u00e9ro de TVA"
+              id="vat_number"
+              value={financeForm.vat_number}
+              onChange={(v) => setFinanceForm((f) => ({ ...f, vat_number: v }))}
+              placeholder="Ex. FR12 345 678 901"
+            />
+
+            <TextAreaField
+              label="Informations l\u00e9gales"
+              id="legal_info"
+              value={financeForm.legal_info}
+              onChange={(v) => setFinanceForm((f) => ({ ...f, legal_info: v }))}
+              rows={6}
+              placeholder={
+                "Association loi 1901\nSIRET : 123 456 789 00010\nSi\u00e8ge social : 12 rue de la Paix, 75001 Paris"
+              }
+              hint="Ces informations apparaissent dans les documents officiels g\u00e9n\u00e9r\u00e9s par l'application."
+            />
+          </div>
+
+          <div className="mt-6 flex justify-end border-t border-gray-100 pt-5">
+            <SaveButton onClick={handleSaveFinance} isSaving={isSaving} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
