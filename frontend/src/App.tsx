@@ -34,6 +34,7 @@ import { FamilyPage } from "./features/families/pages";
 import { UsersPage } from "./features/users/pages";
 import { MessagesPage } from "./features/messaging/pages";
 import { SettingsPage } from "./features/settings/pages";
+import { CoursesPage } from "./features/courses/pages";
 
 // Dashboard (placeholder)
 const DashboardPage = () => (
@@ -47,12 +48,6 @@ const DashboardPage = () => (
 );
 
 // Other placeholder pages
-const CoursesPage = () => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <h1 className="text-2xl font-bold text-gray-900">Courses</h1>
-  </div>
-);
-
 const PaymentsPage = () => (
   <div className="bg-white rounded-lg shadow p-6">
     <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
@@ -189,7 +184,20 @@ function App() {
           {/* Private Routes */}
           <Route element={<AuthenticatedLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/courses" element={<CoursesPage />} />
+            <Route
+              path="/courses"
+              element={
+                <RoleGuard
+                  allowedRoles={[
+                    UserRole.ADMIN,
+                    UserRole.PROFESSOR,
+                    UserRole.MEMBER,
+                  ]}
+                >
+                  <CoursesPage />
+                </RoleGuard>
+              }
+            />
             <Route
               path="/users"
               element={

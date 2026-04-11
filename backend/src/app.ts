@@ -22,6 +22,7 @@ import userRoutes from "./modules/users/presentation/routes/userRoutes.js";
 import messagingRoutes from "./modules/messaging/presentation/routes/messagingRoutes.js";
 import templateRoutes from "./modules/templates/presentation/routes/templateRoutes.js";
 import settingsRoutes from "./modules/settings/presentation/routes/settingsRoutes.js";
+import courseRoutes from "./modules/courses/presentation/routes/courseRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -94,9 +95,9 @@ const createApp = (): Express => {
   app.use("/api/messages", messagingRoutes);
   app.use("/api/templates", templateRoutes);
   app.use("/api/settings", settingsRoutes);
+  app.use("/api/courses", courseRoutes);
 
   // TODO: Mount other module routes
-  // app.use("/api/courses", courseRoutes);
   // app.use("/api/payments", paymentRoutes);
   // app.use("/api/store", storeRoutes);
 
