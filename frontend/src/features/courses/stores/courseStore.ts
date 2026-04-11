@@ -1,27 +1,18 @@
 /**
- * Course Store
- * Store Zustand pour la gestion des cours, professeurs, séances et présences
+ * Course UI Store
+ * Store Zustand minimal — uniquement l'état UI du module cours.
+ *
+ * Toutes les données serveur (planning, professeurs, séances, présences)
+ * sont désormais gérées par React Query dans `useCourses.ts`.
+ * Ce store ne conserve que les filtres de séances afin que leur valeur
+ * survive aux re-renders et aux démontages/remontages de composants.
  */
 
-import { create } from 'zustand';
-import type {
-  CourseRecurrentListItemDto,
-  CreateCourseRecurrentDto,
-  UpdateCourseRecurrentDto,
-  ProfessorListItemDto,
-  CreateProfessorDto,
-  UpdateProfessorDto,
-  CourseListItemDto,
-  CreateCourseDto,
-  GenerateCoursesDto,
-  AttendanceSheetDto,
-  BulkUpdatePresenceDto,
-} from '@clubmanager/types';
-import * as coursesApi from '../api/coursesApi';
+import { create } from "zustand";
 
-// ─── Helper: bornes de la semaine courante (lundi → dimanche) ─────────────────
+// ─── Helper : bornes de la semaine courante (lundi → dimanche) ────────────────
 
-const getWeekBounds = (): { monday: string; sunday: string } => {
+function getWeekBounds(): { monday: string; sunday: string } {
   const now = new Date();
   const dayOfWeek = now.getDay(); // 0 = dimanche, 1 = lundi, …
   const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -34,182 +25,64 @@ const getWeekBounds = (): { monday: string; sunday: string } => {
 
   const fmt = (d: Date): string => {
     const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   };
 
   return { monday: fmt(monday), sunday: fmt(sunday) };
-};
+}
 
 const { monday: defaultMonday, sunday: defaultSunday } = getWeekBounds();
 
-// ─── Interface du store ───────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-interface CourseStore {
-  // ── Planning (cours_recurrent) ────────────────────────────────────────────
-  planning: CourseRecurrentListItemDto[];
-  planningLoading: boolean;
-  planningError: string | null;
-  fetchPlanning: () => Promise<void>;
-  createCourseRecurrent: (dto: CreateCourseRecurrentDto) => Promise<void>;
-  updateCourseRecurrent: (id: number, dto: UpdateCourseRecurrentDto) => Promise<void>;
-  deleteCourseRecurrent: (id: number) => Promise<void>;
+export interface SessionFilters {
+  date_debut: string;
+  date_fin: string;
+  type_cours: string;
+}
 
-  // ── Professors ────────────────────────────────────────────────────────────
-  professors: ProfessorListItemDto[];
-  professorsLoading: boolean;
-  fetchProfessors: () => Promise<void>;
-  createProfessor: (dto: CreateProfessorDto) => Promise<void>;
-  updateProfessor: (id: number, dto: UpdateProfessorDto) => Promise<void>;
+interface CourseUIStore {
+  /** Filtres actifs sur l'onglet Séances */
+  sessionFilters: SessionFilters;
 
-  // ── Sessions (cours instances) ────────────────────────────────────────────
-  sessions: CourseListItemDto[];
-  sessionsLoading: boolean;
-  sessionsError: string | null;
-  sessionFilters: { date_debut: string; date_fin: string; type_cours: string };
-  fetchSessions: () => Promise<void>;
-  setSessionFilter: (key: string, value: string) => void;
-  createSession: (dto: CreateCourseDto) => Promise<void>;
-  generateSessions: (dto: GenerateCoursesDto) => Promise<{ generated: number }>;
+  /**
+   * Met à jour un filtre individuel.
+   * @param key   Clé du filtre à modifier
+   * @param value Nouvelle valeur
+   */
+  setSessionFilter: (key: keyof SessionFilters, value: string) => void;
 
-  // ── Attendance ────────────────────────────────────────────────────────────
-  attendanceSheet: AttendanceSheetDto | null;
-  attendanceLoading: boolean;
-  fetchAttendance: (cours_id: number) => Promise<void>;
-  bulkUpdatePresence: (cours_id: number, dto: BulkUpdatePresenceDto) => Promise<void>;
-
-  // ── Misc ──────────────────────────────────────────────────────────────────
-  clearError: () => void;
+  /** Réinitialise les filtres à la semaine courante */
+  resetSessionFilters: () => void;
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
-export const useCourseStore = create<CourseStore>((set, get) => ({
-  // ── Planning ──────────────────────────────────────────────────────────────
-  planning: [],
-  planningLoading: false,
-  planningError: null,
-
-  fetchPlanning: async () => {
-    set({ planningLoading: true, planningError: null });
-    try {
-      const planning = await coursesApi.getCourseRecurrents();
-      set({ planning, planningLoading: false });
-    } catch (error: any) {
-      set({
-        planningLoading: false,
-        planningError:
-          error.response?.data?.message ?? error.message ?? 'Une erreur est survenue.',
-      });
-    }
-  },
-
-  createCourseRecurrent: async (dto) => {
-    await coursesApi.createCourseRecurrent(dto);
-    await get().fetchPlanning();
-  },
-
-  updateCourseRecurrent: async (id, dto) => {
-    await coursesApi.updateCourseRecurrent(id, dto);
-    await get().fetchPlanning();
-  },
-
-  deleteCourseRecurrent: async (id) => {
-    await coursesApi.deleteCourseRecurrent(id);
-    await get().fetchPlanning();
-  },
-
-  // ── Professors ────────────────────────────────────────────────────────────
-  professors: [],
-  professorsLoading: false,
-
-  fetchProfessors: async () => {
-    set({ professorsLoading: true });
-    try {
-      const professors = await coursesApi.getProfessors();
-      set({ professors, professorsLoading: false });
-    } catch (error: any) {
-      // Silently fail — non-blocking for UX; planningError covers critical errors
-      set({ professorsLoading: false });
-    }
-  },
-
-  createProfessor: async (dto) => {
-    await coursesApi.createProfessor(dto);
-    await get().fetchProfessors();
-  },
-
-  updateProfessor: async (id, dto) => {
-    await coursesApi.updateProfessor(id, dto);
-    await get().fetchProfessors();
-  },
-
-  // ── Sessions ──────────────────────────────────────────────────────────────
-  sessions: [],
-  sessionsLoading: false,
-  sessionsError: null,
+export const useCourseStore = create<CourseUIStore>((set) => ({
+  // ── État initial ──────────────────────────────────────────────────────────
   sessionFilters: {
     date_debut: defaultMonday,
     date_fin: defaultSunday,
-    type_cours: '',
+    type_cours: "",
   },
 
-  fetchSessions: async () => {
-    set({ sessionsLoading: true, sessionsError: null });
-    const { sessionFilters } = get();
-    try {
-      const sessions = await coursesApi.getCourses({
-        date_debut: sessionFilters.date_debut || undefined,
-        date_fin: sessionFilters.date_fin || undefined,
-        type_cours: sessionFilters.type_cours || undefined,
-      });
-      set({ sessions, sessionsLoading: false });
-    } catch (error: any) {
-      set({
-        sessionsLoading: false,
-        sessionsError:
-          error.response?.data?.message ?? error.message ?? 'Une erreur est survenue.',
-      });
-    }
-  },
-
-  setSessionFilter: (key, value) => {
+  // ── setSessionFilter ──────────────────────────────────────────────────────
+  setSessionFilter: (key, value) =>
     set((state) => ({
       sessionFilters: { ...state.sessionFilters, [key]: value },
-    }));
+    })),
+
+  // ── resetSessionFilters ───────────────────────────────────────────────────
+  resetSessionFilters: () => {
+    const { monday, sunday } = getWeekBounds();
+    set({
+      sessionFilters: {
+        date_debut: monday,
+        date_fin: sunday,
+        type_cours: "",
+      },
+    });
   },
-
-  createSession: async (dto) => {
-    await coursesApi.createSession(dto);
-    await get().fetchSessions();
-  },
-
-  generateSessions: async (dto) => {
-    const result = await coursesApi.generateCourses(dto);
-    await get().fetchSessions();
-    return { generated: result.generated };
-  },
-
-  // ── Attendance ────────────────────────────────────────────────────────────
-  attendanceSheet: null,
-  attendanceLoading: false,
-
-  fetchAttendance: async (cours_id) => {
-    set({ attendanceLoading: true });
-    try {
-      const attendanceSheet = await coursesApi.getCourseInscriptions(cours_id);
-      set({ attendanceSheet, attendanceLoading: false });
-    } catch (error: any) {
-      set({ attendanceLoading: false });
-    }
-  },
-
-  bulkUpdatePresence: async (cours_id, dto) => {
-    await coursesApi.bulkUpdatePresence(cours_id, dto);
-    await get().fetchAttendance(cours_id);
-  },
-
-  // ── clearError ────────────────────────────────────────────────────────────
-  clearError: () => set({ planningError: null, sessionsError: null }),
 }));

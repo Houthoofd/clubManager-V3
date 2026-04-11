@@ -1462,6 +1462,23 @@ function AttendanceModal({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function CoursesPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role_app === "admin";
+
+  // ── UI state ────────────────────────────────────────────────────────────────
+  // Déclarés avant useCourses pour pouvoir dériver attendanceCourseId,
+  // qui est passé au hook afin que React Query active/désactive la query
+  // de feuille d'appel automatiquement — sans useEffect manuel.
+  const [activeTab, setActiveTab] = useState<TabId>("planning");
+  const [modal, setModal] = useState<ModalState>({ type: "none" });
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Dérivé du modal : non-null uniquement quand la modale d'appel est ouverte.
+  // React Query active la query attendance seulement dans ce cas (enabled).
+  const attendanceCourseId =
+    modal.type === "attendance" ? modal.session.id : null;
+
+  // ── React Query (data + mutations) ──────────────────────────────────────────
   const {
     planning,
     planningLoading,
@@ -1474,7 +1491,6 @@ export function CoursesPage() {
     sessionFilters,
     attendanceSheet,
     attendanceLoading,
-    fetchAttendance,
     bulkUpdatePresence: storeBulkUpdatePresence,
     createCourseRecurrent: storeCreateCourseRecurrent,
     updateCourseRecurrent: storeUpdateCourseRecurrent,
@@ -1485,28 +1501,9 @@ export function CoursesPage() {
     generateSessions,
     setSessionFilter,
     clearError,
-  } = useCourses();
-
-  const { user } = useAuth();
-  const isAdmin = user?.role_app === "admin";
-
-  const [activeTab, setActiveTab] = useState<TabId>("planning");
-  const [modal, setModal] = useState<ModalState>({ type: "none" });
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  } = useCourses({ attendanceCourseId });
 
   const tabsScrollRef = useRef<HTMLDivElement>(null);
-
-  // ── Fetch attendance when attendance modal opens ───────────────────────────
-  useEffect(() => {
-    if (modal.type === "attendance") {
-      fetchAttendance(modal.session.id);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    modal.type === "attendance"
-      ? (modal as { type: "attendance"; session: CourseListItemDto }).session.id
-      : null,
-  ]);
 
   // ── Dismiss errors via toast ───────────────────────────────────────────────
   useEffect(() => {
