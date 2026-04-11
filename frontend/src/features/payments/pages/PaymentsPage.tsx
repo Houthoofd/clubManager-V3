@@ -27,6 +27,48 @@ import { StripePaymentModal } from "../components/StripePaymentModal";
 
 // ─── Types locaux ─────────────────────────────────────────────────────────────
 
+// ─── Icônes SVG ───────────────────────────────────────────────────────────────
+
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2.5}
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.5 12.75l6 6 9-13.5"
+      />
+    </svg>
+  );
+}
+
+function ExclamationTriangleIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+      />
+    </svg>
+  );
+}
+
 type Tab = "payments" | "schedules" | "plans";
 
 interface UserOption {
@@ -563,7 +605,7 @@ export function PaymentsPage() {
                 </h2>
                 {totalValidThisMonth > 0 && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
-                    <span aria-hidden="true">✓</span>
+                    <CheckIcon className="h-3.5 w-3.5" />
                     {formatCurrency(totalValidThisMonth)} validés ce mois
                   </span>
                 )}
@@ -853,7 +895,7 @@ export function PaymentsPage() {
                 </h2>
                 {overdueSchedules.length > 0 && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">
-                    <span aria-hidden="true">⚠️</span>
+                    <ExclamationTriangleIcon className="h-3.5 w-3.5" />
                     {overdueSchedules.length} en retard
                   </span>
                 )}
@@ -918,9 +960,7 @@ export function PaymentsPage() {
               <div className="p-4 bg-red-50 border-b border-red-100">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-red-100">
-                    <span className="text-base" aria-hidden="true">
-                      ⚠️
-                    </span>
+                    <ExclamationTriangleIcon className="h-4 w-4 text-red-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold text-red-800 mb-3">
@@ -965,7 +1005,14 @@ export function PaymentsPage() {
                                            text-white bg-green-600 hover:bg-green-700 rounded-md
                                            transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                {markingScheduleId === s.id ? "…" : "✓ Payer"}
+                                {markingScheduleId === s.id ? (
+                                  "…"
+                                ) : (
+                                  <>
+                                    <CheckIcon className="h-3.5 w-3.5" />
+                                    Payer
+                                  </>
+                                )}
                               </button>
                             )}
                           </div>
@@ -1107,7 +1154,7 @@ export function PaymentsPage() {
                                     />
                                   </svg>
                                 ) : (
-                                  <span aria-hidden="true">✓</span>
+                                  <CheckIcon className="h-3.5 w-3.5" />
                                 )}
                                 Marquer payé
                               </button>

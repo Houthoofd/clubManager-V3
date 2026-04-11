@@ -4,19 +4,21 @@
  * Nécessite VITE_STRIPE_PUBLIC_KEY dans les variables d'environnement.
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from "react";
 import {
   Elements,
   PaymentElement,
   useStripe,
   useElements,
-} from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import type { Stripe, StripeElementsOptions } from '@stripe/stripe-js';
+} from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import type { Stripe, StripeElementsOptions } from "@stripe/stripe-js";
 
 // ─── Clé publique Stripe ──────────────────────────────────────────────────────
 
-const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY as string | undefined;
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY as
+  | string
+  | undefined;
 const stripePromise: Promise<Stripe | null> | null = stripePublicKey
   ? loadStripe(stripePublicKey)
   : null;
@@ -94,12 +96,12 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
           return_url: window.location.href,
         },
         // Si le paiement n'exige pas de redirection, on reste dans la modal
-        redirect: 'if_required',
+        redirect: "if_required",
       });
 
       if (error) {
         setErrorMessage(
-          error.message ?? 'Une erreur est survenue lors du paiement.',
+          error.message ?? "Une erreur est survenue lors du paiement.",
         );
         setIsLoading(false);
       } else {
@@ -107,16 +109,14 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
         onSuccess();
       }
     } catch (err: any) {
-      setErrorMessage(
-        err?.message ?? 'Une erreur inattendue est survenue.',
-      );
+      setErrorMessage(err?.message ?? "Une erreur inattendue est survenue.");
       setIsLoading(false);
     }
   };
 
-  const amountFormatted = (amount / 100).toLocaleString('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
+  const amountFormatted = (amount / 100).toLocaleString("fr-FR", {
+    style: "currency",
+    currency: "EUR",
   });
 
   return (
@@ -126,7 +126,7 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
         <PaymentElement
           onReady={() => setIsReady(true)}
           options={{
-            layout: 'tabs',
+            layout: "tabs",
           }}
         />
         {!isReady && (
@@ -196,7 +196,7 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
                      transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {isLoading && <SpinnerIcon />}
-          {isLoading ? 'Traitement en cours…' : `Payer ${amountFormatted}`}
+          {isLoading ? "Traitement en cours…" : `Payer ${amountFormatted}`}
         </button>
       </div>
     </form>
@@ -226,17 +226,17 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === "Escape") onClose();
     };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
   // ── Bloquer le scroll du body ─────────────────────────────────────────────
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : '';
+    document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -262,8 +262,10 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-shrink-0 flex items-center justify-center w-10 h-10
-                            rounded-full bg-red-100">
+            <div
+              className="flex-shrink-0 flex items-center justify-center w-10 h-10
+                            rounded-full bg-red-100"
+            >
               <svg
                 className="h-5 w-5 text-red-600"
                 fill="none"
@@ -287,19 +289,23 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
               >
                 Configuration Stripe manquante
               </h2>
-              <p className="text-sm text-gray-500">Paiement par carte indisponible</p>
+              <p className="text-sm text-gray-500">
+                Paiement par carte indisponible
+              </p>
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-2">
-            La variable d'environnement{' '}
+            La variable d'environnement{" "}
             <code className="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-red-700">
               VITE_STRIPE_PUBLIC_KEY
-            </code>{' '}
+            </code>{" "}
             n'est pas définie.
           </p>
           <p className="text-sm text-gray-500 mb-5">
-            Ajoutez cette clé dans votre fichier{' '}
-            <code className="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">.env</code>{' '}
+            Ajoutez cette clé dans votre fichier{" "}
+            <code className="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">
+              .env
+            </code>{" "}
             pour activer les paiements par carte bancaire.
           </p>
           <div className="flex justify-end">
@@ -321,23 +327,23 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
   const elementsOptions: StripeElementsOptions = {
     clientSecret,
     appearance: {
-      theme: 'stripe',
+      theme: "stripe",
       variables: {
-        colorPrimary: '#2563eb',
-        colorBackground: '#ffffff',
-        colorText: '#111827',
-        colorDanger: '#dc2626',
-        fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-        borderRadius: '8px',
-        spacingUnit: '4px',
+        colorPrimary: "#2563eb",
+        colorBackground: "#ffffff",
+        colorText: "#111827",
+        colorDanger: "#dc2626",
+        fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+        borderRadius: "8px",
+        spacingUnit: "4px",
       },
     },
-    locale: 'fr',
+    locale: "fr",
   };
 
-  const amountFormatted = (amount / 100).toLocaleString('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
+  const amountFormatted = (amount / 100).toLocaleString("fr-FR", {
+    style: "currency",
+    currency: "EUR",
   });
 
   // ── Rendu principal ───────────────────────────────────────────────────────
@@ -359,7 +365,20 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
             <div className="flex items-center gap-3">
               {/* Logo Stripe-like */}
               <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-600">
-                <span className="text-white text-lg" aria-hidden="true">💳</span>
+                <svg
+                  className="h-5 w-5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"
+                  />
+                </svg>
               </div>
               <div>
                 <h2
@@ -369,7 +388,10 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
                   Paiement sécurisé
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Montant : <span className="font-medium text-gray-800">{amountFormatted}</span>
+                  Montant :{" "}
+                  <span className="font-medium text-gray-800">
+                    {amountFormatted}
+                  </span>
                 </p>
               </div>
             </div>
