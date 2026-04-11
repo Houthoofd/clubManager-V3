@@ -35,6 +35,7 @@ import { UsersPage } from "./features/users/pages";
 import { MessagesPage } from "./features/messaging/pages";
 import { SettingsPage } from "./features/settings/pages";
 import { PaymentsPage } from "./features/payments/pages";
+import { CoursesPage } from "./features/courses/pages";
 
 // Dashboard (placeholder)
 const DashboardPage = () => (
@@ -44,13 +45,6 @@ const DashboardPage = () => (
       Bienvenue sur ClubManager V3 - Votre application de gestion de club
       sportif.
     </p>
-  </div>
-);
-
-// Other placeholder pages
-const CoursesPage = () => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <h1 className="text-2xl font-bold text-gray-900">Courses</h1>
   </div>
 );
 
@@ -184,7 +178,20 @@ function App() {
           {/* Private Routes */}
           <Route element={<AuthenticatedLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/courses" element={<CoursesPage />} />
+            <Route
+              path="/courses"
+              element={
+                <RoleGuard
+                  allowedRoles={[
+                    UserRole.ADMIN,
+                    UserRole.PROFESSOR,
+                    UserRole.MEMBER,
+                  ]}
+                >
+                  <CoursesPage />
+                </RoleGuard>
+              }
+            />
             <Route
               path="/users"
               element={

@@ -23,6 +23,7 @@ import messagingRoutes from "./modules/messaging/presentation/routes/messagingRo
 import templateRoutes from "./modules/templates/presentation/routes/templateRoutes.js";
 import settingsRoutes from "./modules/settings/presentation/routes/settingsRoutes.js";
 import paymentRoutes from "./modules/payments/presentation/routes/paymentRoutes.js";
+import courseRoutes from "./modules/courses/presentation/routes/courseRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -96,7 +97,7 @@ const createApp = (): Express => {
     });
   });
 
-  // Mount auth routes
+  // Mount routes
   app.use("/api/auth", authRoutes);
   app.use("/api/families", familyRoutes);
   app.use("/api/users", userRoutes);
@@ -104,9 +105,9 @@ const createApp = (): Express => {
   app.use("/api/templates", templateRoutes);
   app.use("/api/settings", settingsRoutes);
   app.use("/api/payments", paymentRoutes);
+  app.use("/api/courses", courseRoutes);
 
   // TODO: Mount other module routes
-  // app.use("/api/courses", courseRoutes);
   // app.use("/api/store", storeRoutes);
 
   // ==================== ERROR HANDLING ====================
