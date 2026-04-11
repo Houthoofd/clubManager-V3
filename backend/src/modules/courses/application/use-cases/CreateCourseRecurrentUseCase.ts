@@ -3,7 +3,10 @@
  * Application Layer — crée un nouveau cours récurrent après validation
  */
 
-import type { CreateCourseRecurrentDto, CourseRecurrentResponseDto } from "@clubmanager/types";
+import type {
+  CreateCourseRecurrentDto,
+  CourseRecurrentResponseDto,
+} from "@clubmanager/types";
 import type { ICourseRepository } from "../../domain/repositories/ICourseRepository.js";
 
 export class CreateCourseRecurrentUseCase {
@@ -13,6 +16,7 @@ export class CreateCourseRecurrentUseCase {
    * Valide le DTO et crée un cours récurrent
    * @throws {Error} Si type_cours est vide
    * @throws {Error} Si jour_semaine n'est pas entre 1 (Lundi) et 7 (Dimanche)
+   * @throws {Error} Si un cours existe déjà sur le même créneau horaire
    */
   async execute(
     dto: CreateCourseRecurrentDto,
@@ -34,6 +38,26 @@ export class CreateCourseRecurrentUseCase {
 
     if (!dto.heure_debut || !dto.heure_fin) {
       throw new Error("L'heure de début et l'heure de fin sont obligatoires");
+    }
+
+    if (dto.heure_fin <= dto.heure_debut) {
+      throw new Error(
+        "L'heure de fin doit être postérieure à l'heure de début",
+      );
+    }
+
+    // Vérification de conflit de créneau
+    const conflict = await this.repo.hasTimeConflict(
+      dto.jour_semaine,
+      dto.heure_debut,
+      dto.heure_fin,
+    );
+
+    if (conflict) {
+      throw new Error(
+        `Ce créneau est déjà occupé par le cours "${conflict.type_cours}" ` +
+          `(${conflict.heure_debut.slice(0, 5)}–${conflict.heure_fin.slice(0, 5)})`,
+      );
     }
 
     return this.repo.createCourseRecurrent(dto);

@@ -448,6 +448,66 @@ export class MySQLCourseRepository implements ICourseRepository {
   }
 
   /**
+   * Vérifie si un créneau est déjà occupé par un autre cours récurrent.
+   *
+   * Condition de chevauchement (algèbre des intervalles) :
+   *   existant.heure_debut < nouveau.heure_fin
+   *   AND existant.heure_fin  > nouveau.heure_debut
+   *
+   * Cela détecte : inclusion totale, chevauchement partiel gauche/droite.
+   * Deux cours dos-à-dos (l'un finit à 18:00, l'autre commence à 18:00)
+   * ne sont PAS en conflit.
+   *
+   * @param excludeId  ID à exclure (obligatoire lors d'un update pour ne pas
+   *                   détecter le cours lui-même comme conflit)
+   */
+  async hasTimeConflict(
+    jour_semaine: number,
+    heure_debut: string,
+    heure_fin: string,
+    excludeId?: number,
+  ): Promise<{
+    id: number;
+    type_cours: string;
+    heure_debut: string;
+    heure_fin: string;
+  } | null> {
+    interface ConflictRow extends RowDataPacket {
+      id: number;
+      type_cours: string;
+      heure_debut: string;
+      heure_fin: string;
+    }
+
+    const [rows] = await pool.query<ConflictRow[]>(
+      `SELECT id, type_cours, heure_debut, heure_fin
+       FROM cours_recurrent
+       WHERE jour_semaine = ?
+         AND heure_debut  < ?
+         AND heure_fin    > ?
+         AND (? IS NULL OR id != ?)
+       LIMIT 1`,
+      [
+        jour_semaine,
+        heure_fin, // existant.heure_debut < nouveau.heure_fin
+        heure_debut, // existant.heure_fin   > nouveau.heure_debut
+        excludeId ?? null,
+        excludeId ?? null,
+      ],
+    );
+
+    if (rows.length === 0) return null;
+
+    const row = rows[0]!;
+    return {
+      id: row.id,
+      type_cours: row.type_cours,
+      heure_debut: row.heure_debut,
+      heure_fin: row.heure_fin,
+    };
+  }
+
+  /**
    * Assigne un professeur à un cours récurrent (INSERT avec contrainte UNIQUE)
    */
   async assignProfessor(
@@ -613,7 +673,9 @@ export class MySQLCourseRepository implements ICourseRepository {
   /**
    * Insère un nouveau professeur en base de données
    */
-  async createProfessor(dto: CreateProfessorDto): Promise<ProfessorResponseDto> {
+  async createProfessor(
+    dto: CreateProfessorDto,
+  ): Promise<ProfessorResponseDto> {
     const actif = dto.actif !== undefined ? dto.actif : true;
 
     const [result] = await pool.query<ResultSetHeader>(
@@ -638,7 +700,9 @@ export class MySQLCourseRepository implements ICourseRepository {
    * Met à jour un professeur existant de façon partielle (patch sémantique)
    * @throws Error si le professeur n'existe pas après la mise à jour
    */
-  async updateProfessor(dto: UpdateProfessorDto): Promise<ProfessorResponseDto> {
+  async updateProfessor(
+    dto: UpdateProfessorDto,
+  ): Promise<ProfessorResponseDto> {
     const updates: string[] = [];
     const params: (string | number | null)[] = [];
 
@@ -1143,9 +1207,8 @@ export class MySQLCourseRepository implements ICourseRepository {
    * Supprime une inscription par son ID primaire
    */
   async deleteInscription(id: number): Promise<void> {
-    await pool.query<ResultSetHeader>(
-      "DELETE FROM inscriptions WHERE id = ?",
-      [id],
-    );
+    await pool.query<ResultSetHeader>("DELETE FROM inscriptions WHERE id = ?", [
+      id,
+    ]);
   }
 }

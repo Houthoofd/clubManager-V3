@@ -438,6 +438,8 @@ interface CreateEditCourseRecurrentModalProps {
   isOpen: boolean;
   editItem: CourseRecurrentListItemDto | null;
   professors: ProfessorListItemDto[];
+  /** Liste complète du planning — utilisée pour la détection de conflit côté client */
+  planning: CourseRecurrentListItemDto[];
   onClose: () => void;
   onSubmit: (dto: CreateCourseRecurrentDto) => Promise<void>;
   onUpdate: (id: number, dto: UpdateCourseRecurrentDto) => Promise<void>;
@@ -447,6 +449,7 @@ function CreateEditCourseRecurrentModal({
   isOpen,
   editItem,
   professors,
+  planning,
   onClose,
   onSubmit,
   onUpdate,
@@ -460,6 +463,21 @@ function CreateEditCourseRecurrentModal({
     professeur_ids: [] as number[],
   });
   const [saving, setSaving] = useState(false);
+
+  // ── Détection de conflit en temps réel ──────────────────────────────────────
+  // Recalculé à chaque frappe sur les champs horaires / jour.
+  // Condition de chevauchement : existant.debut < form.fin ET existant.fin > form.debut
+  const conflictCourse =
+    form.heure_debut && form.heure_fin && form.heure_fin > form.heure_debut
+      ? (planning.find((c) => {
+          if (editItem && c.id === editItem.id) return false; // exclure soi-même
+          if (c.jour_semaine !== form.jour_semaine) return false;
+          return (
+            form.heure_debut < c.heure_fin.slice(0, 5) &&
+            form.heure_fin > c.heure_debut.slice(0, 5)
+          );
+        }) ?? null)
+      : null;
 
   useModalEffects(isOpen, onClose);
 
@@ -502,6 +520,16 @@ function CreateEditCourseRecurrentModal({
     e.preventDefault();
     if (!form.type_cours.trim() || !form.heure_debut || !form.heure_fin) {
       toast.error("Veuillez remplir tous les champs obligatoires.");
+      return;
+    }
+    if (form.heure_fin <= form.heure_debut) {
+      toast.error("L'heure de fin doit être postérieure à l'heure de début.");
+      return;
+    }
+    if (conflictCourse) {
+      toast.error(
+        `Créneau déjà occupé par "${conflictCourse.type_cours}" (${formatTime(conflictCourse.heure_debut)}–${formatTime(conflictCourse.heure_fin)}).`,
+      );
       return;
     }
     setSaving(true);
@@ -550,6 +578,33 @@ function CreateEditCourseRecurrentModal({
         onSubmit={handleSubmit}
         className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto"
       >
+        {/* Bannière de conflit — visible dès que le créneau chevauche un cours existant */}
+        {conflictCourse && (
+          <div className="flex items-start gap-2 px-3 py-2.5 bg-amber-50 border border-amber-300 rounded-lg text-sm text-amber-800">
+            <svg
+              className="h-4 w-4 flex-shrink-0 mt-0.5 text-amber-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+              />
+            </svg>
+            <span>
+              Ce créneau chevauche <strong>{conflictCourse.type_cours}</strong>{" "}
+              ({formatTime(conflictCourse.heure_debut)}–
+              {formatTime(conflictCourse.heure_fin)}) le{" "}
+              {conflictCourse.jour_semaine_nom}.
+            </span>
+          </div>
+        )}
+
         {/* Type de cours */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -678,8 +733,13 @@ function CreateEditCourseRecurrentModal({
           </button>
           <button
             type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60"
+            disabled={saving || !!conflictCourse}
+            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            title={
+              conflictCourse
+                ? `Créneau occupé par "${conflictCourse.type_cours}"`
+                : undefined
+            }
           >
             {saving && <Spinner className="h-4 w-4" />}
             {saving ? "Enregistrement…" : editItem ? "Modifier" : "Créer"}
@@ -2107,6 +2167,7 @@ export function CoursesPage() {
         }
         editItem={modal.type === "editCourseRecurrent" ? modal.item : null}
         professors={professors}
+        planning={planning}
         onClose={() => setModal({ type: "none" })}
         onSubmit={storeCreateCourseRecurrent}
         onUpdate={storeUpdateCourseRecurrent}

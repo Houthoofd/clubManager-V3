@@ -35,7 +35,9 @@ export interface ICourseRepository {
    * Récupère un cours récurrent par son ID avec le détail complet des professeurs
    * @returns null si introuvable
    */
-  getCourseRecurrentById(id: number): Promise<CourseRecurrentResponseDto | null>;
+  getCourseRecurrentById(
+    id: number,
+  ): Promise<CourseRecurrentResponseDto | null>;
 
   /**
    * Crée un nouveau cours récurrent et assigne optionnellement des professeurs
@@ -56,6 +58,28 @@ export interface ICourseRepository {
    * Supprime un cours récurrent (la cascade gère la table de liaison)
    */
   deleteCourseRecurrent(id: number): Promise<void>;
+
+  /**
+   * Vérifie s'il existe un cours récurrent sur le même créneau horaire.
+   * Deux cours sont en conflit si : existing.heure_debut < new.heure_fin AND existing.heure_fin > new.heure_debut
+   *
+   * @param jour_semaine  Jour de la semaine (1=Lundi … 7=Dimanche)
+   * @param heure_debut   Heure de début du nouveau cours (format HH:MM ou HH:MM:SS)
+   * @param heure_fin     Heure de fin du nouveau cours (format HH:MM ou HH:MM:SS)
+   * @param excludeId     ID à exclure de la vérification (indispensable lors d'un update)
+   * @returns             Le cours en conflit (id, type_cours, heure_debut, heure_fin) ou null
+   */
+  hasTimeConflict(
+    jour_semaine: number,
+    heure_debut: string,
+    heure_fin: string,
+    excludeId?: number,
+  ): Promise<{
+    id: number;
+    type_cours: string;
+    heure_debut: string;
+    heure_fin: string;
+  } | null>;
 
   /**
    * Assigne un professeur à un cours récurrent
