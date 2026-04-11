@@ -125,7 +125,23 @@ export const LoginPage = () => {
                 to="/resend-verification"
                 className="text-sm font-medium text-amber-800 underline hover:text-amber-900 transition-colors"
               >
-                Renvoyer l'email de vérification →
+                <span className="inline-flex items-center gap-1">
+                  Renvoyer l'email de vérification
+                  <svg
+                    className="h-3.5 w-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                    />
+                  </svg>
+                </span>
               </Link>
             </div>
           )}

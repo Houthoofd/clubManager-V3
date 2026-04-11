@@ -34,6 +34,7 @@ import { FamilyPage } from "./features/families/pages";
 import { UsersPage } from "./features/users/pages";
 import { MessagesPage } from "./features/messaging/pages";
 import { SettingsPage } from "./features/settings/pages";
+import { PaymentsPage } from "./features/payments/pages";
 
 // Dashboard (placeholder)
 const DashboardPage = () => (
@@ -50,12 +51,6 @@ const DashboardPage = () => (
 const CoursesPage = () => (
   <div className="bg-white rounded-lg shadow p-6">
     <h1 className="text-2xl font-bold text-gray-900">Courses</h1>
-  </div>
-);
-
-const PaymentsPage = () => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
   </div>
 );
 

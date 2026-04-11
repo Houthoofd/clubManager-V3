@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { VALIDATION_CONSTANTS } from "../../constants/validation.constants.js";
+
 import {
   dateISOSchema,
   futureDateSchema,
@@ -135,10 +135,7 @@ export const searchPaymentScheduleSchema = z
   .refine(
     (data) => {
       // Vérifier que montant_max >= montant_min
-      if (
-        data.montant_min !== undefined &&
-        data.montant_max !== undefined
-      ) {
+      if (data.montant_min !== undefined && data.montant_max !== undefined) {
         return data.montant_max >= data.montant_min;
       }
       return true;

@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { VALIDATION_CONSTANTS } from "../../constants/validation.constants.js";
+
 import {
   booleanSchema,
   idSchema,
@@ -112,8 +112,7 @@ export const searchPricingPlanSchema = z
       return true;
     },
     {
-      message:
-        "Le prix maximum doit être supérieur ou égal au prix minimum",
+      message: "Le prix maximum doit être supérieur ou égal au prix minimum",
       path: ["prix_max"],
     },
   );
