@@ -149,30 +149,41 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
 
   // ── Cours récurrents ────────────────────────────────────────────────────────
 
+  // Invalidation groupée planning + professeurs :
+  // Ces deux caches sont couplés via cours_recurrent_professeur.
+  // Toute modification d'un côté doit rafraîchir les deux pour éviter
+  // les données périmées (nombre_cours, professeurs_noms, etc.).
+  const invalidatePlanningAndProfessors = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: courseKeys.planning() }),
+      queryClient.invalidateQueries({ queryKey: courseKeys.professors() }),
+    ]);
+
   const createCourseRecurrentMutation = useMutation({
     mutationFn: (dto: CreateCourseRecurrentDto) =>
       coursesApi.createCourseRecurrent(dto),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: courseKeys.planning() }),
+    // Un nouveau cours peut être assigné à des profs → les deux caches
+    onSuccess: invalidatePlanningAndProfessors,
   });
 
   const updateCourseRecurrentMutation = useMutation({
     mutationFn: ({ id, dto }: { id: number; dto: UpdateCourseRecurrentDto }) =>
       coursesApi.updateCourseRecurrent(id, dto),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: courseKeys.planning() }),
+    // Les professeurs assignés peuvent avoir changé → les deux caches
+    onSuccess: invalidatePlanningAndProfessors,
   });
 
   const deleteCourseRecurrentMutation = useMutation({
     mutationFn: (id: number) => coursesApi.deleteCourseRecurrent(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: courseKeys.planning() }),
+    // Le cours supprimé n'apparaît plus dans nombre_cours des profs → les deux caches
+    onSuccess: invalidatePlanningAndProfessors,
   });
 
   // ── Professeurs ─────────────────────────────────────────────────────────────
 
   const createProfessorMutation = useMutation({
     mutationFn: (dto: CreateProfessorDto) => coursesApi.createProfessor(dto),
+    // Nouveau prof : n'affecte pas le planning, juste la liste
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: courseKeys.professors() }),
   });
@@ -180,8 +191,8 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
   const updateProfessorMutation = useMutation({
     mutationFn: ({ id, dto }: { id: number; dto: UpdateProfessorDto }) =>
       coursesApi.updateProfessor(id, dto),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: courseKeys.professors() }),
+    // Le nom/spécialité affiché dans les cartes du planning peut avoir changé
+    onSuccess: invalidatePlanningAndProfessors,
   });
 
   // ── Séances ─────────────────────────────────────────────────────────────────
