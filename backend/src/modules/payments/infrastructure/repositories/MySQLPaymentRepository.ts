@@ -46,7 +46,6 @@ interface CountRow extends RowDataPacket {
 const BASE_SELECT = `
   SELECT
     p.id,
-    p.user_id,
     p.plan_tarifaire_id,
     p.montant,
     p.methode_paiement,
@@ -57,12 +56,13 @@ const BASE_SELECT = `
     p.date_paiement,
     p.created_at,
     p.updated_at,
+    p.utilisateur_id AS user_id,
     u.first_name  AS user_first_name,
     u.last_name   AS user_last_name,
     u.email       AS user_email,
     pt.nom        AS plan_nom
   FROM paiements p
-  LEFT JOIN utilisateurs     u  ON u.id  = p.user_id
+  LEFT JOIN utilisateurs     u  ON u.id  = p.utilisateur_id
   LEFT JOIN plans_tarifaires pt ON pt.id = p.plan_tarifaire_id
 `;
 
@@ -88,7 +88,7 @@ export class MySQLPaymentRepository implements IPaymentRepository {
     const params: (string | number)[] = [];
 
     if (user_id !== undefined) {
-      conditions.push("p.user_id = ?");
+      conditions.push("p.utilisateur_id = ?");
       params.push(user_id);
     }
     if (statut) {
@@ -155,7 +155,7 @@ export class MySQLPaymentRepository implements IPaymentRepository {
    */
   async findByUserId(userId: number): Promise<PaymentRow[]> {
     const [rows] = await pool.query<PaymentDbRow[]>(
-      `${BASE_SELECT} WHERE p.user_id = ? ORDER BY p.created_at DESC`,
+      `${BASE_SELECT} WHERE p.utilisateur_id = ? ORDER BY p.created_at DESC`,
       [userId],
     );
 
@@ -182,7 +182,7 @@ export class MySQLPaymentRepository implements IPaymentRepository {
   async create(data: CreatePaymentInput): Promise<number> {
     const [result] = await pool.query<ResultSetHeader>(
       `INSERT INTO paiements
-         (user_id, plan_tarifaire_id, montant, methode_paiement, statut,
+         (utilisateur_id, plan_tarifaire_id, montant, methode_paiement, statut,
           description, stripe_payment_intent_id, date_paiement)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
@@ -229,10 +229,7 @@ export class MySQLPaymentRepository implements IPaymentRepository {
   /**
    * Enregistre ou met à jour le PaymentIntent Stripe associé à un paiement
    */
-  async updateStripeIntent(
-    id: number,
-    paymentIntentId: string,
-  ): Promise<void> {
+  async updateStripeIntent(id: number, paymentIntentId: string): Promise<void> {
     await pool.query(
       "UPDATE paiements SET stripe_payment_intent_id = ?, updated_at = NOW() WHERE id = ?",
       [paymentIntentId, id],

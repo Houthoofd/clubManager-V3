@@ -48,6 +48,7 @@ export class PaymentScheduleController {
         data: result,
       });
     } catch (error: any) {
+      console.error("[PaymentScheduleController.getSchedules]", error);
       res.status(500).json({
         success: false,
         message: error.message,
@@ -70,6 +71,7 @@ export class PaymentScheduleController {
         data: result,
       });
     } catch (error: any) {
+      console.error("[PaymentScheduleController.getUserSchedules]", error);
       res.status(500).json({
         success: false,
         message: error.message,
@@ -91,6 +93,7 @@ export class PaymentScheduleController {
         data: result,
       });
     } catch (error: any) {
+      console.error("[PaymentScheduleController.getOverdueSchedules]", error);
       res.status(500).json({
         success: false,
         message: error.message,

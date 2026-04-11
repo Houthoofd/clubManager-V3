@@ -19,7 +19,16 @@ import { CreateStripePaymentIntentUseCase } from "../../application/use-cases/pa
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 
 const repo = new MySQLPaymentRepository();
-const stripeService = new StripeService();
+let stripeService: StripeService;
+try {
+  stripeService = new StripeService();
+} catch (err) {
+  console.error(
+    "[PaymentController] Échec initialisation StripeService :",
+    err,
+  );
+  stripeService = null as any;
+}
 const getPaymentsUC = new GetPaymentsUseCase(repo);
 const getPaymentByIdUC = new GetPaymentByIdUseCase(repo);
 const getUserPaymentsUC = new GetUserPaymentsUseCase(repo);
@@ -52,6 +61,7 @@ export class PaymentController {
       const result = await getPaymentsUC.execute(query);
       res.json({ success: true, message: "Paiements récupérés", data: result });
     } catch (error: any) {
+      console.error("[PaymentController.getPayments]", error);
       res.status(500).json({
         success: false,
         message: error.message,
@@ -89,6 +99,7 @@ export class PaymentController {
         data: result,
       });
     } catch (error: any) {
+      console.error("[PaymentController.getUserPayments]", error);
       res.status(500).json({
         success: false,
         message: error.message,
@@ -98,6 +109,7 @@ export class PaymentController {
   }
 
   /**
+   * GET /api/payments/user/:userId
    * POST /api/payments
    * Crée un paiement manuel (espèces, virement ou autre — pas Stripe)
    * Body : { user_id, montant, methode_paiement, plan_tarifaire_id?, description?, date_paiement? }
@@ -255,9 +267,7 @@ export class PaymentController {
       res.json({ received: true });
     } catch (error: any) {
       console.error("[Webhook Stripe] Erreur de traitement :", error.message);
-      res
-        .status(500)
-        .json({ success: false, message: String(error.message) });
+      res.status(500).json({ success: false, message: String(error.message) });
     }
   }
 }
