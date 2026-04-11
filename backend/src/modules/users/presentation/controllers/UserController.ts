@@ -12,6 +12,7 @@ import { UpdateUserStatusUseCase } from "../../application/use-cases/UpdateUserS
 import { SoftDeleteUserUseCase } from "../../application/use-cases/SoftDeleteUserUseCase.js";
 import { RestoreUserUseCase } from "../../application/use-cases/RestoreUserUseCase.js";
 import { MySQLUserRepository } from "../../infrastructure/repositories/MySQLUserRepository.js";
+import { NotifyUsersUseCase } from "../../application/use-cases/NotifyUsersUseCase.js";
 
 const repo = new MySQLUserRepository();
 const getUsersUC = new GetUsersUseCase(repo);
@@ -20,6 +21,7 @@ const updateRoleUC = new UpdateUserRoleUseCase(repo);
 const updateStatusUC = new UpdateUserStatusUseCase(repo);
 const softDeleteUC = new SoftDeleteUserUseCase(repo);
 const restoreUC = new RestoreUserUseCase(repo);
+const notifyUsersUC = new NotifyUsersUseCase(repo);
 
 export class UserController {
   /**
@@ -117,6 +119,40 @@ export class UserController {
     } catch (error: any) {
       const status = error.message.includes("introuvable") ? 404 : 400;
       res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * POST /api/users/notify-bulk
+   * Envoie un message à une sélection d’utilisateurs (admin + professor)
+   */
+  async notifyBulk(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const expediteur_id = req.user!.userId;
+      const { user_ids, sujet, contenu, envoye_par_email } = req.body;
+
+      if (!Array.isArray(user_ids) || user_ids.length === 0) {
+        res.status(400).json({ success: false, message: "user_ids doit être un tableau non vide" });
+        return;
+      }
+
+      const result = await notifyUsersUC.execute({
+        expediteur_id,
+        user_ids: (user_ids as unknown[]).map(Number),
+        sujet: typeof sujet === "string" ? sujet.trim() || undefined : undefined,
+        contenu,
+        envoye_par_email: Boolean(envoye_par_email),
+      });
+
+      res.json({
+        success: true,
+        message: result.errors > 0
+          ? `${result.sent} notification(s) envoyée(s), ${result.errors} erreur(s)`
+          : `${result.sent} notification(s) envoyée(s)`,
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
     }
   }
 }

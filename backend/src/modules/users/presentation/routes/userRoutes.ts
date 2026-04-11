@@ -27,4 +27,7 @@ router.delete("/:id", requireRole(UserRole.ADMIN), (req, res) => ctrl.softDelete
 // POST /api/users/:id/restore — admin seulement
 router.post("/:id/restore", requireRole(UserRole.ADMIN), (req, res) => ctrl.restore(req as any, res));
 
+// POST /api/users/notify-bulk — admin + professor
+router.post("/notify-bulk", requireRole(UserRole.ADMIN, UserRole.PROFESSOR), (req, res) => ctrl.notifyBulk(req as any, res));
+
 export default router;
