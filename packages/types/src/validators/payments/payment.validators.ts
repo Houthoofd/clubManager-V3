@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { VALIDATION_CONSTANTS } from "../../constants/validation.constants.js";
+
 import {
   dateISOSchema,
   idSchema,
@@ -122,17 +122,15 @@ export const searchPaymentSchema = z
       return true;
     },
     {
-      message: "La date de fin doit être supérieure ou égale à la date de début",
+      message:
+        "La date de fin doit être supérieure ou égale à la date de début",
       path: ["date_fin"],
     },
   )
   .refine(
     (data) => {
       // Vérifier que montant_max >= montant_min
-      if (
-        data.montant_min !== undefined &&
-        data.montant_max !== undefined
-      ) {
+      if (data.montant_min !== undefined && data.montant_max !== undefined) {
         return data.montant_max >= data.montant_min;
       }
       return true;
