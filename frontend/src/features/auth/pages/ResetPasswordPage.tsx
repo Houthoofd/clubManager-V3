@@ -323,15 +323,49 @@ export const ResetPasswordPage = () => {
                   confirmPassword &&
                   confirmPassword.length > 0 && (
                     <p
-                      className={`mt-2 text-xs font-medium ${
+                      className={`mt-2 text-xs font-medium flex items-center gap-1 ${
                         newPassword === confirmPassword
                           ? "text-green-600"
                           : "text-red-500"
                       }`}
                     >
-                      {newPassword === confirmPassword
-                        ? "✓ Les mots de passe correspondent"
-                        : "✗ Les mots de passe ne correspondent pas"}
+                      {newPassword === confirmPassword ? (
+                        <>
+                          <svg
+                            className="h-3.5 w-3.5 flex-shrink-0"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                            aria-hidden="true"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M4.5 12.75l6 6 9-13.5"
+                            />
+                          </svg>
+                          Les mots de passe correspondent
+                        </>
+                      ) : (
+                        <>
+                          <svg
+                            className="h-3.5 w-3.5 flex-shrink-0"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                            aria-hidden="true"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                          Les mots de passe ne correspondent pas
+                        </>
+                      )}
                     </p>
                   )}
               </div>

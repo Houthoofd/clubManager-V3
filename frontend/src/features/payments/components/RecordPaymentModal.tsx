@@ -4,9 +4,9 @@
  * Utilise react-hook-form pour la gestion du formulaire.
  */
 
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import type { PricingPlan } from '@clubmanager/types';
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import type { PricingPlan } from "@clubmanager/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,7 +27,7 @@ interface RecordPaymentModalProps {
 export interface RecordPaymentFormData {
   user_id: number;
   montant: number;
-  methode_paiement: 'especes' | 'virement' | 'autre';
+  methode_paiement: "especes" | "virement" | "autre";
   plan_tarifaire_id?: number;
   description?: string;
   date_paiement: string;
@@ -50,7 +50,14 @@ function SpinnerIcon() {
       viewBox="0 0 24 24"
       aria-hidden="true"
     >
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
       <path
         className="opacity-75"
         fill="currentColor"
@@ -85,9 +92,9 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     defaultValues: {
       user_id: undefined,
       montant: undefined,
-      methode_paiement: 'especes',
+      methode_paiement: "especes",
       plan_tarifaire_id: undefined,
-      description: '',
+      description: "",
       date_paiement: todayISO(),
     },
   });
@@ -98,9 +105,9 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
       reset({
         user_id: undefined,
         montant: undefined,
-        methode_paiement: 'especes',
+        methode_paiement: "especes",
         plan_tarifaire_id: undefined,
-        description: '',
+        description: "",
         date_paiement: todayISO(),
       });
     }
@@ -110,16 +117,18 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isSubmitting) onClose();
+      if (e.key === "Escape" && !isSubmitting) onClose();
     };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, isSubmitting, onClose]);
 
   // ── Bloquer le scroll du body ─────────────────────────────────────────────
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   // ── Soumission ────────────────────────────────────────────────────────────
@@ -128,7 +137,9 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
       ...data,
       user_id: Number(data.user_id),
       montant: Number(data.montant),
-      plan_tarifaire_id: data.plan_tarifaire_id ? Number(data.plan_tarifaire_id) : undefined,
+      plan_tarifaire_id: data.plan_tarifaire_id
+        ? Number(data.plan_tarifaire_id)
+        : undefined,
     };
     await onSubmit(payload);
     onSuccess();
@@ -144,7 +155,9 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="record-payment-title"
-      onClick={() => { if (!isSubmitting) onClose(); }}
+      onClick={() => {
+        if (!isSubmitting) onClose();
+      }}
     >
       <div
         className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
@@ -161,14 +174,26 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
             </h2>
             <button
               type="button"
-              onClick={() => { if (!isSubmitting) onClose(); }}
+              onClick={() => {
+                if (!isSubmitting) onClose();
+              }}
               disabled={isSubmitting}
               className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100
                          transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Fermer"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -178,11 +203,16 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
         </div>
 
         {/* ── Formulaire ── */}
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="px-6 py-5 space-y-5">
-
+        <form
+          onSubmit={handleSubmit(handleFormSubmit)}
+          className="px-6 py-5 space-y-5"
+        >
           {/* Membre */}
           <div>
-            <label htmlFor="user_id" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label
+              htmlFor="user_id"
+              className="block text-sm font-medium text-gray-700 mb-1.5"
+            >
               Membre <span className="text-red-500">*</span>
             </label>
             <select
@@ -191,10 +221,11 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm bg-white
                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                           disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors
-                          ${errors.user_id ? 'border-red-400' : 'border-gray-300'}`}
-              {...register('user_id', {
-                required: 'Veuillez sélectionner un membre.',
-                validate: (v) => Number(v) > 0 || 'Veuillez sélectionner un membre.',
+                          ${errors.user_id ? "border-red-400" : "border-gray-300"}`}
+              {...register("user_id", {
+                required: "Veuillez sélectionner un membre.",
+                validate: (v) =>
+                  Number(v) > 0 || "Veuillez sélectionner un membre.",
               })}
             >
               <option value="">— Sélectionner un membre —</option>
@@ -205,7 +236,9 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               ))}
             </select>
             {errors.user_id && (
-              <p className="mt-1 text-xs text-red-600">{errors.user_id.message}</p>
+              <p className="mt-1 text-xs text-red-600">
+                {errors.user_id.message}
+              </p>
             )}
           </div>
 
@@ -213,7 +246,10 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           <div className="grid grid-cols-2 gap-4">
             {/* Montant */}
             <div>
-              <label htmlFor="montant" className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label
+                htmlFor="montant"
+                className="block text-sm font-medium text-gray-700 mb-1.5"
+              >
                 Montant (€) <span className="text-red-500">*</span>
               </label>
               <input
@@ -226,21 +262,29 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm
                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                             disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors
-                            ${errors.montant ? 'border-red-400' : 'border-gray-300'}`}
-                {...register('montant', {
-                  required: 'Le montant est requis.',
-                  min: { value: 0.01, message: 'Le montant doit être supérieur à 0.' },
+                            ${errors.montant ? "border-red-400" : "border-gray-300"}`}
+                {...register("montant", {
+                  required: "Le montant est requis.",
+                  min: {
+                    value: 0.01,
+                    message: "Le montant doit être supérieur à 0.",
+                  },
                   valueAsNumber: true,
                 })}
               />
               {errors.montant && (
-                <p className="mt-1 text-xs text-red-600">{errors.montant.message}</p>
+                <p className="mt-1 text-xs text-red-600">
+                  {errors.montant.message}
+                </p>
               )}
             </div>
 
             {/* Méthode */}
             <div>
-              <label htmlFor="methode_paiement" className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label
+                htmlFor="methode_paiement"
+                className="block text-sm font-medium text-gray-700 mb-1.5"
+              >
                 Méthode <span className="text-red-500">*</span>
               </label>
               <select
@@ -249,20 +293,25 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm bg-white
                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                            disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
-                {...register('methode_paiement', { required: true })}
+                {...register("methode_paiement", { required: true })}
               >
-                <option value="especes">💵 Espèces</option>
-                <option value="virement">🏦 Virement</option>
-                <option value="autre">🔖 Autre</option>
+                <option value="especes">Espèces</option>
+                <option value="virement">Virement bancaire</option>
+                <option value="autre">Autre</option>
               </select>
             </div>
           </div>
 
           {/* Plan tarifaire */}
           <div>
-            <label htmlFor="plan_tarifaire_id" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label
+              htmlFor="plan_tarifaire_id"
+              className="block text-sm font-medium text-gray-700 mb-1.5"
+            >
               Plan tarifaire
-              <span className="ml-1 text-xs text-gray-400 font-normal">(optionnel)</span>
+              <span className="ml-1 text-xs text-gray-400 font-normal">
+                (optionnel)
+              </span>
             </label>
             <select
               id="plan_tarifaire_id"
@@ -270,14 +319,19 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm bg-white
                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                          disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
-              {...register('plan_tarifaire_id')}
+              {...register("plan_tarifaire_id")}
             >
               <option value="">— Aucun plan —</option>
               {plans
                 .filter((p) => p.actif)
                 .map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.nom} — {p.prix.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} / {p.duree_mois} mois
+                    {p.nom} —{" "}
+                    {p.prix.toLocaleString("fr-FR", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}{" "}
+                    / {p.duree_mois} mois
                   </option>
                 ))}
             </select>
@@ -285,7 +339,10 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
           {/* Date de paiement */}
           <div>
-            <label htmlFor="date_paiement" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label
+              htmlFor="date_paiement"
+              className="block text-sm font-medium text-gray-700 mb-1.5"
+            >
               Date de paiement <span className="text-red-500">*</span>
             </label>
             <input
@@ -295,19 +352,28 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm
                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                           disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors
-                          ${errors.date_paiement ? 'border-red-400' : 'border-gray-300'}`}
-              {...register('date_paiement', { required: 'La date est requise.' })}
+                          ${errors.date_paiement ? "border-red-400" : "border-gray-300"}`}
+              {...register("date_paiement", {
+                required: "La date est requise.",
+              })}
             />
             {errors.date_paiement && (
-              <p className="mt-1 text-xs text-red-600">{errors.date_paiement.message}</p>
+              <p className="mt-1 text-xs text-red-600">
+                {errors.date_paiement.message}
+              </p>
             )}
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700 mb-1.5"
+            >
               Description
-              <span className="ml-1 text-xs text-gray-400 font-normal">(optionnel)</span>
+              <span className="ml-1 text-xs text-gray-400 font-normal">
+                (optionnel)
+              </span>
             </label>
             <textarea
               id="description"
@@ -318,7 +384,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                          placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                          focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
                          transition-colors resize-none"
-              {...register('description')}
+              {...register("description")}
             />
           </div>
 
@@ -326,7 +392,9 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
             <button
               type="button"
-              onClick={() => { if (!isSubmitting) onClose(); }}
+              onClick={() => {
+                if (!isSubmitting) onClose();
+              }}
               disabled={isSubmitting}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200
                          active:bg-gray-300 rounded-lg transition-colors
@@ -342,7 +410,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                          transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting && <SpinnerIcon />}
-              {isSubmitting ? 'Enregistrement…' : 'Enregistrer le paiement'}
+              {isSubmitting ? "Enregistrement…" : "Enregistrer le paiement"}
             </button>
           </div>
         </form>

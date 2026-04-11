@@ -635,7 +635,7 @@ export function PaymentsPage() {
                                text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200
                                rounded-lg transition-colors"
                   >
-                    <span aria-hidden="true">💳</span>
+                    <CreditCardIcon className="h-4 w-4" />
                     Payer par carte
                   </button>
                   <button
@@ -719,10 +719,10 @@ export function PaymentsPage() {
                              transition-colors min-w-[160px]"
                 >
                   <option value="">Toutes les méthodes</option>
-                  <option value="stripe">💳 Stripe</option>
-                  <option value="especes">💵 Espèces</option>
-                  <option value="virement">🏦 Virement</option>
-                  <option value="autre">🔖 Autre</option>
+                  <option value="stripe">Stripe</option>
+                  <option value="especes">Espèces</option>
+                  <option value="virement">Virement</option>
+                  <option value="autre">Autre</option>
                 </select>
 
                 {/* Date début */}
