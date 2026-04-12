@@ -135,53 +135,31 @@ function EmptyState({
   );
 }
 
-function StatCard({
-  label,
-  value,
-  tone = "default",
-}: {
+interface TabButtonProps {
   label: string;
-  value: string | number;
-  tone?: "default" | "warning" | "danger";
-}) {
-  const toneClass =
-    tone === "danger"
-      ? "border-red-200 bg-red-50"
-      : tone === "warning"
-        ? "border-orange-200 bg-orange-50"
-        : "border-gray-200 bg-white";
-
-  return (
-    <div className={classNames("rounded-xl border p-4", toneClass)}>
-      <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-semibold text-gray-900">{value}</p>
-    </div>
-  );
+  active: boolean;
+  badge?: number;
+  onClick: () => void;
 }
 
-function TabButton({
-  active,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  onClick: () => void;
-}) {
+function TabButton({ label, active, badge, onClick }: TabButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={classNames(
-        "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-        active
-          ? "bg-blue-600 text-white shadow-sm"
-          : "bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50",
-      )}
+      className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap
+        ${
+          active
+            ? "border-blue-600 text-blue-600"
+            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        }`}
     >
       {label}
+      {badge !== undefined && badge > 0 && (
+        <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full text-xs font-semibold bg-red-500 text-white">
+          {badge}
+        </span>
+      )}
     </button>
   );
 }
@@ -198,30 +176,83 @@ function PaginationBar({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3">
-      <button
-        type="button"
-        onClick={() => onPageChange(page - 1)}
-        disabled={page <= 1}
-        className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 ring-1 ring-gray-200 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        Précédent
-      </button>
-      <span className="text-sm text-gray-500">
-        Page <span className="font-medium text-gray-700">{page}</span> /{" "}
-        <span className="font-medium text-gray-700">{totalPages}</span>
-      </span>
-      <button
-        type="button"
-        onClick={() => onPageChange(page + 1)}
-        disabled={page >= totalPages}
-        className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 ring-1 ring-gray-200 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        Suivant
-      </button>
+    <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3 sm:px-6">
+      <div className="flex flex-1 justify-between sm:hidden">
+        <button
+          onClick={() => onPageChange(page - 1)}
+          disabled={page === 1}
+          className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Précédent
+        </button>
+        <button
+          onClick={() => onPageChange(page + 1)}
+          disabled={page === totalPages}
+          className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Suivant
+        </button>
+      </div>
+      <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm text-gray-700">
+            Page <span className="font-medium">{page}</span> sur{" "}
+            <span className="font-medium">{totalPages}</span>
+          </p>
+        </div>
+        <div>
+          <nav
+            className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+            aria-label="Pagination"
+          >
+            <button
+              onClick={() => onPageChange(page - 1)}
+              disabled={page === 1}
+              className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="sr-only">Précédent</span>
+              <svg
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+            <button
+              onClick={() => onPageChange(page + 1)}
+              disabled={page === totalPages}
+              className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="sr-only">Suivant</span>
+              <svg
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
     </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ONGLET : CATALOGUE (Admin/Prof)
+// ═══════════════════════════════════════════════════════════════════════════
 
 function CatalogueTab() {
   const store = useStoreUI();
@@ -247,44 +278,71 @@ function CatalogueTab() {
   const toggleArticleMutation = useToggleArticle();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900">Catalogue</h2>
+    <div>
+      {/* En-tête de l'onglet */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h2 className="text-base font-semibold text-gray-900">
+            Catalogue des articles
+          </h2>
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+            {articlesQuery.data?.pagination.total ?? 0} article
+            {(articlesQuery.data?.pagination.total ?? 0) > 1 ? "s" : ""}
+          </span>
+          {categoriesQuery.data && categoriesQuery.data.length > 0 && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100">
+              {categoriesQuery.data.length} catégorie
+              {categoriesQuery.data.length > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
         <button
           onClick={() => store.openArticleModal()}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+          className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
         >
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
           Nouvel article
         </button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Articles"
-          value={articlesQuery.data?.pagination.total ?? 0}
-        />
-        <StatCard
-          label="Catégories"
-          value={categoriesQuery.data?.length ?? 0}
-        />
-        <StatCard
-          label="Page"
-          value={articlesQuery.data?.pagination.page ?? store.articlePage}
-        />
-        <StatCard
-          label="Résultats / page"
-          value={articlesQuery.data?.pagination.limit ?? 12}
-        />
-      </div>
-
-      <div className="rounded-xl border border-gray-200 bg-white p-4">
+      {/* Filtres */}
+      <div className="p-4 border-b border-gray-50">
         <div className="grid gap-3 md:grid-cols-3">
-          <input
-            value={store.articleSearch}
-            onChange={(event) => store.setArticleSearch(event.target.value)}
-            placeholder="Rechercher un article…"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
+          <div className="relative">
+            <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <svg
+                className="h-4 w-4 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                />
+              </svg>
+            </span>
+            <input
+              value={store.articleSearch}
+              onChange={(event) => store.setArticleSearch(event.target.value)}
+              placeholder="Rechercher un article…"
+              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
 
           <select
             value={store.articleCategoryFilter ?? ""}
@@ -293,7 +351,7 @@ function CatalogueTab() {
                 event.target.value ? Number(event.target.value) : null,
               )
             }
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="">Toutes les catégories</option>
             {(categoriesQuery.data ?? []).map((category) => (
@@ -308,7 +366,7 @@ function CatalogueTab() {
             onChange={(event) =>
               store.setArticleActifFilter(event.target.value)
             }
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="">Tous les statuts</option>
             <option value="true">Actifs</option>
@@ -317,108 +375,109 @@ function CatalogueTab() {
         </div>
       </div>
 
-      {categoriesQuery.isError ? (
-        <ErrorBanner error={categoriesQuery.error} />
-      ) : null}
-      {articlesQuery.isError ? (
-        <ErrorBanner error={articlesQuery.error} />
-      ) : null}
+      {/* Contenu */}
+      <div className="p-4">
+        {categoriesQuery.isError && (
+          <ErrorBanner error={categoriesQuery.error} />
+        )}
+        {articlesQuery.isError && <ErrorBanner error={articlesQuery.error} />}
 
-      {articlesQuery.isLoading ? <Spinner /> : null}
+        {articlesQuery.isLoading && <Spinner />}
 
-      {!articlesQuery.isLoading &&
-      !articlesQuery.isError &&
-      !articlesQuery.data?.items.length ? (
-        <EmptyState
-          title="Aucun article trouvé"
-          description="Ajustez les filtres ou ajoutez des articles dans le catalogue."
-        />
-      ) : null}
+        {!articlesQuery.isLoading &&
+          !articlesQuery.isError &&
+          !articlesQuery.data?.items.length && (
+            <EmptyState
+              title="Aucun article trouvé"
+              description="Ajustez les filtres ou ajoutez des articles dans le catalogue."
+            />
+          )}
 
-      {articlesQuery.data?.items.length ? (
-        <>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {articlesQuery.data.items.map((article) => (
-              <article
-                key={article.id}
-                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="text-base font-semibold text-gray-900">
-                      {article.nom}
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {article.categorie_nom ?? "Sans catégorie"}
-                    </p>
-                  </div>
-                  <span
-                    className={classNames(
-                      "rounded-full px-2.5 py-1 text-xs font-medium",
-                      article.actif
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-600",
-                    )}
-                  >
-                    {article.actif ? "Actif" : "Inactif"}
-                  </span>
-                </div>
-
-                <p className="mt-4 line-clamp-3 min-h-[3.75rem] text-sm text-gray-600">
-                  {article.description || "Aucune description disponible."}
-                </p>
-
-                <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-semibold text-gray-900">
-                      {formatCurrency(article.prix)}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      Créé le {formatDate(article.created_at)}
+        {articlesQuery.data?.items.length ? (
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {articlesQuery.data.items.map((article) => (
+                <article
+                  key={article.id}
+                  className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-base font-semibold text-gray-900">
+                        {article.nom}
+                      </h3>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {article.categorie_nom ?? "Sans catégorie"}
+                      </p>
+                    </div>
+                    <span
+                      className={classNames(
+                        "rounded-full px-2.5 py-1 text-xs font-medium",
+                        article.actif
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-600",
+                      )}
+                    >
+                      {article.actif ? "Actif" : "Inactif"}
                     </span>
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => store.openArticleModal(article)}
-                      className="flex-1 rounded-lg border border-blue-600 bg-white px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
-                    >
-                      Éditer
-                    </button>
-                    <button
-                      onClick={async () => {
-                        await toggleArticleMutation.mutateAsync(article.id);
-                      }}
-                      className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                    >
-                      {article.actif ? "Désactiver" : "Activer"}
-                    </button>
-                    <button
-                      onClick={async () => {
-                        if (
-                          window.confirm(
-                            `Supprimer l'article "${article.nom}" ?`,
-                          )
-                        ) {
-                          await deleteArticleMutation.mutateAsync(article.id);
-                        }
-                      }}
-                      className="rounded-lg border border-red-600 bg-white px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
-                    >
-                      Supprimer
-                    </button>
+
+                  <p className="mt-4 line-clamp-3 min-h-[3.75rem] text-sm text-gray-600">
+                    {article.description || "Aucune description disponible."}
+                  </p>
+
+                  <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-semibold text-gray-900">
+                        {formatCurrency(article.prix)}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        Créé le {formatDate(article.created_at)}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => store.openArticleModal(article)}
+                        className="flex-1 rounded-lg border border-blue-600 bg-white px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
+                      >
+                        Éditer
+                      </button>
+                      <button
+                        onClick={async () => {
+                          await toggleArticleMutation.mutateAsync(article.id);
+                        }}
+                        className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                      >
+                        {article.actif ? "Désactiver" : "Activer"}
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (
+                            window.confirm(
+                              `Supprimer l'article "${article.nom}" ?`,
+                            )
+                          ) {
+                            await deleteArticleMutation.mutateAsync(article.id);
+                          }
+                        }}
+                        className="rounded-lg border border-red-600 bg-white px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                      >
+                        Supprimer
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              ))}
+            </div>
+
+            <PaginationBar
+              page={articlesQuery.data.pagination.page}
+              totalPages={articlesQuery.data.pagination.totalPages}
+              onPageChange={store.setArticlePage}
+            />
           </div>
-
-          <PaginationBar
-            page={articlesQuery.data.pagination.page}
-            totalPages={articlesQuery.data.pagination.totalPages}
-            onPageChange={store.setArticlePage}
-          />
-        </>
-      ) : null}
+        ) : null}
+      </div>
 
       <ArticleModal
         isOpen={store.articleModalOpen}
@@ -441,6 +500,10 @@ function CatalogueTab() {
   );
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ONGLET : BOUTIQUE (Member)
+// ═══════════════════════════════════════════════════════════════════════════
+
 function BoutiqueTab() {
   const store = useStoreUI();
   const categoriesQuery = useCategories();
@@ -456,34 +519,70 @@ function BoutiqueTab() {
   const createOrderMutation = useCreateOrder();
   const { data: stocksData } = useStocks();
 
+  const cartCount = store.cartItems.reduce(
+    (total, item) => total + item.quantite,
+    0,
+  );
+
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard
-          label="Articles disponibles"
-          value={articlesQuery.data?.pagination.total ?? 0}
-        />
-        <StatCard
-          label="Catégories"
-          value={categoriesQuery.data?.length ?? 0}
-        />
-        <StatCard
-          label="Panier"
-          value={store.cartItems.reduce(
-            (total, item) => total + item.quantite,
-            0,
+    <div>
+      {/* En-tête de l'onglet */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h2 className="text-base font-semibold text-gray-900">
+            Articles disponibles
+          </h2>
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+            {articlesQuery.data?.pagination.total ?? 0} article
+            {(articlesQuery.data?.pagination.total ?? 0) > 1 ? "s" : ""}
+          </span>
+          {cartCount > 0 && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
+              <svg
+                className="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              {cartCount} dans le panier
+            </span>
           )}
-        />
+        </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4">
+      {/* Filtres */}
+      <div className="p-4 border-b border-gray-50">
         <div className="grid gap-3 md:grid-cols-2">
-          <input
-            value={store.articleSearch}
-            onChange={(event) => store.setArticleSearch(event.target.value)}
-            placeholder="Rechercher un article…"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
+          <div className="relative">
+            <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <svg
+                className="h-4 w-4 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                />
+              </svg>
+            </span>
+            <input
+              value={store.articleSearch}
+              onChange={(event) => store.setArticleSearch(event.target.value)}
+              placeholder="Rechercher un article…"
+              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
 
           <select
             value={store.articleCategoryFilter ?? ""}
@@ -492,7 +591,7 @@ function BoutiqueTab() {
                 event.target.value ? Number(event.target.value) : null,
               )
             }
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="">Toutes les catégories</option>
             {(categoriesQuery.data ?? []).map((category) => (
@@ -504,67 +603,68 @@ function BoutiqueTab() {
         </div>
       </div>
 
-      {categoriesQuery.isError ? (
-        <ErrorBanner error={categoriesQuery.error} />
-      ) : null}
-      {articlesQuery.isError ? (
-        <ErrorBanner error={articlesQuery.error} />
-      ) : null}
+      {/* Contenu */}
+      <div className="p-4">
+        {categoriesQuery.isError && (
+          <ErrorBanner error={categoriesQuery.error} />
+        )}
+        {articlesQuery.isError && <ErrorBanner error={articlesQuery.error} />}
 
-      {articlesQuery.isLoading ? <Spinner /> : null}
+        {articlesQuery.isLoading && <Spinner />}
 
-      {!articlesQuery.isLoading &&
-      !articlesQuery.isError &&
-      !articlesQuery.data?.items.length ? (
-        <EmptyState
-          title="Aucun article disponible"
-          description="La boutique ne contient pas encore d'articles actifs."
-        />
-      ) : null}
+        {!articlesQuery.isLoading &&
+          !articlesQuery.isError &&
+          !articlesQuery.data?.items.length && (
+            <EmptyState
+              title="Aucun article disponible"
+              description="La boutique ne contient pas encore d'articles actifs."
+            />
+          )}
 
-      {articlesQuery.data?.items.length ? (
-        <>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {articlesQuery.data.items.map((article) => (
-              <article
-                key={article.id}
-                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="text-base font-semibold text-gray-900">
-                      {article.nom}
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {article.categorie_nom ?? "Sans catégorie"}
-                    </p>
-                  </div>
-                  <span className="text-lg font-semibold text-blue-700">
-                    {formatCurrency(article.prix)}
-                  </span>
-                </div>
-
-                <p className="mt-4 line-clamp-3 min-h-[3.75rem] text-sm text-gray-600">
-                  {article.description || "Aucune description disponible."}
-                </p>
-
-                <button
-                  onClick={() => store.openQuickOrderModal(article as any)}
-                  className="mt-4 w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+        {articlesQuery.data?.items.length ? (
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {articlesQuery.data.items.map((article) => (
+                <article
+                  key={article.id}
+                  className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
                 >
-                  Commander
-                </button>
-              </article>
-            ))}
-          </div>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-base font-semibold text-gray-900">
+                        {article.nom}
+                      </h3>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {article.categorie_nom ?? "Sans catégorie"}
+                      </p>
+                    </div>
+                    <span className="text-lg font-semibold text-blue-700">
+                      {formatCurrency(article.prix)}
+                    </span>
+                  </div>
 
-          <PaginationBar
-            page={articlesQuery.data.pagination.page}
-            totalPages={articlesQuery.data.pagination.totalPages}
-            onPageChange={store.setArticlePage}
-          />
-        </>
-      ) : null}
+                  <p className="mt-4 line-clamp-3 min-h-[3.75rem] text-sm text-gray-600">
+                    {article.description || "Aucune description disponible."}
+                  </p>
+
+                  <button
+                    onClick={() => store.openQuickOrderModal(article as any)}
+                    className="mt-4 w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                  >
+                    Commander
+                  </button>
+                </article>
+              ))}
+            </div>
+
+            <PaginationBar
+              page={articlesQuery.data.pagination.page}
+              totalPages={articlesQuery.data.pagination.totalPages}
+              onPageChange={store.setArticlePage}
+            />
+          </div>
+        ) : null}
+      </div>
 
       {store.quickOrderArticle && (
         <QuickOrderModal
@@ -655,13 +755,16 @@ function BoutiqueTab() {
               d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
             />
           </svg>
-          Panier (
-          {store.cartItems.reduce((total, item) => total + item.quantite, 0)})
+          Panier ({cartCount})
         </button>
       )}
     </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ONGLET : COMMANDES (Admin/Prof)
+// ═══════════════════════════════════════════════════════════════════════════
 
 function OrdersTab() {
   const store = useStoreUI();
@@ -673,47 +776,46 @@ function OrdersTab() {
 
   const updateOrderStatusMutation = useUpdateOrderStatus();
 
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Commandes"
-          value={ordersQuery.data?.pagination.total ?? 0}
-        />
-        <StatCard
-          label="En attente"
-          value={
-            ordersQuery.data?.items.filter(
-              (order) => order.statut === "en_attente",
-            ).length ?? 0
-          }
-          tone="warning"
-        />
-        <StatCard
-          label="Annulées"
-          value={
-            ordersQuery.data?.items.filter(
-              (order) => order.statut === "annulee",
-            ).length ?? 0
-          }
-          tone="danger"
-        />
-        <StatCard
-          label="Page"
-          value={ordersQuery.data?.pagination.page ?? store.orderPage}
-        />
-      </div>
+  const enAttenteCount =
+    ordersQuery.data?.items.filter((order) => order.statut === "en_attente")
+      .length ?? 0;
+  const annuleeCount =
+    ordersQuery.data?.items.filter((order) => order.statut === "annulee")
+      .length ?? 0;
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-sm font-semibold text-gray-900">
+  return (
+    <div>
+      {/* En-tête de l'onglet */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h2 className="text-base font-semibold text-gray-900">
             Suivi des commandes
           </h2>
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+            {ordersQuery.data?.pagination.total ?? 0} commande
+            {(ordersQuery.data?.pagination.total ?? 0) > 1 ? "s" : ""}
+          </span>
+          {enAttenteCount > 0 && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-100">
+              {enAttenteCount} en attente
+            </span>
+          )}
+          {annuleeCount > 0 && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-100">
+              {annuleeCount} annulée{annuleeCount > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
+      </div>
 
+      {/* Filtres */}
+      <div className="p-4 border-b border-gray-50">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-gray-600">Filtrer par statut</p>
           <select
             value={store.orderStatusFilter}
             onChange={(event) => store.setOrderStatusFilter(event.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 md:w-56"
+            className="w-full md:w-56 px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="">Tous les statuts</option>
             <option value="en_attente">En attente</option>
@@ -725,80 +827,83 @@ function OrdersTab() {
         </div>
       </div>
 
-      {ordersQuery.isError ? <ErrorBanner error={ordersQuery.error} /> : null}
-      {ordersQuery.isLoading ? <Spinner /> : null}
+      {/* Contenu */}
+      <div className="p-4">
+        {ordersQuery.isError && <ErrorBanner error={ordersQuery.error} />}
+        {ordersQuery.isLoading && <Spinner />}
 
-      {!ordersQuery.isLoading &&
-      !ordersQuery.isError &&
-      !ordersQuery.data?.items.length ? (
-        <EmptyState
-          title="Aucune commande"
-          description="Aucune commande ne correspond au filtre sélectionné."
-        />
-      ) : null}
+        {!ordersQuery.isLoading &&
+          !ordersQuery.isError &&
+          !ordersQuery.data?.items.length && (
+            <EmptyState
+              title="Aucune commande"
+              description="Aucune commande ne correspond au filtre sélectionné."
+            />
+          )}
 
-      {ordersQuery.data?.items.length ? (
-        <>
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      N°
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Client
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Total
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Statut
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Date
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {ordersQuery.data.items.map((order) => (
-                    <tr
-                      key={order.id}
-                      onClick={() => store.openOrderDetailModal(order as any)}
-                      className="cursor-pointer hover:bg-gray-50"
-                    >
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                        {order.numero_commande}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {order.user_first_name || order.user_last_name
-                          ? `${order.user_first_name ?? ""} ${order.user_last_name ?? ""}`.trim()
-                          : (order.user_email ?? "Utilisateur inconnu")}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {formatCurrency(order.total)}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        <OrderStatusBadge statut={order.statut} />
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-500">
-                        {formatDateTime(order.date_commande)}
-                      </td>
+        {ordersQuery.data?.items.length ? (
+          <div className="space-y-4">
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        N°
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Client
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Total
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Statut
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Date
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {ordersQuery.data.items.map((order) => (
+                      <tr
+                        key={order.id}
+                        onClick={() => store.openOrderDetailModal(order as any)}
+                        className="cursor-pointer hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                          {order.numero_commande}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {order.user_first_name || order.user_last_name
+                            ? `${order.user_first_name ?? ""} ${order.user_last_name ?? ""}`.trim()
+                            : (order.user_email ?? "Utilisateur inconnu")}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {formatCurrency(order.total)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          <OrderStatusBadge statut={order.statut} />
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500">
+                          {formatDateTime(order.date_commande)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
-          <PaginationBar
-            page={ordersQuery.data.pagination.page}
-            totalPages={ordersQuery.data.pagination.totalPages}
-            onPageChange={store.setOrderPage}
-          />
-        </>
-      ) : null}
+            <PaginationBar
+              page={ordersQuery.data.pagination.page}
+              totalPages={ordersQuery.data.pagination.totalPages}
+              onPageChange={store.setOrderPage}
+            />
+          </div>
+        ) : null}
+      </div>
 
       {store.selectedOrder && (
         <OrderDetailModal
@@ -816,91 +921,107 @@ function OrdersTab() {
   );
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ONGLET : MES COMMANDES (Member)
+// ═══════════════════════════════════════════════════════════════════════════
+
 function MyOrdersTab() {
   const store = useStoreUI();
   const ordersQuery = useMyOrders();
-
   const updateOrderStatusMutation = useUpdateOrderStatus();
 
+  const enAttenteCount =
+    ordersQuery.data?.filter((order) => order.statut === "en_attente").length ??
+    0;
+  const livreeCount =
+    ordersQuery.data?.filter((order) => order.statut === "livree").length ?? 0;
+
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard label="Mes commandes" value={ordersQuery.data?.length ?? 0} />
-        <StatCard
-          label="En attente"
-          value={
-            ordersQuery.data?.filter((order) => order.statut === "en_attente")
-              .length ?? 0
-          }
-          tone="warning"
-        />
-        <StatCard
-          label="Livrées"
-          value={
-            ordersQuery.data?.filter((order) => order.statut === "livree")
-              .length ?? 0
-          }
-        />
+    <div>
+      {/* En-tête de l'onglet */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h2 className="text-base font-semibold text-gray-900">
+            Mes commandes
+          </h2>
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+            {ordersQuery.data?.length ?? 0} commande
+            {(ordersQuery.data?.length ?? 0) > 1 ? "s" : ""}
+          </span>
+          {enAttenteCount > 0 && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-100">
+              {enAttenteCount} en attente
+            </span>
+          )}
+          {livreeCount > 0 && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
+              {livreeCount} livrée{livreeCount > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
       </div>
 
-      {ordersQuery.isError ? <ErrorBanner error={ordersQuery.error} /> : null}
-      {ordersQuery.isLoading ? <Spinner /> : null}
+      {/* Contenu */}
+      <div className="p-4">
+        {ordersQuery.isError && <ErrorBanner error={ordersQuery.error} />}
+        {ordersQuery.isLoading && <Spinner />}
 
-      {!ordersQuery.isLoading &&
-      !ordersQuery.isError &&
-      !ordersQuery.data?.length ? (
-        <EmptyState
-          title="Aucune commande passée"
-          description="Vos commandes boutique apparaîtront ici."
-        />
-      ) : null}
+        {!ordersQuery.isLoading &&
+          !ordersQuery.isError &&
+          !ordersQuery.data?.length && (
+            <EmptyState
+              title="Aucune commande passée"
+              description="Vos commandes boutique apparaîtront ici."
+            />
+          )}
 
-      {ordersQuery.data?.length ? (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {ordersQuery.data.map((order) => (
-            <article
-              key={order.id}
-              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Commande</p>
-                  <h3 className="text-base font-semibold text-gray-900">
-                    {order.numero_commande}
-                  </h3>
-                </div>
-                <OrderStatusBadge statut={order.statut} />
-              </div>
-
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-gray-400">
-                    Total
-                  </p>
-                  <p className="mt-1 text-lg font-semibold text-gray-900">
-                    {formatCurrency(order.total)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-gray-400">
-                    Date
-                  </p>
-                  <p className="mt-1 text-sm text-gray-600">
-                    {formatDateTime(order.date_commande)}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => store.openOrderDetailModal(order as any)}
-                className="mt-4 w-full rounded-lg border border-blue-600 bg-white px-4 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
+        {ordersQuery.data?.length ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {ordersQuery.data.map((order) => (
+              <article
+                key={order.id}
+                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
               >
-                Voir détails
-              </button>
-            </article>
-          ))}
-        </div>
-      ) : null}
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Commande</p>
+                    <h3 className="text-base font-semibold text-gray-900">
+                      {order.numero_commande}
+                    </h3>
+                  </div>
+                  <OrderStatusBadge statut={order.statut} />
+                </div>
+
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-gray-400">
+                      Total
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-gray-900">
+                      {formatCurrency(order.total)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-gray-400">
+                      Date
+                    </p>
+                    <p className="mt-1 text-sm text-gray-600">
+                      {formatDateTime(order.date_commande)}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => store.openOrderDetailModal(order as any)}
+                  className="mt-4 w-full rounded-lg border border-blue-600 bg-white px-4 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
+                >
+                  Voir détails
+                </button>
+              </article>
+            ))}
+          </div>
+        ) : null}
+      </div>
 
       {store.selectedOrder && (
         <OrderDetailModal
@@ -918,137 +1039,160 @@ function MyOrdersTab() {
   );
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ONGLET : STOCKS (Admin/Prof)
+// ═══════════════════════════════════════════════════════════════════════════
+
 function StocksTab() {
   const store = useStoreUI();
   const stocksQuery = useStocks();
   const lowStocksQuery = useLowStocks();
-
   const adjustStockMutation = useAdjustStock();
 
+  const ruptureCount =
+    stocksQuery.data?.filter((stock) => stock.quantite <= 0).length ?? 0;
+  const articlesCount = new Set(
+    (stocksQuery.data ?? []).map((stock) => stock.article_id),
+  ).size;
+
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Lignes de stock"
-          value={stocksQuery.data?.length ?? 0}
-        />
-        <StatCard
-          label="Stocks bas"
-          value={lowStocksQuery.data?.length ?? 0}
-          tone="warning"
-        />
-        <StatCard
-          label="Ruptures"
-          value={
-            stocksQuery.data?.filter((stock) => stock.quantite <= 0).length ?? 0
-          }
-          tone="danger"
-        />
-        <StatCard
-          label="Articles suivis"
-          value={
-            new Set((stocksQuery.data ?? []).map((stock) => stock.article_id))
-              .size
-          }
-        />
+    <div>
+      {/* En-tête de l'onglet */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h2 className="text-base font-semibold text-gray-900">
+            Gestion des stocks
+          </h2>
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+            {stocksQuery.data?.length ?? 0} ligne
+            {(stocksQuery.data?.length ?? 0) > 1 ? "s" : ""}
+          </span>
+          {lowStocksQuery.data && lowStocksQuery.data.length > 0 && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-100">
+              {lowStocksQuery.data.length} stock
+              {lowStocksQuery.data.length > 1 ? "s" : ""} bas
+            </span>
+          )}
+          {ruptureCount > 0 && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-100">
+              {ruptureCount} rupture{ruptureCount > 1 ? "s" : ""}
+            </span>
+          )}
+          {articlesCount > 0 && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100">
+              {articlesCount} article{articlesCount > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
       </div>
 
-      {lowStocksQuery.isError ? (
-        <ErrorBanner error={lowStocksQuery.error} />
-      ) : null}
-      {stocksQuery.isError ? <ErrorBanner error={stocksQuery.error} /> : null}
-
-      {stocksQuery.isLoading || lowStocksQuery.isLoading ? <Spinner /> : null}
-
-      {lowStocksQuery.data?.length ? (
-        <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
-          <h2 className="text-sm font-semibold text-orange-900">
-            Alertes stock faible
-          </h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {lowStocksQuery.data.map((stock) => (
-              <span
-                key={stock.id}
-                className="rounded-full bg-white px-3 py-1 text-sm text-orange-800 ring-1 ring-orange-200"
-              >
-                {stock.article_nom} / {stock.taille_nom} : {stock.quantite}
-              </span>
-            ))}
+      {/* Alertes stock faible */}
+      {lowStocksQuery.data && lowStocksQuery.data.length > 0 && (
+        <div className="p-4 border-b border-gray-50">
+          <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
+            <h3 className="text-sm font-semibold text-orange-900">
+              ⚠️ Alertes stock faible
+            </h3>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {lowStocksQuery.data.map((stock) => (
+                <span
+                  key={stock.id}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-sm text-orange-800 ring-1 ring-orange-200"
+                >
+                  <span className="font-medium">{stock.article_nom}</span>
+                  <span className="text-orange-600">/</span>
+                  <span>{stock.taille_nom}</span>
+                  <span className="text-orange-600">:</span>
+                  <span className="font-semibold">{stock.quantite}</span>
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-      ) : null}
+      )}
 
-      {!stocksQuery.isLoading &&
-      !stocksQuery.isError &&
-      !stocksQuery.data?.length ? (
-        <EmptyState
-          title="Aucun stock configuré"
-          description="Les niveaux de stock apparaîtront ici dès qu'ils seront disponibles."
-        />
-      ) : null}
+      {/* Contenu */}
+      <div className="p-4">
+        {lowStocksQuery.isError && <ErrorBanner error={lowStocksQuery.error} />}
+        {stocksQuery.isError && <ErrorBanner error={stocksQuery.error} />}
 
-      {stocksQuery.data?.length ? (
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Article
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Taille
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Quantité
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Minimum
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Statut
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {stocksQuery.data.map((stock) => (
-                  <tr key={stock.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                      {stock.article_nom ?? `Article #${stock.article_id}`}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      {stock.taille_nom ?? `Taille #${stock.taille_id}`}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      {stock.quantite}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      {stock.quantite_minimum}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      <StockBadge
-                        quantite={stock.quantite}
-                        quantite_minimum={stock.quantite_minimum}
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      <button
-                        onClick={() => store.openStockAdjustModal(stock)}
-                        className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
-                      >
-                        Ajuster
-                      </button>
-                    </td>
+        {(stocksQuery.isLoading || lowStocksQuery.isLoading) && <Spinner />}
+
+        {!stocksQuery.isLoading &&
+          !stocksQuery.isError &&
+          !stocksQuery.data?.length && (
+            <EmptyState
+              title="Aucun stock configuré"
+              description="Les niveaux de stock apparaîtront ici dès qu'ils seront disponibles."
+            />
+          )}
+
+        {stocksQuery.data && stocksQuery.data.length > 0 && (
+          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Article
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Taille
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Quantité
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Minimum
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Statut
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {stocksQuery.data.map((stock) => (
+                    <tr
+                      key={stock.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                        {stock.article_nom ?? `Article #${stock.article_id}`}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600">
+                        {stock.taille_nom ?? `Taille #${stock.taille_id}`}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600">
+                        {stock.quantite}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600">
+                        {stock.quantite_minimum}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600">
+                        <StockBadge
+                          quantite={stock.quantite}
+                          quantite_minimum={stock.quantite_minimum}
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600">
+                        <button
+                          onClick={() => store.openStockAdjustModal(stock)}
+                          className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
+                        >
+                          Ajuster
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      ) : null}
+        )}
+      </div>
 
       {store.adjustingStock && (
         <StockAdjustModal
@@ -1068,6 +1212,10 @@ function StocksTab() {
   );
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ONGLET : CONFIGURATION (Admin/Prof)
+// ═══════════════════════════════════════════════════════════════════════════
+
 function ConfigurationTab() {
   const store = useStoreUI();
   const categoriesQuery = useCategories();
@@ -1082,151 +1230,193 @@ function ConfigurationTab() {
   const deleteSizeMutation = useDeleteSize();
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard
-          label="Catégories"
-          value={categoriesQuery.data?.length ?? 0}
-        />
-        <StatCard label="Tailles" value={sizesQuery.data?.length ?? 0} />
+    <div>
+      {/* En-tête de l'onglet */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h2 className="text-base font-semibold text-gray-900">
+            Configuration de la boutique
+          </h2>
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+            {categoriesQuery.data?.length ?? 0} catégorie
+            {(categoriesQuery.data?.length ?? 0) > 1 ? "s" : ""}
+          </span>
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100">
+            {sizesQuery.data?.length ?? 0} taille
+            {(sizesQuery.data?.length ?? 0) > 1 ? "s" : ""}
+          </span>
+        </div>
       </div>
 
-      {categoriesQuery.isError ? (
-        <ErrorBanner error={categoriesQuery.error} />
-      ) : null}
-      {sizesQuery.isError ? <ErrorBanner error={sizesQuery.error} /> : null}
+      {/* Contenu */}
+      <div className="p-4">
+        {categoriesQuery.isError && (
+          <ErrorBanner error={categoriesQuery.error} />
+        )}
+        {sizesQuery.isError && <ErrorBanner error={sizesQuery.error} />}
 
-      {categoriesQuery.isLoading || sizesQuery.isLoading ? <Spinner /> : null}
+        {(categoriesQuery.isLoading || sizesQuery.isLoading) && <Spinner />}
 
-      {!categoriesQuery.isLoading &&
-      !sizesQuery.isLoading &&
-      !categoriesQuery.isError &&
-      !sizesQuery.isError ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900">
-                Catégories
-              </h2>
-              <button
-                onClick={() => store.openCategoryModal()}
-                className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-700"
-              >
-                Nouvelle catégorie
-              </button>
-            </div>
-            {!categoriesQuery.data?.length ? (
-              <p className="mt-4 text-sm text-gray-500">
-                Aucune catégorie configurée.
-              </p>
-            ) : (
-              <div className="mt-4 space-y-3">
-                {categoriesQuery.data.map((category) => (
-                  <div
-                    key={category.id}
-                    className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3"
+        {!categoriesQuery.isLoading &&
+          !sizesQuery.isLoading &&
+          !categoriesQuery.isError &&
+          !sizesQuery.isError && (
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Section Catégories */}
+              <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-gray-900">
+                    Catégories
+                  </h3>
+                  <button
+                    onClick={() => store.openCategoryModal()}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-700"
                   >
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
-                        {category.nom}
-                      </p>
-                      <p className="mt-1 text-xs text-gray-500">
-                        {category.description || "Aucune description"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-gray-500">
-                        Ordre {category.ordre}
-                      </span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => store.openCategoryModal(category)}
-                          className="rounded px-2 py-1 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
-                        >
-                          Éditer
-                        </button>
-                        <button
-                          onClick={async () => {
-                            if (
-                              window.confirm(
-                                `Supprimer la catégorie "${category.nom}" ?`,
-                              )
-                            ) {
-                              await deleteCategoryMutation.mutateAsync(
-                                category.id,
-                              );
-                            }
-                          }}
-                          className="rounded px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50"
-                        >
-                          Supprimer
-                        </button>
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 4.5v15m7.5-7.5h-15"
+                      />
+                    </svg>
+                    Nouvelle
+                  </button>
+                </div>
+                {!categoriesQuery.data?.length ? (
+                  <p className="mt-4 text-sm text-gray-500">
+                    Aucune catégorie configurée.
+                  </p>
+                ) : (
+                  <div className="mt-4 space-y-3">
+                    {categoriesQuery.data.map((category) => (
+                      <div
+                        key={category.id}
+                        className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">
+                            {category.nom}
+                          </p>
+                          <p className="mt-1 text-xs text-gray-500">
+                            {category.description || "Aucune description"}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-gray-500">
+                            Ordre {category.ordre}
+                          </span>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => store.openCategoryModal(category)}
+                              className="rounded px-2 py-1 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
+                            >
+                              Éditer
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (
+                                  window.confirm(
+                                    `Supprimer la catégorie "${category.nom}" ?`,
+                                  )
+                                ) {
+                                  await deleteCategoryMutation.mutateAsync(
+                                    category.id,
+                                  );
+                                }
+                              }}
+                              className="rounded px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50"
+                            >
+                              Supprimer
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
+                )}
+              </section>
 
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900">Tailles</h2>
-              <button
-                onClick={() => store.openSizeModal()}
-                className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-700"
-              >
-                Nouvelle taille
-              </button>
-            </div>
-            {!sizesQuery.data?.length ? (
-              <p className="mt-4 text-sm text-gray-500">
-                Aucune taille configurée.
-              </p>
-            ) : (
-              <div className="mt-4 space-y-3">
-                {sizesQuery.data.map((size) => (
-                  <div
-                    key={size.id}
-                    className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3"
+              {/* Section Tailles */}
+              <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-gray-900">
+                    Tailles
+                  </h3>
+                  <button
+                    onClick={() => store.openSizeModal()}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-700"
                   >
-                    <p className="flex-1 text-sm font-medium text-gray-900">
-                      {size.nom}
-                    </p>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-gray-500">
-                        Ordre {size.ordre}
-                      </span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => store.openSizeModal(size)}
-                          className="rounded px-2 py-1 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
-                        >
-                          Éditer
-                        </button>
-                        <button
-                          onClick={async () => {
-                            if (
-                              window.confirm(
-                                `Supprimer la taille "${size.nom}" ?`,
-                              )
-                            ) {
-                              await deleteSizeMutation.mutateAsync(size.id);
-                            }
-                          }}
-                          className="rounded px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50"
-                        >
-                          Supprimer
-                        </button>
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 4.5v15m7.5-7.5h-15"
+                      />
+                    </svg>
+                    Nouvelle
+                  </button>
+                </div>
+                {!sizesQuery.data?.length ? (
+                  <p className="mt-4 text-sm text-gray-500">
+                    Aucune taille configurée.
+                  </p>
+                ) : (
+                  <div className="mt-4 space-y-3">
+                    {sizesQuery.data.map((size) => (
+                      <div
+                        key={size.id}
+                        className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3 hover:bg-gray-50 transition-colors"
+                      >
+                        <p className="flex-1 text-sm font-medium text-gray-900">
+                          {size.nom}
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-gray-500">
+                            Ordre {size.ordre}
+                          </span>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => store.openSizeModal(size)}
+                              className="rounded px-2 py-1 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
+                            >
+                              Éditer
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (
+                                  window.confirm(
+                                    `Supprimer la taille "${size.nom}" ?`,
+                                  )
+                                ) {
+                                  await deleteSizeMutation.mutateAsync(size.id);
+                                }
+                              }}
+                              className="rounded px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50"
+                            >
+                              Supprimer
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
-      ) : null}
+                )}
+              </section>
+            </div>
+          )}
+      </div>
 
       <CategoryModal
         isOpen={store.categoryModalOpen}
@@ -1264,6 +1454,10 @@ function ConfigurationTab() {
     </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPOSANT PRINCIPAL : STOREPAGE
+// ═══════════════════════════════════════════════════════════════════════════
 
 export function StorePage() {
   const { user } = useAuth();
@@ -1304,35 +1498,38 @@ export function StorePage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-8 text-white shadow-sm">
-        <p className="text-sm font-medium text-blue-100">Module store</p>
-        <h1 className="mt-2 text-3xl font-bold">
-          {canManageStore ? "Gestion de la boutique" : "Boutique du club"}
-        </h1>
-        <p className="mt-3 max-w-3xl text-sm text-blue-50">
+      {/* ── En-tête ── */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Boutique</h1>
+        <p className="mt-0.5 text-sm text-gray-500">
           {canManageStore
-            ? "Consultez le catalogue, les commandes, les stocks et la configuration de la boutique depuis un seul écran."
-            : "Parcourez les articles disponibles et suivez l'état de vos commandes."}
+            ? "Gestion de la boutique du club"
+            : "Parcourez les articles disponibles et suivez vos commandes"}
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        {tabs.map((tab) => (
-          <TabButton
-            key={tab.key}
-            active={activeTab === tab.key}
-            label={tab.label}
-            onClick={() => setActiveTab(tab.key)}
-          />
-        ))}
-      </div>
+      {/* ── Conteneur onglets ── */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        {/* ── Navigation ── */}
+        <div className="flex items-center border-b border-gray-100 px-2 overflow-x-auto">
+          {tabs.map((tab) => (
+            <TabButton
+              key={tab.key}
+              label={tab.label}
+              active={activeTab === tab.key}
+              onClick={() => setActiveTab(tab.key)}
+            />
+          ))}
+        </div>
 
-      {activeTab === "catalogue" ? <CatalogueTab /> : null}
-      {activeTab === "commandes" ? <OrdersTab /> : null}
-      {activeTab === "stocks" ? <StocksTab /> : null}
-      {activeTab === "configuration" ? <ConfigurationTab /> : null}
-      {activeTab === "boutique" ? <BoutiqueTab /> : null}
-      {activeTab === "mes_commandes" ? <MyOrdersTab /> : null}
+        {/* ── Contenu des onglets ── */}
+        {activeTab === "catalogue" && <CatalogueTab />}
+        {activeTab === "commandes" && <OrdersTab />}
+        {activeTab === "stocks" && <StocksTab />}
+        {activeTab === "configuration" && <ConfigurationTab />}
+        {activeTab === "boutique" && <BoutiqueTab />}
+        {activeTab === "mes_commandes" && <MyOrdersTab />}
+      </div>
     </div>
   );
 }
