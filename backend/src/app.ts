@@ -14,6 +14,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import path from "path";
 
 // Import routes
 import authRoutes from "./modules/auth/presentation/routes/authRoutes.js";
@@ -24,6 +25,7 @@ import templateRoutes from "./modules/templates/presentation/routes/templateRout
 import settingsRoutes from "./modules/settings/presentation/routes/settingsRoutes.js";
 import paymentRoutes from "./modules/payments/presentation/routes/paymentRoutes.js";
 import courseRoutes from "./modules/courses/presentation/routes/courseRoutes.js";
+import storeRoutes from "./modules/store/presentation/routes/storeRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -56,6 +58,9 @@ const createApp = (): Express => {
     "/api/payments/stripe/webhook",
     express.raw({ type: "application/json" }),
   );
+
+  // Static files for local storage uploads
+  app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
   // Parse JSON bodies
   app.use(express.json({ limit: "10mb" }));
@@ -106,9 +111,7 @@ const createApp = (): Express => {
   app.use("/api/settings", settingsRoutes);
   app.use("/api/payments", paymentRoutes);
   app.use("/api/courses", courseRoutes);
-
-  // TODO: Mount other module routes
-  // app.use("/api/store", storeRoutes);
+  app.use("/api/store", storeRoutes);
 
   // ==================== ERROR HANDLING ====================
 

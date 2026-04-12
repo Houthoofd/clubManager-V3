@@ -36,6 +36,7 @@ import { MessagesPage } from "./features/messaging/pages";
 import { SettingsPage } from "./features/settings/pages";
 import { PaymentsPage } from "./features/payments/pages";
 import { CoursesPage } from "./features/courses/pages";
+import { StorePage } from "./features/store/pages";
 
 // Dashboard (placeholder)
 const DashboardPage = () => (
@@ -45,12 +46,6 @@ const DashboardPage = () => (
       Bienvenue sur ClubManager V3 - Votre application de gestion de club
       sportif.
     </p>
-  </div>
-);
-
-const StorePage = () => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <h1 className="text-2xl font-bold text-gray-900">Store</h1>
   </div>
 );
 
