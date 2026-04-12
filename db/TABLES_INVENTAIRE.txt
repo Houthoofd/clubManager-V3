@@ -1,9 +1,9 @@
 ================================================================================
 CLUBMANAGER - INVENTAIRE COMPLET DES TABLES DE BASE DE DONNÉES
 ================================================================================
-Date: 2025-01-24
-Version: 1.0
-Total: 38 tables identifiées
+Date: 2025-01-26
+Version: 4.3
+Total: 41 tables identifiées (+2 : familles, membres_famille)
 
 Cet inventaire a été créé en croisant :
   - Les fichiers SQL dans db/creation/ et db/tables/
@@ -242,6 +242,23 @@ STATISTIQUES ET INFORMATIONS (2 tables)
     - Source: db/creation/clubmanager.sql, api/src/db/clients/informations/
 
 ================================================================================
+FAMILLES ET LIENS FAMILIAUX (2 tables) — v4.3
+================================================================================
+
+40. familles
+    - Groupes familiaux regroupant les membres d'une même famille
+    - Champs: nom (optionnel), timestamps
+    - Permet de lier parents et enfants (mineurs sans email)
+    - Source: db/migrations/003_family_system.sql
+
+41. membres_famille
+    - Association Many-to-Many: utilisateurs <-> familles avec rôles
+    - Champs: famille_id, user_id, role, est_responsable, est_tuteur_legal, date_ajout
+    - Rôles: parent, tuteur, enfant, conjoint, autre
+    - Contrainte UNIQUE (famille_id, user_id)
+    - Source: db/migrations/003_family_system.sql
+
+================================================================================
 VUES ET TABLES TEMPORAIRES DÉTECTÉES
 ================================================================================
 
@@ -264,6 +281,11 @@ UTILISATEURS:
   → grades (grade_id)
   → status (status_id)
   → plans_tarifaires (abonnement_id)
+  → utilisateurs (tuteur_id) — auto-référence : tuteur légal du compte enfant
+
+FAMILLES:
+  → membres_famille → utilisateurs (user_id)
+  → membres_famille → familles (famille_id)
 
 COURS:
   → cours_recurrent (cours_recurrent_id)

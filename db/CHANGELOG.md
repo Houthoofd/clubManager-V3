@@ -1,5 +1,81 @@
 # CHANGELOG - ClubManager Database Structure
 
+## Version 4.3 - 2025-01-26
+### 👨‍👩‍👧‍👦 FAMILY SYSTEM — Gestion des groupes familiaux
+
+## 📋 Changes Summary
+
+### ✅ Added
+
+#### **Nouvelles tables (2 tables)**
+- `familles` — Groupes familiaux (id, nom optionnel, timestamps)
+- `membres_famille` — Table pivot utilisateurs ↔ familles avec rôles
+  - Rôles : `parent`, `tuteur`, `enfant`, `conjoint`, `autre`
+  - Flags : `est_responsable`, `est_tuteur_legal`
+  - Contrainte UNIQUE : un utilisateur ne peut appartenir qu'une fois à la même famille
+
+#### **Nouvelles colonnes dans `utilisateurs`**
+- `tuteur_id INT UNSIGNED NULL` — Référence au parent/tuteur légal gérant le compte
+- `est_mineur BOOLEAN DEFAULT FALSE` — Flag identifiant les comptes enfants
+- `peut_se_connecter BOOLEAN DEFAULT TRUE` — FALSE pour les comptes gérés exclusivement par le tuteur
+
+#### **Nouveaux index dans `utilisateurs`**
+- `idx_tuteur_id` — Retrouver tous les enfants d'un tuteur
+- `idx_est_mineur` — Filtrer les comptes mineurs
+- `idx_peut_se_connecter` — Filtrer les comptes avec connexion directe
+
+#### **Migration Script**
+- `db/migrations/003_family_system.sql`
+  - Modification de `utilisateurs` (nullable + nouvelles colonnes)
+  - Création de `familles` et `membres_famille`
+  - Section ROLLBACK complète incluse
+
+### 🔄 Updated
+
+#### **Table `utilisateurs`**
+- `email` : `NOT NULL` → `NULL` (enfants sans adresse email)
+- `password` : `NOT NULL` → `NULL` (comptes gérés par un tuteur)
+- `nom_utilisateur` : `NOT NULL` → `NULL` (inutile pour les comptes enfants)
+- `chk_utilisateurs_email` : contrainte CHECK mise à jour pour accepter `NULL`
+  - Ancienne règle : `email REGEXP '...'`
+  - Nouvelle règle : `email IS NULL OR email REGEXP '...'`
+
+#### **SCHEMA_CONSOLIDATE.sql**
+- Version bumped : v4.1 → v4.3
+- Section 10 ajoutée : `familles` + `membres_famille`
+- Table `utilisateurs` mise à jour avec les nouvelles colonnes et contraintes
+
+### 📊 Metrics
+- Tables totales : 39 → 41 (+2)
+- Foreign Keys : 43 → 45 (+2 : `fk_mf_famille`, `fk_mf_user`, `fk_utilisateurs_tuteur`)
+- Index totaux : ~154 → ~162 (+8)
+- Nouvelles colonnes dans `utilisateurs` : +3
+
+### 🎯 Cas d'usage couverts
+- Parent s'inscrit normalement (email + password) → compte autonome
+- Parent ajoute ses enfants depuis son dashboard → comptes gérés (sans email, sans password)
+- Chaque enfant reçoit son propre `userId` (format U-YYYY-XXXX)
+- Parent peut agir pour ses enfants : inscriptions cours, paiements, boutique
+- Un utilisateur peut appartenir à plusieurs familles (familles recomposées)
+- Tuteur légal clairement identifié (`est_tuteur_legal = TRUE`)
+
+### 💡 Bénéfices
+- Aucun impact sur les tables existantes (cours, paiements, boutique fonctionnent par `user_id`)
+- Compatibilité RGPD maintenue : données enfants rattachées au tuteur légal responsable
+- Extensible : le système de rôles permet d'ajouter de nouveaux types de membres sans migration
+
+### ⚠️ Breaking Changes
+- `utilisateurs.email` accepte désormais `NULL` → vérifier les requêtes qui supposent `email NOT NULL`
+- `utilisateurs.password` accepte désormais `NULL` → la logique d'authentification doit vérifier `peut_se_connecter = TRUE` avant toute tentative de login
+- `utilisateurs.nom_utilisateur` accepte désormais `NULL` → adapter les affichages côté frontend
+
+### 🚀 Prochaines étapes recommandées
+- **Backend** : `AddFamilyMemberUseCase` + routes `POST /families/members`, `GET /families/my-family`
+- **Backend** : Middleware `actingFor` pour qu'un parent agisse au nom d'un enfant
+- **Frontend** : Section "Ma famille" dans le dashboard + formulaire d'ajout simplifié
+- **Types** : Nouveau `FamilyDto` + `AddFamilyMemberDto` dans `@clubmanager/types`
+
+
 ## Version 4.2 - 2025-01-25
 
 ### ✅ VALIDATION UPDATE - Email Format CHECK Constraints

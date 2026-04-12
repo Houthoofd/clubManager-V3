@@ -13,7 +13,7 @@
  * - Used to categorize message states beyond simple read/unread
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   MESSAGE_STATUS_NAME_MAX_LENGTH,
   MESSAGE_STATUS_NAME_MIN_LENGTH,
@@ -21,10 +21,14 @@ import {
   MESSAGING_MAX_PAGE_SIZE,
   MESSAGING_MIN_PAGE_SIZE,
   MESSAGING_DEFAULT_PAGE,
-  VALID_SORT_ORDERS,
-  DEFAULT_SORT_ORDER,
-} from '../../constants/messaging.constants.js';
-import { idSchema, idStringSchema, paginationSchema } from '../common/common.validators.js';
+  MESSAGING_VALID_SORT_ORDERS,
+  MESSAGING_DEFAULT_SORT_ORDER,
+} from "../../constants/messaging.constants.js";
+import {
+  idSchema,
+  idStringSchema,
+  paginationSchema,
+} from "../common/common.validators.js";
 
 // ============================================================================
 // BASE SCHEMAS
@@ -96,14 +100,16 @@ export type UpdateMessageStatus = z.infer<typeof updateMessageStatusSchema>;
  */
 export const listMessageStatusesSchema = paginationSchema.extend({
   search: z.string().trim().optional(),
-  sort_by: z.enum(['nom', 'id']).default('nom'),
-  sort_order: z.enum(['asc', 'desc']).default('asc'),
+  sort_by: z.enum(["nom", "id"]).default("nom"),
+  sort_order: z.enum(["asc", "desc"]).default(MESSAGING_DEFAULT_SORT_ORDER),
 });
 
 /**
  * Inferred TypeScript type for ListMessageStatuses query
  */
-export type ListMessageStatusesQuery = z.infer<typeof listMessageStatusesSchema>;
+export type ListMessageStatusesQuery = z.infer<
+  typeof listMessageStatusesSchema
+>;
 
 // ============================================================================
 // ID VALIDATION SCHEMAS
@@ -161,7 +167,9 @@ export const messageStatusesListResponseSchema = z.object({
 /**
  * Inferred TypeScript type for MessageStatusesListResponse
  */
-export type MessageStatusesListResponse = z.infer<typeof messageStatusesListResponseSchema>;
+export type MessageStatusesListResponse = z.infer<
+  typeof messageStatusesListResponseSchema
+>;
 
 /**
  * Schema for message status statistics

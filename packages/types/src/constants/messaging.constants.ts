@@ -216,11 +216,11 @@ export const MESSAGING_DEFAULT_PAGE = 1;
 // ============================================================================
 
 /**
- * Valid sort orders
+ * Valid sort orders for messaging queries
  */
-export const VALID_SORT_ORDERS = ['asc', 'desc'] as const;
+export const MESSAGING_VALID_SORT_ORDERS = ["asc", "desc"] as const;
 
 /**
- * Default sort order
+ * Default sort order for messaging queries
  */
-export const DEFAULT_SORT_ORDER = 'desc';
+export const MESSAGING_DEFAULT_SORT_ORDER = "desc";

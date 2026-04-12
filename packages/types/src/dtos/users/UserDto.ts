@@ -76,6 +76,7 @@ export interface UserResponseDto {
     id: number;
     nom: string;
   };
+  role_app?: string;
 
   date_inscription: string;
   derniere_connexion?: string;
@@ -111,5 +112,36 @@ export interface UserListItemDto {
   email_verified: boolean;
   active: boolean;
   status_id: number;
+  role_app?: string;
   date_inscription: string;
+}
+
+/** DTO pour changer le rôle d'un utilisateur */
+export interface UpdateUserRoleDto {
+  role_app: string; // UserRole value
+}
+
+/** DTO pour changer le statut d'un utilisateur */
+export interface UpdateUserStatusDto {
+  status_id: number;
+}
+
+/** Filtres pour la liste des utilisateurs */
+export interface GetUsersQueryDto {
+  search?: string; // recherche sur nom/prénom/email/userId
+  role_app?: string; // filtrer par rôle
+  status_id?: number; // filtrer par statut
+  page?: number; // défaut: 1
+  limit?: number; // défaut: 20, max: 100
+}
+
+/** Réponse paginée de la liste des utilisateurs */
+export interface PaginatedUsersResponseDto {
+  users: UserListItemDto[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

@@ -14,7 +14,7 @@
  * - Alert types are reference data used to categorize alerts
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   ALERT_TYPE_NAME_MAX_LENGTH,
   ALERT_TYPE_NAME_MIN_LENGTH,
@@ -23,11 +23,18 @@ import {
   MESSAGING_MAX_PAGE_SIZE,
   MESSAGING_MIN_PAGE_SIZE,
   MESSAGING_DEFAULT_PAGE,
-  VALID_SORT_ORDERS,
-  DEFAULT_SORT_ORDER,
-} from '../../constants/messaging.constants.js';
-import { AlertSeverity, ALERT_SEVERITIES } from '../../enums/messaging.enums.js';
-import { idSchema, idStringSchema, paginationSchema } from '../common/common.validators.js';
+  MESSAGING_VALID_SORT_ORDERS,
+  MESSAGING_DEFAULT_SORT_ORDER,
+} from "../../constants/messaging.constants.js";
+import {
+  AlertSeverity,
+  ALERT_SEVERITIES,
+} from "../../enums/messaging.enums.js";
+import {
+  idSchema,
+  idStringSchema,
+  paginationSchema,
+} from "../common/common.validators.js";
 
 // ============================================================================
 // BASE SCHEMAS
@@ -37,9 +44,9 @@ import { idSchema, idStringSchema, paginationSchema } from '../common/common.val
  * Schema for alert severity validation
  * DB: alertes_types.severite ENUM('info', 'warning', 'critical')
  */
-export const alertSeveritySchema = z.enum(['info', 'warning', 'critical'], {
+export const alertSeveritySchema = z.enum(["info", "warning", "critical"], {
   errorMap: () => ({
-    message: `La sévérité doit être l'une des suivantes: ${ALERT_SEVERITIES.join(', ')}`,
+    message: `La sévérité doit être l'une des suivantes: ${ALERT_SEVERITIES.join(", ")}`,
   }),
 });
 
@@ -124,8 +131,8 @@ export type UpdateAlertType = z.infer<typeof updateAlertTypeSchema>;
 export const listAlertTypesSchema = paginationSchema.extend({
   severite: alertSeveritySchema.optional(),
   search: z.string().trim().optional(),
-  sort_by: z.enum(['nom', 'severite']).default('nom'),
-  sort_order: z.enum(['asc', 'desc']).default('asc'),
+  sort_by: z.enum(["nom", "severite"]).default("nom"),
+  sort_order: z.enum(["asc", "desc"]).default("asc"),
 });
 
 /**
@@ -143,7 +150,9 @@ export const alertTypesBySeveritySchema = z.object({
 /**
  * Inferred TypeScript type for AlertTypesBySeverity query
  */
-export type AlertTypesBySeverityQuery = z.infer<typeof alertTypesBySeveritySchema>;
+export type AlertTypesBySeverityQuery = z.infer<
+  typeof alertTypesBySeveritySchema
+>;
 
 // ============================================================================
 // ID VALIDATION SCHEMAS
@@ -201,7 +210,9 @@ export const alertTypesListResponseSchema = z.object({
 /**
  * Inferred TypeScript type for AlertTypesListResponse
  */
-export type AlertTypesListResponse = z.infer<typeof alertTypesListResponseSchema>;
+export type AlertTypesListResponse = z.infer<
+  typeof alertTypesListResponseSchema
+>;
 
 /**
  * Schema for alert type statistics

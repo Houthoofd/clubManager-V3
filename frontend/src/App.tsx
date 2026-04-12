@@ -1,272 +1,254 @@
 /**
- * @fileoverview Main Application Component
- * @module App
- *
- * Root component of the ClubManager V3 application.
- * Configures routing, providers, and main layout.
+ * App.tsx
+ * Application principale avec routing et layouts
  */
 
-import React from "react";
-import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useEffect } from "react";
 import {
-  Page,
-  PageSection,
-  PageSectionVariants,
-  Masthead,
-  MastheadToggle,
-  MastheadMain,
-  MastheadBrand,
-  MastheadContent,
-  Toolbar,
-  ToolbarContent,
-  ToolbarGroup,
-  ToolbarItem,
-  Nav,
-  NavList,
-  NavItem,
-  PageSidebar,
-  PageSidebarBody,
-  Title,
-  EmptyState,
-  EmptyStateIcon,
-  EmptyStateBody,
-  Button,
-  Flex,
-  FlexItem,
-} from "@patternfly/react-core";
-import {
-  BarsIcon,
-  RocketIcon,
-  ChartLineIcon,
-  UsersIcon,
-  CalendarAltIcon,
-  DollarSignIcon,
-  ShoppingCartIcon,
-} from "@patternfly/react-icons";
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+import { Toaster } from "sonner";
+import { useAuthStore } from "./shared/stores/authStore";
+
+// Layouts
+import { PublicLayout } from "./layouts/PublicLayout";
+import { PrivateLayout } from "./layouts/PrivateLayout";
+import { useAuth } from "./shared/hooks/useAuth";
+
+// Route Guards
+import { PublicRoute } from "./shared/components/PublicRoute";
+import { RoleGuard } from "./shared/components/RoleGuard";
+import { UserRole } from "@clubmanager/types";
+
+// Auth Pages
+import { LoginPage } from "./features/auth/pages/LoginPage";
+import { RegisterPage } from "./features/auth/pages/RegisterPage";
+import { EmailVerificationPage } from "./features/auth/pages/EmailVerificationPage";
+import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
+import { FamilyPage } from "./features/families/pages";
+import { UsersPage } from "./features/users/pages";
+import { MessagesPage } from "./features/messaging/pages";
+import { SettingsPage } from "./features/settings/pages";
+import { PaymentsPage } from "./features/payments/pages";
+import { CoursesPage } from "./features/courses/pages";
+
+// Statistics Module
 import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
 
-// ============================================================================
-// REACT QUERY CONFIGURATION
-// ============================================================================
+// Dashboard (placeholder)
+const DashboardPage = () => (
+  <div className="bg-white rounded-lg shadow p-6">
+    <h1 className="text-2xl font-bold text-gray-900 mb-4">Dashboard</h1>
+    <p className="text-gray-600">
+      Bienvenue sur ClubManager V3 - Votre application de gestion de club
+      sportif.
+    </p>
+  </div>
+);
+
+const StorePage = () => (
+  <div className="bg-white rounded-lg shadow p-6">
+    <h1 className="text-2xl font-bold text-gray-900">Store</h1>
+  </div>
+);
+
+const ProfilePage = () => (
+  <div className="bg-white rounded-lg shadow p-6">
+    <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+  </div>
+);
 
 /**
- * Configure React Query client with default options
+ * AuthenticatedLayout Component
+ * Combines ProtectedRoute + PrivateLayout to ensure Outlet works correctly
  */
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-      retry: 2,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: true,
-    },
-    mutations: {
-      retry: 1,
-    },
-  },
-});
+const AuthenticatedLayout = () => {
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const location = useLocation();
 
-// ============================================================================
-// HOME PAGE COMPONENT
-// ============================================================================
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
-/**
- * Home page component
- */
-const HomePage: React.FC = () => {
-  return (
-    <PageSection variant={PageSectionVariants.light}>
-      <EmptyState>
-        <EmptyStateIcon icon={RocketIcon} />
-        <Title headingLevel="h1" size="4xl">
-          Bienvenue dans ClubManager V3
-        </Title>
-        <EmptyStateBody>
-          <p style={{ fontSize: "1.1rem", marginBottom: "2rem" }}>
-            Votre application complète de gestion de club de jiu-jitsu.
-          </p>
-          <Flex
-            direction={{ default: "column" }}
-            spaceItems={{ default: "spaceItemsLg" }}
-          >
-            <FlexItem>
-              <Title headingLevel="h2" size="xl">
-                Modules disponibles :
-              </Title>
-            </FlexItem>
-            <FlexItem>
-              <Link to="/statistics" style={{ textDecoration: "none" }}>
-                <Button variant="primary" size="lg" icon={<ChartLineIcon />}>
-                  📊 Statistiques et Analytics
-                </Button>
-              </Link>
-            </FlexItem>
-            <FlexItem style={{ marginTop: "2rem", color: "#6a6e73" }}>
-              <p>D'autres modules seront bientôt disponibles :</p>
-              <ul style={{ listStyle: "none", padding: 0, marginTop: "1rem" }}>
-                <li>👥 Gestion des membres</li>
-                <li>📅 Gestion des cours</li>
-                <li>💰 Gestion des paiements</li>
-                <li>🛍️ Boutique en ligne</li>
-                <li>💬 Messagerie</li>
-              </ul>
-            </FlexItem>
-          </Flex>
-        </EmptyStateBody>
-      </EmptyState>
-    </PageSection>
-  );
+  if (!isAuthenticated || !user) {
+    // Nettoyer le localStorage si état incohérent (isAuthenticated:true mais user:null)
+    if (isAuthenticated && !user) {
+      localStorage.clear();
+    }
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <PrivateLayout />;
 };
 
-// ============================================================================
-// MAIN APP COMPONENT
-// ============================================================================
+/**
+ * RootRedirect Component
+ * Redirects to login if not authenticated, otherwise to dashboard
+ */
+const RootRedirect = () => {
+  const { isAuthenticated, isLoading } = useAuthStore();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />;
+};
 
 /**
- * Main Application Component
- *
- * Provides:
- * - React Query client for data fetching
- * - React Router for navigation
- * - PatternFly layout with sidebar navigation
- * - Route configuration for all modules
+ * App Component
  */
-const App: React.FC = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
-  const [activeNavItem, setActiveNavItem] = React.useState("home");
+function App() {
+  const checkAuth = useAuthStore((state) => state.checkAuth);
 
-  /**
-   * Toggle sidebar visibility
-   */
-  const onSidebarToggle = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  /**
-   * Masthead component (top navigation bar)
-   */
-  const masthead = (
-    <Masthead>
-      <MastheadToggle>
-        <Button
-          variant="plain"
-          onClick={onSidebarToggle}
-          aria-label="Global navigation"
-          icon={<BarsIcon />}
-        />
-      </MastheadToggle>
-      <MastheadMain>
-        <MastheadBrand>
-          <Title headingLevel="h1" size="2xl">
-            🥋 ClubManager V3
-          </Title>
-        </MastheadBrand>
-      </MastheadMain>
-      <MastheadContent>
-        <Toolbar id="toolbar" isFullHeight isStatic>
-          <ToolbarContent>
-            <ToolbarGroup
-              variant="icon-button-group"
-              align={{ default: "alignRight" }}
-              spacer={{ default: "spacerNone", md: "spacerMd" }}
-            >
-              <ToolbarItem>
-                <span style={{ color: "#fff", fontSize: "0.875rem" }}>
-                  Version 3.0.0
-                </span>
-              </ToolbarItem>
-            </ToolbarGroup>
-          </ToolbarContent>
-        </Toolbar>
-      </MastheadContent>
-    </Masthead>
-  );
-
-  /**
-   * Sidebar navigation component
-   */
-  const sidebar = (
-    <PageSidebar isSidebarOpen={isSidebarOpen}>
-      <PageSidebarBody>
-        <Nav aria-label="Navigation principale" theme="dark">
-          <NavList>
-            <NavItem
-              itemId="home"
-              isActive={activeNavItem === "home"}
-              to="/"
-              component={(props: any) => <Link {...props} />}
-              onClick={() => setActiveNavItem("home")}
-            >
-              <RocketIcon /> Accueil
-            </NavItem>
-
-            <NavItem
-              itemId="statistics"
-              isActive={activeNavItem === "statistics"}
-              to="/statistics"
-              component={(props: any) => <Link {...props} />}
-              onClick={() => setActiveNavItem("statistics")}
-            >
-              <ChartLineIcon /> Statistiques
-            </NavItem>
-
-            {/* Future modules - Coming soon */}
-            <NavItem itemId="members" disabled>
-              <UsersIcon /> Membres{" "}
-              <span style={{ fontSize: "0.75rem" }}>(bientôt)</span>
-            </NavItem>
-
-            <NavItem itemId="courses" disabled>
-              <CalendarAltIcon /> Cours{" "}
-              <span style={{ fontSize: "0.75rem" }}>(bientôt)</span>
-            </NavItem>
-
-            <NavItem itemId="payments" disabled>
-              <DollarSignIcon /> Paiements{" "}
-              <span style={{ fontSize: "0.75rem" }}>(bientôt)</span>
-            </NavItem>
-
-            <NavItem itemId="store" disabled>
-              <ShoppingCartIcon /> Boutique{" "}
-              <span style={{ fontSize: "0.75rem" }}>(bientôt)</span>
-            </NavItem>
-          </NavList>
-        </Nav>
-      </PageSidebarBody>
-    </PageSidebar>
-  );
+  // Vérifier l'état d'authentification au chargement
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
+      {/* Toaster pour les notifications */}
+      <Toaster position="top-right" richColors closeButton duration={4000} />
+
       <BrowserRouter>
-        <Page header={masthead} sidebar={sidebar}>
-          <Routes>
-            {/* Home route */}
-            <Route path="/" element={<HomePage />} />
+        <Routes>
+          {/* Redirect root based on auth state */}
+          <Route path="/" element={<RootRedirect />} />
 
-            {/* Statistics module routes */}
-            <Route path="/statistics/*" element={<StatisticsRouter />} />
+          {/* Public Routes */}
+          <Route element={<PublicLayout />}>
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <LoginPage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <RegisterPage />
+                </PublicRoute>
+              }
+            />
+            <Route path="/verify-email" element={<EmailVerificationPage />} />
+            <Route
+              path="/forgot-password"
+              element={
+                <PublicRoute>
+                  <ForgotPasswordPage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/reset-password"
+              element={
+                <PublicRoute>
+                  <ResetPasswordPage />
+                </PublicRoute>
+              }
+            />
+          </Route>
 
-            {/* Future module routes - placeholder */}
-            {/* <Route path="/members/*" element={<MembersRouter />} /> */}
-            {/* <Route path="/courses/*" element={<CoursesRouter />} /> */}
-            {/* <Route path="/payments/*" element={<PaymentsRouter />} /> */}
-            {/* <Route path="/store/*" element={<StoreRouter />} /> */}
-            {/* <Route path="/messaging/*" element={<MessagingRouter />} /> */}
+          {/* Private Routes */}
+          <Route element={<AuthenticatedLayout />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route
+              path="/courses"
+              element={
+                <RoleGuard
+                  allowedRoles={[
+                    UserRole.ADMIN,
+                    UserRole.PROFESSOR,
+                    UserRole.MEMBER,
+                  ]}
+                >
+                  <CoursesPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.PROFESSOR]}>
+                  <UsersPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/payments"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.MEMBER]}>
+                  <PaymentsPage />
+                </RoleGuard>
+              }
+            />
+            <Route path="/store" element={<StorePage />} />
+            <Route path="/messages" element={<MessagesPage />} />
+            <Route
+              path="/statistics/*"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.PROFESSOR]}>
+                  <StatisticsRouter />
+                </RoleGuard>
+              }
+            />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/family" element={<FamilyPage />} />
+            <Route
+              path="/settings"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                  <SettingsPage />
+                </RoleGuard>
+              }
+            />
+          </Route>
 
-            {/* Catch-all route - redirect to home */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Page>
+          {/* 404 Not Found */}
+          <Route
+            path="*"
+            element={
+              <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                  <h1 className="text-6xl font-bold text-gray-900">404</h1>
+                  <p className="text-xl text-gray-600 mt-4">Page not found</p>
+                  <a
+                    href="/dashboard"
+                    className="mt-6 inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Go to Dashboard
+                  </a>
+                </div>
+              </div>
+            }
+          />
+        </Routes>
       </BrowserRouter>
-
-      {/* React Query DevTools - only in development */}
-      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
-    </QueryClientProvider>
+    </>
   );
-};
+}
 
 export default App;

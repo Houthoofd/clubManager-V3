@@ -13,6 +13,7 @@ export * from "./api/responses/ApiResponse.types.js";
 
 // Domain Types - Users
 export * from "./domain/user/User.types.js";
+export * from "./domain/user/EmailToken.types.js";
 
 // Domain Types - Courses
 export * from "./domain/course/index.js";
@@ -59,6 +60,12 @@ export * from "./dtos/statistics/index.js";
 
 // DTOs - Lookup
 export * from "./dtos/lookup/index.js";
+
+// Domain Types - Family
+export * from "./domain/family/index.js";
+
+// DTOs - Family
+export * from "./dtos/family/index.js";
 
 // Validators
 // Validators (Zod schemas)

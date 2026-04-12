@@ -14,7 +14,7 @@
  * - Used to categorize message templates (welcome, reminder, etc.)
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   CUSTOM_MESSAGE_TYPE_NAME_MAX_LENGTH,
   CUSTOM_MESSAGE_TYPE_NAME_MIN_LENGTH,
@@ -23,10 +23,14 @@ import {
   MESSAGING_MAX_PAGE_SIZE,
   MESSAGING_MIN_PAGE_SIZE,
   MESSAGING_DEFAULT_PAGE,
-  VALID_SORT_ORDERS,
-  DEFAULT_SORT_ORDER,
-} from '../../constants/messaging.constants.js';
-import { idSchema, idStringSchema, paginationSchema } from '../common/common.validators.js';
+  MESSAGING_VALID_SORT_ORDERS,
+  MESSAGING_DEFAULT_SORT_ORDER,
+} from "../../constants/messaging.constants.js";
+import {
+  idSchema,
+  idStringSchema,
+  paginationSchema,
+} from "../common/common.validators.js";
 
 // ============================================================================
 // BASE SCHEMAS
@@ -80,7 +84,9 @@ export const createCustomMessageTypeSchema = customMessageTypeBaseSchema.pick({
 /**
  * Inferred TypeScript type for CreateCustomMessageType
  */
-export type CreateCustomMessageType = z.infer<typeof createCustomMessageTypeSchema>;
+export type CreateCustomMessageType = z.infer<
+  typeof createCustomMessageTypeSchema
+>;
 
 // ============================================================================
 // UPDATE SCHEMA
@@ -101,7 +107,9 @@ export const updateCustomMessageTypeSchema = customMessageTypeBaseSchema
 /**
  * Inferred TypeScript type for UpdateCustomMessageType
  */
-export type UpdateCustomMessageType = z.infer<typeof updateCustomMessageTypeSchema>;
+export type UpdateCustomMessageType = z.infer<
+  typeof updateCustomMessageTypeSchema
+>;
 
 // ============================================================================
 // QUERY SCHEMAS
@@ -113,31 +121,35 @@ export type UpdateCustomMessageType = z.infer<typeof updateCustomMessageTypeSche
 export const listCustomMessageTypesSchema = paginationSchema.extend({
   actif: z
     .string()
-    .transform((val) => val === 'true' || val === '1')
+    .transform((val) => val === "true" || val === "1")
     .pipe(z.boolean())
     .optional(),
   search: z.string().trim().optional(),
-  sort_by: z.enum(['nom', 'actif']).default('nom'),
-  sort_order: z.enum(['asc', 'desc']).default('asc'),
+  sort_by: z.enum(["nom", "actif"]).default("nom"),
+  sort_order: z.enum(["asc", "desc"]).default("asc"),
 });
 
 /**
  * Inferred TypeScript type for ListCustomMessageTypes query
  */
-export type ListCustomMessageTypesQuery = z.infer<typeof listCustomMessageTypesSchema>;
+export type ListCustomMessageTypesQuery = z.infer<
+  typeof listCustomMessageTypesSchema
+>;
 
 /**
  * Schema for getting active custom message types
  */
 export const activeCustomMessageTypesSchema = z.object({
-  sort_by: z.enum(['nom']).default('nom'),
-  sort_order: z.enum(['asc', 'desc']).default('asc'),
+  sort_by: z.enum(["nom"]).default("nom"),
+  sort_order: z.enum(["asc", "desc"]).default("asc"),
 });
 
 /**
  * Inferred TypeScript type for ActiveCustomMessageTypes query
  */
-export type ActiveCustomMessageTypesQuery = z.infer<typeof activeCustomMessageTypesSchema>;
+export type ActiveCustomMessageTypesQuery = z.infer<
+  typeof activeCustomMessageTypesSchema
+>;
 
 // ============================================================================
 // ID VALIDATION SCHEMAS
@@ -163,7 +175,9 @@ export const customMessageTypeIdParamSchema = z.object({
 /**
  * Inferred TypeScript type for custom message type ID param
  */
-export type CustomMessageTypeIdParam = z.infer<typeof customMessageTypeIdParamSchema>;
+export type CustomMessageTypeIdParam = z.infer<
+  typeof customMessageTypeIdParamSchema
+>;
 
 // ============================================================================
 // RESPONSE SCHEMAS
@@ -177,7 +191,9 @@ export const customMessageTypeResponseSchema = customMessageTypeBaseSchema;
 /**
  * Inferred TypeScript type for CustomMessageTypeResponse
  */
-export type CustomMessageTypeResponse = z.infer<typeof customMessageTypeResponseSchema>;
+export type CustomMessageTypeResponse = z.infer<
+  typeof customMessageTypeResponseSchema
+>;
 
 /**
  * Schema for paginated custom message types list response
@@ -195,7 +211,9 @@ export const customMessageTypesListResponseSchema = z.object({
 /**
  * Inferred TypeScript type for CustomMessageTypesListResponse
  */
-export type CustomMessageTypesListResponse = z.infer<typeof customMessageTypesListResponseSchema>;
+export type CustomMessageTypesListResponse = z.infer<
+  typeof customMessageTypesListResponseSchema
+>;
 
 /**
  * Schema for custom message type statistics
@@ -210,4 +228,6 @@ export const customMessageTypeStatsSchema = z.object({
 /**
  * Inferred TypeScript type for CustomMessageTypeStats
  */
-export type CustomMessageTypeStats = z.infer<typeof customMessageTypeStatsSchema>;
+export type CustomMessageTypeStats = z.infer<
+  typeof customMessageTypeStatsSchema
+>;

@@ -7,3 +7,8 @@ packages:
 
   # Shared packages
   - 'packages/*'
+allowBuilds:
+  '@swc/core': false
+  bcrypt: false
+  esbuild: false
+  msw: false

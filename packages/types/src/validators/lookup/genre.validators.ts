@@ -12,7 +12,7 @@
  * - Simple lookup table for gender/genre types (Homme, Femme, Autre, etc.)
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   GENRE_NAME_MAX_LENGTH,
   GENRE_NAME_MIN_LENGTH,
@@ -20,10 +20,14 @@ import {
   LOOKUP_MAX_PAGE_SIZE,
   LOOKUP_MIN_PAGE_SIZE,
   LOOKUP_DEFAULT_PAGE,
-  VALID_SORT_ORDERS,
-  DEFAULT_SORT_ORDER,
-} from '../../constants/lookup.constants.js';
-import { idSchema, idStringSchema, paginationSchema } from '../common/common.validators.js';
+  LOOKUP_VALID_SORT_ORDERS,
+  LOOKUP_DEFAULT_SORT_ORDER,
+} from "../../constants/lookup.constants.js";
+import {
+  idSchema,
+  idStringSchema,
+  paginationSchema,
+} from "../common/common.validators.js";
 
 // ============================================================================
 // BASE SCHEMAS
@@ -95,8 +99,8 @@ export type UpdateGenre = z.infer<typeof updateGenreSchema>;
  */
 export const listGenresSchema = paginationSchema.extend({
   search: z.string().trim().optional(),
-  sort_by: z.enum(['nom', 'id']).default('nom'),
-  sort_order: z.enum(['asc', 'desc']).default(DEFAULT_SORT_ORDER),
+  sort_by: z.enum(["nom", "id"]).default("nom"),
+  sort_order: z.enum(["asc", "desc"]).default(LOOKUP_DEFAULT_SORT_ORDER),
 });
 
 /**

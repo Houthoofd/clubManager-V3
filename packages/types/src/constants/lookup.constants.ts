@@ -28,10 +28,10 @@ export const GENRE_NAME_MIN_LENGTH = 1;
  * Common genre values
  */
 export const COMMON_GENRES = {
-  HOMME: 'Homme',
-  FEMME: 'Femme',
-  AUTRE: 'Autre',
-  NON_SPECIFIE: 'Non spécifié',
+  HOMME: "Homme",
+  FEMME: "Femme",
+  AUTRE: "Autre",
+  NON_SPECIFIE: "Non spécifié",
 } as const;
 
 // ============================================================================
@@ -69,13 +69,13 @@ export const GRADE_MAX_ORDER = 100;
  * Common Jiu-Jitsu belt grades (Brazilian Jiu-Jitsu)
  */
 export const BJJ_GRADES = {
-  WHITE: { nom: 'Blanche', ordre: 0, couleur: '#FFFFFF' },
-  BLUE: { nom: 'Bleue', ordre: 1, couleur: '#0000FF' },
-  PURPLE: { nom: 'Violette', ordre: 2, couleur: '#800080' },
-  BROWN: { nom: 'Marron', ordre: 3, couleur: '#8B4513' },
-  BLACK: { nom: 'Noire', ordre: 4, couleur: '#000000' },
-  RED_BLACK: { nom: 'Rouge et Noire', ordre: 5, couleur: '#FF0000' },
-  RED: { nom: 'Rouge', ordre: 6, couleur: '#FF0000' },
+  WHITE: { nom: "Blanche", ordre: 0, couleur: "#FFFFFF" },
+  BLUE: { nom: "Bleue", ordre: 1, couleur: "#0000FF" },
+  PURPLE: { nom: "Violette", ordre: 2, couleur: "#800080" },
+  BROWN: { nom: "Marron", ordre: 3, couleur: "#8B4513" },
+  BLACK: { nom: "Noire", ordre: 4, couleur: "#000000" },
+  RED_BLACK: { nom: "Rouge et Noire", ordre: 5, couleur: "#FF0000" },
+  RED: { nom: "Rouge", ordre: 6, couleur: "#FF0000" },
 } as const;
 
 // ============================================================================
@@ -103,11 +103,11 @@ export const STATUS_DESCRIPTION_MAX_LENGTH = 65535;
  * Common status values
  */
 export const COMMON_STATUS = {
-  ACTIF: 'Actif',
-  INACTIF: 'Inactif',
-  SUSPENDU: 'Suspendu',
-  EN_ATTENTE: 'En attente',
-  ARCHIVE: 'Archivé',
+  ACTIF: "Actif",
+  INACTIF: "Inactif",
+  SUSPENDU: "Suspendu",
+  EN_ATTENTE: "En attente",
+  ARCHIVE: "Archivé",
 } as const;
 
 // ============================================================================
@@ -139,11 +139,11 @@ export const LOOKUP_DEFAULT_PAGE = 1;
 // ============================================================================
 
 /**
- * Valid sort orders
+ * Valid sort orders for lookup queries
  */
-export const VALID_SORT_ORDERS = ['asc', 'desc'] as const;
+export const LOOKUP_VALID_SORT_ORDERS = ["asc", "desc"] as const;
 
 /**
  * Default sort order for lookup tables
  */
-export const DEFAULT_SORT_ORDER = 'asc';
+export const LOOKUP_DEFAULT_SORT_ORDER = "asc";
