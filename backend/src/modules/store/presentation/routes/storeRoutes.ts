@@ -5,11 +5,11 @@
  */
 
 import { Router } from "express";
-import { CategoryController } from "../controllers/CategoryController.js";
-import { SizeController } from "../controllers/SizeController.js";
-import { ArticleController } from "../controllers/ArticleController.js";
-import { OrderController } from "../controllers/OrderController.js";
-import { StockController } from "../controllers/StockController.js";
+import { CategoryController } from "../controllers/CategoryController";
+import { SizeController } from "../controllers/SizeController";
+import { ArticleController } from "../controllers/ArticleController";
+import { OrderController } from "../controllers/OrderController";
+import { StockController } from "../controllers/StockController";
 import {
   authMiddleware,
   requireRole,
@@ -83,11 +83,8 @@ router.get("/sizes/:id", authMiddleware, (req, res) =>
   sizeCtrl.getSizeById(req as any, res),
 );
 
-router.post(
-  "/sizes",
-  authMiddleware,
-  requireRole(UserRole.ADMIN),
-  (req, res) => sizeCtrl.createSize(req as any, res),
+router.post("/sizes", authMiddleware, requireRole(UserRole.ADMIN), (req, res) =>
+  sizeCtrl.createSize(req as any, res),
 );
 
 router.put(
@@ -233,11 +230,8 @@ router.get(
 );
 
 // GET /stocks - Liste tous les stocks
-router.get(
-  "/stocks",
-  authMiddleware,
-  requireRole(UserRole.ADMIN),
-  (req, res) => stockCtrl.getStocks(req as any, res),
+router.get("/stocks", authMiddleware, requireRole(UserRole.ADMIN), (req, res) =>
+  stockCtrl.getStocks(req as any, res),
 );
 
 // PUT /stocks/:id - Mettre à jour un stock

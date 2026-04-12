@@ -6,8 +6,17 @@
 import { useEffect } from "react";
 import { UserRole } from "@clubmanager/types";
 import { useAuth } from "../../../shared/hooks/useAuth";
-import { OrderStatusBadge } from "../components\OrderStatusBadge";
+import { OrderStatusBadge } from "../components/OrderStatusBadge";
 import { StockBadge } from "../components/StockBadge";
+import {
+  CategoryModal,
+  SizeModal,
+  ArticleModal,
+  StockAdjustModal,
+  QuickOrderModal,
+  OrderDetailModal,
+  CartModal,
+} from "../components";
 import {
   useArticles,
   useCategories,
@@ -16,6 +25,19 @@ import {
   useOrders,
   useSizes,
   useStocks,
+  useCreateCategory,
+  useUpdateCategory,
+  useDeleteCategory,
+  useCreateSize,
+  useUpdateSize,
+  useDeleteSize,
+  useCreateArticle,
+  useUpdateArticle,
+  useDeleteArticle,
+  useToggleArticle,
+  useAdjustStock,
+  useCreateOrder,
+  useUpdateOrderStatus,
 } from "../hooks/useStore";
 import { useStoreUI } from "../stores/storeStore";
 
@@ -219,8 +241,23 @@ function CatalogueTab() {
     limit: 12,
   });
 
+  const createArticleMutation = useCreateArticle();
+  const updateArticleMutation = useUpdateArticle();
+  const deleteArticleMutation = useDeleteArticle();
+  const toggleArticleMutation = useToggleArticle();
+
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-gray-900">Catalogue</h2>
+        <button
+          onClick={() => store.openArticleModal()}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+        >
+          Nouvel article
+        </button>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Articles"
@@ -268,7 +305,9 @@ function CatalogueTab() {
 
           <select
             value={store.articleActifFilter}
-            onChange={(event) => store.setArticleActifFilter(event.target.value)}
+            onChange={(event) =>
+              store.setArticleActifFilter(event.target.value)
+            }
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="">Tous les statuts</option>
@@ -278,12 +317,18 @@ function CatalogueTab() {
         </div>
       </div>
 
-      {categoriesQuery.isError ? <ErrorBanner error={categoriesQuery.error} /> : null}
-      {articlesQuery.isError ? <ErrorBanner error={articlesQuery.error} /> : null}
+      {categoriesQuery.isError ? (
+        <ErrorBanner error={categoriesQuery.error} />
+      ) : null}
+      {articlesQuery.isError ? (
+        <ErrorBanner error={articlesQuery.error} />
+      ) : null}
 
       {articlesQuery.isLoading ? <Spinner /> : null}
 
-      {!articlesQuery.isLoading && !articlesQuery.isError && !articlesQuery.data?.items.length ? (
+      {!articlesQuery.isLoading &&
+      !articlesQuery.isError &&
+      !articlesQuery.data?.items.length ? (
         <EmptyState
           title="Aucun article trouvé"
           description="Ajustez les filtres ou ajoutez des articles dans le catalogue."
@@ -323,13 +368,45 @@ function CatalogueTab() {
                   {article.description || "Aucune description disponible."}
                 </p>
 
-                <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
-                  <span className="text-lg font-semibold text-gray-900">
-                    {formatCurrency(article.prix)}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    Créé le {formatDate(article.created_at)}
-                  </span>
+                <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-semibold text-gray-900">
+                      {formatCurrency(article.prix)}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      Créé le {formatDate(article.created_at)}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => store.openArticleModal(article)}
+                      className="flex-1 rounded-lg border border-blue-600 bg-white px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
+                    >
+                      Éditer
+                    </button>
+                    <button
+                      onClick={async () => {
+                        await toggleArticleMutation.mutateAsync(article.id);
+                      }}
+                      className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                    >
+                      {article.actif ? "Désactiver" : "Activer"}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (
+                          window.confirm(
+                            `Supprimer l'article "${article.nom}" ?`,
+                          )
+                        ) {
+                          await deleteArticleMutation.mutateAsync(article.id);
+                        }
+                      }}
+                      className="rounded-lg border border-red-600 bg-white px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
@@ -342,6 +419,24 @@ function CatalogueTab() {
           />
         </>
       ) : null}
+
+      <ArticleModal
+        isOpen={store.articleModalOpen}
+        onClose={store.closeArticleModal}
+        article={store.editingArticle ?? undefined}
+        categories={categoriesQuery.data ?? []}
+        onSubmit={async (data) => {
+          if (store.editingArticle) {
+            await updateArticleMutation.mutateAsync({
+              id: store.editingArticle.id,
+              data,
+            });
+          } else {
+            await createArticleMutation.mutateAsync(data);
+          }
+          store.closeArticleModal();
+        }}
+      />
     </div>
   );
 }
@@ -349,6 +444,7 @@ function CatalogueTab() {
 function BoutiqueTab() {
   const store = useStoreUI();
   const categoriesQuery = useCategories();
+  const sizesQuery = useSizes();
   const articlesQuery = useArticles({
     search: store.articleSearch || undefined,
     categorie_id: store.articleCategoryFilter ?? undefined,
@@ -356,6 +452,9 @@ function BoutiqueTab() {
     page: store.articlePage,
     limit: 12,
   });
+
+  const createOrderMutation = useCreateOrder();
+  const { data: stocksData } = useStocks();
 
   return (
     <div className="space-y-6">
@@ -370,7 +469,10 @@ function BoutiqueTab() {
         />
         <StatCard
           label="Panier"
-          value={store.cartItems.reduce((total, item) => total + item.quantite, 0)}
+          value={store.cartItems.reduce(
+            (total, item) => total + item.quantite,
+            0,
+          )}
         />
       </div>
 
@@ -402,12 +504,18 @@ function BoutiqueTab() {
         </div>
       </div>
 
-      {categoriesQuery.isError ? <ErrorBanner error={categoriesQuery.error} /> : null}
-      {articlesQuery.isError ? <ErrorBanner error={articlesQuery.error} /> : null}
+      {categoriesQuery.isError ? (
+        <ErrorBanner error={categoriesQuery.error} />
+      ) : null}
+      {articlesQuery.isError ? (
+        <ErrorBanner error={articlesQuery.error} />
+      ) : null}
 
       {articlesQuery.isLoading ? <Spinner /> : null}
 
-      {!articlesQuery.isLoading && !articlesQuery.isError && !articlesQuery.data?.items.length ? (
+      {!articlesQuery.isLoading &&
+      !articlesQuery.isError &&
+      !articlesQuery.data?.items.length ? (
         <EmptyState
           title="Aucun article disponible"
           description="La boutique ne contient pas encore d'articles actifs."
@@ -439,6 +547,13 @@ function BoutiqueTab() {
                 <p className="mt-4 line-clamp-3 min-h-[3.75rem] text-sm text-gray-600">
                   {article.description || "Aucune description disponible."}
                 </p>
+
+                <button
+                  onClick={() => store.openQuickOrderModal(article as any)}
+                  className="mt-4 w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                >
+                  Commander
+                </button>
               </article>
             ))}
           </div>
@@ -450,6 +565,100 @@ function BoutiqueTab() {
           />
         </>
       ) : null}
+
+      {store.quickOrderArticle && (
+        <QuickOrderModal
+          isOpen={store.quickOrderModalOpen}
+          onClose={store.closeQuickOrderModal}
+          article={store.quickOrderArticle}
+          sizes={sizesQuery.data ?? []}
+          stocks={
+            stocksData?.filter(
+              (s) => s.article_id === store.quickOrderArticle?.id,
+            ) ?? []
+          }
+          onSubmit={async (data) => {
+            const article = store.quickOrderArticle;
+            if (!article) return;
+
+            for (const item of data.items) {
+              const stock = stocksData?.find(
+                (s) =>
+                  s.article_id === item.article_id &&
+                  s.taille_id === item.taille_id,
+              );
+              if (stock) {
+                const cartItem = {
+                  article_id: item.article_id,
+                  article_nom: article.nom,
+                  taille_id: item.taille_id,
+                  taille_nom: stock.taille_nom || "",
+                  prix: item.prix,
+                  quantite: item.quantite,
+                  image_url: article.image_url ?? null,
+                };
+                store.addToCart(cartItem as any);
+              }
+            }
+            store.closeQuickOrderModal();
+          }}
+        />
+      )}
+
+      <CartModal
+        isOpen={store.cartModalOpen}
+        onClose={store.closeCartModal}
+        cartItems={store.cartItems}
+        onUpdateQuantity={(articleId, tailleId, newQuantity) => {
+          const index = store.cartItems.findIndex(
+            (item) =>
+              item.article_id === articleId && item.taille_id === tailleId,
+          );
+          if (index !== -1) {
+            const item = store.cartItems[index];
+            store.removeFromCart(articleId, tailleId);
+            if (newQuantity > 0) {
+              store.addToCart({ ...item, quantite: newQuantity } as any);
+            }
+          }
+        }}
+        onRemoveItem={store.removeFromCart}
+        onClearCart={store.clearCart}
+        onCheckout={async () => {
+          const items = store.cartItems.map((item) => ({
+            article_id: item.article_id,
+            taille_id: item.taille_id,
+            quantite: item.quantite,
+            prix: item.prix,
+          }));
+          await createOrderMutation.mutateAsync({ items });
+          store.clearCart();
+          store.closeCartModal();
+        }}
+      />
+
+      {store.cartItems.length > 0 && (
+        <button
+          onClick={store.openCartModal}
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-white shadow-lg transition hover:bg-blue-700"
+        >
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+            />
+          </svg>
+          Panier (
+          {store.cartItems.reduce((total, item) => total + item.quantite, 0)})
+        </button>
+      )}
     </div>
   );
 }
@@ -462,6 +671,8 @@ function OrdersTab() {
     statut: store.orderStatusFilter || undefined,
   });
 
+  const updateOrderStatusMutation = useUpdateOrderStatus();
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -472,16 +683,18 @@ function OrdersTab() {
         <StatCard
           label="En attente"
           value={
-            ordersQuery.data?.items.filter((order) => order.statut === "en_attente")
-              .length ?? 0
+            ordersQuery.data?.items.filter(
+              (order) => order.statut === "en_attente",
+            ).length ?? 0
           }
           tone="warning"
         />
         <StatCard
           label="Annulées"
           value={
-            ordersQuery.data?.items.filter((order) => order.statut === "annulee").length ??
-            0
+            ordersQuery.data?.items.filter(
+              (order) => order.statut === "annulee",
+            ).length ?? 0
           }
           tone="danger"
         />
@@ -515,7 +728,9 @@ function OrdersTab() {
       {ordersQuery.isError ? <ErrorBanner error={ordersQuery.error} /> : null}
       {ordersQuery.isLoading ? <Spinner /> : null}
 
-      {!ordersQuery.isLoading && !ordersQuery.isError && !ordersQuery.data?.items.length ? (
+      {!ordersQuery.isLoading &&
+      !ordersQuery.isError &&
+      !ordersQuery.data?.items.length ? (
         <EmptyState
           title="Aucune commande"
           description="Aucune commande ne correspond au filtre sélectionné."
@@ -548,14 +763,18 @@ function OrdersTab() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {ordersQuery.data.items.map((order) => (
-                    <tr key={order.id} className="hover:bg-gray-50">
+                    <tr
+                      key={order.id}
+                      onClick={() => store.openOrderDetailModal(order as any)}
+                      className="cursor-pointer hover:bg-gray-50"
+                    >
                       <td className="px-4 py-3 text-sm font-medium text-gray-900">
                         {order.numero_commande}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
                         {order.user_first_name || order.user_last_name
                           ? `${order.user_first_name ?? ""} ${order.user_last_name ?? ""}`.trim()
-                          : order.user_email ?? "Utilisateur inconnu"}
+                          : (order.user_email ?? "Utilisateur inconnu")}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
                         {formatCurrency(order.total)}
@@ -580,12 +799,28 @@ function OrdersTab() {
           />
         </>
       ) : null}
+
+      {store.selectedOrder && (
+        <OrderDetailModal
+          isOpen={store.orderDetailModalOpen}
+          onClose={store.closeOrderDetailModal}
+          order={store.selectedOrder}
+          canManage={true}
+          onUpdateStatus={async (id, statut) => {
+            await updateOrderStatusMutation.mutateAsync({ id, statut });
+            store.closeOrderDetailModal();
+          }}
+        />
+      )}
     </div>
   );
 }
 
 function MyOrdersTab() {
+  const store = useStoreUI();
   const ordersQuery = useMyOrders();
+
+  const updateOrderStatusMutation = useUpdateOrderStatus();
 
   return (
     <div className="space-y-6">
@@ -594,20 +829,26 @@ function MyOrdersTab() {
         <StatCard
           label="En attente"
           value={
-            ordersQuery.data?.filter((order) => order.statut === "en_attente").length ?? 0
+            ordersQuery.data?.filter((order) => order.statut === "en_attente")
+              .length ?? 0
           }
           tone="warning"
         />
         <StatCard
           label="Livrées"
-          value={ordersQuery.data?.filter((order) => order.statut === "livree").length ?? 0}
+          value={
+            ordersQuery.data?.filter((order) => order.statut === "livree")
+              .length ?? 0
+          }
         />
       </div>
 
       {ordersQuery.isError ? <ErrorBanner error={ordersQuery.error} /> : null}
       {ordersQuery.isLoading ? <Spinner /> : null}
 
-      {!ordersQuery.isLoading && !ordersQuery.isError && !ordersQuery.data?.length ? (
+      {!ordersQuery.isLoading &&
+      !ordersQuery.isError &&
+      !ordersQuery.data?.length ? (
         <EmptyState
           title="Aucune commande passée"
           description="Vos commandes boutique apparaîtront ici."
@@ -649,22 +890,48 @@ function MyOrdersTab() {
                   </p>
                 </div>
               </div>
+
+              <button
+                onClick={() => store.openOrderDetailModal(order as any)}
+                className="mt-4 w-full rounded-lg border border-blue-600 bg-white px-4 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
+              >
+                Voir détails
+              </button>
             </article>
           ))}
         </div>
       ) : null}
+
+      {store.selectedOrder && (
+        <OrderDetailModal
+          isOpen={store.orderDetailModalOpen}
+          onClose={store.closeOrderDetailModal}
+          order={store.selectedOrder}
+          canManage={false}
+          onUpdateStatus={async (id, statut) => {
+            await updateOrderStatusMutation.mutateAsync({ id, statut });
+            store.closeOrderDetailModal();
+          }}
+        />
+      )}
     </div>
   );
 }
 
 function StocksTab() {
+  const store = useStoreUI();
   const stocksQuery = useStocks();
   const lowStocksQuery = useLowStocks();
+
+  const adjustStockMutation = useAdjustStock();
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Lignes de stock" value={stocksQuery.data?.length ?? 0} />
+        <StatCard
+          label="Lignes de stock"
+          value={stocksQuery.data?.length ?? 0}
+        />
         <StatCard
           label="Stocks bas"
           value={lowStocksQuery.data?.length ?? 0}
@@ -672,16 +939,23 @@ function StocksTab() {
         />
         <StatCard
           label="Ruptures"
-          value={stocksQuery.data?.filter((stock) => stock.quantite <= 0).length ?? 0}
+          value={
+            stocksQuery.data?.filter((stock) => stock.quantite <= 0).length ?? 0
+          }
           tone="danger"
         />
         <StatCard
           label="Articles suivis"
-          value={new Set((stocksQuery.data ?? []).map((stock) => stock.article_id)).size}
+          value={
+            new Set((stocksQuery.data ?? []).map((stock) => stock.article_id))
+              .size
+          }
         />
       </div>
 
-      {lowStocksQuery.isError ? <ErrorBanner error={lowStocksQuery.error} /> : null}
+      {lowStocksQuery.isError ? (
+        <ErrorBanner error={lowStocksQuery.error} />
+      ) : null}
       {stocksQuery.isError ? <ErrorBanner error={stocksQuery.error} /> : null}
 
       {stocksQuery.isLoading || lowStocksQuery.isLoading ? <Spinner /> : null}
@@ -704,7 +978,9 @@ function StocksTab() {
         </div>
       ) : null}
 
-      {!stocksQuery.isLoading && !stocksQuery.isError && !stocksQuery.data?.length ? (
+      {!stocksQuery.isLoading &&
+      !stocksQuery.isError &&
+      !stocksQuery.data?.length ? (
         <EmptyState
           title="Aucun stock configuré"
           description="Les niveaux de stock apparaîtront ici dès qu'ils seront disponibles."
@@ -732,6 +1008,9 @@ function StocksTab() {
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Statut
                   </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -755,6 +1034,14 @@ function StocksTab() {
                         quantite_minimum={stock.quantite_minimum}
                       />
                     </td>
+                    <td className="px-4 py-3 text-sm text-gray-600">
+                      <button
+                        onClick={() => store.openStockAdjustModal(stock)}
+                        className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
+                      >
+                        Ajuster
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -762,22 +1049,51 @@ function StocksTab() {
           </div>
         </div>
       ) : null}
+
+      {store.adjustingStock && (
+        <StockAdjustModal
+          isOpen={store.stockAdjustModalOpen}
+          onClose={store.closeStockAdjustModal}
+          stock={store.adjustingStock}
+          onSubmit={async (data) => {
+            await adjustStockMutation.mutateAsync({
+              id: store.adjustingStock!.id,
+              data,
+            });
+            store.closeStockAdjustModal();
+          }}
+        />
+      )}
     </div>
   );
 }
 
 function ConfigurationTab() {
+  const store = useStoreUI();
   const categoriesQuery = useCategories();
   const sizesQuery = useSizes();
+
+  const createCategoryMutation = useCreateCategory();
+  const updateCategoryMutation = useUpdateCategory();
+  const deleteCategoryMutation = useDeleteCategory();
+
+  const createSizeMutation = useCreateSize();
+  const updateSizeMutation = useUpdateSize();
+  const deleteSizeMutation = useDeleteSize();
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard label="Catégories" value={categoriesQuery.data?.length ?? 0} />
+        <StatCard
+          label="Catégories"
+          value={categoriesQuery.data?.length ?? 0}
+        />
         <StatCard label="Tailles" value={sizesQuery.data?.length ?? 0} />
       </div>
 
-      {categoriesQuery.isError ? <ErrorBanner error={categoriesQuery.error} /> : null}
+      {categoriesQuery.isError ? (
+        <ErrorBanner error={categoriesQuery.error} />
+      ) : null}
       {sizesQuery.isError ? <ErrorBanner error={sizesQuery.error} /> : null}
 
       {categoriesQuery.isLoading || sizesQuery.isLoading ? <Spinner /> : null}
@@ -788,7 +1104,17 @@ function ConfigurationTab() {
       !sizesQuery.isError ? (
         <div className="grid gap-6 lg:grid-cols-2">
           <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <h2 className="text-base font-semibold text-gray-900">Catégories</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-gray-900">
+                Catégories
+              </h2>
+              <button
+                onClick={() => store.openCategoryModal()}
+                className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-700"
+              >
+                Nouvelle catégorie
+              </button>
+            </div>
             {!categoriesQuery.data?.length ? (
               <p className="mt-4 text-sm text-gray-500">
                 Aucune catégorie configurée.
@@ -800,7 +1126,7 @@ function ConfigurationTab() {
                     key={category.id}
                     className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3"
                   >
-                    <div>
+                    <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">
                         {category.nom}
                       </p>
@@ -808,9 +1134,35 @@ function ConfigurationTab() {
                         {category.description || "Aucune description"}
                       </p>
                     </div>
-                    <span className="text-xs text-gray-500">
-                      Ordre {category.ordre}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-500">
+                        Ordre {category.ordre}
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => store.openCategoryModal(category)}
+                          className="rounded px-2 py-1 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
+                        >
+                          Éditer
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (
+                              window.confirm(
+                                `Supprimer la catégorie "${category.nom}" ?`,
+                              )
+                            ) {
+                              await deleteCategoryMutation.mutateAsync(
+                                category.id,
+                              );
+                            }
+                          }}
+                          className="rounded px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50"
+                        >
+                          Supprimer
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -818,7 +1170,15 @@ function ConfigurationTab() {
           </section>
 
           <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <h2 className="text-base font-semibold text-gray-900">Tailles</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-gray-900">Tailles</h2>
+              <button
+                onClick={() => store.openSizeModal()}
+                className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-700"
+              >
+                Nouvelle taille
+              </button>
+            </div>
             {!sizesQuery.data?.length ? (
               <p className="mt-4 text-sm text-gray-500">
                 Aucune taille configurée.
@@ -830,12 +1190,36 @@ function ConfigurationTab() {
                     key={size.id}
                     className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3"
                   >
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="flex-1 text-sm font-medium text-gray-900">
                       {size.nom}
                     </p>
-                    <span className="text-xs text-gray-500">
-                      Ordre {size.ordre}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-500">
+                        Ordre {size.ordre}
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => store.openSizeModal(size)}
+                          className="rounded px-2 py-1 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
+                        >
+                          Éditer
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (
+                              window.confirm(
+                                `Supprimer la taille "${size.nom}" ?`,
+                              )
+                            ) {
+                              await deleteSizeMutation.mutateAsync(size.id);
+                            }
+                          }}
+                          className="rounded px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50"
+                        >
+                          Supprimer
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -843,6 +1227,40 @@ function ConfigurationTab() {
           </section>
         </div>
       ) : null}
+
+      <CategoryModal
+        isOpen={store.categoryModalOpen}
+        onClose={store.closeCategoryModal}
+        category={store.editingCategory ?? undefined}
+        onSubmit={async (data) => {
+          if (store.editingCategory) {
+            await updateCategoryMutation.mutateAsync({
+              id: store.editingCategory.id,
+              data,
+            });
+          } else {
+            await createCategoryMutation.mutateAsync(data);
+          }
+          store.closeCategoryModal();
+        }}
+      />
+
+      <SizeModal
+        isOpen={store.sizeModalOpen}
+        onClose={store.closeSizeModal}
+        size={store.editingSize ?? undefined}
+        onSubmit={async (data) => {
+          if (store.editingSize) {
+            await updateSizeMutation.mutateAsync({
+              id: store.editingSize.id,
+              data,
+            });
+          } else {
+            await createSizeMutation.mutateAsync(data);
+          }
+          store.closeSizeModal();
+        }}
+      />
     </div>
   );
 }
@@ -918,4 +1336,3 @@ export function StorePage() {
     </div>
   );
 }
-
