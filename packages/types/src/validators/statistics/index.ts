@@ -43,7 +43,7 @@ export {
   type StatisticsListResponse,
   type StatisticsSummary,
   type AggregatedStatistics,
-} from './statistic.validators.js';
+} from "./statistic.validators.js";
 
 // ============================================================================
 // INFORMATION VALIDATORS
@@ -82,4 +82,73 @@ export {
   type InformationsListResponse,
   type InformationStats,
   type GroupedInformations,
-} from './information.validators.js';
+} from "./information.validators.js";
+
+// ============================================================================
+// ANALYTICS VALIDATORS
+// ============================================================================
+
+export {
+  // Schemas
+  analyticsDateRangeSchema,
+  periodTypeSchema,
+  memberStatisticsSchema,
+  membersByGradeSchema,
+  membersByGenderSchema,
+  membersByAgeGroupSchema,
+  memberAnalyticsResponseSchema,
+  courseAttendanceStatisticsSchema,
+  coursesByTypeSchema,
+  popularCourseSchema,
+  attendanceByDaySchema,
+  courseAnalyticsResponseSchema,
+  financialStatisticsSchema,
+  revenueByPaymentMethodSchema,
+  revenueByPlanSchema,
+  latePaymentSchema,
+  financialAnalyticsResponseSchema,
+  storeStatisticsSchema,
+  popularProductSchema,
+  salesByCategorySchema,
+  lowStockAlertSchema,
+  storeAnalyticsResponseSchema,
+  trendDataPointSchema,
+  memberGrowthTrendSchema,
+  attendanceTrendSchema,
+  revenueTrendSchema,
+  trendAnalyticsResponseSchema,
+  dashboardAnalyticsSchema,
+  analyticsQuerySchema,
+  analyticsModuleQuerySchema,
+  // Types
+  type AnalyticsDateRange,
+  type PeriodType,
+  type MemberStatistics,
+  type MembersByGrade,
+  type MembersByGender,
+  type MembersByAgeGroup,
+  type MemberAnalyticsResponse,
+  type CourseAttendanceStatistics,
+  type CoursesByType,
+  type PopularCourse,
+  type AttendanceByDay,
+  type CourseAnalyticsResponse,
+  type FinancialStatistics,
+  type RevenueByPaymentMethod,
+  type RevenueByPlan,
+  type LatePayment,
+  type FinancialAnalyticsResponse,
+  type StoreStatistics,
+  type PopularProduct,
+  type SalesByCategory,
+  type LowStockAlert,
+  type StoreAnalyticsResponse,
+  type TrendDataPoint,
+  type MemberGrowthTrend,
+  type AttendanceTrend,
+  type RevenueTrend,
+  type TrendAnalyticsResponse,
+  type DashboardAnalytics,
+  type AnalyticsQuery,
+  type AnalyticsModuleQuery,
+} from "./analytics.validators.js";
