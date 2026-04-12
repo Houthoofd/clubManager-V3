@@ -147,7 +147,9 @@ export const storeApi = {
   ): Promise<Category> =>
     apiClient.put(`/store/categories/${id}`, data).then((r) => r.data.data),
 
-  deleteCategory: (id: number): Promise<{ success: boolean; message: string }> =>
+  deleteCategory: (
+    id: number,
+  ): Promise<{ success: boolean; message: string }> =>
     apiClient.delete(`/store/categories/${id}`).then((r) => r.data),
 
   reorderCategories: (
@@ -176,8 +178,13 @@ export const storeApi = {
 
   // ── ARTICLES ──────────────────────────────────────────────────────────────
 
-  getArticles: (params?: GetArticlesParams): Promise<PaginatedResponse<Article>> =>
-    apiClient.get("/store/articles", { params }).then((r) => r.data.data),
+  getArticles: (
+    params?: GetArticlesParams,
+  ): Promise<PaginatedResponse<Article>> =>
+    apiClient.get("/store/articles", { params }).then((r) => ({
+      items: r.data.data.articles,
+      pagination: r.data.data.pagination,
+    })),
 
   getArticleById: (id: number): Promise<ArticleWithImages> =>
     apiClient.get(`/store/articles/${id}`).then((r) => r.data.data),
@@ -209,7 +216,10 @@ export const storeApi = {
   toggleArticle: (id: number): Promise<Article> =>
     apiClient.patch(`/store/articles/${id}/toggle`).then((r) => r.data.data),
 
-  uploadArticleImage: (articleId: number, file: File): Promise<ArticleImage> => {
+  uploadArticleImage: (
+    articleId: number,
+    file: File,
+  ): Promise<ArticleImage> => {
     const formData = new FormData();
     formData.append("image", file);
     return apiClient
@@ -230,7 +240,10 @@ export const storeApi = {
   // ── COMMANDES ─────────────────────────────────────────────────────────────
 
   getOrders: (params?: GetOrdersParams): Promise<PaginatedResponse<Order>> =>
-    apiClient.get("/store/orders", { params }).then((r) => r.data.data),
+    apiClient.get("/store/orders", { params }).then((r) => ({
+      items: r.data.data.orders,
+      pagination: r.data.data.pagination,
+    })),
 
   getMyOrders: (): Promise<Order[]> =>
     apiClient.get("/store/orders/my").then((r) => r.data.data),
