@@ -29,6 +29,8 @@
     "db:triggers": "for file in ../db/triggers/*.sql; do mysql -u root -p clubmanager < \"$file\"; done"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1029.0",
+    "@aws-sdk/lib-storage": "^3.1029.0",
     "@clubmanager/types": "file:../packages/types",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.6",
@@ -40,6 +42,7 @@
     "http-errors": "^2.0.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "multer": "^2.1.1",
     "mysql2": "^3.11.5",
     "resend": "^6.10.0",
     "stripe": "^17.7.0",
@@ -57,6 +60,7 @@
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.9",
+    "@types/multer": "^2.1.0",
     "@types/node": "^24.0.15",
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^9.0.8",
