@@ -2,44 +2,36 @@
  * @fileoverview TrendChart Component
  * @module features/statistics/components
  *
- * Chart component for displaying trend data over time using PatternFly Charts.
+ * Chart component for displaying trend data over time.
  */
 
-import React from 'react';
+import React from "react";
 import {
-  Chart,
-  ChartAxis,
-  ChartGroup,
-  ChartLine,
-  ChartThemeColor,
-  ChartVoronoiContainer,
-} from '@patternfly/react-charts';
-import {
-  Card,
-  CardTitle,
-  CardBody,
-  Skeleton,
-  EmptyState,
-  EmptyStateIcon,
-  EmptyStateBody,
-  Title,
-  Flex,
-  FlexItem,
-  Label,
-} from '@patternfly/react-core';
-import { ChartLineIcon, ExclamationTriangleIcon } from '@patternfly/react-icons';
-import type { TrendDataPoint } from '@clubmanager/types';
-import { formatNumber, formatCurrency, formatPercentage, formatDate } from '../utils/formatting';
+  formatNumber,
+  formatCurrency,
+  formatPercentage,
+  formatDate,
+} from "../utils/formatting";
+
+/**
+ * Trend data point interface
+ */
+export interface TrendDataPoint {
+  date_debut: string;
+  date_fin?: string;
+  periode: string;
+  valeur: number;
+}
 
 /**
  * Trend chart type
  */
-export type TrendChartType = 'line' | 'area';
+export type TrendChartType = "line" | "area";
 
 /**
  * Value format for Y-axis
  */
-export type TrendValueFormat = 'number' | 'currency' | 'percentage';
+export type TrendValueFormat = "number" | "currency" | "percentage";
 
 /**
  * Chart data point
@@ -72,8 +64,8 @@ export interface TrendChartProps {
   /** Chart height in pixels */
   height?: number;
 
-  /** Chart theme color */
-  themeColor?: ChartThemeColor;
+  /** Chart theme color - ignored in simplified version */
+  themeColor?: any;
 
   /** Whether the chart is loading */
   isLoading?: boolean;
@@ -81,16 +73,16 @@ export interface TrendChartProps {
   /** Custom color for the line */
   color?: string;
 
-  /** Show grid lines */
+  /** Show grid lines - ignored in simplified version */
   showGrid?: boolean;
 
-  /** Show legend */
+  /** Show legend - ignored in simplified version */
   showLegend?: boolean;
 
   /** Custom legend label */
   legendLabel?: string;
 
-  /** Show average line */
+  /** Show average line - ignored in simplified version */
   showAverage?: boolean;
 
   /** Average value */
@@ -112,57 +104,73 @@ export interface TrendChartProps {
 /**
  * Format value based on format type
  */
-const formatYAxisValue = (value: number, format: TrendValueFormat): string => {
+const formatValue = (value: number, format: TrendValueFormat): string => {
   switch (format) {
-    case 'currency':
-      return formatCurrency(value, false);
-    case 'percentage':
-      return formatPercentage(value, 0, false);
-    case 'number':
-    default:
-      return formatNumber(value, 0);
-  }
-};
-
-/**
- * Format tooltip value
- */
-const formatTooltipValue = (value: number, format: TrendValueFormat): string => {
-  switch (format) {
-    case 'currency':
+    case "currency":
       return formatCurrency(value);
-    case 'percentage':
+    case "percentage":
       return formatPercentage(value, 1);
-    case 'number':
+    case "number":
     default:
       return formatNumber(value, 0);
   }
-};
-
-/**
- * Convert TrendDataPoint to chart data format
- */
-const convertToChartData = (data: TrendDataPoint[]): ChartDataPoint[] => {
-  return data.map((point) => ({
-    x: new Date(point.date_debut),
-    y: point.valeur,
-    name: point.periode,
-  }));
 };
 
 /**
  * Get variation color
  */
-const getVariationColor = (variation: number): 'green' | 'red' | 'grey' => {
-  if (variation > 0) return 'green';
-  if (variation < 0) return 'red';
-  return 'grey';
+const getVariationColor = (variation: number): "green" | "red" | "gray" => {
+  if (variation > 0) return "green";
+  if (variation < 0) return "red";
+  return "gray";
 };
+
+/**
+ * Get variation badge classes
+ */
+const getVariationBadgeClasses = (variation: number): string => {
+  const color = getVariationColor(variation);
+  switch (color) {
+    case "green":
+      return "bg-green-100 text-green-800";
+    case "red":
+      return "bg-red-100 text-red-800";
+    case "gray":
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
+/**
+ * Warning Icon SVG
+ */
+const WarningIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+    />
+  </svg>
+);
+
+/**
+ * Skeleton Loader Component
+ */
+const Skeleton: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
+);
 
 /**
  * TrendChart Component
  *
- * Displays trend data as a line or area chart with PatternFly Charts.
+ * Displays trend data as a visual chart with bars.
  *
  * @example
  * ```tsx
@@ -179,164 +187,113 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   title,
   subtitle,
   data,
-  chartType = 'line',
-  valueFormat = 'number',
+  valueFormat = "number",
   height = 250,
-  themeColor = ChartThemeColor.blue,
   isLoading = false,
-  color,
-  showGrid = true,
-  showLegend = false,
-  legendLabel,
-  showAverage = false,
-  averageValue,
   showVariation = false,
   totalVariation,
-  className = '',
+  className = "",
   isCompact = false,
 }) => {
-  // Convert data to chart format
-  const chartData = React.useMemo(() => convertToChartData(data), [data]);
+  // Calculate max value for scaling bars
+  const maxValue = React.useMemo(() => {
+    if (data.length === 0) return 100;
+    return Math.max(...data.map((d) => d.valeur));
+  }, [data]);
 
-  // Calculate domain for better chart scaling
-  const yValues = chartData.map((d) => d.y);
-  const minY = Math.min(...yValues);
-  const maxY = Math.max(...yValues);
-  const yPadding = (maxY - minY) * 0.1 || 1;
-
-  // Average line data
-  const averageLineData = React.useMemo(() => {
-    if (!showAverage || averageValue === undefined) return [];
-    return chartData.map((d) => ({
-      x: d.x,
-      y: averageValue,
-    }));
-  }, [showAverage, averageValue, chartData]);
+  const containerClasses = [
+    "bg-white rounded-lg shadow p-6",
+    isCompact ? "p-4" : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <Card isCompact={isCompact} className={`trend-chart ${className}`}>
-      <CardTitle>
-        <Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
-          <FlexItem>
-            <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsNone' }}>
-              <FlexItem>
-                <Title headingLevel="h3" size={isCompact ? 'md' : 'lg'}>
-                  {title}
-                </Title>
-              </FlexItem>
-              {subtitle && (
-                <FlexItem className="pf-v5-u-color-200 pf-v5-u-font-size-sm">
-                  {subtitle}
-                </FlexItem>
-              )}
-            </Flex>
-          </FlexItem>
+    <div className={containerClasses}>
+      {/* Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1">
+          <h3
+            className={`font-semibold text-gray-900 ${isCompact ? "text-base" : "text-lg"}`}
+          >
+            {title}
+          </h3>
+          {subtitle && <p className="text-sm text-gray-600 mt-1">{subtitle}</p>}
+        </div>
 
-          {showVariation && totalVariation !== undefined && (
-            <FlexItem>
-              <Label color={getVariationColor(totalVariation)}>
-                {totalVariation > 0 && '+'}
-                {formatPercentage(totalVariation, 1)}
-              </Label>
-            </FlexItem>
-          )}
-        </Flex>
-      </CardTitle>
-
-      <CardBody>
-        {isLoading ? (
-          <Skeleton height={`${height}px`} />
-        ) : data.length === 0 ? (
-          <EmptyState>
-            <EmptyStateIcon icon={ExclamationTriangleIcon} />
-            <Title headingLevel="h4" size="lg">
-              Aucune donnée disponible
-            </Title>
-            <EmptyStateBody>
-              Il n'y a pas de données de tendance pour la période sélectionnée.
-            </EmptyStateBody>
-          </EmptyState>
-        ) : (
-          <div style={{ height: `${height}px` }}>
-            <Chart
-              ariaDesc={`Graphique de tendance: ${title}`}
-              ariaTitle={title}
-              containerComponent={
-                <ChartVoronoiContainer
-                  labels={({ datum }) => {
-                    if (datum.childName === 'average') {
-                      return `Moyenne: ${formatTooltipValue(datum.y, valueFormat)}`;
-                    }
-                    return `${datum.name}\n${formatTooltipValue(datum.y, valueFormat)}`;
-                  }}
-                  constrainToVisibleArea
-                />
-              }
-              height={height}
-              padding={{
-                bottom: 50,
-                left: 70,
-                right: 20,
-                top: 20,
-              }}
-              themeColor={themeColor}
-              domain={{
-                y: [Math.max(0, minY - yPadding), maxY + yPadding],
-              }}
-            >
-              <ChartAxis
-                showGrid={showGrid}
-                tickFormat={(x) => {
-                  const date = new Date(x);
-                  return formatDate(date, 'dd/MM');
-                }}
-              />
-              <ChartAxis
-                dependentAxis
-                showGrid={showGrid}
-                tickFormat={(y) => formatYAxisValue(y, valueFormat)}
-              />
-              <ChartGroup>
-                <ChartLine
-                  data={chartData}
-                  interpolation="monotoneX"
-                  style={{
-                    data: {
-                      stroke: color || undefined,
-                      strokeWidth: 2,
-                    },
-                  }}
-                  name={legendLabel || title}
-                />
-                {showAverage && averageLineData.length > 0 && (
-                  <ChartLine
-                    data={averageLineData}
-                    name="average"
-                    style={{
-                      data: {
-                        stroke: 'var(--pf-v5-global--palette--black-500)',
-                        strokeWidth: 1,
-                        strokeDasharray: '5,5',
-                      },
-                    }}
-                  />
-                )}
-              </ChartGroup>
-            </Chart>
-          </div>
+        {showVariation && totalVariation !== undefined && (
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getVariationBadgeClasses(totalVariation)}`}
+          >
+            {totalVariation > 0 && "+"}
+            {formatPercentage(totalVariation, 1)}
+          </span>
         )}
-      </CardBody>
+      </div>
 
-      <style>{`
-        .trend-chart {
-          height: 100%;
-        }
+      {/* Body */}
+      {isLoading ? (
+        <div
+          className={`w-full animate-pulse bg-gray-200 rounded`}
+          style={{ height: `${height}px` }}
+        ></div>
+      ) : data.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <WarningIcon className="h-12 w-12 text-gray-400 mb-4" />
+          <h4 className="text-lg font-medium text-gray-900 mb-2">
+            Aucune donnée disponible
+          </h4>
+          <p className="text-sm text-gray-600">
+            Il n'y a pas de données de tendance pour la période sélectionnée.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3" style={{ minHeight: `${height}px` }}>
+          {data.map((point, index) => {
+            const barHeight = (point.valeur / maxValue) * 100;
+            const date = new Date(point.date_debut);
 
-        .trend-chart .pf-v5-c-card__body {
-          padding-top: 0;
-        }
-      `}</style>
-    </Card>
+            return (
+              <div key={index} className="flex items-center gap-3">
+                {/* Period Label */}
+                <div className="w-24 flex-shrink-0">
+                  <div className="text-xs font-medium text-gray-900">
+                    {point.periode}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {formatDate(date, "dd/MM")}
+                  </div>
+                </div>
+
+                {/* Bar Container */}
+                <div className="flex-1 flex items-center gap-2">
+                  <div className="flex-1 bg-gray-200 rounded-full h-6 overflow-hidden">
+                    <div
+                      className="bg-blue-600 h-full rounded-full transition-all duration-300 flex items-center justify-end pr-2"
+                      style={{ width: `${barHeight}%` }}
+                    >
+                      {barHeight > 20 && (
+                        <span className="text-xs font-medium text-white">
+                          {formatValue(point.valeur, valueFormat)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Value (outside bar if bar is too small) */}
+                  {barHeight <= 20 && (
+                    <span className="text-xs font-medium text-gray-900 w-20 text-right">
+                      {formatValue(point.valeur, valueFormat)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 };
 

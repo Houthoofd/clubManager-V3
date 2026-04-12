@@ -5,40 +5,32 @@
  * Reusable card component for displaying a single statistic with trend indicator.
  */
 
-import React from 'react';
+import React from "react";
 import {
-  Card,
-  CardTitle,
-  CardBody,
-  Flex,
-  FlexItem,
-  Text,
-  TextContent,
-  TextVariants,
-  Skeleton,
-  Icon,
-} from '@patternfly/react-core';
-import {
-  ArrowUpIcon,
-  ArrowDownIcon,
-  OutlinedQuestionCircleIcon,
-} from '@patternfly/react-icons';
-import { formatNumber, formatCurrency, formatPercentage } from '../utils/formatting';
+  formatNumber,
+  formatCurrency,
+  formatPercentage,
+} from "../utils/formatting";
 
 /**
  * Stat card variant for different types of statistics
  */
-export type StatCardVariant = 'default' | 'success' | 'warning' | 'danger' | 'info';
+export type StatCardVariant =
+  | "default"
+  | "success"
+  | "warning"
+  | "danger"
+  | "info";
 
 /**
  * Value format type
  */
-export type ValueFormat = 'number' | 'currency' | 'percentage';
+export type ValueFormat = "number" | "currency" | "percentage";
 
 /**
  * Trend direction
  */
-export type TrendDirection = 'up' | 'down' | 'neutral';
+export type TrendDirection = "up" | "down" | "neutral";
 
 /**
  * Props for StatCard component
@@ -88,42 +80,42 @@ export interface StatCardProps {
  * Get trend direction based on value
  */
 const getTrendDirection = (trend: number): TrendDirection => {
-  if (trend > 0) return 'up';
-  if (trend < 0) return 'down';
-  return 'neutral';
+  if (trend > 0) return "up";
+  if (trend < 0) return "down";
+  return "neutral";
 };
 
 /**
- * Get color class based on trend direction
+ * Get color classes based on trend direction
  */
-const getTrendColor = (direction: TrendDirection): string => {
+const getTrendColorClasses = (direction: TrendDirection): string => {
   switch (direction) {
-    case 'up':
-      return 'pf-v5-u-success-color-100';
-    case 'down':
-      return 'pf-v5-u-danger-color-100';
-    case 'neutral':
+    case "up":
+      return "text-green-500";
+    case "down":
+      return "text-red-500";
+    case "neutral":
     default:
-      return 'pf-v5-u-color-200';
+      return "text-gray-500";
   }
 };
 
 /**
- * Get variant color class
+ * Get variant border class
  */
-const getVariantClass = (variant: StatCardVariant): string => {
+const getVariantBorderClass = (variant: StatCardVariant): string => {
   switch (variant) {
-    case 'success':
-      return 'stat-card--success';
-    case 'warning':
-      return 'stat-card--warning';
-    case 'danger':
-      return 'stat-card--danger';
-    case 'info':
-      return 'stat-card--info';
-    case 'default':
+    case "success":
+      return "border-l-4 border-l-green-500";
+    case "warning":
+      return "border-l-4 border-l-yellow-500";
+    case "danger":
+      return "border-l-4 border-l-red-500";
+    case "info":
+      return "border-l-4 border-l-blue-500";
+    case "default":
     default:
-      return '';
+      return "";
   }
 };
 
@@ -131,18 +123,84 @@ const getVariantClass = (variant: StatCardVariant): string => {
  * Format value based on format type
  */
 const formatValue = (value: number | string, format?: ValueFormat): string => {
-  if (typeof value === 'string') return value;
+  if (typeof value === "string") return value;
 
   switch (format) {
-    case 'currency':
+    case "currency":
       return formatCurrency(value);
-    case 'percentage':
+    case "percentage":
       return formatPercentage(value, 1);
-    case 'number':
+    case "number":
     default:
       return formatNumber(value);
   }
 };
+
+/**
+ * ArrowUp Icon SVG
+ */
+const ArrowUpIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M5 10l7-7m0 0l7 7m-7-7v18"
+    />
+  </svg>
+);
+
+/**
+ * ArrowDown Icon SVG
+ */
+const ArrowDownIcon: React.FC<{ className?: string }> = ({
+  className = "",
+}) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M19 14l-7 7m0 0l-7-7m7 7V3"
+    />
+  </svg>
+);
+
+/**
+ * Question Icon SVG
+ */
+const QuestionIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
+);
+
+/**
+ * Skeleton Loader Component
+ */
+const Skeleton: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
+);
 
 /**
  * StatCard Component
@@ -164,160 +222,99 @@ const formatValue = (value: number | string, format?: ValueFormat): string => {
 export const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
-  valueFormat = 'number',
+  valueFormat = "number",
   trend,
   trendIsPercentage = true,
   trendLabel,
-  variant = 'default',
+  variant = "default",
   icon: IconComponent,
   isLoading = false,
   description,
   isCompact = false,
   onClick,
-  className = '',
+  className = "",
 }) => {
-  const trendDirection = trend !== undefined ? getTrendDirection(trend) : 'neutral';
-  const trendColor = getTrendColor(trendDirection);
-  const variantClass = getVariantClass(variant);
+  const trendDirection =
+    trend !== undefined ? getTrendDirection(trend) : "neutral";
+  const trendColorClasses = getTrendColorClasses(trendDirection);
+  const variantBorderClass = getVariantBorderClass(variant);
   const isClickable = !!onClick;
 
-  const cardClasses = [
-    'stat-card',
-    variantClass,
-    isClickable ? 'stat-card--clickable' : '',
-    isCompact ? 'stat-card--compact' : '',
+  const containerClasses = [
+    "bg-white rounded-lg shadow p-6",
+    variantBorderClass,
+    isClickable
+      ? "cursor-pointer hover:shadow-lg transition-shadow duration-200"
+      : "",
+    isCompact ? "p-4" : "",
     className,
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   return (
-    <Card
-      isClickable={isClickable}
-      onClick={onClick}
-      className={cardClasses}
-      isCompact={isCompact}
-    >
-      <CardTitle>
-        <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
-          {IconComponent && (
-            <FlexItem>
-              <Icon size="md">
-                <IconComponent />
-              </Icon>
-            </FlexItem>
-          )}
-          <FlexItem flex={{ default: 'flex_1' }}>
-            <TextContent>
-              <Text component={TextVariants.small} className="pf-v5-u-color-200">
-                {title}
-              </Text>
-            </TextContent>
-          </FlexItem>
-        </Flex>
-      </CardTitle>
+    <div className={containerClasses} onClick={onClick}>
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-3">
+        {IconComponent && (
+          <div className="flex-shrink-0">
+            <IconComponent className="h-5 w-5 text-gray-600" />
+          </div>
+        )}
+        <div className="flex-1">
+          <h3 className="text-sm font-medium text-gray-600">{title}</h3>
+        </div>
+      </div>
 
-      <CardBody>
+      {/* Body */}
+      <div>
         {isLoading ? (
           <>
-            <Skeleton width="60%" height="2rem" className="pf-v5-u-mb-sm" />
-            {trend !== undefined && <Skeleton width="40%" height="1rem" />}
+            <Skeleton className="h-8 w-3/5 mb-2" />
+            {trend !== undefined && <Skeleton className="h-4 w-2/5" />}
           </>
         ) : (
           <>
-            <TextContent>
-              <Text component={TextVariants.h1} className="stat-card__value pf-v5-u-mb-sm">
-                {formatValue(value, valueFormat)}
-              </Text>
-            </TextContent>
+            <div
+              className={`font-bold text-gray-900 mb-2 ${isCompact ? "text-2xl" : "text-3xl"}`}
+            >
+              {formatValue(value, valueFormat)}
+            </div>
 
             {description && (
-              <TextContent className="pf-v5-u-mb-sm">
-                <Text component={TextVariants.small} className="pf-v5-u-color-200">
-                  {description}
-                </Text>
-              </TextContent>
+              <p className="text-sm text-gray-600 mb-2">{description}</p>
             )}
 
             {trend !== undefined && (
-              <Flex
-                alignItems={{ default: 'alignItemsCenter' }}
-                spaceItems={{ default: 'spaceItemsXs' }}
-              >
-                <FlexItem>
-                  <Icon size="sm" className={trendColor}>
-                    {trendDirection === 'up' && <ArrowUpIcon />}
-                    {trendDirection === 'down' && <ArrowDownIcon />}
-                    {trendDirection === 'neutral' && <OutlinedQuestionCircleIcon />}
-                  </Icon>
-                </FlexItem>
-                <FlexItem>
-                  <TextContent>
-                    <Text component={TextVariants.small} className={trendColor}>
-                      <strong>
-                        {trend > 0 && '+'}
-                        {trendIsPercentage ? formatPercentage(trend, 1) : formatNumber(trend, 2)}
-                      </strong>
-                    </Text>
-                  </TextContent>
-                </FlexItem>
+              <div className="flex items-center gap-1">
+                <div className={`flex-shrink-0 ${trendColorClasses}`}>
+                  {trendDirection === "up" && (
+                    <ArrowUpIcon className="h-4 w-4" />
+                  )}
+                  {trendDirection === "down" && (
+                    <ArrowDownIcon className="h-4 w-4" />
+                  )}
+                  {trendDirection === "neutral" && (
+                    <QuestionIcon className="h-4 w-4" />
+                  )}
+                </div>
+                <span className={`text-sm font-semibold ${trendColorClasses}`}>
+                  {trend > 0 && "+"}
+                  {trendIsPercentage
+                    ? formatPercentage(trend, 1)
+                    : formatNumber(trend, 2)}
+                </span>
                 {trendLabel && (
-                  <FlexItem>
-                    <TextContent>
-                      <Text component={TextVariants.small} className="pf-v5-u-color-200">
-                        {trendLabel}
-                      </Text>
-                    </TextContent>
-                  </FlexItem>
+                  <span className="text-sm text-gray-600 ml-1">
+                    {trendLabel}
+                  </span>
                 )}
-              </Flex>
+              </div>
             )}
           </>
         )}
-      </CardBody>
-
-      <style>{`
-        .stat-card {
-          height: 100%;
-          transition: all 0.2s ease;
-        }
-
-        .stat-card--clickable {
-          cursor: pointer;
-        }
-
-        .stat-card--clickable:hover {
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          transform: translateY(-2px);
-        }
-
-        .stat-card--compact .stat-card__value {
-          font-size: 1.5rem;
-        }
-
-        .stat-card__value {
-          font-size: 2rem;
-          font-weight: 700;
-          line-height: 1.2;
-        }
-
-        .stat-card--success {
-          border-left: 4px solid var(--pf-v5-global--success-color--100);
-        }
-
-        .stat-card--warning {
-          border-left: 4px solid var(--pf-v5-global--warning-color--100);
-        }
-
-        .stat-card--danger {
-          border-left: 4px solid var(--pf-v5-global--danger-color--100);
-        }
-
-        .stat-card--info {
-          border-left: 4px solid var(--pf-v5-global--info-color--100);
-        }
-      `}</style>
-    </Card>
+      </div>
+    </div>
   );
 };
 

@@ -5,47 +5,50 @@
  * Component for displaying financial statistics and payment analytics.
  */
 
-import React from 'react';
+import React from "react";
+import { StatCard } from "./StatCard";
 import {
-  Grid,
-  GridItem,
-  Card,
-  CardTitle,
-  CardBody,
-  Skeleton,
-  EmptyState,
-  EmptyStateIcon,
-  Title,
-  EmptyStateBody,
-  DataList,
-  DataListItem,
-  DataListItemRow,
-  DataListItemCells,
-  DataListCell,
-  Label,
-  Flex,
-  FlexItem,
-  Alert,
-  AlertVariant,
-  AlertActionCloseButton,
-} from '@patternfly/react-core';
-import {
-  Chart,
-  ChartDonut,
-  ChartThemeColor,
-} from '@patternfly/react-charts';
-import {
-  DollarSignIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  TimesCircleIcon,
-  ExclamationTriangleIcon,
-  CreditCardIcon,
-  MoneyBillIcon,
-} from '@patternfly/react-icons';
-import type { FinancialAnalyticsResponse } from '@clubmanager/types';
-import { StatCard } from './StatCard';
-import { formatCurrency, formatNumber, formatPercentage, formatDate, formatRelativeDate } from '../utils/formatting';
+  formatCurrency,
+  formatNumber,
+  formatPercentage,
+  formatDate,
+  formatRelativeDate,
+} from "../utils/formatting";
+
+/**
+ * Financial Analytics Response Interface
+ */
+export interface FinancialAnalyticsResponse {
+  overview: {
+    total_revenus: number;
+    total_paiements_valides: number;
+    total_paiements_en_attente: number;
+    total_paiements_echoues: number;
+    montant_en_attente: number;
+    montant_echeances_retard: number;
+    nombre_echeances_retard: number;
+    taux_paiement: number;
+  };
+  by_payment_method: Array<{
+    methode_paiement: string;
+    montant_total: number;
+    pourcentage: number;
+  }>;
+  by_subscription_plan: Array<{
+    plan_nom: string;
+    montant_total: number;
+    pourcentage: number;
+  }>;
+  late_payments: Array<{
+    echeance_id: number;
+    utilisateur_id: number;
+    utilisateur_nom: string;
+    utilisateur_prenom: string;
+    montant: number;
+    date_echeance: string;
+    jours_retard: number;
+  }>;
+}
 
 /**
  * Props for FinanceStats component
@@ -68,36 +71,217 @@ export interface FinanceStatsProps {
  * Chart colors for payment method distribution
  */
 const PAYMENT_METHOD_COLORS = [
-  'var(--pf-v5-global--palette--blue-300)',
-  'var(--pf-v5-global--palette--green-300)',
-  'var(--pf-v5-global--palette--purple-300)',
-  'var(--pf-v5-global--palette--cyan-300)',
-  'var(--pf-v5-global--palette--gold-300)',
+  "bg-blue-500",
+  "bg-green-500",
+  "bg-purple-500",
+  "bg-cyan-500",
+  "bg-yellow-500",
 ];
 
 /**
  * Chart colors for subscription plan distribution
  */
 const PLAN_COLORS = [
-  'var(--pf-v5-global--palette--blue-400)',
-  'var(--pf-v5-global--palette--cyan-400)',
-  'var(--pf-v5-global--palette--green-400)',
-  'var(--pf-v5-global--palette--gold-400)',
-  'var(--pf-v5-global--palette--orange-400)',
-  'var(--pf-v5-global--palette--purple-400)',
+  "bg-blue-600",
+  "bg-cyan-600",
+  "bg-green-600",
+  "bg-yellow-600",
+  "bg-orange-600",
+  "bg-purple-600",
 ];
 
 /**
  * Get severity label based on days late
  */
-const getLateSeverity = (daysLate: number): { label: string; color: 'orange' | 'red' | 'purple' } => {
+const getLateSeverity = (
+  daysLate: number,
+): { label: string; color: string } => {
   if (daysLate >= 60) {
-    return { label: 'Critique', color: 'red' };
+    return { label: "Critique", color: "bg-red-100 text-red-800" };
   } else if (daysLate >= 30) {
-    return { label: 'Urgent', color: 'orange' };
+    return { label: "Urgent", color: "bg-orange-100 text-orange-800" };
   } else {
-    return { label: 'En retard', color: 'purple' };
+    return { label: "En retard", color: "bg-purple-100 text-purple-800" };
   }
+};
+
+/**
+ * DollarSign Icon SVG
+ */
+const DollarSignIcon: React.FC<{ className?: string }> = ({
+  className = "",
+}) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
+);
+
+/**
+ * CheckCircle Icon SVG
+ */
+const CheckCircleIcon: React.FC<{ className?: string }> = ({
+  className = "",
+}) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
+);
+
+/**
+ * Clock Icon SVG
+ */
+const ClockIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
+);
+
+/**
+ * TimesCircle Icon SVG
+ */
+const TimesCircleIcon: React.FC<{ className?: string }> = ({
+  className = "",
+}) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
+);
+
+/**
+ * Warning Icon SVG
+ */
+const WarningIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+    />
+  </svg>
+);
+
+/**
+ * X Icon SVG
+ */
+const XIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M6 18L18 6M6 6l12 12"
+    />
+  </svg>
+);
+
+/**
+ * Skeleton Loader Component
+ */
+const Skeleton: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
+);
+
+/**
+ * Alert Component
+ */
+interface AlertProps {
+  variant: "warning" | "danger" | "info" | "success";
+  title: string;
+  children: React.ReactNode;
+  onClose?: () => void;
+}
+
+const Alert: React.FC<AlertProps> = ({ variant, title, children, onClose }) => {
+  const variantClasses = {
+    warning: "bg-yellow-50 border-yellow-400 text-yellow-800",
+    danger: "bg-red-50 border-red-400 text-red-800",
+    info: "bg-blue-50 border-blue-400 text-blue-800",
+    success: "bg-green-50 border-green-400 text-green-800",
+  };
+
+  const iconColorClasses = {
+    warning: "text-yellow-400",
+    danger: "text-red-400",
+    info: "text-blue-400",
+    success: "text-green-400",
+  };
+
+  return (
+    <div
+      className={`border-l-4 p-4 ${variantClasses[variant]} rounded-r-lg relative`}
+    >
+      <div className="flex">
+        <div className="flex-shrink-0">
+          <WarningIcon className={`h-5 w-5 ${iconColorClasses[variant]}`} />
+        </div>
+        <div className="ml-3 flex-1">
+          <h3 className="text-sm font-medium">{title}</h3>
+          <div className="mt-2 text-sm">{children}</div>
+        </div>
+        {onClose && (
+          <div className="ml-auto pl-3">
+            <button
+              onClick={onClose}
+              className="inline-flex rounded-md p-1.5 hover:bg-black/5 focus:outline-none focus:ring-2 focus:ring-offset-2"
+            >
+              <XIcon className="h-5 w-5" />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 /**
@@ -120,368 +304,339 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
   error = null,
   isCompact = false,
 }) => {
-  const [showLatePaymentsAlert, setShowLatePaymentsAlert] = React.useState(true);
+  const [showLatePaymentsAlert, setShowLatePaymentsAlert] =
+    React.useState(true);
 
   // Error state
   if (error) {
     return (
-      <EmptyState>
-        <EmptyStateIcon icon={ExclamationTriangleIcon} color="var(--pf-v5-global--danger-color--100)" />
-        <Title headingLevel="h2" size="lg">
+      <div className="flex flex-col items-center justify-center py-12">
+        <WarningIcon className="h-16 w-16 text-red-500 mb-4" />
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">
           Erreur de chargement
-        </Title>
-        <EmptyStateBody>
-          Une erreur est survenue lors du chargement des statistiques financières.
+        </h2>
+        <p className="text-sm text-gray-600 text-center">
+          Une erreur est survenue lors du chargement des statistiques
+          financières.
           <br />
           {error.message}
-        </EmptyStateBody>
-      </EmptyState>
+        </p>
+      </div>
     );
   }
 
   // No data state
   if (!isLoading && !data) {
     return (
-      <EmptyState>
-        <EmptyStateIcon icon={DollarSignIcon} />
-        <Title headingLevel="h2" size="lg">
+      <div className="flex flex-col items-center justify-center py-12">
+        <DollarSignIcon className="h-16 w-16 text-gray-400 mb-4" />
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">
           Aucune donnée disponible
-        </Title>
-        <EmptyStateBody>
+        </h2>
+        <p className="text-sm text-gray-600">
           Les statistiques financières ne sont pas disponibles pour le moment.
-        </EmptyStateBody>
-      </EmptyState>
+        </p>
+      </div>
     );
   }
-
-  // Prepare chart data for payment methods
-  const paymentMethodChartData = data?.by_payment_method.map((item, index) => ({
-    x: item.methode_paiement,
-    y: item.montant_total,
-    label: `${item.methode_paiement}: ${formatCurrency(item.montant_total)} (${formatPercentage(item.pourcentage, 1)})`,
-    color: PAYMENT_METHOD_COLORS[index % PAYMENT_METHOD_COLORS.length],
-  })) || [];
-
-  // Prepare chart data for subscription plans
-  const planChartData = data?.by_subscription_plan.map((item, index) => ({
-    x: item.plan_nom,
-    y: item.montant_total,
-    label: `${item.plan_nom}: ${formatCurrency(item.montant_total)} (${formatPercentage(item.pourcentage, 1)})`,
-    color: PLAN_COLORS[index % PLAN_COLORS.length],
-  })) || [];
 
   const hasLatePayments = data && data.late_payments.length > 0;
 
   return (
-    <div className="finance-stats">
+    <div className="space-y-4">
       {/* Late Payments Alert */}
       {hasLatePayments && showLatePaymentsAlert && (
         <Alert
-          variant={AlertVariant.warning}
+          variant="warning"
           title={`${data.late_payments.length} paiement(s) en retard`}
-          actionClose={<AlertActionCloseButton onClose={() => setShowLatePaymentsAlert(false)} />}
-          className="pf-v5-u-mb-lg"
+          onClose={() => setShowLatePaymentsAlert(false)}
         >
           <p>
-            Montant total en retard: <strong>{formatCurrency(data.overview.montant_echeances_retard)}</strong>
+            Montant total en retard:{" "}
+            <strong>
+              {formatCurrency(data.overview.montant_echeances_retard)}
+            </strong>
           </p>
-          <p className="pf-v5-u-mt-sm">
-            Consultez la liste des paiements en retard ci-dessous pour effectuer le suivi.
+          <p className="mt-2">
+            Consultez la liste des paiements en retard ci-dessous pour effectuer
+            le suivi.
           </p>
         </Alert>
       )}
 
       {/* KPI Cards */}
-      <Grid hasGutter>
-        <GridItem span={12} md={6} lg={3}>
-          <StatCard
-            title="Total Revenus"
-            value={data?.overview.total_revenus || 0}
-            valueFormat="currency"
-            icon={DollarSignIcon}
-            variant="success"
-            isLoading={isLoading}
-            isCompact={isCompact}
-          />
-        </GridItem>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Total Revenus"
+          value={data?.overview.total_revenus || 0}
+          valueFormat="currency"
+          icon={DollarSignIcon}
+          variant="success"
+          isLoading={isLoading}
+          isCompact={isCompact}
+        />
 
-        <GridItem span={12} md={6} lg={3}>
-          <StatCard
-            title="Paiements Valides"
-            value={data?.overview.total_paiements_valides || 0}
-            valueFormat="number"
-            icon={CheckCircleIcon}
-            variant="success"
-            isLoading={isLoading}
-            isCompact={isCompact}
-            description={
-              data
-                ? `${formatPercentage(data.overview.taux_paiement, 1)} de taux de succès`
-                : undefined
-            }
-          />
-        </GridItem>
+        <StatCard
+          title="Paiements Valides"
+          value={data?.overview.total_paiements_valides || 0}
+          valueFormat="number"
+          icon={CheckCircleIcon}
+          variant="success"
+          isLoading={isLoading}
+          isCompact={isCompact}
+          description={
+            data
+              ? `${formatPercentage(data.overview.taux_paiement, 1)} de taux de succès`
+              : undefined
+          }
+        />
 
-        <GridItem span={12} md={6} lg={3}>
-          <StatCard
-            title="Paiements En Attente"
-            value={data?.overview.total_paiements_en_attente || 0}
-            valueFormat="number"
-            icon={ClockIcon}
-            variant={
-              data && data.overview.total_paiements_en_attente > 10 ? 'warning' : 'default'
-            }
-            isLoading={isLoading}
-            isCompact={isCompact}
-            description={
-              data ? `${formatCurrency(data.overview.montant_en_attente)} en attente` : undefined
-            }
-          />
-        </GridItem>
+        <StatCard
+          title="Paiements En Attente"
+          value={data?.overview.total_paiements_en_attente || 0}
+          valueFormat="number"
+          icon={ClockIcon}
+          variant={
+            data && data.overview.total_paiements_en_attente > 10
+              ? "warning"
+              : "default"
+          }
+          isLoading={isLoading}
+          isCompact={isCompact}
+          description={
+            data
+              ? `${formatCurrency(data.overview.montant_en_attente)} en attente`
+              : undefined
+          }
+        />
 
-        <GridItem span={12} md={6} lg={3}>
-          <StatCard
-            title="Paiements Échoués"
-            value={data?.overview.total_paiements_echoues || 0}
-            valueFormat="number"
-            icon={TimesCircleIcon}
-            variant={data && data.overview.total_paiements_echoues > 0 ? 'danger' : 'default'}
-            isLoading={isLoading}
-            isCompact={isCompact}
-          />
-        </GridItem>
-      </Grid>
+        <StatCard
+          title="Paiements Échoués"
+          value={data?.overview.total_paiements_echoues || 0}
+          valueFormat="number"
+          icon={TimesCircleIcon}
+          variant={
+            data && data.overview.total_paiements_echoues > 0
+              ? "danger"
+              : "default"
+          }
+          isLoading={isLoading}
+          isCompact={isCompact}
+        />
+      </div>
 
       {/* Secondary KPIs */}
-      <Grid hasGutter className="pf-v5-u-mt-lg">
-        <GridItem span={12} md={6}>
-          <StatCard
-            title="Échéances en Retard"
-            value={data?.overview.nombre_echeances_retard || 0}
-            valueFormat="number"
-            icon={ExclamationTriangleIcon}
-            variant={data && data.overview.nombre_echeances_retard > 0 ? 'danger' : 'success'}
-            isLoading={isLoading}
-            isCompact={isCompact}
-            description={
-              data && data.overview.montant_echeances_retard > 0
-                ? `${formatCurrency(data.overview.montant_echeances_retard)} à recouvrer`
-                : 'Aucun retard'
-            }
-          />
-        </GridItem>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <StatCard
+          title="Échéances en Retard"
+          value={data?.overview.nombre_echeances_retard || 0}
+          valueFormat="number"
+          icon={WarningIcon}
+          variant={
+            data && data.overview.nombre_echeances_retard > 0
+              ? "danger"
+              : "success"
+          }
+          isLoading={isLoading}
+          isCompact={isCompact}
+          description={
+            data && data.overview.montant_echeances_retard > 0
+              ? `${formatCurrency(data.overview.montant_echeances_retard)} à recouvrer`
+              : "Aucun retard"
+          }
+        />
 
-        <GridItem span={12} md={6}>
-          <StatCard
-            title="Taux de Paiement"
-            value={data?.overview.taux_paiement || 0}
-            valueFormat="percentage"
-            icon={CheckCircleIcon}
-            variant={
-              data && data.overview.taux_paiement >= 90
-                ? 'success'
-                : data && data.overview.taux_paiement >= 75
-                ? 'warning'
-                : 'danger'
-            }
-            isLoading={isLoading}
-            isCompact={isCompact}
-            description="Paiements valides / Total"
-          />
-        </GridItem>
-      </Grid>
+        <StatCard
+          title="Taux de Paiement"
+          value={data?.overview.taux_paiement || 0}
+          valueFormat="percentage"
+          icon={CheckCircleIcon}
+          variant={
+            data && data.overview.taux_paiement >= 90
+              ? "success"
+              : data && data.overview.taux_paiement >= 75
+                ? "warning"
+                : "danger"
+          }
+          isLoading={isLoading}
+          isCompact={isCompact}
+          description="Paiements valides / Total"
+        />
+      </div>
 
       {/* Distribution Charts */}
-      <Grid hasGutter className="pf-v5-u-mt-lg">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Payment Method Distribution */}
-        <GridItem span={12} lg={6}>
-          <Card>
-            <CardTitle>
-              <Title headingLevel="h3" size="lg">
-                Revenus par Méthode de Paiement
-              </Title>
-            </CardTitle>
-            <CardBody>
-              {isLoading ? (
-                <Skeleton height="300px" />
-              ) : paymentMethodChartData.length > 0 ? (
-                <div style={{ height: '300px' }}>
-                  <ChartDonut
-                    ariaDesc="Répartition des revenus par méthode de paiement"
-                    ariaTitle="Méthodes de paiement"
-                    constrainToVisibleArea
-                    data={paymentMethodChartData}
-                    labels={({ datum }) => `${datum.x}: ${formatCurrency(datum.y)}`}
-                    legendData={paymentMethodChartData.map((d) => ({ name: d.label }))}
-                    legendOrientation="vertical"
-                    legendPosition="right"
-                    padding={{
-                      bottom: 20,
-                      left: 20,
-                      right: 200,
-                      top: 20,
-                    }}
-                    subTitle="Total"
-                    title={formatCurrency(data?.overview.total_revenus || 0)}
-                    width={450}
-                    height={300}
-                    colorScale={paymentMethodChartData.map((d) => d.color)}
-                  />
-                </div>
-              ) : (
-                <EmptyState>
-                  <EmptyStateBody>Aucune donnée de méthode de paiement disponible</EmptyStateBody>
-                </EmptyState>
-              )}
-            </CardBody>
-          </Card>
-        </GridItem>
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Revenus par Méthode de Paiement
+          </h3>
+          {isLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+            </div>
+          ) : data && data.by_payment_method.length > 0 ? (
+            <div className="space-y-4">
+              {data.by_payment_method.map((item, index) => {
+                const barWidth = item.pourcentage;
+
+                return (
+                  <div key={item.methode_paiement} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-gray-900">
+                        {item.methode_paiement}
+                      </span>
+                      <span className="text-gray-600">
+                        {formatCurrency(item.montant_total)} (
+                        {formatPercentage(item.pourcentage, 1)})
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div
+                        className={`h-3 rounded-full ${PAYMENT_METHOD_COLORS[index % PAYMENT_METHOD_COLORS.length]} transition-all duration-300`}
+                        style={{ width: `${barWidth}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600 text-center py-8">
+              Aucune donnée de méthode de paiement disponible
+            </p>
+          )}
+        </div>
 
         {/* Subscription Plan Distribution */}
-        <GridItem span={12} lg={6}>
-          <Card>
-            <CardTitle>
-              <Title headingLevel="h3" size="lg">
-                Revenus par Plan d'Abonnement
-              </Title>
-            </CardTitle>
-            <CardBody>
-              {isLoading ? (
-                <Skeleton height="300px" />
-              ) : planChartData.length > 0 ? (
-                <div style={{ height: '300px' }}>
-                  <ChartDonut
-                    ariaDesc="Répartition des revenus par plan d'abonnement"
-                    ariaTitle="Plans d'abonnement"
-                    constrainToVisibleArea
-                    data={planChartData}
-                    labels={({ datum }) => `${datum.x}: ${formatCurrency(datum.y)}`}
-                    legendData={planChartData.map((d) => ({ name: d.label }))}
-                    legendOrientation="vertical"
-                    legendPosition="right"
-                    padding={{
-                      bottom: 20,
-                      left: 20,
-                      right: 200,
-                      top: 20,
-                    }}
-                    subTitle="Total"
-                    title={formatCurrency(data?.overview.total_revenus || 0)}
-                    width={450}
-                    height={300}
-                    colorScale={planChartData.map((d) => d.color)}
-                  />
-                </div>
-              ) : (
-                <EmptyState>
-                  <EmptyStateBody>Aucune donnée de plan d'abonnement disponible</EmptyStateBody>
-                </EmptyState>
-              )}
-            </CardBody>
-          </Card>
-        </GridItem>
-      </Grid>
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Revenus par Plan d'Abonnement
+          </h3>
+          {isLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+            </div>
+          ) : data && data.by_subscription_plan.length > 0 ? (
+            <div className="space-y-4">
+              {data.by_subscription_plan.map((item, index) => {
+                const barWidth = item.pourcentage;
+
+                return (
+                  <div key={item.plan_nom} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-gray-900">
+                        {item.plan_nom}
+                      </span>
+                      <span className="text-gray-600">
+                        {formatCurrency(item.montant_total)} (
+                        {formatPercentage(item.pourcentage, 1)})
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div
+                        className={`h-3 rounded-full ${PLAN_COLORS[index % PLAN_COLORS.length]} transition-all duration-300`}
+                        style={{ width: `${barWidth}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600 text-center py-8">
+              Aucune donnée de plan d'abonnement disponible
+            </p>
+          )}
+        </div>
+      </div>
 
       {/* Late Payments List */}
       {hasLatePayments && (
-        <Grid hasGutter className="pf-v5-u-mt-lg">
-          <GridItem span={12}>
-            <Card>
-              <CardTitle>
-                <Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
-                  <FlexItem>
-                    <Title headingLevel="h3" size="lg">
-                      Paiements en Retard
-                    </Title>
-                  </FlexItem>
-                  <FlexItem>
-                    <Label color="red" icon={<ExclamationTriangleIcon />}>
-                      {data.late_payments.length} en retard
-                    </Label>
-                  </FlexItem>
-                </Flex>
-              </CardTitle>
-              <CardBody>
-                {isLoading ? (
-                  <Skeleton height="200px" />
-                ) : (
-                  <DataList aria-label="Paiements en retard" isCompact>
-                    {data.late_payments.map((payment) => {
-                      const severity = getLateSeverity(payment.jours_retard);
-                      return (
-                        <DataListItem key={payment.echeance_id}>
-                          <DataListItemRow>
-                            <DataListItemCells
-                              dataListCells={[
-                                <DataListCell key="severity" width={1}>
-                                  <Label color={severity.color}>{severity.label}</Label>
-                                </DataListCell>,
-                                <DataListCell key="member" width={3}>
-                                  <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsNone' }}>
-                                    <FlexItem>
-                                      <strong>
-                                        {payment.utilisateur_prenom} {payment.utilisateur_nom}
-                                      </strong>
-                                    </FlexItem>
-                                    <FlexItem className="pf-v5-u-color-200 pf-v5-u-font-size-sm">
-                                      ID: {payment.utilisateur_id}
-                                    </FlexItem>
-                                  </Flex>
-                                </DataListCell>,
-                                <DataListCell key="amount" width={2}>
-                                  <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsNone' }}>
-                                    <FlexItem className="pf-v5-u-font-size-sm pf-v5-u-color-200">
-                                      Montant
-                                    </FlexItem>
-                                    <FlexItem>
-                                      <strong>{formatCurrency(payment.montant)}</strong>
-                                    </FlexItem>
-                                  </Flex>
-                                </DataListCell>,
-                                <DataListCell key="dueDate" width={3}>
-                                  <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsNone' }}>
-                                    <FlexItem className="pf-v5-u-font-size-sm pf-v5-u-color-200">
-                                      Date d'échéance
-                                    </FlexItem>
-                                    <FlexItem>
-                                      <strong>{formatDate(payment.date_echeance)}</strong>
-                                    </FlexItem>
-                                    <FlexItem className="pf-v5-u-font-size-xs pf-v5-u-color-200">
-                                      {formatRelativeDate(payment.date_echeance)}
-                                    </FlexItem>
-                                  </Flex>
-                                </DataListCell>,
-                                <DataListCell key="late" width={2}>
-                                  <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsNone' }}>
-                                    <FlexItem className="pf-v5-u-font-size-sm pf-v5-u-color-200">
-                                      Retard
-                                    </FlexItem>
-                                    <FlexItem>
-                                      <strong className="pf-v5-u-danger-color-100">
-                                        {payment.jours_retard} jour{payment.jours_retard > 1 ? 's' : ''}
-                                      </strong>
-                                    </FlexItem>
-                                  </Flex>
-                                </DataListCell>,
-                              ]}
-                            />
-                          </DataListItemRow>
-                        </DataListItem>
-                      );
-                    })}
-                  </DataList>
-                )}
-              </CardBody>
-            </Card>
-          </GridItem>
-        </Grid>
-      )}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Paiements en Retard
+            </h3>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+              <WarningIcon className="h-4 w-4 mr-1" />
+              {data.late_payments.length} en retard
+            </span>
+          </div>
 
-      <style>{`
-        .finance-stats {
-          width: 100%;
-        }
-      `}</style>
+          {isLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {data.late_payments.map((payment) => {
+                const severity = getLateSeverity(payment.jours_retard);
+                return (
+                  <div
+                    key={payment.echeance_id}
+                    className="border border-gray-200 rounded-lg p-4"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                      <div>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${severity.color}`}
+                        >
+                          {severity.label}
+                        </span>
+                      </div>
+
+                      <div>
+                        <div className="font-semibold text-gray-900">
+                          {payment.utilisateur_prenom} {payment.utilisateur_nom}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          ID: {payment.utilisateur_id}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-xs text-gray-600 mb-1">
+                          Montant
+                        </div>
+                        <div className="font-semibold text-gray-900">
+                          {formatCurrency(payment.montant)}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-xs text-gray-600 mb-1">
+                          Date d'échéance
+                        </div>
+                        <div className="font-semibold text-gray-900">
+                          {formatDate(payment.date_echeance)}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {formatRelativeDate(payment.date_echeance)}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-xs text-gray-600 mb-1">Retard</div>
+                        <div className="font-semibold text-red-600">
+                          {payment.jours_retard} jour
+                          {payment.jours_retard > 1 ? "s" : ""}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

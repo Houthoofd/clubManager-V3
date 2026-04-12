@@ -5,32 +5,14 @@
  * Component for selecting date ranges and period types for statistics filtering.
  */
 
-import React, { useState } from 'react';
-import {
-  Toolbar,
-  ToolbarContent,
-  ToolbarItem,
-  Select,
-  SelectOption,
-  SelectVariant,
-  Button,
-  Flex,
-  FlexItem,
-  DatePicker,
-  Popover,
-  Text,
-  TextContent,
-  TextVariants,
-} from '@patternfly/react-core';
-import { CalendarAltIcon, SyncAltIcon, OutlinedCalendarAltIcon } from '@patternfly/react-icons';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import type { PeriodType } from '@clubmanager/types';
+import { useState } from "react";
+import { format } from "date-fns";
+import type { PeriodType } from "@clubmanager/types";
 import {
   useStatisticsFiltersStore,
   type PresetPeriod,
-} from '../stores/filtersStore';
-import { formatDateRange } from '../utils/formatting';
+} from "../stores/filtersStore";
+import { formatDateRange } from "../utils/formatting";
 
 /**
  * Props for PeriodSelector component
@@ -56,29 +38,66 @@ export interface PeriodSelectorProps {
  * Preset period options
  */
 const PRESET_OPTIONS: { value: PresetPeriod; label: string }[] = [
-  { value: 'today', label: "Aujourd'hui" },
-  { value: 'yesterday', label: 'Hier' },
-  { value: 'thisWeek', label: 'Cette semaine' },
-  { value: 'lastWeek', label: 'Semaine dernière' },
-  { value: 'thisMonth', label: 'Ce mois' },
-  { value: 'lastMonth', label: 'Mois dernier' },
-  { value: 'last30Days', label: '30 derniers jours' },
-  { value: 'last90Days', label: '90 derniers jours' },
-  { value: 'thisYear', label: 'Cette année' },
-  { value: 'lastYear', label: 'Année dernière' },
-  { value: 'custom', label: 'Personnalisé' },
+  { value: "today", label: "Aujourd'hui" },
+  { value: "yesterday", label: "Hier" },
+  { value: "thisWeek", label: "Cette semaine" },
+  { value: "lastWeek", label: "Semaine dernière" },
+  { value: "thisMonth", label: "Ce mois" },
+  { value: "lastMonth", label: "Mois dernier" },
+  { value: "last30Days", label: "30 derniers jours" },
+  { value: "last90Days", label: "90 derniers jours" },
+  { value: "thisYear", label: "Cette année" },
+  { value: "lastYear", label: "Année dernière" },
+  { value: "custom", label: "Personnalisé" },
 ];
 
 /**
  * Period type options
  */
 const PERIOD_TYPE_OPTIONS: { value: PeriodType; label: string }[] = [
-  { value: 'day', label: 'Jour' },
-  { value: 'week', label: 'Semaine' },
-  { value: 'month', label: 'Mois' },
-  { value: 'quarter', label: 'Trimestre' },
-  { value: 'year', label: 'Année' },
+  { value: "day", label: "Jour" },
+  { value: "week", label: "Semaine" },
+  { value: "month", label: "Mois" },
+  { value: "quarter", label: "Trimestre" },
+  { value: "year", label: "Année" },
 ];
+
+// SVG Icons
+function CalendarIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
+      />
+    </svg>
+  );
+}
+
+function RefreshIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+      />
+    </svg>
+  );
+}
 
 /**
  * PeriodSelector Component
@@ -111,24 +130,21 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
     setDateRange,
   } = useStatisticsFiltersStore();
 
-  const [isPresetOpen, setIsPresetOpen] = useState(false);
-  const [isPeriodTypeOpen, setIsPeriodTypeOpen] = useState(false);
   const [showCustomDates, setShowCustomDates] = useState(false);
-  const [tempStartDate, setTempStartDate] = useState<string>('');
-  const [tempEndDate, setTempEndDate] = useState<string>('');
+  const [tempStartDate, setTempStartDate] = useState<string>("");
+  const [tempEndDate, setTempEndDate] = useState<string>("");
 
   /**
    * Handle preset selection
    */
-  const handlePresetSelect = (_event: React.MouseEvent, selection: string) => {
-    const selectedPreset = selection as PresetPeriod;
+  const handlePresetSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedPreset = e.target.value as PresetPeriod;
     setPreset(selectedPreset);
-    setIsPresetOpen(false);
 
-    if (selectedPreset === 'custom') {
+    if (selectedPreset === "custom") {
       setShowCustomDates(true);
-      setTempStartDate(format(dateDebut, 'yyyy-MM-dd'));
-      setTempEndDate(format(dateFin, 'yyyy-MM-dd'));
+      setTempStartDate(format(dateDebut, "yyyy-MM-dd"));
+      setTempEndDate(format(dateFin, "yyyy-MM-dd"));
     } else {
       setShowCustomDates(false);
     }
@@ -137,9 +153,8 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
   /**
    * Handle period type selection
    */
-  const handlePeriodTypeSelect = (_event: React.MouseEvent, selection: string) => {
-    setPeriodType(selection as PeriodType);
-    setIsPeriodTypeOpen(false);
+  const handlePeriodTypeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPeriodType(e.target.value as PeriodType);
   };
 
   /**
@@ -162,196 +177,144 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
    */
   const handleCancelCustomDates = () => {
     setShowCustomDates(false);
-    if (preset !== 'custom') {
-      setTempStartDate('');
-      setTempEndDate('');
+    if (preset !== "custom") {
+      setTempStartDate("");
+      setTempEndDate("");
     }
   };
 
-  /**
-   * Get the selected preset label
-   */
-  const getSelectedPresetLabel = (): string => {
-    const option = PRESET_OPTIONS.find((opt) => opt.value === preset);
-    return option?.label || 'Sélectionner une période';
-  };
-
-  /**
-   * Get the selected period type label
-   */
-  const getSelectedPeriodTypeLabel = (): string => {
-    const option = PERIOD_TYPE_OPTIONS.find((opt) => opt.value === periodType);
-    return option?.label || 'Sélectionner';
-  };
-
   return (
-    <>
-      <Toolbar isFullHeight={!isCompact}>
-        <ToolbarContent>
-          {/* Preset Period Selector */}
-          <ToolbarItem>
-            <Select
-              variant={SelectVariant.single}
-              onToggle={(_event, isOpen) => setIsPresetOpen(isOpen)}
-              onSelect={handlePresetSelect}
-              selections={preset}
-              isOpen={isPresetOpen}
-              toggleIcon={<CalendarAltIcon />}
-              placeholderText="Période"
-              width={isCompact ? '180px' : '220px'}
-            >
-              {PRESET_OPTIONS.map((option) => (
-                <SelectOption key={option.value} value={option.value}>
-                  {option.label}
-                </SelectOption>
-              ))}
-            </Select>
-          </ToolbarItem>
-
-          {/* Custom Date Range Trigger */}
-          {preset === 'custom' && !showCustomDates && (
-            <ToolbarItem>
-              <Button
-                variant="link"
-                icon={<OutlinedCalendarAltIcon />}
-                onClick={() => setShowCustomDates(true)}
-              >
-                {formatDateRange(dateDebut, dateFin)}
-              </Button>
-            </ToolbarItem>
-          )}
-
-          {/* Period Type Selector */}
-          {showPeriodType && (
-            <ToolbarItem>
-              <Select
-                variant={SelectVariant.single}
-                onToggle={(_event, isOpen) => setIsPeriodTypeOpen(isOpen)}
-                onSelect={handlePeriodTypeSelect}
-                selections={periodType}
-                isOpen={isPeriodTypeOpen}
-                placeholderText="Type de période"
-                width={isCompact ? '140px' : '160px'}
-              >
-                {PERIOD_TYPE_OPTIONS.map((option) => (
-                  <SelectOption key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectOption>
-                ))}
-              </Select>
-            </ToolbarItem>
-          )}
-
-          {/* Refresh Button */}
-          {showRefresh && onRefresh && (
-            <ToolbarItem>
-              <Button
-                variant="secondary"
-                icon={<SyncAltIcon />}
-                onClick={onRefresh}
-                isLoading={isRefreshing}
-                isDisabled={isRefreshing}
-              >
-                {isCompact ? '' : 'Actualiser'}
-              </Button>
-            </ToolbarItem>
-          )}
-
-          {/* Current Period Info (on non-custom) */}
-          {preset !== 'custom' && !isCompact && (
-            <ToolbarItem alignment={{ default: 'alignRight' }}>
-              <TextContent>
-                <Text component={TextVariants.small} className="pf-v5-u-color-200">
-                  {formatDateRange(dateDebut, dateFin)}
-                </Text>
-              </TextContent>
-            </ToolbarItem>
-          )}
-        </ToolbarContent>
-      </Toolbar>
-
-      {/* Custom Date Range Popover */}
-      {showCustomDates && (
-        <div className="pf-v5-u-mt-md pf-v5-u-mb-md">
-          <Flex
-            direction={{ default: 'column' }}
-            spaceItems={{ default: 'spaceItemsMd' }}
-            className="custom-date-range-selector"
+    <div className="space-y-4">
+      {/* Toolbar */}
+      <div
+        className={`flex flex-wrap items-center gap-3 ${isCompact ? "gap-2" : "gap-3"}`}
+      >
+        {/* Preset Period Selector */}
+        <div className="relative">
+          <select
+            value={preset}
+            onChange={handlePresetSelect}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pl-3 pr-10 bg-white"
+            style={{ minWidth: isCompact ? "180px" : "220px" }}
           >
-            <FlexItem>
-              <TextContent>
-                <Text component={TextVariants.h4}>Période personnalisée</Text>
-              </TextContent>
-            </FlexItem>
+            {PRESET_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-            <FlexItem>
-              <Flex spaceItems={{ default: 'spaceItemsMd' }}>
-                <FlexItem>
-                  <div>
-                    <label htmlFor="start-date" className="pf-v5-u-mb-xs pf-v5-u-display-block">
-                      Date de début
-                    </label>
-                    <DatePicker
-                      value={tempStartDate}
-                      onChange={(_event, value) => setTempStartDate(value)}
-                      placeholder="YYYY-MM-DD"
-                      inputProps={{ id: 'start-date' }}
-                      locale={fr.code}
-                    />
-                  </div>
-                </FlexItem>
+        {/* Custom Date Range Trigger */}
+        {preset === "custom" && !showCustomDates && (
+          <button
+            onClick={() => setShowCustomDates(true)}
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+          >
+            <CalendarIcon className="w-4 h-4" />
+            {formatDateRange(dateDebut, dateFin)}
+          </button>
+        )}
 
-                <FlexItem>
-                  <div>
-                    <label htmlFor="end-date" className="pf-v5-u-mb-xs pf-v5-u-display-block">
-                      Date de fin
-                    </label>
-                    <DatePicker
-                      value={tempEndDate}
-                      onChange={(_event, value) => setTempEndDate(value)}
-                      placeholder="YYYY-MM-DD"
-                      inputProps={{ id: 'end-date' }}
-                      locale={fr.code}
-                      rangeStart={tempStartDate ? new Date(tempStartDate) : undefined}
-                    />
-                  </div>
-                </FlexItem>
-              </Flex>
-            </FlexItem>
+        {/* Period Type Selector */}
+        {showPeriodType && (
+          <div className="relative">
+            <select
+              value={periodType}
+              onChange={handlePeriodTypeSelect}
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pl-3 pr-10 bg-white"
+              style={{ minWidth: isCompact ? "140px" : "160px" }}
+            >
+              {PERIOD_TYPE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
-            <FlexItem>
-              <Flex spaceItems={{ default: 'spaceItemsSm' }}>
-                <FlexItem>
-                  <Button variant="primary" onClick={handleApplyCustomDates}>
-                    Appliquer
-                  </Button>
-                </FlexItem>
-                <FlexItem>
-                  <Button variant="link" onClick={handleCancelCustomDates}>
-                    Annuler
-                  </Button>
-                </FlexItem>
-              </Flex>
-            </FlexItem>
-          </Flex>
+        {/* Refresh Button */}
+        {showRefresh && onRefresh && (
+          <button
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <RefreshIcon
+              className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+            />
+            {!isCompact && "Actualiser"}
+          </button>
+        )}
+
+        {/* Current Period Info */}
+        {preset !== "custom" && !isCompact && (
+          <div className="ml-auto text-sm text-gray-500">
+            {formatDateRange(dateDebut, dateFin)}
+          </div>
+        )}
+      </div>
+
+      {/* Custom Date Range Panel */}
+      {showCustomDates && (
+        <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-4">
+          <h4 className="text-sm font-semibold text-gray-900">
+            Période personnalisée
+          </h4>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="start-date"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Date de début
+              </label>
+              <input
+                type="date"
+                id="start-date"
+                value={tempStartDate}
+                onChange={(e) => setTempStartDate(e.target.value)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="end-date"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Date de fin
+              </label>
+              <input
+                type="date"
+                id="end-date"
+                value={tempEndDate}
+                onChange={(e) => setTempEndDate(e.target.value)}
+                min={tempStartDate}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleApplyCustomDates}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            >
+              Appliquer
+            </button>
+            <button
+              onClick={handleCancelCustomDates}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
         </div>
       )}
-
-      <style>{`
-        .custom-date-range-selector {
-          padding: 1rem;
-          background-color: var(--pf-v5-global--BackgroundColor--light-100);
-          border: 1px solid var(--pf-v5-global--BorderColor--100);
-          border-radius: 4px;
-        }
-
-        .custom-date-range-selector label {
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: var(--pf-v5-global--Color--100);
-        }
-      `}</style>
-    </>
+    </div>
   );
 };
 

@@ -5,22 +5,13 @@
  * Detailed statistics page for financial analytics.
  */
 
-import React from 'react';
+import React from "react";
 import {
-  Page,
-  PageSection,
-  PageSectionVariants,
-  Title,
-  Breadcrumb,
-  BreadcrumbItem,
-  Flex,
-  FlexItem,
-  Button,
-} from '@patternfly/react-core';
-import { ArrowLeftIcon } from '@patternfly/react-icons';
-import { useFinancialAnalytics, useInvalidateStatistics } from '../hooks/useStatistics';
-import { PeriodSelector } from '../components/PeriodSelector';
-import { FinanceStats } from '../components/FinanceStats';
+  useFinancialAnalytics,
+  useInvalidateStatistics,
+} from "../hooks/useStatistics";
+import { PeriodSelector } from "../components/PeriodSelector";
+import { FinanceStats } from "../components/FinanceStats";
 
 /**
  * FinanceStatsPage Component
@@ -63,44 +54,74 @@ export const FinanceStatsPage: React.FC = () => {
   };
 
   return (
-    <Page>
+    <div className="space-y-6">
       {/* Breadcrumb */}
-      <PageSection variant={PageSectionVariants.light} className="pf-v5-u-pb-0">
-        <Breadcrumb>
-          <BreadcrumbItem to="#" onClick={handleBackToDashboard}>
-            Tableau de bord
-          </BreadcrumbItem>
-          <BreadcrumbItem to="#" isActive>
-            Statistiques Financières
-          </BreadcrumbItem>
-        </Breadcrumb>
-      </PageSection>
+      <nav className="flex" aria-label="Breadcrumb">
+        <ol className="inline-flex items-center space-x-1 md:space-x-3">
+          <li className="inline-flex items-center">
+            <button
+              onClick={handleBackToDashboard}
+              className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
+            >
+              Tableau de bord
+            </button>
+          </li>
+          <li aria-current="page">
+            <div className="flex items-center">
+              <svg
+                className="w-3 h-3 text-gray-400 mx-1"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 6 10"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m1 9 4-4-4-4"
+                />
+              </svg>
+              <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
+                Statistiques Financières
+              </span>
+            </div>
+          </li>
+        </ol>
+      </nav>
 
       {/* Page Header */}
-      <PageSection variant={PageSectionVariants.light} className="pf-v5-u-pb-0">
-        <Flex
-          justifyContent={{ default: 'justifyContentSpaceBetween' }}
-          alignItems={{ default: 'alignItemsCenter' }}
-          className="pf-v5-u-mb-md"
-        >
-          <FlexItem>
-            <Title headingLevel="h1" size="2xl">
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Statistiques Financières
-            </Title>
-            <p className="pf-v5-u-color-200 pf-v5-u-mt-sm">
+            </h1>
+            <p className="text-sm text-gray-600">
               Vue détaillée des revenus, paiements et analytics financiers
             </p>
-          </FlexItem>
-          <FlexItem>
-            <Button
-              variant="link"
-              icon={<ArrowLeftIcon />}
-              onClick={handleBackToDashboard}
+          </div>
+          <button
+            onClick={handleBackToDashboard}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600"
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Retour au tableau de bord
-            </Button>
-          </FlexItem>
-        </Flex>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Retour au tableau de bord
+          </button>
+        </div>
 
         {/* Period Selector */}
         <PeriodSelector
@@ -109,13 +130,11 @@ export const FinanceStatsPage: React.FC = () => {
           onRefresh={handleRefresh}
           isRefreshing={isRefreshing}
         />
-      </PageSection>
+      </div>
 
       {/* Main Content */}
-      <PageSection>
-        <FinanceStats data={data} isLoading={isLoading} error={error} />
-      </PageSection>
-    </Page>
+      <FinanceStats data={data} isLoading={isLoading} error={error} />
+    </div>
   );
 };
 
