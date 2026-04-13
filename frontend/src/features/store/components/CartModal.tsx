@@ -5,8 +5,7 @@
  */
 
 import { useState } from "react";
-import { Modal } from "../../../shared/components/Modal";
-import { Button } from "../../../shared/components/Button";
+import { Modal, Button } from "../../../shared/components";
 import type { CartItem } from "../stores/storeStore";
 
 // ─── Types ────────────────────────────────────────────────────────────────────

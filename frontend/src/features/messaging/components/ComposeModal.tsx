@@ -12,9 +12,7 @@ import type { SendMessagePayload } from "../api/messagingApi";
 import { getTemplates } from "../api/templatesApi";
 import type { Template } from "../api/templatesApi";
 import { PaperPlaneIcon, PficonTemplateIcon } from "@patternfly/react-icons";
-import { Modal } from "../../../shared/components/Modal";
-import { Input } from "../../../shared/components/Input";
-import { Button } from "../../../shared/components/Button";
+import { Modal, Input, Button } from "../../../shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

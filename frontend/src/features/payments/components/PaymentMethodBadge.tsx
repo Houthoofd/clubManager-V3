@@ -5,7 +5,7 @@
  */
 
 import { PaymentMethod, PAYMENT_METHOD_LABELS } from "@clubmanager/types";
-import { Badge, BadgeProps } from "../../../shared/components/Badge";
+import { Badge, BadgeProps } from "../../../shared/components";
 
 // ─── Icônes SVG ───────────────────────────────────────────────────────────────
 

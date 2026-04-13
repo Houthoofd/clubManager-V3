@@ -19,9 +19,7 @@ import {
   ArrowLeftIcon,
   InfoCircleIcon,
 } from "@patternfly/react-icons";
-import { Modal } from "../../../shared/components/Modal";
-import { Input } from "../../../shared/components/Input";
-import { Button } from "../../../shared/components/Button";
+import { Modal, Input, Button } from "../../../shared/components";
 
 // Extraction des sous-composants pour éviter les erreurs TypeScript
 // @ts-ignore - Les sous-composants existent mais TypeScript ne les détecte pas

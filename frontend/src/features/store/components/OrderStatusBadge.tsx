@@ -6,7 +6,7 @@
  * tout en utilisant le composant Badge.OrderStatus du design system.
  */
 
-import Badge from "../../../shared/components/Badge";
+import { Badge } from "../../../shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

@@ -11,9 +11,7 @@ import { toast } from "sonner";
 import { InfoCircleIcon } from "@patternfly/react-icons";
 import { useFamily } from "../hooks/useFamily";
 import type { AddFamilyMemberDto } from "@clubmanager/types";
-import { Modal } from "../../../shared/components/Modal";
-import { Input } from "../../../shared/components/Input";
-import { Button } from "../../../shared/components/Button";
+import { Modal, Input, Button } from "../../../shared/components";
 
 // ─── Schéma de validation ────────────────────────────────────────────────────
 

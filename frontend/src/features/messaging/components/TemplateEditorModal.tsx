@@ -16,9 +16,7 @@ import {
   PencilAltIcon,
   SaveIcon,
 } from "@patternfly/react-icons";
-import { Modal } from "../../../shared/components/Modal";
-import { Input } from "../../../shared/components/Input";
-import { Button } from "../../../shared/components/Button";
+import { Modal, Input, Button } from "../../../shared/components";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 

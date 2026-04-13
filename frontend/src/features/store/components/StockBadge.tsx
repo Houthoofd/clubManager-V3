@@ -6,7 +6,7 @@
  * pour maintenir la compatibilité avec l'ancienne API.
  */
 
-import Badge from "../../../shared/components/Badge";
+import { Badge } from "../../../shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

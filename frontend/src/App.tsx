@@ -20,8 +20,7 @@ import { PrivateLayout } from "./layouts/PrivateLayout";
 import { useAuth } from "./shared/hooks/useAuth";
 
 // Route Guards
-import { PublicRoute } from "./shared/components/PublicRoute";
-import { RoleGuard } from "./shared/components/RoleGuard";
+import { PublicRoute, RoleGuard } from "./shared/components/Auth";
 import { UserRole } from "@clubmanager/types";
 
 // Auth Pages

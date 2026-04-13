@@ -6,7 +6,7 @@
  * Utilisez directement Badge.PaymentStatus pour les nouveaux composants.
  */
 
-import Badge from "@/shared/components/Badge";
+import { Badge } from "@/shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

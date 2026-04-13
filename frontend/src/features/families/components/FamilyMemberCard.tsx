@@ -9,7 +9,7 @@ import {
   TrashIcon as PFTrashIcon,
 } from "@patternfly/react-icons";
 import type { FamilyMemberResponseDto } from "@clubmanager/types";
-import { Card } from "../../../shared/components/Card";
+import { Card } from "../../../shared/components";
 
 /**
  * Props du composant FamilyMemberCard

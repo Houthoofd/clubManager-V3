@@ -5,7 +5,7 @@
  * ⚠️ Ce composant utilise maintenant Badge.Status pour la cohérence visuelle.
  */
 
-import { Badge } from "../../../shared/components/Badge";
+import { Badge } from "../../../shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
