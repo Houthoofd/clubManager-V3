@@ -11,7 +11,7 @@
 ## 📊 Progression Globale
 
 ```
-███████████████░░░░░ 50% (Phase 1 + Tous les composants de base terminés)
+█████████████████░░░ 60% (Phase 1 + Phase 2 + Badges migrés)
 ```
 
 **Légende:**
@@ -318,7 +318,7 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 **Objectif:** Migrer tous les modals et composants spécifiques  
 **Durée:** 3-4 jours  
-**Statut:** ⏳ 0% (0/13)  
+**Statut:** 🚧 46% (6/13)  
 **Priorité:** 🟡 Important
 
 ### 4.1 Modals
@@ -363,30 +363,47 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 ### 4.2 Badge Components
 
-- [ ] **PaymentStatusBadge** ⏳
+- [x] **PaymentStatusBadge** ✅ TERMINÉ
   - **Fichier:** `frontend/src/features/payments/components/PaymentStatusBadge.tsx`
-  - **Estimation:** 30 min
-  - **Changements:** Utiliser `<Badge variant="..."/>`
+  - **Estimation:** 30 min ✅
+  - **Changements:** Wrapper vers `Badge.PaymentStatus`
+  - **Statuts supportés:** en_attente, paye, valide, partiel, echoue, rembourse, annule
+  - **Rétrocompatibilité:** 100% - Aucun import à modifier
   - **Impact:** Faible
 
-- [ ] **PaymentMethodBadge** ⏳
-  - **Estimation:** 45 min (avec icônes)
+- [x] **PaymentMethodBadge** ✅ TERMINÉ
+  - **Estimation:** 45 min ✅
+  - **Changements:** Utilise `Badge` avec prop `icon`
+  - **Méthodes supportées:** STRIPE, ESPECES, VIREMENT, AUTRE
+  - **Icônes:** Conservées (CreditCard, Banknotes, BuildingLibrary, Tag)
   - **Impact:** Moyen
 
-- [ ] **OrderStatusBadge** ⏳
-  - **Estimation:** 30 min
+- [x] **OrderStatusBadge** ✅ TERMINÉ
+  - **Estimation:** 30 min ✅
+  - **Changements:** Wrapper vers `Badge.OrderStatus`
+  - **Statuts supportés:** en_attente, en_cours, payee, expediee, prete, livree, annulee
+  - **Rétrocompatibilité:** 100%
   - **Impact:** Faible
 
-- [ ] **StockBadge** ⏳
-  - **Estimation:** 45 min (avec dot indicator)
+- [x] **StockBadge** ✅ TERMINÉ
+  - **Estimation:** 45 min ✅
+  - **Changements:** Wrapper vers `Badge.Stock`
+  - **Features:** Seuils de stock (rupture, stock bas, en stock), dot indicator
+  - **Code réduit:** ~50 lignes → ~30 lignes
   - **Impact:** Moyen
 
-- [ ] **UserRoleBadge** ⏳
-  - **Estimation:** 30 min
+- [x] **UserRoleBadge** ✅ TERMINÉ
+  - **Estimation:** 30 min ✅
+  - **Changements:** Wrapper vers `Badge.Role`
+  - **Rôles supportés:** admin, professor, member, parent
+  - **Mapping automatique:** UserRole backend → Badge.Role
   - **Impact:** Faible
 
-- [ ] **UserStatusBadge** ⏳
-  - **Estimation:** 30 min
+- [x] **UserStatusBadge** ✅ TERMINÉ
+  - **Estimation:** 30 min ✅
+  - **Changements:** Wrapper vers `Badge.Status`
+  - **Statuts supportés:** actif, inactif, suspendu, en_attente, archive
+  - **Code réduit:** ~40 lignes → ~23 lignes (-42%)
   - **Impact:** Faible
 
 ### 4.3 Autres Composants
@@ -402,9 +419,10 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 ### Métriques Phase 4
 
 - **Modals migrés:** 0/7
-- **Badges migrés:** 0/6
+- **Badges migrés:** 6/6 ✅ COMPLET
 - **Autres composants:** 0/2
-- **Commits:** 0/13
+- **Commits:** 0/1 (à commiter)
+- **Prochaine étape:** Migrer les Modals ou les Card components
 
 ---
 
@@ -608,11 +626,14 @@ Contribuer à cette roadmap directement
 2. [x] ~~Créer le composant Badge (1-2h)~~ ✅ FAIT
 3. [x] ~~Créer le composant Modal (3-4h)~~ ✅ FAIT
 4. [x] ~~Créer le composant Input (2-3h)~~ ✅ FAIT
-5. [ ] Migrer LoginPage avec Card/Button/Input (1-2h) ⏳ PROCHAIN
-6. [ ] Migrer les autres pages (Phase 3)
+5. [x] ~~Migrer les 6 Badge Components (3h)~~ ✅ FAIT
+6. [ ] Migrer les 7 Modals (6-8h) ⏳ PROCHAIN
+7. [ ] Migrer FamilyMemberCard et StatCard (2h)
+8. [ ] Migrer les pages (Phase 3)
 
 **Phase 2 TERMINÉE !** 🎉  
-**Estimation restante Phase 3:** 5-7 jours de migration
+**Phase 4 Badges TERMINÉE !** 🎉  
+**Estimation restante Phase 4:** 2-3 jours (Modals + Cards)
 
 ---
 

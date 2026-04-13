@@ -20,16 +20,19 @@
  * ```
  */
 
-import { ReactNode, HTMLAttributes } from 'react';
-import { cn, BADGE } from '../styles/designTokens';
+import { ReactNode, HTMLAttributes } from "react";
+import { cn, BADGE } from "../styles/designTokens";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
-export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'className'> {
+export interface BadgeProps extends Omit<
+  HTMLAttributes<HTMLSpanElement>,
+  "className"
+> {
   /**
-   * Contenu du badge
+   * Contenu du badge (optionnel pour les sous-composants)
    */
-  children: ReactNode;
+  children?: ReactNode;
 
   /**
    * Variant de couleur
@@ -42,7 +45,14 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'class
    * - orange: Orange (urgent, attention)
    * @default "neutral"
    */
-  variant?: 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'purple' | 'orange';
+  variant?:
+    | "success"
+    | "warning"
+    | "danger"
+    | "info"
+    | "neutral"
+    | "purple"
+    | "orange";
 
   /**
    * Taille du badge
@@ -51,7 +61,7 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'class
    * - lg: Large (px-3 py-1 text-sm)
    * @default "md"
    */
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
 
   /**
    * Afficher un dot indicator (●)
@@ -85,24 +95,24 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'class
 
 export function Badge({
   children,
-  variant = 'neutral',
-  size = 'md',
+  variant = "neutral",
+  size = "md",
   dot = false,
   icon,
   removable = false,
   onRemove,
-  className = '',
+  className = "",
   ...props
 }: BadgeProps) {
   // Déterminer la couleur du dot selon le variant
   const dotColorClass = {
-    success: 'bg-green-500',
-    warning: 'bg-yellow-500',
-    danger: 'bg-red-500',
-    info: 'bg-blue-500',
-    neutral: 'bg-gray-500',
-    purple: 'bg-purple-500',
-    orange: 'bg-orange-500',
+    success: "bg-green-500",
+    warning: "bg-yellow-500",
+    danger: "bg-red-500",
+    info: "bg-blue-500",
+    neutral: "bg-gray-500",
+    purple: "bg-purple-500",
+    orange: "bg-orange-500",
   }[variant];
 
   return (
@@ -111,7 +121,7 @@ export function Badge({
         BADGE.base,
         BADGE.variant[variant],
         BADGE.size[size],
-        className
+        className,
       )}
       {...props}
     >
@@ -163,16 +173,35 @@ export function Badge({
 /**
  * Badge de statut avec dot indicator
  */
-export interface StatusBadgeProps extends Omit<BadgeProps, 'dot'> {
-  status: 'active' | 'inactive' | 'pending' | 'error';
+export interface StatusBadgeProps extends Omit<BadgeProps, "dot" | "children"> {
+  status:
+    | "active"
+    | "inactive"
+    | "pending"
+    | "error"
+    | "actif"
+    | "inactif"
+    | "suspendu"
+    | "en_attente"
+    | "archive";
+  children?: ReactNode;
 }
 
 export function StatusBadge({ status, children, ...props }: StatusBadgeProps) {
   const statusConfig = {
-    active: { variant: 'success' as const, label: children || 'Actif' },
-    inactive: { variant: 'neutral' as const, label: children || 'Inactif' },
-    pending: { variant: 'warning' as const, label: children || 'En attente' },
-    error: { variant: 'danger' as const, label: children || 'Erreur' },
+    active: { variant: "success" as const, label: children || "Actif" },
+    inactive: { variant: "neutral" as const, label: children || "Inactif" },
+    pending: { variant: "warning" as const, label: children || "En attente" },
+    error: { variant: "danger" as const, label: children || "Erreur" },
+    // Statuts français pour les utilisateurs
+    actif: { variant: "success" as const, label: children || "Actif" },
+    inactif: { variant: "neutral" as const, label: children || "Inactif" },
+    suspendu: { variant: "orange" as const, label: children || "Suspendu" },
+    en_attente: {
+      variant: "warning" as const,
+      label: children || "En attente",
+    },
+    archive: { variant: "danger" as const, label: children || "Archivé" },
   }[status];
 
   return (
@@ -185,7 +214,10 @@ export function StatusBadge({ status, children, ...props }: StatusBadgeProps) {
 /**
  * Badge de stock avec couleurs appropriées
  */
-export interface StockBadgeProps extends Omit<BadgeProps, 'variant' | 'dot'> {
+export interface StockBadgeProps extends Omit<
+  BadgeProps,
+  "variant" | "dot" | "children"
+> {
   /**
    * Quantité en stock
    */
@@ -195,17 +227,23 @@ export interface StockBadgeProps extends Omit<BadgeProps, 'variant' | 'dot'> {
    * @default 10
    */
   threshold?: number;
+  children?: ReactNode;
 }
 
-export function StockBadge({ quantity, threshold = 10, children, ...props }: StockBadgeProps) {
-  let variant: BadgeProps['variant'] = 'success';
+export function StockBadge({
+  quantity,
+  threshold = 10,
+  children,
+  ...props
+}: StockBadgeProps) {
+  let variant: BadgeProps["variant"] = "success";
   let label = children || `${quantity} en stock`;
 
   if (quantity === 0) {
-    variant = 'danger';
-    label = children || 'Rupture de stock';
+    variant = "danger";
+    label = children || "Rupture de stock";
   } else if (quantity <= threshold) {
-    variant = 'orange';
+    variant = "orange";
     label = children || `Stock bas (${quantity})`;
   }
 
@@ -219,16 +257,20 @@ export function StockBadge({ quantity, threshold = 10, children, ...props }: Sto
 /**
  * Badge de rôle utilisateur
  */
-export interface RoleBadgeProps extends Omit<BadgeProps, 'variant'> {
-  role: 'admin' | 'professeur' | 'parent' | 'eleve';
+export interface RoleBadgeProps extends Omit<
+  BadgeProps,
+  "variant" | "children"
+> {
+  role: "admin" | "professor" | "member" | "parent";
+  children?: ReactNode;
 }
 
 export function RoleBadge({ role, children, ...props }: RoleBadgeProps) {
   const roleConfig = {
-    admin: { variant: 'danger' as const, label: children || 'Admin' },
-    professeur: { variant: 'purple' as const, label: children || 'Professeur' },
-    parent: { variant: 'info' as const, label: children || 'Parent' },
-    eleve: { variant: 'success' as const, label: children || 'Élève' },
+    admin: { variant: "danger" as const, label: children || "Admin" },
+    professor: { variant: "purple" as const, label: children || "Professeur" },
+    member: { variant: "success" as const, label: children || "Membre" },
+    parent: { variant: "info" as const, label: children || "Parent" },
   }[role];
 
   return (
@@ -240,17 +282,39 @@ export function RoleBadge({ role, children, ...props }: RoleBadgeProps) {
 
 /**
  * Badge de statut de paiement
+ * Supporte les statuts français du système de paiement
  */
-export interface PaymentStatusBadgeProps extends Omit<BadgeProps, 'variant' | 'dot'> {
-  status: 'paid' | 'pending' | 'failed' | 'refunded';
+export interface PaymentStatusBadgeProps extends Omit<
+  BadgeProps,
+  "variant" | "dot" | "children"
+> {
+  status:
+    | "en_attente"
+    | "paye"
+    | "valide"
+    | "partiel"
+    | "echoue"
+    | "rembourse"
+    | "annule";
+  children?: ReactNode;
 }
 
-export function PaymentStatusBadge({ status, children, ...props }: PaymentStatusBadgeProps) {
+export function PaymentStatusBadge({
+  status,
+  children,
+  ...props
+}: PaymentStatusBadgeProps) {
   const statusConfig = {
-    paid: { variant: 'success' as const, label: children || 'Payé' },
-    pending: { variant: 'warning' as const, label: children || 'En attente' },
-    failed: { variant: 'danger' as const, label: children || 'Échoué' },
-    refunded: { variant: 'purple' as const, label: children || 'Remboursé' },
+    en_attente: {
+      variant: "warning" as const,
+      label: children || "En attente",
+    },
+    paye: { variant: "success" as const, label: children || "Payé" },
+    valide: { variant: "success" as const, label: children || "Validé" },
+    partiel: { variant: "info" as const, label: children || "Partiel" },
+    echoue: { variant: "danger" as const, label: children || "Échoué" },
+    rembourse: { variant: "purple" as const, label: children || "Remboursé" },
+    annule: { variant: "danger" as const, label: children || "Annulé" },
   }[status];
 
   return (
@@ -262,18 +326,54 @@ export function PaymentStatusBadge({ status, children, ...props }: PaymentStatus
 
 /**
  * Badge de statut de commande
+ * Supporte les statuts anglais et français du système de commande boutique
  */
-export interface OrderStatusBadgeProps extends Omit<BadgeProps, 'variant'> {
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+export interface OrderStatusBadgeProps extends Omit<
+  BadgeProps,
+  "variant" | "children"
+> {
+  status:
+    | "pending"
+    | "processing"
+    | "shipped"
+    | "delivered"
+    | "cancelled"
+    | "en_attente"
+    | "en_cours"
+    | "payee"
+    | "expediee"
+    | "prete"
+    | "livree"
+    | "annulee";
+  children?: ReactNode;
 }
 
-export function OrderStatusBadge({ status, children, ...props }: OrderStatusBadgeProps) {
+export function OrderStatusBadge({
+  status,
+  children,
+  ...props
+}: OrderStatusBadgeProps) {
   const statusConfig = {
-    pending: { variant: 'warning' as const, label: children || 'En attente' },
-    processing: { variant: 'info' as const, label: children || 'En préparation' },
-    shipped: { variant: 'purple' as const, label: children || 'Expédiée' },
-    delivered: { variant: 'success' as const, label: children || 'Livrée' },
-    cancelled: { variant: 'danger' as const, label: children || 'Annulée' },
+    // Statuts anglais (legacy)
+    pending: { variant: "warning" as const, label: children || "En attente" },
+    processing: {
+      variant: "info" as const,
+      label: children || "En préparation",
+    },
+    shipped: { variant: "purple" as const, label: children || "Expédiée" },
+    delivered: { variant: "success" as const, label: children || "Livrée" },
+    cancelled: { variant: "danger" as const, label: children || "Annulée" },
+    // Statuts français (boutique)
+    en_attente: {
+      variant: "warning" as const,
+      label: children || "En attente",
+    },
+    en_cours: { variant: "info" as const, label: children || "En cours" },
+    payee: { variant: "info" as const, label: children || "Payée" },
+    expediee: { variant: "purple" as const, label: children || "Expédiée" },
+    prete: { variant: "purple" as const, label: children || "Prête" },
+    livree: { variant: "success" as const, label: children || "Livrée" },
+    annulee: { variant: "danger" as const, label: children || "Annulée" },
   }[status];
 
   return (
