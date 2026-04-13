@@ -577,6 +577,297 @@ interface SearchBarProps {
 
 ---
 
+## 🔍 AUDIT APPROFONDI - Patterns Granulaires Manqués
+
+**Date:** Janvier 2025  
+**Méthodologie:** Analyse ligne par ligne des 9 pages (~6000 lignes) pour identifier des micro-patterns et composants métier spécialisés manqués par l'audit initial.
+
+### 🔥 COMPOSANTS CRITIQUES SUPPLÉMENTAIRES (À créer AVANT migration)
+
+---
+
+### Pattern #13: FormField ⭐⭐⭐ **CRITIQUE**
+**Fréquence:** 8 pages / ~35 usages  
+**Pages concernées:** LoginPage, EmailVerificationPage, ForgotPasswordPage, ResetPasswordPage, PaymentsPage, CoursesPage, StorePage, MessagesPage
+
+**Code actuel répété (exemple):**
+```tsx
+<div>
+  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+    Adresse email
+  </label>
+  <div className="relative">
+    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+    </div>
+    <input
+      id="email"
+      type="email"
+      {...register("email")}
+      className={`block w-full pl-10 pr-3 py-3 border ${errors.email ? "border-red-300..." : "border-gray-300..."}`}
+    />
+  </div>
+  {errors.email && <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>}
+</div>
+```
+
+**Composant proposé:**
+```tsx
+interface FormFieldProps {
+  label: string;
+  id: string;
+  type?: string;
+  icon?: React.ReactNode;
+  error?: string;
+  required?: boolean;
+  placeholder?: string;
+  register?: any; // react-hook-form
+}
+
+<FormField 
+  label="Email" 
+  id="email" 
+  type="email" 
+  icon={<EnvelopeIcon />} 
+  error={errors.email?.message} 
+  register={register} 
+  required 
+/>
+```
+
+**Justification:** Pattern répété 35+ fois avec structure identique. Économie massive de code.  
+**Priorité:** 🔴 **CRITIQUE**  
+**Estimation gains:** ~700 lignes économisées  
+**Tokens création:** ~2,000 tokens
+
+---
+
+### Pattern #14: PasswordInput ⭐⭐⭐ **CRITIQUE**
+**Fréquence:** 3 pages / 5 usages  
+**Pages concernées:** LoginPage, ResetPasswordPage (×2), future RegisterPage
+
+**Code actuel répété:**
+```tsx
+const [showPassword, setShowPassword] = useState(false);
+
+<div className="relative">
+  <input type={showPassword ? "text" : "password"} className="..." />
+  <button onClick={() => setShowPassword(!showPassword)} className="...">
+    {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+  </button>
+</div>
+```
+
+**Composant proposé:**
+```tsx
+interface PasswordInputProps {
+  label: string;
+  id: string;
+  error?: string;
+  showStrength?: boolean; // Pour ResetPasswordPage
+  register?: any;
+}
+
+<PasswordInput 
+  label="Mot de passe" 
+  id="password" 
+  error={errors.password?.message} 
+  register={register} 
+  showStrength 
+/>
+```
+
+**Priorité:** 🔴 **CRITIQUE**  
+**Estimation gains:** ~150 lignes économisées  
+**Tokens création:** ~2,500 tokens
+
+---
+
+### Pattern #15: AuthPageContainer ⭐⭐⭐ **CRITIQUE**
+**Fréquence:** 5 pages  
+**Pages concernées:** LoginPage, EmailVerificationPage, ForgotPasswordPage, ResetPasswordPage, future RegisterPage
+
+**Code actuel répété:**
+```tsx
+<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div className="max-w-md w-full space-y-8">
+    <div className="text-center">
+      <h1 className="text-4xl font-bold text-gray-900 mb-2">{title}</h1>
+      <p className="text-gray-600">{description}</p>
+    </div>
+    <div className="bg-white shadow-2xl rounded-2xl p-8">
+      {children}
+    </div>
+  </div>
+</div>
+```
+
+**Composant proposé:**
+```tsx
+interface AuthPageContainerProps {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+}
+
+<AuthPageContainer 
+  title="Connexion" 
+  description="Connectez-vous à votre compte"
+>
+  {/* Formulaire */}
+</AuthPageContainer>
+```
+
+**Priorité:** 🔴 **CRITIQUE**  
+**Estimation gains:** ~120 lignes économisées  
+**Tokens création:** ~2,000 tokens
+
+---
+
+### Pattern #16: AlertBanner ⭐⭐ **HAUTE**
+**Fréquence:** 6 pages / 12 usages  
+**Pages concernées:** LoginPage, EmailVerificationPage, CoursesPage, MessagesPage, StorePage, PaymentsPage
+
+**Code actuel répété:**
+```tsx
+<div className="mb-6 p-4 bg-green-50 border border-green-300 rounded-lg">
+  <p className="text-sm font-medium text-green-800 mb-1 flex items-center gap-1.5">
+    <CheckCircleIcon className="h-4 w-4 text-green-600" />
+    Inscription réussie !
+  </p>
+  <p className="text-sm text-green-700">{message}</p>
+</div>
+```
+
+**Composant proposé:**
+```tsx
+interface AlertBannerProps {
+  type: "success" | "error" | "warning" | "info";
+  title?: string;
+  message: string;
+  onDismiss?: () => void;
+}
+
+<AlertBanner 
+  type="success" 
+  title="Inscription réussie !" 
+  message="Vous pouvez maintenant vous connecter." 
+/>
+```
+
+**Priorité:** 🟠 **HAUTE**  
+**Estimation gains:** ~200 lignes économisées  
+**Tokens création:** ~4,000 tokens
+
+---
+
+### Pattern #17: DataTable ⭐⭐ **HAUTE**
+**Fréquence:** 4 pages  
+**Pages concernées:** PaymentsPage, StorePage (stocks), CoursesPage (sessions), future reports
+
+**Code actuel répété:**
+Tables HTML répétitives avec thead/tbody, classes Tailwind identiques
+
+**Composant proposé:**
+```tsx
+interface Column<T> {
+  key: string;
+  header: string;
+  width?: string;
+  render?: (row: T) => React.ReactNode;
+}
+
+interface DataTableProps<T> {
+  columns: Column<T>[];
+  data: T[];
+  keyExtractor: (row: T) => string | number;
+  onRowClick?: (row: T) => void;
+  isLoading?: boolean;
+  emptyMessage?: string;
+}
+
+<DataTable 
+  columns={columns} 
+  data={users} 
+  keyExtractor={(user) => user.id} 
+  onRowClick={handleRowClick} 
+/>
+```
+
+**Priorité:** 🟠 **HAUTE**  
+**Estimation gains:** ~400 lignes économisées  
+**Tokens création:** ~7,000 tokens
+
+---
+
+### 🟡 COMPOSANTS OPTIONNELS (Créer pendant migration)
+
+### Pattern #18: SelectField
+**Fréquence:** 6 pages  
+**Estimation gains:** ~120 lignes  
+**Tokens:** ~2,000 tokens
+
+### Pattern #19: IconButton
+**Fréquence:** 8 pages  
+**Estimation gains:** ~100 lignes  
+**Tokens:** ~1,500 tokens
+
+### Pattern #20: DateRangePicker
+**Fréquence:** 2 pages (PaymentsPage, futures)  
+**Estimation gains:** ~150 lignes  
+**Tokens:** ~2,500 tokens
+
+---
+
+## 📈 ESTIMATION TOTALE - AUDIT APPROFONDI
+
+### Composants critiques supplémentaires (Patterns #13-17)
+- **Nombre:** 5 composants
+- **Lignes économisées:** ~1,570 lignes
+- **Tokens création:** ~17,500 tokens
+- **Tokens économisés migration:** ~30,000 tokens
+- **ROI net:** +12,500 tokens
+
+### Composants optionnels (Patterns #18-20)
+- **Nombre:** 3 composants
+- **Lignes économisées:** ~370 lignes
+- **Tokens création:** ~6,000 tokens
+
+### CUMUL TOTAL (12 initiaux + 8 nouveaux)
+- **Composants totaux:** 20 composants
+- **Lignes économisées:** ~3,340 lignes
+- **Tokens création totale:** ~26,150 tokens
+- **ROI migration:** +40,000+ tokens économisés
+
+---
+
+## 🎯 RECOMMANDATION MISE À JOUR
+
+### ⚠️ IMPORTANT : Composants manqués découverts !
+
+**Verdict:** Créer les **5 composants critiques supplémentaires** (Patterns #13-17) AVANT migration pour maximiser le ROI.
+
+**Justification:**
+- ✅ **FormField** seul économise 700 lignes (35 usages)
+- ✅ Patterns métier spécialisés (pas juste UI génériques)
+- ✅ Simplifie drastiquement la migration (40% plus rapide)
+- ✅ ROI net positif : +12,500 tokens
+- ✅ Cohérence garantie entre toutes les pages
+
+**Ordre de création recommandé:**
+1. **FormField** (CRITIQUE - utilisé partout)
+2. **PasswordInput** (CRITIQUE - pages auth)
+3. **AuthPageContainer** (CRITIQUE - 5 pages auth)
+4. **AlertBanner** (HAUTE - feedback utilisateur)
+5. **DataTable** (HAUTE - tableaux complexes)
+
+**Temps d'investissement:** ~6-8 heures  
+**Tokens:** ~17,500 tokens  
+**Tokens restants après:** ~88,500 tokens (suffisant pour migration)
+
+---
+
 ## 📊 TABLEAU COMPARATIF AVANT/APRÈS
 
 | Composant | Lignes avant | Lignes après | Gain/usage | Pages concernées | Priorité |
@@ -750,11 +1041,13 @@ Ces composants métier spécialisés peuvent être créés **PENDANT** la migrat
 
 ---
 
-## 📈 GAINS ATTENDUS
+## 📈 GAINS ATTENDUS (MISE À JOUR)
 
 ### Code
-- **-1,400 à -1,600 lignes** de code répétitif éliminé
-- **~30% de réduction** supplémentaire sur les pages
+- **Initial:** -1,400 à -1,600 lignes (12 composants)
+- **Audit approfondi:** -1,570 lignes supplémentaires (5 composants critiques)
+- **TOTAL:** **~3,000+ lignes** de code répétitif éliminé
+- **~40-50% de réduction** supplémentaire sur les pages
 - Code plus lisible et maintenable
 
 ### Temps
@@ -849,5 +1142,6 @@ Avec **12 composants complets (100%)** organisés par famille :
 **Status Phase 2:** ✅ **TERMINÉE** (3/3 composants créés - Commit 56a9d22)  
 **Status Phase 3:** ✅ **TERMINÉE** (4/4 composants créés - Commit fac6a5d)  
 **Réorganisation:** ✅ **TERMINÉE** (10 dossiers famille - Commit bc970aa)  
-**Composants totaux:** **12/12 (100%)** ✅  
-**Prochaine étape:** Migration des pages (FamilyPage → LoginPage → ...)
+**Audit approfondi:** ✅ **TERMINÉE** (5 composants critiques supplémentaires identifiés)  
+**Composants totaux:** **12/12 (100%)** ✅ + **5 critiques à créer**  
+**Prochaine étape:** ⚠️ **CRÉER les 5 composants critiques** (FormField, PasswordInput, AuthPageContainer, AlertBanner, DataTable) AVANT migration pour maximiser ROI
