@@ -11,7 +11,7 @@
 ## 📊 Progression Globale
 
 ```
-████████░░░░░░░░░░░░ 20% (Phase 1 terminée)
+██████████░░░░░░░░░░ 25% (Phase 1 + Button terminés)
 ```
 
 **Légende:**
@@ -27,12 +27,12 @@
 | Phase | Statut | Tâches | Complété | Durée | Priorité |
 |-------|--------|--------|----------|-------|----------|
 | **1. Fondations** | ✅ Terminé | 4/4 | 100% | 2j | 🔴 Critique |
-| **2. Composants de Base** | 🚧 En cours | 0/4 | 0% | 3-4j | 🔴 Critique |
+| **2. Composants de Base** | 🚧 En cours | 1/4 | 25% | 3-4j | 🔴 Critique |
 | **3. Migration Pages** | ⏳ À venir | 0/9 | 0% | 5-7j | 🟡 Important |
 | **4. Migration Composants** | ⏳ À venir | 0/13 | 0% | 3-4j | 🟡 Important |
 | **5. Nettoyage & Tests** | ⏳ À venir | 0/6 | 0% | 2-3j | 🟢 Normal |
 
-**Total:** 4/36 tâches complétées (11%)
+**Total:** 5/36 tâches complétées (14%)
 
 ---
 
@@ -40,7 +40,7 @@
 
 ```
 Semaine 1: ████████████████████ TERMINÉ
-Semaine 2: ░░░░░░░░░░░░░░░░░░░░ Composants de Base
+Semaine 2: █████░░░░░░░░░░░░░░░ Composants de Base (Button ✅)
 Semaine 3: ░░░░░░░░░░░░░░░░░░░░ Migration Pages (1/2)
 Semaine 4: ░░░░░░░░░░░░░░░░░░░░ Migration Pages (2/2) + Composants
 Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyage & Tests
@@ -99,27 +99,34 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 **Objectif:** Créer tous les composants réutilisables essentiels  
 **Durée:** 3-4 jours  
-**Statut:** 🚧 0% (0/4)  
+**Statut:** 🚧 25% (1/4)  
 **Priorité:** 🔴 Critique
 
 ### Tâches
 
-- [ ] **2.1 Composant Button** ⏳
-  - **Estimation:** 2-3 heures
+- [x] **2.1 Composant Button** ✅ TERMINÉ
+  - **Estimation:** 2-3 heures ✅
   - **Priorité:** 🔴 Haute
-  - **Fichiers à créer:**
-    - `frontend/src/shared/components/Button.tsx`
-    - `frontend/src/shared/components/Button.md`
-    - `frontend/src/shared/components/Button.examples.tsx`
-  - **Variants à implémenter:**
+  - **Commit:** `d0f269c`
+</text>
+
+<old_text line=107>
+  - **Fichiers créés:** ✅
+    - `frontend/src/shared/components/Button.tsx` (222 lignes)
+    - `frontend/src/shared/components/Button.md` (660 lignes)
+    - `frontend/src/shared/components/Button.examples.tsx` (598 lignes)
+  - **Variants implémentés:** ✅
     - primary, secondary, outline, danger, success, ghost
-  - **Tailles:** xs, sm, md, lg, xl
-  - **Features:**
+  - **Tailles:** ✅ xs, sm, md, lg, xl
+  - **Features implémentées:** ✅
     - Loading state avec spinner
     - Icon support (left/right)
-    - Disabled state
+    - Icon-only mode
+    - Disabled state (auto avec loading)
     - Full width option
-  - **Tests:** Vérifier tous les variants visuellement
+    - Button.Group sub-component
+  - **Documentation:** ✅ 12 exemples pratiques
+  - **Accessibilité:** ✅ Support aria-label
 
 - [ ] **2.2 Composant Badge** ⏳
   - **Estimation:** 1-2 heures
@@ -178,10 +185,11 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 ### Métriques Phase 2
 
-- **Composants créés:** 0/4
-- **Fichiers créés:** 0/12
-- **Lignes de code estimées:** ~2000
+- **Composants créés:** 1/4 ✅
+- **Fichiers créés:** 3/12 ✅
+- **Lignes de code:** 1,480/~2000 (74%)
 - **Tests visuels:** 0/4
+- **Prochaine étape:** Badge component
 
 ---
 
@@ -580,11 +588,11 @@ Contribuer à cette roadmap directement
 
 **À faire maintenant:**
 
-1. [ ] Créer le composant Button (2-3h)
-2. [ ] Créer le composant Badge (1-2h)
+1. [x] ~~Créer le composant Button (2-3h)~~ ✅ FAIT
+2. [ ] Créer le composant Badge (1-2h) ⏳ PROCHAIN
 3. [ ] Migrer LoginPage (1-2h)
 
-**Estimation:** 4-7 heures de travail
+**Estimation restante:** 2-4 heures de travail
 
 ---
 
