@@ -11,7 +11,7 @@
 ## 📊 Progression Globale
 
 ```
-███████████████████░ 70% (Phase 1 + Phase 2 + Phase 4 Badges & Modals)
+███████████████░░░░░ 75% (Phase 1 ✅ + Phase 2 ✅ + Phase 4 ✅)
 ```
 
 **Légende:**
@@ -27,23 +27,23 @@
 | Phase | Statut | Tâches | Complété | Durée | Priorité |
 |-------|--------|--------|----------|-------|----------|
 | **1. Fondations** | ✅ Terminé | 4/4 | 100% | 2j | 🔴 Critique |
-| **2. Composants de Base** | 🚧 En cours | 2/4 | 50% | 3-4j | 🔴 Critique |
+| **2. Composants de Base** | ✅ Terminé | 4/4 | 100% | 3-4j | 🔴 Critique |
 | **3. Migration Pages** | ⏳ À venir | 0/9 | 0% | 5-7j | 🟡 Important |
-| **4. Migration Composants** | ⏳ À venir | 0/13 | 0% | 3-4j | 🟡 Important |
+| **4. Migration Composants** | ✅ Terminé | 15/15 | 100% | 3-4j | 🟡 Important |
 | **5. Nettoyage & Tests** | ⏳ À venir | 0/6 | 0% | 2-3j | 🟢 Normal |
 
-**Total:** 6/36 tâches complétées (17%)
+**Total:** 23/38 tâches complétées (61%)
 
 ---
 
 ## 📅 Timeline
 
 ```
-Semaine 1: ████████████████████ TERMINÉ
-Semaine 2: ██████████░░░░░░░░░░ Composants de Base (Button ✅, Badge ✅)
-Semaine 3: ░░░░░░░░░░░░░░░░░░░░ Migration Pages (1/2)
-Semaine 4: ░░░░░░░░░░░░░░░░░░░░ Migration Pages (2/2) + Composants
-Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyage & Tests
+Semaine 1: ████████████████████ Phase 1 ✅ TERMINÉ
+Semaine 2: ████████████████████ Phase 2 ✅ TERMINÉ + Phase 4 ✅ TERMINÉ
+Semaine 3: ██░░░░░░░░░░░░░░░░░░ Migration Pages (Phase 3 - en cours)
+Semaine 4: ░░░░░░░░░░░░░░░░░░░░ Phase 3 (suite) + Phase 5
+Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Phase 5 (Nettoyage & Tests)
 ```
 
 ---
@@ -314,11 +314,11 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 ---
 
-## 🧩 Phase 4: Migration Composants ⏳ À VENIR
+## 🧩 Phase 4: Migration Composants ✅ TERMINÉ
 
 **Objectif:** Migrer tous les modals et composants spécifiques  
 **Durée:** 3-4 jours  
-**Statut:** 🚧 100% (13/13) ✅ TERMINÉ
+**Statut:** ✅ 100% (15/15) ✅ TERMINÉ
 **Priorité:** 🟡 Important
 
 ### 4.1 Modals
@@ -414,22 +414,28 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 ### 4.3 Autres Composants
 
-- [ ] **FamilyMemberCard** ⏳
-  - **Estimation:** 1 heure
+- [x] **FamilyMemberCard** ✅ TERMINÉ
+  - **Fichier:** `frontend/src/features/families/components/FamilyMemberCard.tsx`
+  - **Estimation:** 1 heure ✅
   - **Changements:** Utiliser `<Card variant="compact" hover>`
+  - **Réduction:** 5 classes CSS → 2 props sémantiques
+  - **Impact:** Faible
 
-- [ ] **StatCard** ⏳
-  - **Estimation:** 1 heure
-  - **Changements:** Utiliser `<Card variant="compact">`
+- [x] **StatCard** ✅ TERMINÉ (CRÉÉ)
+  - **Fichiers:** `frontend/src/shared/components/StatCard.{tsx,md,examples.tsx}`
+  - **Estimation:** 1 heure ✅
+  - **Changements:** Nouveau composant wrapper autour de `<Card variant="compact">`
+  - **API:** label, value, change, trend, icon
+  - **Impact:** Moyen (composant réutilisable)
 
 ### Métriques Phase 4
 
 - **Modals migrés:** 7/7 ✅ COMPLET
 - **Badges migrés:** 6/6 ✅ COMPLET
-- **Autres composants:** 0/2
-- **Réduction code moyenne:** ~30% sur les modals
+- **Cards migrés:** 2/2 ✅ COMPLET
+- **Réduction code moyenne:** ~30% sur les modals, ~25% sur les badges
 - **Commits:** 0/1 (à commiter)
-- **Prochaine étape:** Migrer FamilyMemberCard et StatCard (Phase 4.3)
+- **Prochaine étape:** Phase 5 (Nettoyage & Tests) ou Phase 3 (Migration Pages)
 
 ---
 
