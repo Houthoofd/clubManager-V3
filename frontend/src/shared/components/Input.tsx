@@ -18,14 +18,33 @@
  * @see Input.examples.tsx pour des exemples d'utilisation
  */
 
-import { forwardRef, useState, type InputHTMLAttributes, type TextareaHTMLAttributes, type SelectHTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useState,
+  type InputHTMLAttributes,
+  type TextareaHTMLAttributes,
+  type SelectHTMLAttributes,
+} from "react";
+import type React from "react";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
-export type InputSize = 'sm' | 'md' | 'lg';
-export type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'date' | 'time' | 'datetime-local';
+export type InputSize = "sm" | "md" | "lg";
+export type InputType =
+  | "text"
+  | "email"
+  | "password"
+  | "number"
+  | "tel"
+  | "url"
+  | "date"
+  | "time"
+  | "datetime-local";
 
-export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "size"
+> {
   /** Libellé du champ */
   label?: string;
   /** Taille du champ */
@@ -54,7 +73,10 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   labelClassName?: string;
 }
 
-export interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'> {
+export interface TextareaProps extends Omit<
+  TextareaHTMLAttributes<HTMLTextAreaElement>,
+  "size"
+> {
   /** Libellé du champ */
   label?: string;
   /** Taille du champ */
@@ -75,7 +97,10 @@ export interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaE
   labelClassName?: string;
 }
 
-export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size'> {
+export interface SelectProps extends Omit<
+  SelectHTMLAttributes<HTMLSelectElement>,
+  "size"
+> {
   /** Libellé du champ */
   label?: string;
   /** Taille du champ */
@@ -93,10 +118,17 @@ export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement
   /** Classe CSS additionnelle pour le label */
   labelClassName?: string;
   /** Options du select (alternative à children) */
-  options?: Array<{ value: string | number; label: string; disabled?: boolean }>;
+  options?: Array<{
+    value: string | number;
+    label: string;
+    disabled?: boolean;
+  }>;
 }
 
-export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
+export interface CheckboxProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "size" | "type"
+> {
   /** Libellé du checkbox */
   label: string;
   /** Message d'erreur */
@@ -107,7 +139,10 @@ export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement
   containerClassName?: string;
 }
 
-export interface RadioProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
+export interface RadioProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "size" | "type"
+> {
   /** Libellé du radio */
   label: string;
   /** Message d'erreur */
@@ -118,33 +153,53 @@ export interface RadioProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   containerClassName?: string;
 }
 
+// ─── INTERFACE COMPOSANT COMPOSÉ ─────────────────────────────────────────────
+
+interface InputComponent extends React.ForwardRefExoticComponent<
+  InputProps & React.RefAttributes<HTMLInputElement>
+> {
+  Textarea: React.ForwardRefExoticComponent<
+    TextareaProps & React.RefAttributes<HTMLTextAreaElement>
+  >;
+  Select: React.ForwardRefExoticComponent<
+    SelectProps & React.RefAttributes<HTMLSelectElement>
+  >;
+  Checkbox: React.ForwardRefExoticComponent<
+    CheckboxProps & React.RefAttributes<HTMLInputElement>
+  >;
+  Radio: React.ForwardRefExoticComponent<
+    RadioProps & React.RefAttributes<HTMLInputElement>
+  >;
+}
+
 // ─── CONSTANTES ──────────────────────────────────────────────────────────────
 
 const SIZE_CLASSES: Record<InputSize, { input: string; text: string }> = {
   sm: {
-    input: 'px-3 py-1.5 text-xs',
-    text: 'text-xs',
+    input: "px-3 py-1.5 text-xs",
+    text: "text-xs",
   },
   md: {
-    input: 'px-3 py-2.5 text-sm',
-    text: 'text-sm',
+    input: "px-3 py-2.5 text-sm",
+    text: "text-sm",
   },
   lg: {
-    input: 'px-4 py-3 text-base',
-    text: 'text-base',
+    input: "px-4 py-3 text-base",
+    text: "text-base",
   },
 };
 
-const BASE_INPUT_CLASSES = 'block w-full border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed disabled:text-gray-500';
+const BASE_INPUT_CLASSES =
+  "block w-full border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed disabled:text-gray-500";
 
 const getInputStateClasses = (error?: string, success?: string) => {
   if (error) {
-    return 'border-red-400 focus:ring-red-500 focus:border-red-500';
+    return "border-red-400 focus:ring-red-500 focus:border-red-500";
   }
   if (success) {
-    return 'border-green-400 focus:ring-green-500 focus:border-green-500';
+    return "border-green-400 focus:ring-green-500 focus:border-green-500";
   }
-  return 'border-gray-300 focus:ring-blue-500 focus:border-blue-500';
+  return "border-gray-300 focus:ring-blue-500 focus:border-blue-500";
 };
 
 // ─── COMPOSANT INPUT PRINCIPAL ───────────────────────────────────────────────
@@ -163,11 +218,11 @@ const getInputStateClasses = (error?: string, success?: string) => {
  * />
  * ```
  */
-export const Input = forwardRef<HTMLInputElement, InputProps>(
+const InputBase = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       label,
-      size = 'md',
+      size = "md",
       error,
       success,
       helperText,
@@ -177,22 +232,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       suffix,
       showCharCount,
       required,
-      containerClassName = '',
-      labelClassName = '',
-      className = '',
+      containerClassName = "",
+      labelClassName = "",
+      className = "",
       maxLength,
       value,
-      type = 'text',
+      type = "text",
       ...props
     },
-    ref
+    ref,
   ) => {
-    const [internalValue, setInternalValue] = useState('');
+    const [internalValue, setInternalValue] = useState("");
     const currentValue = value !== undefined ? String(value) : internalValue;
     const charCount = currentValue.length;
 
     const hasLeftAddon = !!iconLeft || !!prefix;
-    const hasRightAddon = !!iconRight || !!suffix || (type === 'password');
+    const hasRightAddon = !!iconRight || !!suffix || type === "password";
 
     return (
       <div className={containerClassName}>
@@ -239,16 +294,19 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               ${BASE_INPUT_CLASSES}
               ${SIZE_CLASSES[size].input}
               ${getInputStateClasses(error, success)}
-              ${hasLeftAddon ? 'pl-10' : ''}
-              ${hasRightAddon ? 'pr-10' : ''}
+              ${hasLeftAddon ? "pl-10" : ""}
+              ${hasRightAddon ? "pr-10" : ""}
               ${className}
             `}
             aria-invalid={!!error}
             aria-describedby={
-              error ? `${props.id}-error` :
-              success ? `${props.id}-success` :
-              helperText ? `${props.id}-helper` :
-              undefined
+              error
+                ? `${props.id}-error`
+                : success
+                  ? `${props.id}-success`
+                  : helperText
+                    ? `${props.id}-helper`
+                    : undefined
             }
             {...props}
           />
@@ -294,17 +352,23 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {/* Character Count */}
         {showCharCount && maxLength && (
           <div className="mt-1.5 text-right">
-            <span className={`text-xs ${charCount > maxLength ? 'text-red-600' : 'text-gray-500'}`}>
+            <span
+              className={`text-xs ${charCount > maxLength ? "text-red-600" : "text-gray-500"}`}
+            >
               {charCount} / {maxLength}
             </span>
           </div>
         )}
       </div>
     );
-  }
+  },
 );
 
-Input.displayName = 'Input';
+InputBase.displayName = "Input";
+
+// ─── EXPORT AVEC TYPE COMPOSÉ ────────────────────────────────────────────────
+
+export const Input = InputBase as unknown as InputComponent;
 
 // ─── TEXTAREA ────────────────────────────────────────────────────────────────
 
@@ -325,22 +389,22 @@ Input.Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     {
       label,
-      size = 'md',
+      size = "md",
       error,
       success,
       helperText,
       showCharCount,
       required,
-      containerClassName = '',
-      labelClassName = '',
-      className = '',
+      containerClassName = "",
+      labelClassName = "",
+      className = "",
       maxLength,
       value,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const [internalValue, setInternalValue] = useState('');
+    const [internalValue, setInternalValue] = useState("");
     const currentValue = value !== undefined ? String(value) : internalValue;
     const charCount = currentValue.length;
 
@@ -375,10 +439,13 @@ Input.Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           `}
           aria-invalid={!!error}
           aria-describedby={
-            error ? `${props.id}-error` :
-            success ? `${props.id}-success` :
-            helperText ? `${props.id}-helper` :
-            undefined
+            error
+              ? `${props.id}-error`
+              : success
+                ? `${props.id}-success`
+                : helperText
+                  ? `${props.id}-helper`
+                  : undefined
           }
           {...props}
         />
@@ -407,17 +474,19 @@ Input.Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {/* Character Count */}
         {showCharCount && maxLength && (
           <div className="mt-1.5 text-right">
-            <span className={`text-xs ${charCount > maxLength ? 'text-red-600' : 'text-gray-500'}`}>
+            <span
+              className={`text-xs ${charCount > maxLength ? "text-red-600" : "text-gray-500"}`}
+            >
               {charCount} / {maxLength}
             </span>
           </div>
         )}
       </div>
     );
-  }
+  },
 );
 
-Input.Textarea.displayName = 'Input.Textarea';
+Input.Textarea.displayName = "Input.Textarea";
 
 // ─── SELECT ──────────────────────────────────────────────────────────────────
 
@@ -439,19 +508,19 @@ Input.Select = forwardRef<HTMLSelectElement, SelectProps>(
   (
     {
       label,
-      size = 'md',
+      size = "md",
       error,
       success,
       helperText,
       required,
-      containerClassName = '',
-      labelClassName = '',
-      className = '',
+      containerClassName = "",
+      labelClassName = "",
+      className = "",
       options,
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <div className={containerClassName}>
@@ -477,16 +546,23 @@ Input.Select = forwardRef<HTMLSelectElement, SelectProps>(
           `}
           aria-invalid={!!error}
           aria-describedby={
-            error ? `${props.id}-error` :
-            success ? `${props.id}-success` :
-            helperText ? `${props.id}-helper` :
-            undefined
+            error
+              ? `${props.id}-error`
+              : success
+                ? `${props.id}-success`
+                : helperText
+                  ? `${props.id}-helper`
+                  : undefined
           }
           {...props}
         >
           {options
             ? options.map((option) => (
-                <option key={option.value} value={option.value} disabled={option.disabled}>
+                <option
+                  key={option.value}
+                  value={option.value}
+                  disabled={option.disabled}
+                >
                   {option.label}
                 </option>
               ))
@@ -515,10 +591,10 @@ Input.Select = forwardRef<HTMLSelectElement, SelectProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
-Input.Select.displayName = 'Input.Select';
+Input.Select.displayName = "Input.Select";
 
 // ─── CHECKBOX ────────────────────────────────────────────────────────────────
 
@@ -539,11 +615,11 @@ Input.Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       label,
       error,
       helperText,
-      containerClassName = '',
-      className = '',
+      containerClassName = "",
+      className = "",
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <div className={containerClassName}>
@@ -556,14 +632,16 @@ Input.Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                 h-4 w-4 text-blue-600 border-gray-300 rounded
                 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0
                 disabled:opacity-50 disabled:cursor-not-allowed
-                ${error ? 'border-red-400' : ''}
+                ${error ? "border-red-400" : ""}
                 ${className}
               `}
               aria-invalid={!!error}
               aria-describedby={
-                error ? `${props.id}-error` :
-                helperText ? `${props.id}-helper` :
-                undefined
+                error
+                  ? `${props.id}-error`
+                  : helperText
+                    ? `${props.id}-helper`
+                    : undefined
               }
               {...props}
             />
@@ -583,7 +661,10 @@ Input.Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                   </p>
                 )}
                 {!error && helperText && (
-                  <p id={`${props.id}-helper`} className="text-xs text-gray-500">
+                  <p
+                    id={`${props.id}-helper`}
+                    className="text-xs text-gray-500"
+                  >
                     {helperText}
                   </p>
                 )}
@@ -593,10 +674,10 @@ Input.Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
-Input.Checkbox.displayName = 'Input.Checkbox';
+Input.Checkbox.displayName = "Input.Checkbox";
 
 // ─── RADIO ───────────────────────────────────────────────────────────────────
 
@@ -618,11 +699,11 @@ Input.Radio = forwardRef<HTMLInputElement, RadioProps>(
       label,
       error,
       helperText,
-      containerClassName = '',
-      className = '',
+      containerClassName = "",
+      className = "",
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <div className={containerClassName}>
@@ -635,14 +716,16 @@ Input.Radio = forwardRef<HTMLInputElement, RadioProps>(
                 h-4 w-4 text-blue-600 border-gray-300
                 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0
                 disabled:opacity-50 disabled:cursor-not-allowed
-                ${error ? 'border-red-400' : ''}
+                ${error ? "border-red-400" : ""}
                 ${className}
               `}
               aria-invalid={!!error}
               aria-describedby={
-                error ? `${props.id}-error` :
-                helperText ? `${props.id}-helper` :
-                undefined
+                error
+                  ? `${props.id}-error`
+                  : helperText
+                    ? `${props.id}-helper`
+                    : undefined
               }
               {...props}
             />
@@ -662,7 +745,10 @@ Input.Radio = forwardRef<HTMLInputElement, RadioProps>(
                   </p>
                 )}
                 {!error && helperText && (
-                  <p id={`${props.id}-helper`} className="text-xs text-gray-500">
+                  <p
+                    id={`${props.id}-helper`}
+                    className="text-xs text-gray-500"
+                  >
                     {helperText}
                   </p>
                 )}
@@ -672,17 +758,7 @@ Input.Radio = forwardRef<HTMLInputElement, RadioProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
-Input.Radio.displayName = 'Input.Radio';
-
-// ─── EXPORTS ─────────────────────────────────────────────────────────────────
-
-export type {
-  InputProps,
-  TextareaProps,
-  SelectProps,
-  CheckboxProps,
-  RadioProps,
-};
+Input.Radio.displayName = "Input.Radio";

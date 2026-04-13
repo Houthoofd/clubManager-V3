@@ -11,7 +11,7 @@
 ## 📊 Progression Globale
 
 ```
-█████████████████░░░ 60% (Phase 1 + Phase 2 + Badges migrés)
+███████████████████░ 70% (Phase 1 + Phase 2 + Phase 4 Badges & Modals)
 ```
 
 **Légende:**
@@ -318,47 +318,53 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 **Objectif:** Migrer tous les modals et composants spécifiques  
 **Durée:** 3-4 jours  
-**Statut:** 🚧 46% (6/13)  
+**Statut:** 🚧 100% (13/13) ✅ TERMINÉ
 **Priorité:** 🟡 Important
 
 ### 4.1 Modals
 
-- [ ] **AddFamilyMemberModal** ⏳
+- [x] **AddFamilyMemberModal** ✅ TERMINÉ
   - **Fichier:** `frontend/src/features/families/components/AddFamilyMemberModal.tsx`
-  - **Estimation:** 1-2 heures
-  - **Changements:**
-    - Utiliser `<Modal>` avec header/body/footer
-    - Ajouter bouton X manquant
-    - Uniformiser overlay opacity à /50
+  - **Estimation:** 1-2 heures ✅
+  - **Changements:** Modal + Input + Button centralisés
+  - **Réduction:** -43% de code (379 → 216 lignes)
   - **Impact:** Moyen
 
-- [ ] **ComposeModal** ⏳
+- [x] **ComposeModal** ✅ TERMINÉ
   - **Fichier:** `frontend/src/features/messaging/components/ComposeModal.tsx`
-  - **Estimation:** 1-2 heures
-  - **Changements:**
-    - Fixer overlay `/40` → `/50`
-    - Fixer border-radius `xl` → `2xl`
-    - Standardiser borders `gray-200` → `gray-100`
+  - **Estimation:** 1-2 heures ✅
+  - **Changements:** Modal + Input.Select + Input.Textarea + Button
+  - **Réduction:** ~200 lignes (587 → 444 lignes)
   - **Impact:** Moyen
 
-- [ ] **RecordPaymentModal** ⏳
-  - **Estimation:** 1 heure
+- [x] **RecordPaymentModal** ✅ TERMINÉ
+  - **Estimation:** 1 heure ✅
+  - **Changements:** Modal + Input + Input.Select + Input.Textarea
+  - **Réduction:** -44% de code (454 → 255 lignes)
   - **Impact:** Faible
 
-- [ ] **ArticleModal** ⏳
-  - **Estimation:** 1 heure
+- [x] **ArticleModal** ✅ TERMINÉ
+  - **Estimation:** 1 heure ✅
+  - **Changements:** Modal + Input + Input.Select + Input.Textarea + Input.Checkbox
+  - **Réduction:** ~30 lignes
   - **Impact:** Faible
 
-- [ ] **CartModal** ⏳
-  - **Estimation:** 1-2 heures
+- [x] **CartModal** ✅ TERMINÉ
+  - **Estimation:** 1-2 heures ✅
+  - **Changements:** Modal (size xl) + Button, logique panier préservée
+  - **Réduction:** -70 lignes (370 → 300 lignes)
   - **Impact:** Moyen
 
-- [ ] **TemplateEditorModal** ⏳
-  - **Estimation:** 1 heure
+- [x] **TemplateEditorModal** ✅ TERMINÉ
+  - **Estimation:** 1 heure ✅
+  - **Changements:** Modal (size 2xl) + Input + Input.Select + Input.Textarea + Input.Checkbox
+  - **Réduction:** -25% de code (549 → 411 lignes)
   - **Impact:** Faible
 
-- [ ] **SendFromTemplateModal** ⏳
-  - **Estimation:** 1 heure
+- [x] **SendFromTemplateModal** ✅ TERMINÉ
+  - **Estimation:** 1 heure ✅
+  - **Changements:** Modal + Input + Input.Select + Input.Checkbox
+  - **Réduction:** -25% de code (665 → 496 lignes)
   - **Impact:** Faible
 
 ### 4.2 Badge Components
@@ -418,11 +424,12 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 ### Métriques Phase 4
 
-- **Modals migrés:** 0/7
+- **Modals migrés:** 7/7 ✅ COMPLET
 - **Badges migrés:** 6/6 ✅ COMPLET
 - **Autres composants:** 0/2
+- **Réduction code moyenne:** ~30% sur les modals
 - **Commits:** 0/1 (à commiter)
-- **Prochaine étape:** Migrer les Modals ou les Card components
+- **Prochaine étape:** Migrer FamilyMemberCard et StatCard (Phase 4.3)
 
 ---
 
@@ -627,13 +634,14 @@ Contribuer à cette roadmap directement
 3. [x] ~~Créer le composant Modal (3-4h)~~ ✅ FAIT
 4. [x] ~~Créer le composant Input (2-3h)~~ ✅ FAIT
 5. [x] ~~Migrer les 6 Badge Components (3h)~~ ✅ FAIT
-6. [ ] Migrer les 7 Modals (6-8h) ⏳ PROCHAIN
-7. [ ] Migrer FamilyMemberCard et StatCard (2h)
+6. [x] ~~Migrer les 7 Modals (6-8h)~~ ✅ FAIT
+7. [ ] Migrer FamilyMemberCard et StatCard (2h) ⏳ PROCHAIN
 8. [ ] Migrer les pages (Phase 3)
 
 **Phase 2 TERMINÉE !** 🎉  
 **Phase 4 Badges TERMINÉE !** 🎉  
-**Estimation restante Phase 4:** 2-3 jours (Modals + Cards)
+**Phase 4 Modals TERMINÉE !** 🎉  
+**Estimation restante Phase 4:** 2h (Cards seulement)
 
 ---
 
