@@ -11,7 +11,7 @@
 ## 📊 Progression Globale
 
 ```
-███████████░░░░░░░░░ 30% (Phase 1 + Button + Badge terminés)
+█████████████░░░░░░░ 40% (Phase 1 + Button + Badge + Modal terminés)
 ```
 
 **Légende:**
@@ -99,7 +99,7 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 **Objectif:** Créer tous les composants réutilisables essentiels  
 **Durée:** 3-4 jours  
-**Statut:** 🚧 50% (2/4)  
+**Statut:** 🚧 75% (3/4)  
 **Priorité:** 🔴 Critique
 
 ### Tâches
@@ -149,22 +149,28 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
   - **Documentation:** ✅ 13 exemples pratiques
   - **Migration:** Remplace 6 composants de badges existants
 
-- [ ] **2.3 Composant Modal** ⏳
-  - **Estimation:** 3-4 heures
+- [x] **2.3 Composant Modal** ✅ TERMINÉ
+  - **Estimation:** 3-4 heures ✅
   - **Priorité:** 🔴 Haute
-  - **Fichiers à créer:**
-    - `frontend/src/shared/components/Modal.tsx`
-    - `frontend/src/shared/components/Modal.md`
-    - `frontend/src/shared/components/Modal.examples.tsx`
-  - **Tailles:** sm, md, lg, xl, 2xl, 3xl, 4xl
-  - **Features:**
+  - **Commit:** À commiter
+  - **Fichiers créés:** ✅
+    - `frontend/src/shared/components/Modal.tsx` (372 lignes)
+    - `frontend/src/shared/components/Modal.md` (621 lignes)
+    - `frontend/src/shared/components/Modal.examples.tsx` (1010 lignes)
+  - **Tailles implémentées:** ✅ sm, md, lg, xl, 2xl, 3xl, 4xl
+  - **Features implémentées:** ✅
     - Header avec titre + sous-titre + bouton X
-    - Body scrollable
-    - Footer avec actions
-    - Overlay click to close
-    - Escape key to close
-    - Focus trap
-  - **Tests:** Tester sur tous les navigateurs
+    - Body scrollable (overflow-y-auto)
+    - Footer avec actions (4 alignements: left, center, right, between)
+    - Overlay click to close (désactivable)
+    - Escape key to close (désactivable)
+    - Focus trap automatique
+    - Blocage du scroll body
+    - Compensation scrollbar (évite le "jump")
+  - **Sous-composants:** ✅ Modal.Header, Modal.Body, Modal.Footer
+  - **Documentation:** ✅ 10 exemples pratiques
+  - **Accessibilité:** ✅ role="dialog", aria-modal, aria-labelledby, focus management
+  - **Migration:** Remplace 7+ modals existants
 
 - [ ] **2.4 Composant Input** ⏳
   - **Estimation:** 2-3 heures
@@ -190,11 +196,11 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 ### Métriques Phase 2
 
-- **Composants créés:** 2/4 ✅
-- **Fichiers créés:** 6/12 ✅
-- **Lignes de code:** 3,052/~2000 (153% - dépassé!)
+- **Composants créés:** 3/4 ✅
+- **Fichiers créés:** 9/12 ✅
+- **Lignes de code:** 5,055/~2000 (253% - largement dépassé!)
 - **Tests visuels:** 0/4
-- **Prochaine étape:** Modal component
+- **Prochaine étape:** Input component (optionnel) puis migration pages
 
 ---
 
@@ -595,10 +601,11 @@ Contribuer à cette roadmap directement
 
 1. [x] ~~Créer le composant Button (2-3h)~~ ✅ FAIT
 2. [x] ~~Créer le composant Badge (1-2h)~~ ✅ FAIT
-3. [ ] Créer le composant Modal (3-4h) ⏳ PROCHAIN
-4. [ ] Migrer LoginPage (1-2h)
+3. [x] ~~Créer le composant Modal (3-4h)~~ ✅ FAIT
+4. [ ] Migrer LoginPage avec Card/Button/Modal (1-2h) ⏳ PROCHAIN
+5. [ ] Créer le composant Input (2-3h) (optionnel)
 
-**Estimation restante:** 4-6 heures de travail
+**Estimation restante:** 1-5 heures de travail
 
 ---
 
