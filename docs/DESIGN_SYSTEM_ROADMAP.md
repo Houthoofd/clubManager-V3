@@ -11,7 +11,7 @@
 ## 📊 Progression Globale
 
 ```
-██████████░░░░░░░░░░ 25% (Phase 1 + Button terminés)
+███████████░░░░░░░░░ 30% (Phase 1 + Button + Badge terminés)
 ```
 
 **Légende:**
@@ -27,12 +27,12 @@
 | Phase | Statut | Tâches | Complété | Durée | Priorité |
 |-------|--------|--------|----------|-------|----------|
 | **1. Fondations** | ✅ Terminé | 4/4 | 100% | 2j | 🔴 Critique |
-| **2. Composants de Base** | 🚧 En cours | 1/4 | 25% | 3-4j | 🔴 Critique |
+| **2. Composants de Base** | 🚧 En cours | 2/4 | 50% | 3-4j | 🔴 Critique |
 | **3. Migration Pages** | ⏳ À venir | 0/9 | 0% | 5-7j | 🟡 Important |
 | **4. Migration Composants** | ⏳ À venir | 0/13 | 0% | 3-4j | 🟡 Important |
 | **5. Nettoyage & Tests** | ⏳ À venir | 0/6 | 0% | 2-3j | 🟢 Normal |
 
-**Total:** 5/36 tâches complétées (14%)
+**Total:** 6/36 tâches complétées (17%)
 
 ---
 
@@ -40,7 +40,7 @@
 
 ```
 Semaine 1: ████████████████████ TERMINÉ
-Semaine 2: █████░░░░░░░░░░░░░░░ Composants de Base (Button ✅)
+Semaine 2: ██████████░░░░░░░░░░ Composants de Base (Button ✅, Badge ✅)
 Semaine 3: ░░░░░░░░░░░░░░░░░░░░ Migration Pages (1/2)
 Semaine 4: ░░░░░░░░░░░░░░░░░░░░ Migration Pages (2/2) + Composants
 Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyage & Tests
@@ -99,7 +99,7 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 **Objectif:** Créer tous les composants réutilisables essentiels  
 **Durée:** 3-4 jours  
-**Statut:** 🚧 25% (1/4)  
+**Statut:** 🚧 50% (2/4)  
 **Priorité:** 🔴 Critique
 
 ### Tâches
@@ -128,21 +128,26 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
   - **Documentation:** ✅ 12 exemples pratiques
   - **Accessibilité:** ✅ Support aria-label
 
-- [ ] **2.2 Composant Badge** ⏳
-  - **Estimation:** 1-2 heures
+- [x] **2.2 Composant Badge** ✅ TERMINÉ
+  - **Estimation:** 1-2 heures ✅
   - **Priorité:** 🔴 Haute
-  - **Fichiers à créer:**
-    - `frontend/src/shared/components/Badge.tsx`
-    - `frontend/src/shared/components/Badge.md`
-    - `frontend/src/shared/components/Badge.examples.tsx`
-  - **Variants à implémenter:**
+  - **Commit:** `706c5fb`
+  - **Fichiers créés:** ✅
+    - `frontend/src/shared/components/Badge.tsx` (294 lignes)
+    - `frontend/src/shared/components/Badge.md` (718 lignes)
+    - `frontend/src/shared/components/Badge.examples.tsx` (560 lignes)
+  - **Variants implémentés:** ✅
     - success, warning, danger, info, neutral, purple, orange
-  - **Tailles:** sm, md, lg
-  - **Features:**
+  - **Tailles:** ✅ sm, md, lg
+  - **Features implémentées:** ✅
     - Dot indicator support
     - Icon support
-    - Removable (avec X)
-  - **Migration:** Remplacer tous les badges existants (6 composants)
+    - Removable (tag mode avec onRemove)
+  - **Sous-composants spécialisés:** ✅
+    - Badge.Status, Badge.Stock, Badge.Role
+    - Badge.PaymentStatus, Badge.OrderStatus
+  - **Documentation:** ✅ 13 exemples pratiques
+  - **Migration:** Remplace 6 composants de badges existants
 
 - [ ] **2.3 Composant Modal** ⏳
   - **Estimation:** 3-4 heures
@@ -185,11 +190,11 @@ Semaine 5: ░░░░░░░░░░░░░░░░░░░░ Nettoyag
 
 ### Métriques Phase 2
 
-- **Composants créés:** 1/4 ✅
-- **Fichiers créés:** 3/12 ✅
-- **Lignes de code:** 1,480/~2000 (74%)
+- **Composants créés:** 2/4 ✅
+- **Fichiers créés:** 6/12 ✅
+- **Lignes de code:** 3,052/~2000 (153% - dépassé!)
 - **Tests visuels:** 0/4
-- **Prochaine étape:** Badge component
+- **Prochaine étape:** Modal component
 
 ---
 
@@ -589,10 +594,11 @@ Contribuer à cette roadmap directement
 **À faire maintenant:**
 
 1. [x] ~~Créer le composant Button (2-3h)~~ ✅ FAIT
-2. [ ] Créer le composant Badge (1-2h) ⏳ PROCHAIN
-3. [ ] Migrer LoginPage (1-2h)
+2. [x] ~~Créer le composant Badge (1-2h)~~ ✅ FAIT
+3. [ ] Créer le composant Modal (3-4h) ⏳ PROCHAIN
+4. [ ] Migrer LoginPage (1-2h)
 
-**Estimation restante:** 2-4 heures de travail
+**Estimation restante:** 4-6 heures de travail
 
 ---
 
