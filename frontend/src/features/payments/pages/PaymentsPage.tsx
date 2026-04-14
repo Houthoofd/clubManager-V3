@@ -1,21 +1,39 @@
 /**
- * PaymentsPage
+ * PaymentsPage - Version migrée avec composants réutilisables
+ *
+ * Utilise :
+ * - TabGroup (navigation par onglets)
+ * - DataTable (tableaux de paiements et échéances)
+ * - SearchBar (recherche de paiements)
+ * - DateRangePicker (filtres de dates)
+ *
  * Page principale du module paiements.
  * Organisée en 3 onglets : Paiements, Échéances, Plans tarifaires.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import apiClient from "../../../shared/api/apiClient";
 import { UserRole, PaymentStatus } from "@clubmanager/types";
 import type { PricingPlan } from "@clubmanager/types";
 
+// ─── Hooks ────────────────────────────────────────────────────────────────────
 import {
   usePayments,
   usePaymentSchedules,
   usePricingPlans,
 } from "../hooks/usePayments";
+
+// ─── Composants réutilisables ─────────────────────────────────────────────────
+import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
+import { DataTable } from "../../../shared/components/Table/DataTable";
+import { SearchBar } from "../../../shared/components/Forms/SearchBar";
+import { DateRangePicker } from "../../../shared/components/Forms/DateRangePicker";
+import type { Column } from "../../../shared/components/Table/DataTable";
+import type { Tab } from "../../../shared/components/Navigation/TabGroup";
+
+// ─── Composants spécifiques paiements ─────────────────────────────────────────
 import { PaymentStatusBadge } from "../components/PaymentStatusBadge";
 import { PaymentMethodBadge } from "../components/PaymentMethodBadge";
 import { ScheduleStatusBadge } from "../components/ScheduleStatusBadge";
@@ -25,7 +43,86 @@ import { PricingPlanFormModal } from "../components/PricingPlanFormModal";
 import type { PricingPlanFormData } from "../components/PricingPlanFormModal";
 import { StripePaymentModal } from "../components/StripePaymentModal";
 
-// ─── Types locaux ─────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type TabId = "payments" | "schedules" | "plans";
+
+interface UserOption {
+  id: number;
+  nom_complet: string;
+}
+
+interface StripeSetupState {
+  isOpen: boolean;
+  userId: string;
+  montant: string;
+  planId: string;
+  description: string;
+  isLoading: boolean;
+  error: string | null;
+}
+
+interface StripeModalState {
+  isOpen: boolean;
+  clientSecret: string;
+  amount: number;
+}
+
+interface DateRange {
+  startDate: string | null;
+  endDate: string | null;
+}
+
+// ─── Types pour DataTable ─────────────────────────────────────────────────────
+interface PaymentRow {
+  id: number;
+  utilisateur_nom_complet: string;
+  utilisateur_email: string;
+  montant: number;
+  methode_paiement: string;
+  statut: string;
+  plan_tarifaire_nom?: string | null;
+  date_paiement: string | null;
+}
+
+interface ScheduleRow {
+  id: number;
+  utilisateur_nom_complet: string;
+  utilisateur_email: string;
+  plan_tarifaire_nom: string;
+  montant: number;
+  date_echeance: string;
+  statut: string;
+  jours_retard?: number;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatCurrency(amount: number): string {
+  return amount.toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+}
+
+function formatDate(date: string | null | undefined): string {
+  if (!date) return "—";
+  return new Date(date).toLocaleDateString("fr-FR");
+}
+
+function buildPageRange(current: number, total: number): (number | "...")[] {
+  if (total <= 1) return total === 1 ? [1] : [];
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const pages: (number | "...")[] = [];
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+
+  pages.push(1);
+  if (start > 2) pages.push("...");
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (end < total - 1) pages.push("...");
+  pages.push(total);
+
+  return pages;
+}
 
 // ─── Icônes SVG ───────────────────────────────────────────────────────────────
 
@@ -87,57 +184,6 @@ function ExclamationTriangleIcon({ className }: { className?: string }) {
       />
     </svg>
   );
-}
-
-type Tab = "payments" | "schedules" | "plans";
-
-interface UserOption {
-  id: number;
-  nom_complet: string;
-}
-
-interface StripeSetupState {
-  isOpen: boolean;
-  userId: string;
-  montant: string;
-  planId: string;
-  description: string;
-  isLoading: boolean;
-  error: string | null;
-}
-
-interface StripeModalState {
-  isOpen: boolean;
-  clientSecret: string;
-  amount: number;
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function buildPageRange(current: number, total: number): (number | "...")[] {
-  if (total <= 1) return total === 1 ? [1] : [];
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-
-  const pages: (number | "...")[] = [];
-  const start = Math.max(2, current - 1);
-  const end = Math.min(total - 1, current + 1);
-
-  pages.push(1);
-  if (start > 2) pages.push("...");
-  for (let i = start; i <= end; i++) pages.push(i);
-  if (end < total - 1) pages.push("...");
-  pages.push(total);
-
-  return pages;
-}
-
-function formatCurrency(amount: number): string {
-  return amount.toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
-}
-
-function formatDate(date: string | null | undefined): string {
-  if (!date) return "—";
-  return new Date(date).toLocaleDateString("fr-FR");
 }
 
 // ─── Sous-composants ──────────────────────────────────────────────────────────
@@ -269,40 +315,11 @@ function PaginationBar({ pagination, onPageChange }: PaginationBarProps) {
   );
 }
 
-interface TabButtonProps {
-  label: string;
-  active: boolean;
-  badge?: number;
-  onClick: () => void;
-}
-
-function TabButton({ label, active, badge, onClick }: TabButtonProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap
-        ${
-          active
-            ? "border-blue-600 text-blue-600"
-            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-        }`}
-    >
-      {label}
-      {badge !== undefined && badge > 0 && (
-        <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full text-xs font-semibold bg-red-500 text-white">
-          {badge}
-        </span>
-      )}
-    </button>
-  );
-}
-
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export function PaymentsPage() {
   // ── Onglet actif ──────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState<Tab>("payments");
+  const [activeTab, setActiveTab] = useState<TabId>("payments");
 
   // ── Hooks données ─────────────────────────────────────────────────────────
   const {
@@ -372,7 +389,18 @@ export function PaymentsPage() {
 
   // ── Recherche locale sur les paiements ────────────────────────────────────
   const [paymentSearch, setPaymentSearch] = useState("");
-  // Pas de debounce nécessaire car c'est du filtrage client-side
+
+  // ── États date range pour filtres ─────────────────────────────────────────
+  const [dateRange, setDateRange] = useState<DateRange>({
+    startDate: paymentsFilters.date_debut || null,
+    endDate: paymentsFilters.date_fin || null,
+  });
+
+  // Synchroniser dateRange avec les filtres
+  useEffect(() => {
+    setPaymentsFilter("date_debut", dateRange.startDate || "");
+    setPaymentsFilter("date_fin", dateRange.endDate || "");
+  }, [dateRange.startDate, dateRange.endDate, setPaymentsFilter]);
 
   // ── États des modals ──────────────────────────────────────────────────────
   const [recordPaymentOpen, setRecordPaymentOpen] = useState(false);
@@ -576,6 +604,183 @@ export function PaymentsPage() {
     }
   };
 
+  // ── Configuration TabGroup ────────────────────────────────────────────────
+  const tabs: Tab[] = [
+    { id: "payments", label: "Paiements" },
+    {
+      id: "schedules",
+      label: "Échéances",
+      badge: overdueSchedules.length > 0 ? overdueSchedules.length : undefined,
+    },
+    ...(isAdmin ? [{ id: "plans" as const, label: "Plans tarifaires" }] : []),
+  ];
+
+  // ── Configuration colonnes DataTable (Paiements) ──────────────────────────
+  const paymentsColumns: Column<PaymentRow>[] = useMemo(
+    () => [
+      {
+        key: "utilisateur_nom_complet",
+        label: "Membre",
+        render: (_, row) => (
+          <div>
+            <div className="text-sm font-medium text-gray-900">
+              {row.utilisateur_nom_complet}
+            </div>
+            <div className="text-xs text-gray-400 mt-0.5">
+              {row.utilisateur_email}
+            </div>
+          </div>
+        ),
+      },
+      {
+        key: "montant",
+        label: "Montant",
+        render: (value) => (
+          <span className="text-sm font-semibold text-gray-900">
+            {formatCurrency(value)}
+          </span>
+        ),
+      },
+      {
+        key: "methode_paiement",
+        label: "Méthode",
+        render: (value) => <PaymentMethodBadge methode={value} />,
+      },
+      {
+        key: "statut",
+        label: "Statut",
+        render: (value) => <PaymentStatusBadge statut={value} />,
+      },
+      {
+        key: "plan_tarifaire_nom",
+        label: "Plan",
+        render: (value) => (
+          <span className="text-sm text-gray-600">{value ?? "—"}</span>
+        ),
+      },
+      {
+        key: "date_paiement",
+        label: "Date",
+        render: (value) => (
+          <span className="text-sm text-gray-600">{formatDate(value)}</span>
+        ),
+      },
+      {
+        key: "id",
+        label: "Actions",
+        render: (value) => (
+          <span className="text-xs text-gray-400">#{value}</span>
+        ),
+      },
+    ],
+    [],
+  );
+
+  // ── Configuration colonnes DataTable (Échéances) ──────────────────────────
+  const schedulesColumns: Column<ScheduleRow>[] = useMemo(
+    () => [
+      {
+        key: "utilisateur_nom_complet",
+        label: "Membre",
+        render: (_, row) => (
+          <div>
+            <div className="text-sm font-medium text-gray-900">
+              {row.utilisateur_nom_complet}
+            </div>
+            <div className="text-xs text-gray-400 mt-0.5">
+              {row.utilisateur_email}
+            </div>
+          </div>
+        ),
+      },
+      {
+        key: "plan_tarifaire_nom",
+        label: "Plan",
+        render: (value) => (
+          <span className="text-sm text-gray-600">{value}</span>
+        ),
+      },
+      {
+        key: "montant",
+        label: "Montant",
+        render: (value) => (
+          <span className="text-sm font-semibold text-gray-900">
+            {formatCurrency(value)}
+          </span>
+        ),
+      },
+      {
+        key: "date_echeance",
+        label: "Date échéance",
+        render: (value) => (
+          <span className="text-sm text-gray-600">{formatDate(value)}</span>
+        ),
+      },
+      {
+        key: "statut",
+        label: "Statut",
+        render: (value, row) => (
+          <ScheduleStatusBadge statut={value} joursRetard={row.jours_retard} />
+        ),
+      },
+      {
+        key: "jours_retard",
+        label: "Jours retard",
+        render: (value) =>
+          value !== undefined && value > 0 ? (
+            <span className="text-sm font-medium text-red-600">{value}j</span>
+          ) : (
+            <span className="text-sm text-gray-400">—</span>
+          ),
+      },
+      {
+        key: "id",
+        label: "Actions",
+        render: (_, row) => {
+          if (isAdmin && row.statut !== "paye" && row.statut !== "annule") {
+            return (
+              <button
+                type="button"
+                onClick={() => handleMarkAsPaid(row.id)}
+                disabled={markingScheduleId === row.id}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium
+                         text-white bg-green-600 hover:bg-green-700 rounded-md
+                         transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {markingScheduleId === row.id ? (
+                  <svg
+                    className="animate-spin h-3 w-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                ) : (
+                  <CheckIcon className="h-3.5 w-3.5" />
+                )}
+                Marquer payé
+              </button>
+            );
+          }
+          return <span className="text-xs text-gray-400">—</span>;
+        },
+      },
+    ],
+    [isAdmin, markingScheduleId],
+  );
+
   // ── Rendu ─────────────────────────────────────────────────────────────────
 
   return (
@@ -590,26 +795,13 @@ export function PaymentsPage() {
 
       {/* ── Conteneur onglets ── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        {/* ── Navigation ── */}
-        <div className="flex items-center border-b border-gray-100 px-2 overflow-x-auto">
-          <TabButton
-            label="Paiements"
-            active={activeTab === "payments"}
-            onClick={() => setActiveTab("payments")}
+        {/* ── Navigation avec TabGroup ── */}
+        <div className="border-b border-gray-100 px-2">
+          <TabGroup
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={(id) => setActiveTab(id as TabId)}
           />
-          <TabButton
-            label="Échéances"
-            active={activeTab === "schedules"}
-            badge={overdueSchedules.length}
-            onClick={() => setActiveTab("schedules")}
-          />
-          {isAdmin && (
-            <TabButton
-              label="Plans tarifaires"
-              active={activeTab === "plans"}
-              onClick={() => setActiveTab("plans")}
-            />
-          )}
         </div>
 
         {/* ════════════════════════════════════════════════════════════════════
@@ -687,31 +879,14 @@ export function PaymentsPage() {
             {/* Filtres */}
             <div className="p-4 border-b border-gray-50">
               <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-                {/* Recherche par nom (client-side) */}
-                <div className="relative flex-1 min-w-[200px]">
-                  <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg
-                      className="h-4 w-4 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                      />
-                    </svg>
-                  </span>
-                  <input
-                    type="search"
+                {/* Recherche avec SearchBar */}
+                <div className="flex-1 min-w-[200px]">
+                  <SearchBar
                     value={paymentSearch}
-                    onChange={(e) => setPaymentSearch(e.target.value)}
+                    onChange={setPaymentSearch}
                     placeholder="Rechercher par nom de membre…"
-                    className="block w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm
-                               placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
-                               focus:border-blue-500 transition-colors"
+                    size="md"
+                    showClear
                   />
                 </div>
 
@@ -745,53 +920,23 @@ export function PaymentsPage() {
                   <option value="autre">Autre</option>
                 </select>
 
-                {/* Date début */}
-                <div className="flex items-center gap-1.5">
-                  <label className="text-xs text-gray-500 whitespace-nowrap">
-                    Du
-                  </label>
-                  <input
-                    type="date"
-                    value={paymentsFilters.date_debut}
-                    onChange={(e) =>
-                      setPaymentsFilter("date_debut", e.target.value)
-                    }
-                    className="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white
-                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                               transition-colors"
-                  />
-                </div>
-
-                {/* Date fin */}
-                <div className="flex items-center gap-1.5">
-                  <label className="text-xs text-gray-500 whitespace-nowrap">
-                    Au
-                  </label>
-                  <input
-                    type="date"
-                    value={paymentsFilters.date_fin}
-                    onChange={(e) =>
-                      setPaymentsFilter("date_fin", e.target.value)
-                    }
-                    className="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white
-                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                               transition-colors"
-                  />
+                {/* DateRangePicker pour les dates */}
+                <div className="flex items-center gap-2">
+                  <DateRangePicker value={dateRange} onChange={setDateRange} />
                 </div>
 
                 {/* Réinitialiser filtres */}
                 {(paymentsFilters.statut ||
                   paymentsFilters.methode ||
-                  paymentsFilters.date_debut ||
-                  paymentsFilters.date_fin ||
+                  dateRange.startDate ||
+                  dateRange.endDate ||
                   paymentSearch) && (
                   <button
                     type="button"
                     onClick={() => {
                       setPaymentsFilter("statut", "");
                       setPaymentsFilter("methode", "");
-                      setPaymentsFilter("date_debut", "");
-                      setPaymentsFilter("date_fin", "");
+                      setDateRange({ startDate: null, endDate: null });
                       setPaymentSearch("");
                     }}
                     className="px-3 py-2.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100
@@ -803,101 +948,25 @@ export function PaymentsPage() {
               </div>
             </div>
 
-            {/* Tableau paiements */}
-            {paymentsLoading && <LoadingSpinner />}
-
-            {!paymentsLoading && filteredPayments.length === 0 && (
+            {/* DataTable pour les paiements */}
+            {paymentsLoading ? (
+              <LoadingSpinner />
+            ) : filteredPayments.length === 0 ? (
               <EmptyState message="Aucun paiement trouvé." />
-            )}
-
-            {!paymentsLoading && filteredPayments.length > 0 && (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-100">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      {[
-                        "Membre",
-                        "Montant",
-                        "Méthode",
-                        "Statut",
-                        "Plan",
-                        "Date",
-                        "Actions",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          scope="col"
-                          className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50 bg-white">
-                    {filteredPayments.map((p) => (
-                      <tr
-                        key={p.id}
-                        className="hover:bg-gray-50 transition-colors"
-                      >
-                        {/* Membre */}
-                        <td className="px-4 py-3.5">
-                          <div className="text-sm font-medium text-gray-900">
-                            {p.utilisateur_nom_complet}
-                          </div>
-                          <div className="text-xs text-gray-400 mt-0.5">
-                            {p.utilisateur_email}
-                          </div>
-                        </td>
-
-                        {/* Montant */}
-                        <td className="px-4 py-3.5">
-                          <span className="text-sm font-semibold text-gray-900">
-                            {formatCurrency(p.montant)}
-                          </span>
-                        </td>
-
-                        {/* Méthode */}
-                        <td className="px-4 py-3.5">
-                          <PaymentMethodBadge methode={p.methode_paiement} />
-                        </td>
-
-                        {/* Statut */}
-                        <td className="px-4 py-3.5">
-                          <PaymentStatusBadge statut={p.statut} />
-                        </td>
-
-                        {/* Plan */}
-                        <td className="px-4 py-3.5">
-                          <span className="text-sm text-gray-600">
-                            {p.plan_tarifaire_nom ?? "—"}
-                          </span>
-                        </td>
-
-                        {/* Date */}
-                        <td className="px-4 py-3.5">
-                          <span className="text-sm text-gray-600">
-                            {formatDate(p.date_paiement)}
-                          </span>
-                        </td>
-
-                        {/* Actions */}
-                        <td className="px-4 py-3.5">
-                          <span className="text-xs text-gray-400">#{p.id}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* Pagination */}
-            {!paymentsLoading && (
-              <PaginationBar
-                pagination={paymentsPagination}
-                onPageChange={setPaymentsPage}
-              />
+            ) : (
+              <>
+                <DataTable
+                  columns={paymentsColumns}
+                  data={filteredPayments}
+                  rowKey="id"
+                  loading={paymentsLoading}
+                  emptyMessage="Aucun paiement trouvé."
+                />
+                <PaginationBar
+                  pagination={paymentsPagination}
+                  onPageChange={setPaymentsPage}
+                />
+              </>
             )}
           </div>
         )}
@@ -975,7 +1044,7 @@ export function PaymentsPage() {
               </div>
             </div>
 
-            {/* ── Section échéances en retard ── */}
+            {/* Section échéances en retard */}
             {overdueSchedules.length > 0 && (
               <div className="p-4 bg-red-50 border-b border-red-100">
                 <div className="flex items-start gap-3">
@@ -1050,152 +1119,25 @@ export function PaymentsPage() {
               </div>
             )}
 
-            {/* Tableau échéances */}
-            {schedulesLoading && <LoadingSpinner />}
-
-            {!schedulesLoading && schedules.length === 0 && (
+            {/* DataTable pour les échéances */}
+            {schedulesLoading ? (
+              <LoadingSpinner />
+            ) : schedules.length === 0 ? (
               <EmptyState message="Aucune échéance trouvée." />
-            )}
-
-            {!schedulesLoading && schedules.length > 0 && (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-100">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      {[
-                        "Membre",
-                        "Plan",
-                        "Montant",
-                        "Date échéance",
-                        "Statut",
-                        "Jours retard",
-                        "Actions",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          scope="col"
-                          className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50 bg-white">
-                    {schedules.map((s) => (
-                      <tr
-                        key={s.id}
-                        className={`hover:bg-gray-50 transition-colors ${
-                          s.statut === "en_retard" ? "bg-red-50/40" : ""
-                        }`}
-                      >
-                        {/* Membre */}
-                        <td className="px-4 py-3.5">
-                          <div className="text-sm font-medium text-gray-900">
-                            {s.utilisateur_nom_complet}
-                          </div>
-                          <div className="text-xs text-gray-400 mt-0.5">
-                            {s.utilisateur_email}
-                          </div>
-                        </td>
-
-                        {/* Plan */}
-                        <td className="px-4 py-3.5">
-                          <span className="text-sm text-gray-600">
-                            {s.plan_tarifaire_nom}
-                          </span>
-                        </td>
-
-                        {/* Montant */}
-                        <td className="px-4 py-3.5">
-                          <span className="text-sm font-semibold text-gray-900">
-                            {formatCurrency(s.montant)}
-                          </span>
-                        </td>
-
-                        {/* Date échéance */}
-                        <td className="px-4 py-3.5">
-                          <span className="text-sm text-gray-600">
-                            {formatDate(s.date_echeance)}
-                          </span>
-                        </td>
-
-                        {/* Statut */}
-                        <td className="px-4 py-3.5">
-                          <ScheduleStatusBadge
-                            statut={s.statut}
-                            joursRetard={s.jours_retard}
-                          />
-                        </td>
-
-                        {/* Jours retard */}
-                        <td className="px-4 py-3.5">
-                          {s.jours_retard !== undefined &&
-                          s.jours_retard > 0 ? (
-                            <span className="text-sm font-medium text-red-600">
-                              {s.jours_retard}j
-                            </span>
-                          ) : (
-                            <span className="text-sm text-gray-400">—</span>
-                          )}
-                        </td>
-
-                        {/* Actions */}
-                        <td className="px-4 py-3.5">
-                          {isAdmin &&
-                            s.statut !== "paye" &&
-                            s.statut !== "annule" && (
-                              <button
-                                type="button"
-                                onClick={() => handleMarkAsPaid(s.id)}
-                                disabled={markingScheduleId === s.id}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium
-                                         text-white bg-green-600 hover:bg-green-700 rounded-md
-                                         transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                {markingScheduleId === s.id ? (
-                                  <svg
-                                    className="animate-spin h-3 w-3"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <circle
-                                      className="opacity-25"
-                                      cx="12"
-                                      cy="12"
-                                      r="10"
-                                      stroke="currentColor"
-                                      strokeWidth="4"
-                                    />
-                                    <path
-                                      className="opacity-75"
-                                      fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                                    />
-                                  </svg>
-                                ) : (
-                                  <CheckIcon className="h-3.5 w-3.5" />
-                                )}
-                                Marquer payé
-                              </button>
-                            )}
-                          {(s.statut === "paye" || s.statut === "annule") && (
-                            <span className="text-xs text-gray-400">—</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* Pagination */}
-            {!schedulesLoading && (
-              <PaginationBar
-                pagination={schedulesPagination}
-                onPageChange={setSchedulesPage}
-              />
+            ) : (
+              <>
+                <DataTable
+                  columns={schedulesColumns}
+                  data={schedules}
+                  rowKey="id"
+                  loading={schedulesLoading}
+                  emptyMessage="Aucune échéance trouvée."
+                />
+                <PaginationBar
+                  pagination={schedulesPagination}
+                  onPageChange={setSchedulesPage}
+                />
+              </>
             )}
           </div>
         )}

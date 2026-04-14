@@ -4,5 +4,8 @@
  * Exporte tous les composants et types de la famille Feedback
  */
 
-export { ErrorBanner } from './ErrorBanner';
-export type { ErrorBannerProps } from './ErrorBanner';
+export { ErrorBanner } from "./ErrorBanner";
+export type { ErrorBannerProps } from "./ErrorBanner";
+
+export { AlertBanner } from "./AlertBanner";
+export type { AlertBannerProps } from "./AlertBanner";

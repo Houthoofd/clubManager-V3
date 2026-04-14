@@ -4,7 +4,9 @@
  * Exporte tous les composants et types de la famille Auth
  */
 
-export { ProtectedRoute } from './ProtectedRoute';
-export { PublicRoute } from './PublicRoute';
-export { RoleGuard } from './RoleGuard';
+export { ProtectedRoute } from "./ProtectedRoute";
+export { PublicRoute } from "./PublicRoute";
+export { RoleGuard } from "./RoleGuard";
+export { AuthPageContainer } from "./AuthPageContainer";
+export type { AuthPageContainerProps } from "./AuthPageContainer";
 // Note: Les Props de ces composants ne sont pas exportés dans les fichiers sources

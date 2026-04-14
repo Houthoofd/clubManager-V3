@@ -246,7 +246,7 @@ export const PrivateLayout: React.FC = () => {
     },
     {
       name: "Statistics",
-      path: "/statistics",
+      path: "/statistics/dashboard",
       icon: <ChartBarIcon />,
       roles: [UserRole.ADMIN, UserRole.PROFESSOR],
     },

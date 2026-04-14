@@ -1,6 +1,14 @@
 /**
  * MessagesPage.tsx
- * Page principale de messagerie — layout 3 colonnes (sidebar / liste / détail)
+ * Page principale de messagerie — layout responsive avec onglets
+ *
+ * MIGRATION COMPLÉTÉE : Utilise les composants réutilisables :
+ * - TabGroup (Navigation) : Remplace la sidebar verticale
+ * - Button (Button) : Bouton "Nouveau message"
+ * - ErrorBanner (Feedback) : Affichage des erreurs
+ * - PaginationBar (Navigation) : Pagination
+ * - EmptyState (Layout) : États vides
+ * - LoadingSpinner (Layout) : Chargement
  */
 
 import { useState } from "react";
@@ -12,8 +20,6 @@ import { MessageListItem } from "../components/MessageListItem";
 import { MessageDetail } from "../components/MessageDetail";
 import { TemplatesTab } from "../components/TemplatesTab";
 import {
-  AngleLeftIcon,
-  AngleRightIcon,
   EnvelopeIcon,
   InboxIcon,
   PaperPlaneIcon,
@@ -21,90 +27,13 @@ import {
   PficonTemplateIcon,
 } from "@patternfly/react-icons";
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-const MessageSkeleton = () => (
-  <div className="animate-pulse px-4 py-3 border-b border-gray-100">
-    <div className="flex items-center gap-2 mb-1.5">
-      <div className="w-2 h-2 rounded-full bg-gray-200 flex-shrink-0" />
-      <div className="h-3.5 bg-gray-200 rounded w-2/5" />
-      <div className="ml-auto h-3 bg-gray-200 rounded w-12" />
-    </div>
-    <div className="pl-4">
-      <div className="h-3 bg-gray-100 rounded w-4/5" />
-    </div>
-  </div>
-);
-
-// ─── Empty State ──────────────────────────────────────────────────────────────
-
-const EmptyList = ({ tab }: { tab: "inbox" | "sent" }) => (
-  <div className="flex flex-col items-center justify-center h-full py-16 text-gray-400 select-none">
-    <div className="text-gray-300 mb-4" style={{ fontSize: "48px" }}>
-      {tab === "inbox" ? <InboxIcon /> : <PaperPlaneIcon />}
-    </div>
-    <p className="text-sm font-medium">
-      {tab === "inbox" ? "Aucun message reçu" : "Aucun message envoyé"}
-    </p>
-  </div>
-);
-
-// ─── No Selection ─────────────────────────────────────────────────────────────
-
-const NoSelection = () => (
-  <div className="flex flex-col items-center justify-center h-full text-gray-400 select-none">
-    <div className="text-gray-300 mb-4" style={{ fontSize: "48px" }}>
-      <EnvelopeIcon />
-    </div>
-    <p className="text-base font-medium text-gray-500">
-      Sélectionnez un message
-    </p>
-    <p className="text-sm mt-1">
-      Cliquez sur un message dans la liste pour le lire.
-    </p>
-  </div>
-);
-
-// ─── Pagination controls ──────────────────────────────────────────────────────
-
-interface PaginationBarProps {
-  page: number;
-  totalPages: number;
-  onPrev: () => void;
-  onNext: () => void;
-}
-
-const PaginationBar = ({
-  page,
-  totalPages,
-  onPrev,
-  onNext,
-}: PaginationBarProps) => {
-  if (totalPages <= 1) return null;
-  return (
-    <div className="flex items-center justify-between px-4 py-2 border-t border-gray-100 bg-white flex-shrink-0">
-      <button
-        onClick={onPrev}
-        disabled={page <= 1}
-        className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-      >
-        <AngleLeftIcon style={{ fontSize: "12px" }} />
-        Préc.
-      </button>
-      <span className="text-xs text-gray-500">
-        {page} / {totalPages}
-      </span>
-      <button
-        onClick={onNext}
-        disabled={page >= totalPages}
-        className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-      >
-        Suiv.
-        <AngleRightIcon style={{ fontSize: "12px" }} />
-      </button>
-    </div>
-  );
-};
+// Composants réutilisables
+import { TabGroup, Tab } from "../../../shared/components/Navigation/TabGroup";
+import { Button } from "../../../shared/components/Button/Button";
+import { ErrorBanner } from "../../../shared/components/Feedback/ErrorBanner";
+import { PaginationBar } from "../../../shared/components/Navigation/PaginationBar";
+import { EmptyState } from "../../../shared/components/Layout/EmptyState";
+import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -156,8 +85,8 @@ export const MessagesPage = () => {
     setMobileView("list");
   };
 
-  const handleTabChange = (tab: "inbox" | "sent" | "templates") => {
-    setActiveTab(tab);
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId as "inbox" | "sent" | "templates");
     setMobileView("list");
   };
 
@@ -168,25 +97,11 @@ export const MessagesPage = () => {
     }
   };
 
-  const handlePrevPage = () => {
-    if (activeTab === "inbox" && inboxPagination.page > 1) {
-      fetchInbox(inboxPagination.page - 1);
-    } else if (activeTab === "sent" && sentPagination.page > 1) {
-      fetchSent(sentPagination.page - 1);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (
-      activeTab === "inbox" &&
-      inboxPagination.page < inboxPagination.totalPages
-    ) {
-      fetchInbox(inboxPagination.page + 1);
-    } else if (
-      activeTab === "sent" &&
-      sentPagination.page < sentPagination.totalPages
-    ) {
-      fetchSent(sentPagination.page + 1);
+  const handlePageChange = (page: number) => {
+    if (activeTab === "inbox") {
+      fetchInbox(page);
+    } else if (activeTab === "sent") {
+      fetchSent(page);
     }
   };
 
@@ -194,99 +109,75 @@ export const MessagesPage = () => {
   const currentPagination =
     activeTab === "sent" ? sentPagination : inboxPagination;
 
+  // ── Configuration des onglets ───────────────────────────────────────────────
+
+  const tabs: Tab[] = [
+    {
+      id: "inbox",
+      label: "Boîte de réception",
+      icon: <InboxIcon style={{ fontSize: "18px" }} />,
+      badge: unreadCount > 0 ? unreadCount : undefined,
+    },
+    {
+      id: "sent",
+      label: "Messages envoyés",
+      icon: <PaperPlaneIcon style={{ fontSize: "18px" }} />,
+    },
+  ];
+
+  // Ajouter l'onglet Templates si l'utilisateur a les permissions
+  if (canSeeTemplates) {
+    tabs.push({
+      id: "templates",
+      label: "Templates",
+      icon: <PficonTemplateIcon style={{ fontSize: "18px" }} />,
+    });
+  }
+
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-[calc(100vh-4rem-3rem)] bg-white rounded-xl shadow overflow-hidden border border-gray-200">
+    <div className="flex flex-col h-[calc(100vh-4rem-3rem)] bg-white rounded-xl shadow overflow-hidden border border-gray-200">
       {/* ════════════════════════════════════════════════════
-          Colonne 1 — Sidebar (200px fixe)
-          Cachée sur mobile quand on affiche le détail
+          Header — Onglets + Bouton Nouveau message
       ════════════════════════════════════════════════════ */}
-      <aside
-        className={[
-          "w-52 flex-shrink-0 border-r border-gray-200 flex flex-col bg-gray-50",
-          // Mobile : masquer la sidebar quand le détail est visible
-          mobileView === "detail" ? "hidden lg:flex" : "flex",
-        ].join(" ")}
-      >
-        {/* Bouton Nouveau message */}
-        <div className="p-3">
-          <button
-            onClick={() => setIsComposeOpen(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
-          >
-            <PencilAltIcon style={{ fontSize: "16px" }} />
-            Nouveau message
-          </button>
+      <div className="flex-shrink-0 border-b border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between gap-4 px-4 py-3">
+          {/* Onglets de navigation */}
+          <div className="flex-1 min-w-0 -mb-3">
+            <TabGroup
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              scrollable
+            />
+          </div>
+
+          {/* Bouton Nouveau message */}
+          <div className="flex-shrink-0">
+            <Button
+              variant="primary"
+              size="md"
+              icon={<PencilAltIcon style={{ fontSize: "16px" }} />}
+              onClick={() => setIsComposeOpen(true)}
+            >
+              Nouveau message
+            </Button>
+          </div>
         </div>
 
-        {/* Navigation onglets */}
-        <nav className="flex-1 px-2 pb-3">
-          <ul className="space-y-0.5">
-            {/* Boîte de réception */}
-            <li>
-              <button
-                onClick={() => handleTabChange("inbox")}
-                className={[
-                  "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left",
-                  activeTab === "inbox"
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
-                ].join(" ")}
-              >
-                <InboxIcon style={{ fontSize: "16px" }} />
-                <span className="flex-1 truncate">Boîte de réception</span>
-                {unreadCount > 0 && (
-                  <span className="flex-shrink-0 bg-blue-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                )}
-              </button>
-            </li>
-
-            {/* Messages envoyés */}
-            <li>
-              <button
-                onClick={() => handleTabChange("sent")}
-                className={[
-                  "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left",
-                  activeTab === "sent"
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
-                ].join(" ")}
-              >
-                <PaperPlaneIcon style={{ fontSize: "16px" }} />
-                <span className="flex-1 truncate">Messages envoyés</span>
-              </button>
-            </li>
-
-            {/* Templates — admin / professor uniquement */}
-            {canSeeTemplates && (
-              <li>
-                <button
-                  onClick={() => handleTabChange("templates")}
-                  className={[
-                    "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left",
-                    activeTab === "templates"
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
-                  ].join(" ")}
-                >
-                  <PficonTemplateIcon style={{ fontSize: "16px" }} />
-                  <span className="flex-1 truncate">Templates</span>
-                </button>
-              </li>
-            )}
-          </ul>
-        </nav>
-
-        {/* Statistiques rapides */}
-        <div className="px-4 py-3 border-t border-gray-200 text-xs text-gray-400">
+        {/* Compteur de messages */}
+        <div className="px-4 pb-2 text-xs text-gray-500">
           {activeTab === "inbox" ? (
             <span>
               {inboxPagination.total} message
               {inboxPagination.total !== 1 ? "s" : ""} reçu
               {inboxPagination.total !== 1 ? "s" : ""}
+              {unreadCount > 0 && (
+                <span className="ml-1 text-blue-600 font-medium">
+                  ({unreadCount} non lu{unreadCount > 1 ? "s" : ""})
+                </span>
+              )}
             </span>
           ) : activeTab === "sent" ? (
             <span>
@@ -295,13 +186,13 @@ export const MessagesPage = () => {
               {sentPagination.total !== 1 ? "s" : ""}
             </span>
           ) : (
-            <span>Templates de messages</span>
+            <span>Templates de messages réutilisables</span>
           )}
         </div>
-      </aside>
+      </div>
 
       {/* ════════════════════════════════════════════════════
-          Colonne 2+3 — Templates (pleine largeur si onglet actif)
+          Contenu — Templates (pleine largeur)
       ════════════════════════════════════════════════════ */}
       {activeTab === "templates" && (
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -310,105 +201,128 @@ export const MessagesPage = () => {
       )}
 
       {/* ════════════════════════════════════════════════════
-          Colonne 2 — Liste des messages (300px fixe)
-          Sur mobile : cachée si on est en vue détail
-          Cachée si onglet Templates actif
+          Contenu — Inbox/Sent (2 colonnes : liste + détail)
       ════════════════════════════════════════════════════ */}
-      <div
-        className={[
-          "w-72 flex-shrink-0 border-r border-gray-200 flex flex-col",
-          activeTab === "templates"
-            ? "hidden"
-            : mobileView === "detail"
-              ? "hidden lg:flex"
-              : "flex",
-        ].join(" ")}
-      >
-        {/* Titre de l'onglet */}
-        <div className="px-4 py-3 border-b border-gray-100 bg-white flex items-center gap-2 flex-shrink-0">
-          <h2 className="text-sm font-semibold text-gray-800">
-            {activeTab === "inbox" ? "Boîte de réception" : "Messages envoyés"}
-          </h2>
-          {activeTab === "inbox" && unreadCount > 0 && (
-            <span className="text-xs text-blue-600 font-medium">
-              ({unreadCount} non lu{unreadCount > 1 ? "s" : ""})
-            </span>
-          )}
-        </div>
-
-        {/* Erreur */}
-        {error && !isLoading && (
-          <div className="mx-3 mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex-shrink-0">
-            <p className="text-xs text-red-700">{error}</p>
-          </div>
-        )}
-
-        {/* Liste scrollable */}
-        <div className="flex-1 overflow-y-auto">
-          {isLoading ? (
-            // Skeleton loader
-            <>
-              {Array.from({ length: 8 }).map((_, i) => (
-                <MessageSkeleton key={i} />
-              ))}
-            </>
-          ) : currentMessages.length === 0 ? (
-            <EmptyList tab={activeTab === "templates" ? "inbox" : activeTab} />
-          ) : (
-            currentMessages.map((message) => (
-              <MessageListItem
-                key={message.id}
-                message={message}
-                isSelected={selectedMessage?.id === message.id}
-                isInbox={activeTab === "inbox"}
-                onClick={() => handleSelectMessage(message.id)}
-              />
-            ))
-          )}
-        </div>
-
-        {/* Pagination */}
-        <PaginationBar
-          page={currentPagination.page}
-          totalPages={currentPagination.totalPages}
-          onPrev={handlePrevPage}
-          onNext={handleNextPage}
-        />
-      </div>
-
-      {/* ════════════════════════════════════════════════════
-          Colonne 3 — Détail du message (flex-1)
-          Sur mobile : visible uniquement si mobileView === 'detail'
-          Cachée si onglet Templates actif
-      ════════════════════════════════════════════════════ */}
-      <div
-        className={[
-          "flex-1 flex flex-col min-w-0",
-          activeTab === "templates"
-            ? "hidden"
-            : mobileView === "list"
-              ? "hidden lg:flex"
-              : "flex",
-        ].join(" ")}
-      >
-        {isLoadingMessage ? (
-          // Loader pendant le chargement du message
-          <div className="flex items-center justify-center h-full text-gray-400">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mx-auto mb-3" />
-              <p className="text-sm">Chargement du message…</p>
+      {activeTab !== "templates" && (
+        <div className="flex-1 flex min-h-0 overflow-hidden">
+          {/* ────────────────────────────────────────────────
+              Colonne 1 — Liste des messages (400px fixe)
+              Sur mobile : cachée si on est en vue détail
+          ──────────────────────────────────────────────── */}
+          <div
+            className={[
+              "w-96 flex-shrink-0 border-r border-gray-200 flex flex-col bg-white",
+              mobileView === "detail" ? "hidden lg:flex" : "flex",
+            ].join(" ")}
+          >
+            {/* Titre de l'onglet */}
+            <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2 flex-shrink-0">
+              <h2 className="text-sm font-semibold text-gray-800">
+                {activeTab === "inbox"
+                  ? "Boîte de réception"
+                  : "Messages envoyés"}
+              </h2>
             </div>
+
+            {/* Erreur */}
+            {error && !isLoading && (
+              <div className="p-3 flex-shrink-0">
+                <ErrorBanner variant="error" message={error} />
+              </div>
+            )}
+
+            {/* Liste scrollable */}
+            <div className="flex-1 overflow-y-auto">
+              {isLoading ? (
+                // Spinner de chargement
+                <LoadingSpinner
+                  size="md"
+                  text="Chargement des messages..."
+                  className="py-16"
+                />
+              ) : currentMessages.length === 0 ? (
+                // État vide
+                <EmptyState
+                  icon={
+                    activeTab === "inbox" ? (
+                      <InboxIcon style={{ fontSize: "48px" }} />
+                    ) : (
+                      <PaperPlaneIcon style={{ fontSize: "48px" }} />
+                    )
+                  }
+                  title={
+                    activeTab === "inbox"
+                      ? "Aucun message reçu"
+                      : "Aucun message envoyé"
+                  }
+                  description={
+                    activeTab === "inbox"
+                      ? "Vous n'avez reçu aucun message pour le moment."
+                      : "Vous n'avez envoyé aucun message pour le moment."
+                  }
+                  variant="default"
+                  className="border-0 bg-transparent"
+                />
+              ) : (
+                currentMessages.map((message) => (
+                  <MessageListItem
+                    key={message.id}
+                    message={message}
+                    isSelected={selectedMessage?.id === message.id}
+                    isInbox={activeTab === "inbox"}
+                    onClick={() => handleSelectMessage(message.id)}
+                  />
+                ))
+              )}
+            </div>
+
+            {/* Pagination */}
+            {!isLoading && currentMessages.length > 0 && (
+              <PaginationBar
+                currentPage={currentPagination.page}
+                totalPages={currentPagination.totalPages}
+                onPageChange={handlePageChange}
+                showResultsCount={false}
+              />
+            )}
           </div>
-        ) : selectedMessage ? (
-          <MessageDetail
-            message={selectedMessage}
-            onDelete={handleDelete}
-            onBack={handleBack}
-          />
-        ) : (
-          <NoSelection />
-        )}
-      </div>
+
+          {/* ────────────────────────────────────────────────
+              Colonne 2 — Détail du message (flex-1)
+              Sur mobile : visible uniquement si mobileView === 'detail'
+          ──────────────────────────────────────────────── */}
+          <div
+            className={[
+              "flex-1 flex flex-col min-w-0 bg-white",
+              mobileView === "list" ? "hidden lg:flex" : "flex",
+            ].join(" ")}
+          >
+            {isLoadingMessage ? (
+              // Spinner pendant le chargement du message
+              <LoadingSpinner
+                size="lg"
+                text="Chargement du message…"
+                className="py-24"
+              />
+            ) : selectedMessage ? (
+              <MessageDetail
+                message={selectedMessage}
+                onDelete={handleDelete}
+                onBack={handleBack}
+              />
+            ) : (
+              // Aucun message sélectionné
+              <EmptyState
+                icon={<EnvelopeIcon style={{ fontSize: "48px" }} />}
+                title="Sélectionnez un message"
+                description="Cliquez sur un message dans la liste pour le lire."
+                variant="default"
+                className="border-0 bg-transparent h-full flex flex-col justify-center"
+              />
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ════════════════════════════════════════════════════
           Modal de composition

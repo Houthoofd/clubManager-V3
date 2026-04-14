@@ -4,8 +4,18 @@
  * Exporte tous les composants et types de la famille Button
  */
 
-export { Button, ButtonGroup } from './Button';
-export type { ButtonProps, ButtonGroupProps } from './Button';
+export { Button, ButtonGroup } from "./Button";
+export type { ButtonProps, ButtonGroupProps } from "./Button";
 
-export { SubmitButton } from './SubmitButton';
-export type { SubmitButtonProps } from './SubmitButton';
+export { SubmitButton } from "./SubmitButton";
+export type { SubmitButtonProps } from "./SubmitButton";
+
+export {
+  IconButton,
+  PencilIcon,
+  TrashIcon,
+  EyeIcon,
+  InfoIcon,
+  PlusIcon,
+} from "./IconButton";
+export type { IconButtonProps } from "./IconButton";

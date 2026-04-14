@@ -1,9 +1,16 @@
 /**
  * StorePage
  * Page principale du module boutique.
+ *
+ * MIGRATION : Utilise les composants réutilisables de la bibliothèque shared
+ * - TabGroup pour la navigation par onglets
+ * - SelectField pour les filtres/dropdowns
+ * - IconButton pour les actions (edit, delete, adjust)
+ * - ConfirmDialog pour les confirmations
+ * - LoadingSpinner, EmptyState, ErrorBanner pour le feedback
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { UserRole } from "@clubmanager/types";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { OrderStatusBadge } from "../components/OrderStatusBadge";
@@ -40,6 +47,26 @@ import {
   useUpdateOrderStatus,
 } from "../hooks/useStore";
 import { useStoreUI } from "../stores/storeStore";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// IMPORTS DES COMPOSANTS RÉUTILISABLES
+// ═══════════════════════════════════════════════════════════════════════════
+
+import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
+import { SelectField } from "../../../shared/components/Forms/SelectField";
+import {
+  IconButton,
+  PencilIcon,
+  TrashIcon,
+} from "../../../shared/components/Button/IconButton";
+import { ConfirmDialog } from "../../../shared/components/Modal/ConfirmDialog";
+import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
+import { EmptyState } from "../../../shared/components/Layout/EmptyState";
+import { ErrorBanner } from "../../../shared/components/Feedback/ErrorBanner";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UTILITAIRES
+// ═══════════════════════════════════════════════════════════════════════════
 
 function classNames(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
@@ -83,86 +110,9 @@ function formatDateTime(value: string) {
   return new Date(value).toLocaleString("fr-FR");
 }
 
-function Spinner() {
-  return (
-    <div className="flex items-center justify-center py-12 gap-3 text-gray-500">
-      <svg
-        className="h-5 w-5 animate-spin text-blue-600"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <circle
-          className="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-        />
-        <path
-          className="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z"
-        />
-      </svg>
-      <span className="text-sm">Chargement…</span>
-    </div>
-  );
-}
-
-function ErrorBanner({ error }: { error: unknown }) {
-  return (
-    <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {getErrorMessage(error)}
-    </div>
-  );
-}
-
-function EmptyState({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center">
-      <p className="text-sm font-semibold text-gray-700">{title}</p>
-      <p className="mt-2 text-sm text-gray-500">{description}</p>
-    </div>
-  );
-}
-
-interface TabButtonProps {
-  label: string;
-  active: boolean;
-  badge?: number;
-  onClick: () => void;
-}
-
-function TabButton({ label, active, badge, onClick }: TabButtonProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap
-        ${
-          active
-            ? "border-blue-600 text-blue-600"
-            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-        }`}
-    >
-      {label}
-      {badge !== undefined && badge > 0 && (
-        <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full text-xs font-semibold bg-red-500 text-white">
-          {badge}
-        </span>
-      )}
-    </button>
-  );
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPOSANT PAGINATION (Conservé car pas de composant réutilisable équivalent)
+// ═══════════════════════════════════════════════════════════════════════════
 
 function PaginationBar({
   page,
@@ -277,6 +227,13 @@ function CatalogueTab() {
   const deleteArticleMutation = useDeleteArticle();
   const toggleArticleMutation = useToggleArticle();
 
+  // États pour les ConfirmDialog
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    articleId: number | null;
+    articleNom: string;
+  }>({ isOpen: false, articleId: null, articleNom: "" });
+
   return (
     <div>
       {/* En-tête de l'onglet */}
@@ -317,9 +274,10 @@ function CatalogueTab() {
         </button>
       </div>
 
-      {/* Filtres */}
+      {/* Filtres - MIGRATION : Utilisation de SelectField */}
       <div className="p-4 border-b border-gray-50">
         <div className="grid gap-3 md:grid-cols-3">
+          {/* Barre de recherche (pas de composant réutilisable disponible) */}
           <div className="relative">
             <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
               <svg
@@ -344,45 +302,56 @@ function CatalogueTab() {
             />
           </div>
 
-          <select
+          {/* Filtre catégorie - MIGRATION : SelectField */}
+          <SelectField
+            id="article-category-filter"
+            label=""
+            placeholder="Toutes les catégories"
+            options={
+              categoriesQuery.data?.map((cat) => ({
+                value: cat.id,
+                label: cat.nom,
+              })) ?? []
+            }
             value={store.articleCategoryFilter ?? ""}
-            onChange={(event) =>
-              store.setArticleCategoryFilter(
-                event.target.value ? Number(event.target.value) : null,
-              )
+            onChange={(value) =>
+              store.setArticleCategoryFilter(value ? Number(value) : null)
             }
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="">Toutes les catégories</option>
-            {(categoriesQuery.data ?? []).map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.nom}
-              </option>
-            ))}
-          </select>
+            className="[&>label]:hidden"
+          />
 
-          <select
+          {/* Filtre statut - MIGRATION : SelectField */}
+          <SelectField
+            id="article-status-filter"
+            label=""
+            placeholder="Tous les statuts"
+            options={[
+              { value: "true", label: "Actifs" },
+              { value: "false", label: "Inactifs" },
+            ]}
             value={store.articleActifFilter}
-            onChange={(event) =>
-              store.setArticleActifFilter(event.target.value)
-            }
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="">Tous les statuts</option>
-            <option value="true">Actifs</option>
-            <option value="false">Inactifs</option>
-          </select>
+            onChange={(value) => store.setArticleActifFilter(String(value))}
+            className="[&>label]:hidden"
+          />
         </div>
       </div>
 
-      {/* Contenu */}
+      {/* Contenu - MIGRATION : LoadingSpinner, ErrorBanner, EmptyState */}
       <div className="p-4">
         {categoriesQuery.isError && (
-          <ErrorBanner error={categoriesQuery.error} />
+          <ErrorBanner
+            variant="error"
+            message={getErrorMessage(categoriesQuery.error)}
+          />
         )}
-        {articlesQuery.isError && <ErrorBanner error={articlesQuery.error} />}
+        {articlesQuery.isError && (
+          <ErrorBanner
+            variant="error"
+            message={getErrorMessage(articlesQuery.error)}
+          />
+        )}
 
-        {articlesQuery.isLoading && <Spinner />}
+        {articlesQuery.isLoading && <LoadingSpinner text="Chargement..." />}
 
         {!articlesQuery.isLoading &&
           !articlesQuery.isError &&
@@ -390,6 +359,7 @@ function CatalogueTab() {
             <EmptyState
               title="Aucun article trouvé"
               description="Ajustez les filtres ou ajoutez des articles dans le catalogue."
+              variant="dashed"
             />
           )}
 
@@ -435,6 +405,8 @@ function CatalogueTab() {
                         Créé le {formatDate(article.created_at)}
                       </span>
                     </div>
+
+                    {/* Actions - MIGRATION : Utilisation de IconButton */}
                     <div className="flex gap-2">
                       <button
                         onClick={() => store.openArticleModal(article)}
@@ -451,15 +423,13 @@ function CatalogueTab() {
                         {article.actif ? "Désactiver" : "Activer"}
                       </button>
                       <button
-                        onClick={async () => {
-                          if (
-                            window.confirm(
-                              `Supprimer l'article "${article.nom}" ?`,
-                            )
-                          ) {
-                            await deleteArticleMutation.mutateAsync(article.id);
-                          }
-                        }}
+                        onClick={() =>
+                          setDeleteConfirm({
+                            isOpen: true,
+                            articleId: article.id,
+                            articleNom: article.nom,
+                          })
+                        }
                         className="rounded-lg border border-red-600 bg-white px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
                       >
                         Supprimer
@@ -479,6 +449,7 @@ function CatalogueTab() {
         ) : null}
       </div>
 
+      {/* Modal Article */}
       <ArticleModal
         isOpen={store.articleModalOpen}
         onClose={store.closeArticleModal}
@@ -495,6 +466,28 @@ function CatalogueTab() {
           }
           store.closeArticleModal();
         }}
+      />
+
+      {/* MIGRATION : ConfirmDialog pour la suppression */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() =>
+          setDeleteConfirm({ isOpen: false, articleId: null, articleNom: "" })
+        }
+        onConfirm={async () => {
+          if (deleteConfirm.articleId) {
+            await deleteArticleMutation.mutateAsync(deleteConfirm.articleId);
+            setDeleteConfirm({
+              isOpen: false,
+              articleId: null,
+              articleNom: "",
+            });
+          }
+        }}
+        title="Supprimer l'article"
+        message={`Êtes-vous sûr de vouloir supprimer l'article "${deleteConfirm.articleNom}" ? Cette action est irréversible.`}
+        variant="danger"
+        isLoading={deleteArticleMutation.isPending}
       />
     </div>
   );
@@ -551,15 +544,37 @@ function BoutiqueTab() {
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                 />
               </svg>
-              {cartCount} dans le panier
+              Panier ({cartCount})
             </span>
           )}
         </div>
+        {cartCount > 0 && (
+          <button
+            onClick={() => store.openCartModal()}
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-sm transition-colors"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+            Voir le panier
+          </button>
+        )}
       </div>
 
-      {/* Filtres */}
+      {/* Filtres - MIGRATION : SelectField */}
       <div className="p-4 border-b border-gray-50">
         <div className="grid gap-3 md:grid-cols-2">
+          {/* Barre de recherche */}
           <div className="relative">
             <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
               <svg
@@ -584,40 +599,50 @@ function BoutiqueTab() {
             />
           </div>
 
-          <select
-            value={store.articleCategoryFilter ?? ""}
-            onChange={(event) =>
-              store.setArticleCategoryFilter(
-                event.target.value ? Number(event.target.value) : null,
-              )
+          {/* Filtre catégorie - MIGRATION : SelectField */}
+          <SelectField
+            id="boutique-category-filter"
+            label=""
+            placeholder="Toutes les catégories"
+            options={
+              categoriesQuery.data?.map((cat) => ({
+                value: cat.id,
+                label: cat.nom,
+              })) ?? []
             }
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="">Toutes les catégories</option>
-            {(categoriesQuery.data ?? []).map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.nom}
-              </option>
-            ))}
-          </select>
+            value={store.articleCategoryFilter ?? ""}
+            onChange={(value) =>
+              store.setArticleCategoryFilter(value ? Number(value) : null)
+            }
+            className="[&>label]:hidden"
+          />
         </div>
       </div>
 
-      {/* Contenu */}
+      {/* Contenu - MIGRATION : LoadingSpinner, ErrorBanner, EmptyState */}
       <div className="p-4">
         {categoriesQuery.isError && (
-          <ErrorBanner error={categoriesQuery.error} />
+          <ErrorBanner
+            variant="error"
+            message={getErrorMessage(categoriesQuery.error)}
+          />
         )}
-        {articlesQuery.isError && <ErrorBanner error={articlesQuery.error} />}
+        {articlesQuery.isError && (
+          <ErrorBanner
+            variant="error"
+            message={getErrorMessage(articlesQuery.error)}
+          />
+        )}
 
-        {articlesQuery.isLoading && <Spinner />}
+        {articlesQuery.isLoading && <LoadingSpinner text="Chargement..." />}
 
         {!articlesQuery.isLoading &&
           !articlesQuery.isError &&
           !articlesQuery.data?.items.length && (
             <EmptyState
               title="Aucun article disponible"
-              description="La boutique ne contient pas encore d'articles actifs."
+              description="Les articles seront bientôt disponibles à l'achat."
+              variant="dashed"
             />
           )}
 
@@ -629,30 +654,38 @@ function BoutiqueTab() {
                   key={article.id}
                   className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="text-base font-semibold text-gray-900">
-                        {article.nom}
-                      </h3>
-                      <p className="mt-1 text-sm text-gray-500">
-                        {article.categorie_nom ?? "Sans catégorie"}
-                      </p>
-                    </div>
-                    <span className="text-lg font-semibold text-blue-700">
-                      {formatCurrency(article.prix)}
-                    </span>
+                  {article.image_url && (
+                    <img
+                      src={article.image_url}
+                      alt={article.nom}
+                      className="w-full h-48 object-cover rounded-lg mb-4"
+                    />
+                  )}
+
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-900">
+                      {article.nom}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      {article.categorie_nom ?? "Sans catégorie"}
+                    </p>
                   </div>
 
-                  <p className="mt-4 line-clamp-3 min-h-[3.75rem] text-sm text-gray-600">
+                  <p className="mt-3 line-clamp-2 text-sm text-gray-600">
                     {article.description || "Aucune description disponible."}
                   </p>
 
-                  <button
-                    onClick={() => store.openQuickOrderModal(article as any)}
-                    className="mt-4 w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-                  >
-                    Commander
-                  </button>
+                  <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
+                    <span className="text-lg font-semibold text-gray-900">
+                      {formatCurrency(article.prix)}
+                    </span>
+                    <button
+                      onClick={() => store.openQuickOrderModal(article as any)}
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                    >
+                      Commander
+                    </button>
+                  </div>
                 </article>
               ))}
             </div>
@@ -666,6 +699,7 @@ function BoutiqueTab() {
         ) : null}
       </div>
 
+      {/* Modals */}
       {store.quickOrderArticle && (
         <QuickOrderModal
           isOpen={store.quickOrderModalOpen}
@@ -736,28 +770,6 @@ function BoutiqueTab() {
           store.closeCartModal();
         }}
       />
-
-      {store.cartItems.length > 0 && (
-        <button
-          onClick={store.openCartModal}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-white shadow-lg transition hover:bg-blue-700"
-        >
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-            />
-          </svg>
-          Panier ({cartCount})
-        </button>
-      )}
     </div>
   );
 }
@@ -808,36 +820,43 @@ function OrdersTab() {
         </div>
       </div>
 
-      {/* Filtres */}
+      {/* Filtres - MIGRATION : SelectField */}
       <div className="p-4 border-b border-gray-50">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <p className="text-sm text-gray-600">Filtrer par statut</p>
-          <select
-            value={store.orderStatusFilter}
-            onChange={(event) => store.setOrderStatusFilter(event.target.value)}
-            className="w-full md:w-56 px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="">Tous les statuts</option>
-            <option value="en_attente">En attente</option>
-            <option value="payee">Payée</option>
-            <option value="expediee">Expédiée</option>
-            <option value="livree">Livrée</option>
-            <option value="annulee">Annulée</option>
-          </select>
-        </div>
+        <SelectField
+          id="order-status-filter"
+          label=""
+          placeholder="Tous les statuts"
+          options={[
+            { value: "en_attente", label: "En attente" },
+            { value: "payee", label: "Payée" },
+            { value: "expediee", label: "Expédiée" },
+            { value: "livree", label: "Livrée" },
+            { value: "annulee", label: "Annulée" },
+          ]}
+          value={store.orderStatusFilter}
+          onChange={(value) => store.setOrderStatusFilter(String(value))}
+          className="[&>label]:hidden max-w-xs"
+        />
       </div>
 
-      {/* Contenu */}
+      {/* Contenu - MIGRATION : LoadingSpinner, ErrorBanner, EmptyState */}
       <div className="p-4">
-        {ordersQuery.isError && <ErrorBanner error={ordersQuery.error} />}
-        {ordersQuery.isLoading && <Spinner />}
+        {ordersQuery.isError && (
+          <ErrorBanner
+            variant="error"
+            message={getErrorMessage(ordersQuery.error)}
+          />
+        )}
+
+        {ordersQuery.isLoading && <LoadingSpinner text="Chargement..." />}
 
         {!ordersQuery.isLoading &&
           !ordersQuery.isError &&
           !ordersQuery.data?.items.length && (
             <EmptyState
-              title="Aucune commande"
-              description="Aucune commande ne correspond au filtre sélectionné."
+              title="Aucune commande trouvée"
+              description="Les commandes passées apparaîtront ici."
+              variant="dashed"
             />
           )}
 
@@ -849,10 +868,13 @@ function OrdersTab() {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        N°
+                        Commande
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Client
+                        Membre
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Date
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                         Total
@@ -861,7 +883,7 @@ function OrdersTab() {
                         Statut
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Date
+                        Actions
                       </th>
                     </tr>
                   </thead>
@@ -869,11 +891,10 @@ function OrdersTab() {
                     {ordersQuery.data.items.map((order) => (
                       <tr
                         key={order.id}
-                        onClick={() => store.openOrderDetailModal(order as any)}
-                        className="cursor-pointer hover:bg-gray-50 transition-colors"
+                        className="hover:bg-gray-50 transition-colors"
                       >
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                          {order.numero_commande}
+                          #{order.numero_commande || order.id}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {order.user_first_name || order.user_last_name
@@ -881,13 +902,81 @@ function OrdersTab() {
                             : (order.user_email ?? "Utilisateur inconnu")}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
+                          {formatDateTime(order.date_commande)}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
                           {formatCurrency(order.total)}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           <OrderStatusBadge statut={order.statut} />
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {formatDateTime(order.date_commande)}
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() =>
+                                store.openOrderDetailModal(order as any)
+                              }
+                              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
+                            >
+                              Détails
+                            </button>
+                            {order.statut === "en_attente" && (
+                              <>
+                                <button
+                                  onClick={async () => {
+                                    await updateOrderStatusMutation.mutateAsync(
+                                      {
+                                        id: order.id,
+                                        statut: "payee",
+                                      },
+                                    );
+                                  }}
+                                  className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-green-700"
+                                >
+                                  Confirmer
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    await updateOrderStatusMutation.mutateAsync(
+                                      {
+                                        id: order.id,
+                                        statut: "annulee",
+                                      },
+                                    );
+                                  }}
+                                  className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-red-700"
+                                >
+                                  Annuler
+                                </button>
+                              </>
+                            )}
+                            {order.statut === "payee" && (
+                              <button
+                                onClick={async () => {
+                                  await updateOrderStatusMutation.mutateAsync({
+                                    id: order.id,
+                                    statut: "expediee",
+                                  });
+                                }}
+                                className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
+                              >
+                                Expédier
+                              </button>
+                            )}
+                            {order.statut === "expediee" && (
+                              <button
+                                onClick={async () => {
+                                  await updateOrderStatusMutation.mutateAsync({
+                                    id: order.id,
+                                    statut: "livree",
+                                  });
+                                }}
+                                className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-green-700"
+                              >
+                                Marquer livrée
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -905,6 +994,7 @@ function OrdersTab() {
         ) : null}
       </div>
 
+      {/* Modal détails commande */}
       {store.selectedOrder && (
         <OrderDetailModal
           isOpen={store.orderDetailModalOpen}
@@ -961,68 +1051,85 @@ function MyOrdersTab() {
         </div>
       </div>
 
-      {/* Contenu */}
+      {/* Contenu - MIGRATION : LoadingSpinner, ErrorBanner, EmptyState */}
       <div className="p-4">
-        {ordersQuery.isError && <ErrorBanner error={ordersQuery.error} />}
-        {ordersQuery.isLoading && <Spinner />}
+        {ordersQuery.isError && (
+          <ErrorBanner
+            variant="error"
+            message={getErrorMessage(ordersQuery.error)}
+          />
+        )}
+
+        {ordersQuery.isLoading && <LoadingSpinner text="Chargement..." />}
 
         {!ordersQuery.isLoading &&
           !ordersQuery.isError &&
           !ordersQuery.data?.length && (
             <EmptyState
-              title="Aucune commande passée"
-              description="Vos commandes boutique apparaîtront ici."
+              title="Aucune commande"
+              description="Vous n'avez pas encore passé de commande."
+              variant="dashed"
             />
           )}
 
-        {ordersQuery.data?.length ? (
-          <div className="grid gap-4 lg:grid-cols-2">
+        {ordersQuery.data && ordersQuery.data.length > 0 && (
+          <div className="space-y-4">
             {ordersQuery.data.map((order) => (
               <article
                 key={order.id}
-                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-sm text-gray-500">Commande</p>
                     <h3 className="text-base font-semibold text-gray-900">
-                      {order.numero_commande}
+                      Commande #{order.numero_commande || order.id}
                     </h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      {formatDateTime(order.date_commande)}
+                    </p>
                   </div>
                   <OrderStatusBadge statut={order.statut} />
                 </div>
 
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-gray-400">
-                      Total
-                    </p>
-                    <p className="mt-1 text-lg font-semibold text-gray-900">
-                      {formatCurrency(order.total)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-gray-400">
-                      Date
-                    </p>
-                    <p className="mt-1 text-sm text-gray-600">
-                      {formatDateTime(order.date_commande)}
-                    </p>
+                <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
+                  <span className="text-lg font-semibold text-gray-900">
+                    {formatCurrency(order.total)}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => store.openOrderDetailModal(order as any)}
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                    >
+                      Voir les détails
+                    </button>
+                    {order.statut === "en_attente" && (
+                      <button
+                        onClick={async () => {
+                          if (
+                            window.confirm(
+                              "Êtes-vous sûr de vouloir annuler cette commande ?",
+                            )
+                          ) {
+                            await updateOrderStatusMutation.mutateAsync({
+                              id: order.id,
+                              statut: "annulee",
+                            });
+                          }
+                        }}
+                        className="rounded-lg border border-red-600 bg-white px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                      >
+                        Annuler
+                      </button>
+                    )}
                   </div>
                 </div>
-
-                <button
-                  onClick={() => store.openOrderDetailModal(order as any)}
-                  className="mt-4 w-full rounded-lg border border-blue-600 bg-white px-4 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
-                >
-                  Voir détails
-                </button>
               </article>
             ))}
           </div>
-        ) : null}
+        )}
       </div>
 
+      {/* Modal détails commande */}
       {store.selectedOrder && (
         <OrderDetailModal
           isOpen={store.orderDetailModalOpen}
@@ -1111,12 +1218,24 @@ function StocksTab() {
         </div>
       )}
 
-      {/* Contenu */}
+      {/* Contenu - MIGRATION : LoadingSpinner, ErrorBanner, EmptyState */}
       <div className="p-4">
-        {lowStocksQuery.isError && <ErrorBanner error={lowStocksQuery.error} />}
-        {stocksQuery.isError && <ErrorBanner error={stocksQuery.error} />}
+        {lowStocksQuery.isError && (
+          <ErrorBanner
+            variant="error"
+            message={getErrorMessage(lowStocksQuery.error)}
+          />
+        )}
+        {stocksQuery.isError && (
+          <ErrorBanner
+            variant="error"
+            message={getErrorMessage(stocksQuery.error)}
+          />
+        )}
 
-        {(stocksQuery.isLoading || lowStocksQuery.isLoading) && <Spinner />}
+        {(stocksQuery.isLoading || lowStocksQuery.isLoading) && (
+          <LoadingSpinner text="Chargement..." />
+        )}
 
         {!stocksQuery.isLoading &&
           !stocksQuery.isError &&
@@ -1124,6 +1243,7 @@ function StocksTab() {
             <EmptyState
               title="Aucun stock configuré"
               description="Les niveaux de stock apparaîtront ici dès qu'ils seront disponibles."
+              variant="dashed"
             />
           )}
 
@@ -1194,6 +1314,7 @@ function StocksTab() {
         )}
       </div>
 
+      {/* Modal d'ajustement stock */}
       {store.adjustingStock && (
         <StockAdjustModal
           isOpen={store.stockAdjustModalOpen}
@@ -1229,195 +1350,258 @@ function ConfigurationTab() {
   const updateSizeMutation = useUpdateSize();
   const deleteSizeMutation = useDeleteSize();
 
+  // États pour les ConfirmDialog
+  const [deleteCategoryConfirm, setDeleteCategoryConfirm] = useState<{
+    isOpen: boolean;
+    categoryId: number | null;
+    categoryNom: string;
+  }>({ isOpen: false, categoryId: null, categoryNom: "" });
+
+  const [deleteSizeConfirm, setDeleteSizeConfirm] = useState<{
+    isOpen: boolean;
+    sizeId: number | null;
+    sizeNom: string;
+  }>({ isOpen: false, sizeId: null, sizeNom: "" });
+
   return (
     <div>
       {/* En-tête de l'onglet */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
-        <div className="flex items-center gap-3 flex-wrap">
-          <h2 className="text-base font-semibold text-gray-900">
-            Configuration de la boutique
-          </h2>
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-            {categoriesQuery.data?.length ?? 0} catégorie
-            {(categoriesQuery.data?.length ?? 0) > 1 ? "s" : ""}
-          </span>
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100">
-            {sizesQuery.data?.length ?? 0} taille
-            {(sizesQuery.data?.length ?? 0) > 1 ? "s" : ""}
-          </span>
-        </div>
+      <div className="p-4 border-b border-gray-50">
+        <h2 className="text-base font-semibold text-gray-900">
+          Configuration de la boutique
+        </h2>
       </div>
 
       {/* Contenu */}
-      <div className="p-4">
-        {categoriesQuery.isError && (
-          <ErrorBanner error={categoriesQuery.error} />
-        )}
-        {sizesQuery.isError && <ErrorBanner error={sizesQuery.error} />}
+      <div className="p-4 space-y-8">
+        {/* Section Catégories */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Catégories</h3>
+            <button
+              onClick={() => store.openCategoryModal()}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+              Nouvelle catégorie
+            </button>
+          </div>
 
-        {(categoriesQuery.isLoading || sizesQuery.isLoading) && <Spinner />}
+          {categoriesQuery.isError && (
+            <ErrorBanner
+              variant="error"
+              message={getErrorMessage(categoriesQuery.error)}
+            />
+          )}
 
-        {!categoriesQuery.isLoading &&
-          !sizesQuery.isLoading &&
-          !categoriesQuery.isError &&
-          !sizesQuery.isError && (
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Section Catégories */}
-              <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-gray-900">
-                    Catégories
-                  </h3>
-                  <button
-                    onClick={() => store.openCategoryModal()}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-700"
-                  >
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 4.5v15m7.5-7.5h-15"
-                      />
-                    </svg>
-                    Nouvelle
-                  </button>
-                </div>
-                {!categoriesQuery.data?.length ? (
-                  <p className="mt-4 text-sm text-gray-500">
-                    Aucune catégorie configurée.
-                  </p>
-                ) : (
-                  <div className="mt-4 space-y-3">
+          {categoriesQuery.isLoading && <LoadingSpinner text="Chargement..." />}
+
+          {!categoriesQuery.isLoading &&
+            !categoriesQuery.isError &&
+            !categoriesQuery.data?.length && (
+              <EmptyState
+                title="Aucune catégorie"
+                description="Ajoutez des catégories pour organiser vos articles."
+                variant="dashed"
+              />
+            )}
+
+          {categoriesQuery.data && categoriesQuery.data.length > 0 && (
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Nom
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Description
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Ordre
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
                     {categoriesQuery.data.map((category) => (
-                      <div
+                      <tr
                         key={category.id}
-                        className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3 hover:bg-gray-50 transition-colors"
+                        className="hover:bg-gray-50 transition-colors"
                       >
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">
-                            {category.nom}
-                          </p>
-                          <p className="mt-1 text-xs text-gray-500">
-                            {category.description || "Aucune description"}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs text-gray-500">
-                            Ordre {category.ordre}
-                          </span>
-                          <div className="flex gap-2">
-                            <button
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                          {category.nom}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {category.description || "-"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {category.ordre ?? "-"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          <div className="flex items-center gap-2">
+                            {/* MIGRATION : IconButton pour éditer */}
+                            <IconButton
+                              icon={<PencilIcon className="h-4 w-4" />}
+                              ariaLabel="Modifier la catégorie"
+                              variant="ghost"
+                              size="sm"
                               onClick={() => store.openCategoryModal(category)}
-                              className="rounded px-2 py-1 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
-                            >
-                              Éditer
-                            </button>
-                            <button
-                              onClick={async () => {
-                                if (
-                                  window.confirm(
-                                    `Supprimer la catégorie "${category.nom}" ?`,
-                                  )
-                                ) {
-                                  await deleteCategoryMutation.mutateAsync(
-                                    category.id,
-                                  );
-                                }
-                              }}
-                              className="rounded px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50"
-                            >
-                              Supprimer
-                            </button>
+                              tooltip="Modifier"
+                            />
+                            {/* MIGRATION : IconButton pour supprimer */}
+                            <IconButton
+                              icon={<TrashIcon className="h-4 w-4" />}
+                              ariaLabel="Supprimer la catégorie"
+                              variant="danger"
+                              size="sm"
+                              onClick={() =>
+                                setDeleteCategoryConfirm({
+                                  isOpen: true,
+                                  categoryId: category.id,
+                                  categoryNom: category.nom,
+                                })
+                              }
+                              tooltip="Supprimer"
+                            />
                           </div>
-                        </div>
-                      </div>
+                        </td>
+                      </tr>
                     ))}
-                  </div>
-                )}
-              </section>
-
-              {/* Section Tailles */}
-              <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-gray-900">
-                    Tailles
-                  </h3>
-                  <button
-                    onClick={() => store.openSizeModal()}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-700"
-                  >
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 4.5v15m7.5-7.5h-15"
-                      />
-                    </svg>
-                    Nouvelle
-                  </button>
-                </div>
-                {!sizesQuery.data?.length ? (
-                  <p className="mt-4 text-sm text-gray-500">
-                    Aucune taille configurée.
-                  </p>
-                ) : (
-                  <div className="mt-4 space-y-3">
-                    {sizesQuery.data.map((size) => (
-                      <div
-                        key={size.id}
-                        className="flex items-center justify-between rounded-lg border border-gray-100 px-4 py-3 hover:bg-gray-50 transition-colors"
-                      >
-                        <p className="flex-1 text-sm font-medium text-gray-900">
-                          {size.nom}
-                        </p>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs text-gray-500">
-                            Ordre {size.ordre}
-                          </span>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => store.openSizeModal(size)}
-                              className="rounded px-2 py-1 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
-                            >
-                              Éditer
-                            </button>
-                            <button
-                              onClick={async () => {
-                                if (
-                                  window.confirm(
-                                    `Supprimer la taille "${size.nom}" ?`,
-                                  )
-                                ) {
-                                  await deleteSizeMutation.mutateAsync(size.id);
-                                }
-                              }}
-                              className="rounded px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50"
-                            >
-                              Supprimer
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
+        </section>
+
+        {/* Section Tailles */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Tailles</h3>
+            <button
+              onClick={() => store.openSizeModal()}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+              Nouvelle taille
+            </button>
+          </div>
+
+          {sizesQuery.isError && (
+            <ErrorBanner
+              variant="error"
+              message={getErrorMessage(sizesQuery.error)}
+            />
+          )}
+
+          {sizesQuery.isLoading && <LoadingSpinner text="Chargement..." />}
+
+          {!sizesQuery.isLoading &&
+            !sizesQuery.isError &&
+            !sizesQuery.data?.length && (
+              <EmptyState
+                title="Aucune taille"
+                description="Ajoutez des tailles pour vos articles (ex: XS, S, M, L, XL)."
+                variant="dashed"
+              />
+            )}
+
+          {sizesQuery.data && sizesQuery.data.length > 0 && (
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Nom
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Ordre
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {sizesQuery.data.map((size) => (
+                      <tr
+                        key={size.id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                          {size.nom}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {size.ordre ?? "-"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          <div className="flex items-center gap-2">
+                            {/* MIGRATION : IconButton pour éditer */}
+                            <IconButton
+                              icon={<PencilIcon className="h-4 w-4" />}
+                              ariaLabel="Modifier la taille"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => store.openSizeModal(size)}
+                              tooltip="Modifier"
+                            />
+                            {/* MIGRATION : IconButton pour supprimer */}
+                            <IconButton
+                              icon={<TrashIcon className="h-4 w-4" />}
+                              ariaLabel="Supprimer la taille"
+                              variant="danger"
+                              size="sm"
+                              onClick={() =>
+                                setDeleteSizeConfirm({
+                                  isOpen: true,
+                                  sizeId: size.id,
+                                  sizeNom: size.nom,
+                                })
+                              }
+                              tooltip="Supprimer"
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </section>
       </div>
 
+      {/* Modals */}
       <CategoryModal
         isOpen={store.categoryModalOpen}
         onClose={store.closeCategoryModal}
@@ -1450,6 +1634,60 @@ function ConfigurationTab() {
           }
           store.closeSizeModal();
         }}
+      />
+
+      {/* MIGRATION : ConfirmDialog pour suppression de catégorie */}
+      <ConfirmDialog
+        isOpen={deleteCategoryConfirm.isOpen}
+        onClose={() =>
+          setDeleteCategoryConfirm({
+            isOpen: false,
+            categoryId: null,
+            categoryNom: "",
+          })
+        }
+        onConfirm={async () => {
+          if (deleteCategoryConfirm.categoryId) {
+            await deleteCategoryMutation.mutateAsync(
+              deleteCategoryConfirm.categoryId,
+            );
+            setDeleteCategoryConfirm({
+              isOpen: false,
+              categoryId: null,
+              categoryNom: "",
+            });
+          }
+        }}
+        title="Supprimer la catégorie"
+        message={`Êtes-vous sûr de vouloir supprimer la catégorie "${deleteCategoryConfirm.categoryNom}" ? Cette action est irréversible.`}
+        variant="danger"
+        isLoading={deleteCategoryMutation.isPending}
+      />
+
+      {/* MIGRATION : ConfirmDialog pour suppression de taille */}
+      <ConfirmDialog
+        isOpen={deleteSizeConfirm.isOpen}
+        onClose={() =>
+          setDeleteSizeConfirm({
+            isOpen: false,
+            sizeId: null,
+            sizeNom: "",
+          })
+        }
+        onConfirm={async () => {
+          if (deleteSizeConfirm.sizeId) {
+            await deleteSizeMutation.mutateAsync(deleteSizeConfirm.sizeId);
+            setDeleteSizeConfirm({
+              isOpen: false,
+              sizeId: null,
+              sizeNom: "",
+            });
+          }
+        }}
+        title="Supprimer la taille"
+        message={`Êtes-vous sûr de vouloir supprimer la taille "${deleteSizeConfirm.sizeNom}" ? Cette action est irréversible.`}
+        variant="danger"
+        isLoading={deleteSizeMutation.isPending}
       />
     </div>
   );
@@ -1484,16 +1722,17 @@ export function StorePage() {
     }
   }, [activeTab, canManageStore, setActiveTab]);
 
+  // MIGRATION : TabGroup - Définition des onglets
   const tabs = canManageStore
     ? [
-        { key: "catalogue" as const, label: "Catalogue" },
-        { key: "commandes" as const, label: "Commandes" },
-        { key: "stocks" as const, label: "Stocks" },
-        { key: "configuration" as const, label: "Configuration" },
+        { id: "catalogue", label: "Catalogue" },
+        { id: "commandes", label: "Commandes" },
+        { id: "stocks", label: "Stocks" },
+        { id: "configuration", label: "Configuration" },
       ]
     : [
-        { key: "boutique" as const, label: "Boutique" },
-        { key: "mes_commandes" as const, label: "Mes commandes" },
+        { id: "boutique", label: "Boutique" },
+        { id: "mes_commandes", label: "Mes commandes" },
       ];
 
   return (
@@ -1510,17 +1749,13 @@ export function StorePage() {
 
       {/* ── Conteneur onglets ── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        {/* ── Navigation ── */}
-        <div className="flex items-center border-b border-gray-100 px-2 overflow-x-auto">
-          {tabs.map((tab) => (
-            <TabButton
-              key={tab.key}
-              label={tab.label}
-              active={activeTab === tab.key}
-              onClick={() => setActiveTab(tab.key)}
-            />
-          ))}
-        </div>
+        {/* MIGRATION : TabGroup pour la navigation */}
+        <TabGroup
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={(tabId) => setActiveTab(tabId as typeof activeTab)}
+          scrollable
+        />
 
         {/* ── Contenu des onglets ── */}
         {activeTab === "catalogue" && <CatalogueTab />}

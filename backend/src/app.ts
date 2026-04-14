@@ -25,6 +25,7 @@ import templateRoutes from "./modules/templates/presentation/routes/templateRout
 import settingsRoutes from "./modules/settings/presentation/routes/settingsRoutes.js";
 import paymentRoutes from "./modules/payments/presentation/routes/paymentRoutes.js";
 import courseRoutes from "./modules/courses/presentation/routes/courseRoutes.js";
+import statisticsRoutes from "./modules/statistics/presentation/routes/statistics.routes.js";
 import storeRoutes from "./modules/store/presentation/routes/storeRoutes.js";
 
 // Load environment variables
@@ -111,6 +112,7 @@ const createApp = (): Express => {
   app.use("/api/settings", settingsRoutes);
   app.use("/api/payments", paymentRoutes);
   app.use("/api/courses", courseRoutes);
+  app.use("/api/statistics", statisticsRoutes);
   app.use("/api/store", storeRoutes);
 
   // ==================== ERROR HANDLING ====================
