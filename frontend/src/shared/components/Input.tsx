@@ -29,15 +29,25 @@
  *   placeholder="email@example.com"
  *   rightIcon={<EnvelopeIcon className="h-4 w-4 text-gray-400" />}
  * />
+ *
+ * // Input avec erreur
+ * <Input
+ *   type="text"
+ *   placeholder="Nom d'utilisateur"
+ *   error="Ce champ est requis"
+ * />
  * ```
  */
 
-import { forwardRef, ReactNode, InputHTMLAttributes } from 'react';
-import { cn } from '../styles/designTokens';
+import { forwardRef, ReactNode, InputHTMLAttributes } from "react";
+import { cn, INPUT, FORM } from "../styles/designTokens";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "size"
+> {
   /**
    * Icône à afficher à gauche du champ
    */
@@ -54,6 +64,12 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 
   /**
+   * Taille du champ
+   * @default 'md'
+   */
+  size?: "sm" | "md" | "lg";
+
+  /**
    * Classes CSS additionnelles
    */
   className?: string;
@@ -67,68 +83,60 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       leftIcon,
       rightIcon,
       error,
-      className = '',
+      size = "md",
+      className = "",
       disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <div className="relative">
         {/* Icône gauche */}
-        {leftIcon && (
-          <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-            {leftIcon}
-          </span>
-        )}
+        {leftIcon && <span className={INPUT.iconLeft}>{leftIcon}</span>}
 
         {/* Input */}
         <input
           ref={ref}
           disabled={disabled}
           className={cn(
-            // Base styles
-            'block w-full rounded-lg text-sm transition-colors',
-            'placeholder-gray-400',
-            'focus:outline-none focus:ring-2 focus:ring-blue-500',
-
-            // Padding selon les icônes
-            leftIcon ? 'pl-9' : 'pl-3',
-            rightIcon ? 'pr-9' : 'pr-3',
-            'py-2.5',
-
-            // États
-            error
-              ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-              : 'border-gray-300 focus:border-blue-500',
-
-            disabled && 'bg-gray-50 text-gray-500 cursor-not-allowed opacity-60',
-
-            // Classes additionnelles
-            className
+            INPUT.base,
+            INPUT.size[size],
+            leftIcon ? INPUT.withIconLeft : undefined,
+            rightIcon ? INPUT.withIconRight : undefined,
+            error ? INPUT.error : undefined,
+            disabled ? INPUT.disabled : undefined,
+            className,
           )}
           {...props}
         />
 
         {/* Icône droite */}
-        {rightIcon && (
-          <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-            {rightIcon}
-          </span>
-        )}
+        {rightIcon && <span className={INPUT.iconRight}>{rightIcon}</span>}
 
         {/* Message d'erreur */}
         {error && (
-          <p className="mt-1 text-xs text-red-600" role="alert">
+          <p className={FORM.errorText} role="alert">
+            <svg
+              className="h-4 w-4 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
+            </svg>
             {error}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 
-Input.displayName = 'Input';
+Input.displayName = "Input";
 
 // ─── EXPORTS ─────────────────────────────────────────────────────────────────
 

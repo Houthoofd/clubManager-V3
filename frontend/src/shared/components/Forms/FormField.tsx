@@ -29,7 +29,7 @@
  *
  * // Exemple 5 : Avec Select
  * <FormField id="country" label="Pays" required>
- *   <select id="country" className="...">
+ *   <select id="country" className={FORM.select}>
  *     <option>France</option>
  *     <option>Belgique</option>
  *   </select>
@@ -37,8 +37,8 @@
  * ```
  */
 
-import { ReactNode } from 'react';
-import { cn } from '../../styles/designTokens';
+import { ReactNode } from "react";
+import { cn, FORM } from "../../styles/designTokens";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -62,6 +62,13 @@ export interface FormFieldProps {
    * @default false
    */
   required?: boolean;
+
+  /**
+   * Indique si le champ est optionnel
+   * Affiche "(optionnel)" après le label
+   * @default false
+   */
+  optional?: boolean;
 
   /**
    * Message d'erreur à afficher sous le champ
@@ -99,19 +106,30 @@ export function FormField({
   id,
   label,
   required = false,
+  optional = false,
   error,
   helpText,
   icon,
   children,
-  className = '',
+  className = "",
 }: FormFieldProps) {
+  // Déterminer la classe du label selon les props
+  const getLabelClass = () => {
+    if (icon) {
+      // Si icône présente, on compose manuellement avec flex
+      return cn(FORM.label, "flex items-center");
+    }
+
+    // Sans icône, utiliser les tokens directement
+    if (required) return FORM.labelRequired;
+    if (optional) return FORM.labelOptional;
+    return FORM.label;
+  };
+
   return (
-    <div className={cn('space-y-1.5', className)}>
+    <div className={cn(FORM.field, className)}>
       {/* Label avec icône optionnelle et indicateur requis */}
-      <label
-        htmlFor={id}
-        className="flex items-center text-sm font-medium text-gray-700"
-      >
+      <label htmlFor={id} className={getLabelClass()}>
         {/* Icône optionnelle */}
         {icon && (
           <span className="mr-2 h-4 w-4 flex-shrink-0" aria-hidden="true">
@@ -122,8 +140,8 @@ export function FormField({
         {/* Texte du label */}
         <span>{label}</span>
 
-        {/* Astérisque pour champ requis */}
-        {required && (
+        {/* Astérisque pour champ requis (seulement si icône présente) */}
+        {icon && required && (
           <span className="ml-0.5 text-red-500" aria-label="requis">
             *
           </span>
@@ -134,17 +152,24 @@ export function FormField({
       <div className="mt-1">{children}</div>
 
       {/* Messages de feedback (erreur ou aide) */}
-      {(error || helpText) && (
-        <div className="feedback">
-          {error ? (
-            <p className="mt-1 text-xs text-red-600" role="alert">
-              {error}
-            </p>
-          ) : (
-            <p className="mt-1 text-xs text-gray-500">{helpText}</p>
-          )}
-        </div>
+      {error && (
+        <p className={FORM.errorText} role="alert">
+          <svg
+            className="h-4 w-4 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clipRule="evenodd"
+            />
+          </svg>
+          {error}
+        </p>
       )}
+
+      {!error && helpText && <p className={FORM.helpText}>{helpText}</p>}
     </div>
   );
 }
