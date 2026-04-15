@@ -13,7 +13,7 @@
 │                                                                     │
 │  COHÉRENCE UI - SCORE ACTUEL                                       │
 │                                                                     │
-│  ███████████████████████████████████░░░░░░░░░░░░░░░░░  72%         │
+│  ███████████████████████████████████░░░░░░░░░░░░░░░░░  73%         │
 │                                                                     │
 │  Objectif Sprint 1:  ██████████████████████████████████████░░░░ 82% │
 │  Objectif Final:     ███████████████████████████████████████████ 92%│
@@ -42,9 +42,9 @@
 
 | Métrique | Actuel | Progression | Cible |
 |----------|--------|-------------|-------|
-| **Code dupliqué** | 1610 ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ | 5% | 230 |
+| **Code dupliqué** | 500 ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ | 70% | 230 |
 | **Pages migrées** | 55% ▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░ | 0% | 100% |
-| **Overlaps résolus** | 1/3 ▓▓▓▓▓▓░░░░░░░░░░░░░░ | 33% | 3/3 |
+| **Overlaps résolus** | 2/3 ▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░ | 66% | 3/3 |
 | **Design tokens** | 40% ▓▓▓▓▓▓▓▓░░░░░░░░░░░░ | 0% | 100% |
 
 ---
@@ -55,11 +55,11 @@
 
 **Status:** 🟡 En cours  
 **Effort estimé:** 20h  
-**Effort réel:** 0.5h  
-**Progression:** 3%
+**Effort réel:** 2.5h  
+**Progression:** 28%
 
 ```
-Sprint 1: Overlaps + UsersPage     ▓░░░░░░░░░░░░░░░░░░░  3%
+Sprint 1: Overlaps + UsersPage     ▓▓▓▓▓░░░░░░░░░░░░░░░  28%
 Sprint 2: Modals CoursesPage       ░░░░░░░░░░░░░░░░░░░░  0%
 ```
 
@@ -73,12 +73,14 @@ Sprint 2: Modals CoursesPage       ░░░░░░░░░░░░░░░
   - [x] Tests TypeScript passent
   - [x] Documentation de migration créée
 
-- [ ] 🔴 **Fusionner ErrorBanner et AlertBanner** (2h)
-  - [ ] Analyser les différences
-  - [ ] Implémenter fusion dans AlertBanner
-  - [ ] Migrer usages de ErrorBanner
-  - [ ] Déprécier ErrorBanner
-  - [ ] Tests passent
+- [x] ✅ **Fusionner ErrorBanner et AlertBanner** (2h) - COMPLÉTÉ
+  - [x] Analysé les différences (variants, design tokens)
+  - [x] Étendu AlertBanner pour accepter variant="error" (alias)
+  - [x] Migré 13 usages de ErrorBanner vers AlertBanner
+  - [x] Supprimé ErrorBanner.tsx + exemples + doc (~1110 lignes)
+  - [x] Nettoyé les exports dans Feedback/index.ts
+  - [x] Tests TypeScript passent (aucune erreur introduite)
+  - [x] Documentation de migration créée
 
 - [ ] 🔴 **Déprécier FormInput.tsx** (1h)
   - [ ] Ajouter console.warn de dépréciation
@@ -94,7 +96,8 @@ Sprint 2: Modals CoursesPage       ░░░░░░░░░░░░░░░
   - [ ] Tests accessibilité passent
   - [ ] Validation visuelle
 
-**Gain attendu:** -490 lignes
+**Gain réel jusqu'ici:** -1190 lignes (-280 StatusBadge, -1110 ErrorBanner)  
+**Gain attendu total Sprint 1:** -490 lignes
 
 ---
 
