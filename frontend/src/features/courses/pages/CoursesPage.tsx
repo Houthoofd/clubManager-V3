@@ -26,7 +26,7 @@ import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
 import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
 import { EmptyState } from "../../../shared/components/Layout/EmptyState";
-import { StatusBadge } from "../../../shared/components/Badge/StatusBadge";
+import { Badge } from "../../../shared/components/Badge";
 import { ConfirmDialog } from "../../../shared/components/Modal/ConfirmDialog";
 import type {
   CourseRecurrentListItemDto,
@@ -1572,13 +1572,12 @@ export function CoursesPage() {
                                 </p>
                               )}
                               <div className="flex items-center justify-between mt-1.5">
-                                <StatusBadge
-                                  status={
-                                    course.active ? "success" : "inactive"
-                                  }
-                                  label={course.active ? "Actif" : "Inactif"}
+                                <Badge.Status
+                                  status={course.active ? "active" : "inactive"}
                                   size="sm"
-                                />
+                                >
+                                  {course.active ? "Actif" : "Inactif"}
+                                </Badge.Status>
                                 {isAdmin && (
                                   <div className="flex gap-0.5">
                                     <button
@@ -1767,12 +1766,13 @@ export function CoursesPage() {
                             {session.type_cours}
                           </span>
                           {session.annule && (
-                            <StatusBadge
+                            <Badge.Status
                               status="error"
-                              label="Annulé"
                               size="sm"
                               className="ml-2"
-                            />
+                            >
+                              Annulé
+                            </Badge.Status>
                           )}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
@@ -1890,11 +1890,12 @@ export function CoursesPage() {
                         </div>
                       )}
                     </div>
-                    <StatusBadge
-                      status={prof.actif ? "success" : "inactive"}
-                      label={prof.actif ? "Actif" : "Inactif"}
+                    <Badge.Status
+                      status={prof.actif ? "active" : "inactive"}
                       size="sm"
-                    />
+                    >
+                      {prof.actif ? "Actif" : "Inactif"}
+                    </Badge.Status>
                   </div>
 
                   <div className="mt-3 pt-3 border-t border-gray-50 space-y-1.5">

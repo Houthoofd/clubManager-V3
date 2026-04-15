@@ -11,15 +11,11 @@ export {
   RoleBadge,
   PaymentStatusBadge,
   OrderStatusBadge,
-} from './Badge';
+} from "./Badge";
 export type {
   BadgeProps,
   StockBadgeProps,
   RoleBadgeProps,
   PaymentStatusBadgeProps,
   OrderStatusBadgeProps,
-} from './Badge';
-
-// StatusBadge (composant séparé)
-export { StatusBadge } from './StatusBadge';
-export type { StatusBadgeProps } from './StatusBadge';
+} from "./Badge";
