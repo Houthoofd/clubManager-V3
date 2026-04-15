@@ -1,5 +1,5 @@
-import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
-import { cn } from '../../styles/designTokens';
+import { ChangeEvent, KeyboardEvent, useEffect, useState } from "react";
+import { cn, INPUT, FORM } from "../../styles/designTokens";
 
 interface SearchBarProps {
   /** Valeur actuelle */
@@ -11,7 +11,7 @@ interface SearchBarProps {
   /** Debounce en ms (0 = pas de debounce) */
   debounce?: number;
   /** Taille */
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   /** Afficher bouton clear (X) */
   showClear?: boolean;
   /** Disabled */
@@ -25,9 +25,9 @@ interface SearchBarProps {
 export function SearchBar({
   value,
   onChange,
-  placeholder = 'Rechercher...',
+  placeholder = "Rechercher...",
   debounce = 0,
-  size = 'md',
+  size = "md",
   showClear = false,
   disabled = false,
   className,
@@ -58,54 +58,35 @@ export function SearchBar({
   };
 
   const handleClear = () => {
-    setLocalValue('');
+    setLocalValue("");
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && onEnter) {
+    if (e.key === "Enter" && onEnter) {
       onEnter();
     }
   };
 
-  // Classes conditionnelles selon la taille
-  const sizeClasses = {
-    sm: {
-      input: 'py-2 text-sm',
-      icon: 'h-4 w-4',
-      paddingLeft: 'pl-9',
-      paddingRight: showClear && value ? 'pr-9' : 'pr-3',
-    },
-    md: {
-      input: 'py-2.5 text-sm',
-      icon: 'h-5 w-5',
-      paddingLeft: 'pl-10',
-      paddingRight: showClear && value ? 'pr-10' : 'pr-3',
-    },
-    lg: {
-      input: 'py-3 text-base',
-      icon: 'h-6 w-6',
-      paddingLeft: 'pl-11',
-      paddingRight: showClear && value ? 'pr-11' : 'pr-3',
-    },
+  // Adapter la taille des icônes selon la prop size
+  const iconSizeClasses = {
+    sm: "h-4 w-4",
+    md: "h-5 w-5",
+    lg: "h-6 w-6",
   };
 
-  const currentSize = sizeClasses[size];
-  const iconSize = currentSize.icon;
-
-  const inputClasses = cn(
-    'w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-    currentSize.input,
-    currentSize.paddingLeft,
-    currentSize.paddingRight,
-    disabled && 'bg-gray-50 text-gray-500 cursor-not-allowed'
-  );
+  // Adapter le padding right si bouton clear visible
+  const paddingRightClasses = {
+    sm: showClear && value ? "pr-9" : "pr-4",
+    md: showClear && value ? "pr-10" : "pr-4",
+    lg: showClear && value ? "pr-12" : "pr-4",
+  };
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn(FORM.searchWrapper, className)}>
       {/* Icône de recherche (gauche) */}
-      <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+      <span className={cn(FORM.searchIcon, iconSizeClasses[size])}>
         <svg
-          className={iconSize}
+          className="h-full w-full"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -127,7 +108,13 @@ export function SearchBar({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}
-        className={inputClasses}
+        className={cn(
+          INPUT.base,
+          INPUT.size[size],
+          FORM.searchInput,
+          paddingRightClasses[size],
+          disabled && INPUT.disabled,
+        )}
         aria-label={placeholder}
       />
 
@@ -136,13 +123,15 @@ export function SearchBar({
         <button
           type="button"
           onClick={handleClear}
-          className={cn(
-            'absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors',
-            'focus:outline-none focus:text-gray-600'
-          )}
+          className={FORM.searchClearButton}
           aria-label="Effacer la recherche"
         >
-          <svg className={iconSize} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            className={iconSizeClasses[size]}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
