@@ -30,7 +30,7 @@ import { formatCurrency, formatPercentage } from "../utils/formatting";
 // Shared Components
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
-import { ErrorBanner } from "../../../shared/components/Feedback/ErrorBanner";
+
 import { AlertBanner } from "../../../shared/components/Feedback/AlertBanner";
 import { TabGroup, Tab } from "../../../shared/components/Navigation/TabGroup";
 
@@ -203,7 +203,7 @@ export const DashboardPage: React.FC = () => {
           title="Tableau de Bord - Statistiques"
           description="Vue d'ensemble des statistiques du club"
         />
-        <ErrorBanner
+        <AlertBanner
           variant="error"
           title="Erreur de chargement"
           message={

@@ -62,7 +62,7 @@ import {
 import { ConfirmDialog } from "../../../shared/components/Modal/ConfirmDialog";
 import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
 import { EmptyState } from "../../../shared/components/Layout/EmptyState";
-import { ErrorBanner } from "../../../shared/components/Feedback/ErrorBanner";
+import { AlertBanner } from "../../../shared/components/Feedback/AlertBanner";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UTILITAIRES
@@ -339,13 +339,13 @@ function CatalogueTab() {
       {/* Contenu - MIGRATION : LoadingSpinner, ErrorBanner, EmptyState */}
       <div className="p-4">
         {categoriesQuery.isError && (
-          <ErrorBanner
+          <AlertBanner
             variant="error"
             message={getErrorMessage(categoriesQuery.error)}
           />
         )}
         {articlesQuery.isError && (
-          <ErrorBanner
+          <AlertBanner
             variant="error"
             message={getErrorMessage(articlesQuery.error)}
           />
@@ -622,13 +622,13 @@ function BoutiqueTab() {
       {/* Contenu - MIGRATION : LoadingSpinner, ErrorBanner, EmptyState */}
       <div className="p-4">
         {categoriesQuery.isError && (
-          <ErrorBanner
+          <AlertBanner
             variant="error"
             message={getErrorMessage(categoriesQuery.error)}
           />
         )}
         {articlesQuery.isError && (
-          <ErrorBanner
+          <AlertBanner
             variant="error"
             message={getErrorMessage(articlesQuery.error)}
           />
@@ -842,7 +842,7 @@ function OrdersTab() {
       {/* Contenu - MIGRATION : LoadingSpinner, ErrorBanner, EmptyState */}
       <div className="p-4">
         {ordersQuery.isError && (
-          <ErrorBanner
+          <AlertBanner
             variant="error"
             message={getErrorMessage(ordersQuery.error)}
           />
@@ -1054,7 +1054,7 @@ function MyOrdersTab() {
       {/* Contenu - MIGRATION : LoadingSpinner, ErrorBanner, EmptyState */}
       <div className="p-4">
         {ordersQuery.isError && (
-          <ErrorBanner
+          <AlertBanner
             variant="error"
             message={getErrorMessage(ordersQuery.error)}
           />
@@ -1221,13 +1221,13 @@ function StocksTab() {
       {/* Contenu - MIGRATION : LoadingSpinner, ErrorBanner, EmptyState */}
       <div className="p-4">
         {lowStocksQuery.isError && (
-          <ErrorBanner
+          <AlertBanner
             variant="error"
             message={getErrorMessage(lowStocksQuery.error)}
           />
         )}
         {stocksQuery.isError && (
-          <ErrorBanner
+          <AlertBanner
             variant="error"
             message={getErrorMessage(stocksQuery.error)}
           />
@@ -1400,7 +1400,7 @@ function ConfigurationTab() {
           </div>
 
           {categoriesQuery.isError && (
-            <ErrorBanner
+            <AlertBanner
               variant="error"
               message={getErrorMessage(categoriesQuery.error)}
             />
@@ -1516,7 +1516,7 @@ function ConfigurationTab() {
           </div>
 
           {sizesQuery.isError && (
-            <ErrorBanner
+            <AlertBanner
               variant="error"
               message={getErrorMessage(sizesQuery.error)}
             />

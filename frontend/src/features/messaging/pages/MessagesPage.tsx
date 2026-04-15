@@ -30,7 +30,7 @@ import {
 // Composants réutilisables
 import { TabGroup, Tab } from "../../../shared/components/Navigation/TabGroup";
 import { Button } from "../../../shared/components/Button/Button";
-import { ErrorBanner } from "../../../shared/components/Feedback/ErrorBanner";
+import { AlertBanner } from "../../../shared/components/Feedback/AlertBanner";
 import { PaginationBar } from "../../../shared/components/Navigation/PaginationBar";
 import { EmptyState } from "../../../shared/components/Layout/EmptyState";
 import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
@@ -227,7 +227,7 @@ export const MessagesPage = () => {
             {/* Erreur */}
             {error && !isLoading && (
               <div className="p-3 flex-shrink-0">
-                <ErrorBanner variant="error" message={error} />
+                <AlertBanner variant="error" message={error} />
               </div>
             )}
 

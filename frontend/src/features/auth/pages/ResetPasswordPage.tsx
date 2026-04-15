@@ -24,7 +24,7 @@ import { AuthPageContainer } from "@/shared/components/Auth";
 import { PasswordInput } from "@/shared/components/Input";
 import { FormField } from "@/shared/components/Forms";
 import { SubmitButton } from "@/shared/components/Button";
-import { ErrorBanner } from "@/shared/components/Feedback";
+import { AlertBanner } from "@/shared/components/Feedback";
 
 /**
  * ResetPasswordPage Component
@@ -125,7 +125,7 @@ export const ResetPasswordPage = () => {
         showLogo={false}
       >
         <div className="space-y-6">
-          <ErrorBanner
+          <AlertBanner
             variant="error"
             title="Lien invalide"
             message={tokenError}
