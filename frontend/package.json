@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@clubmanager/types": "workspace:*",
+    "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^3.3.4",
     "@patternfly/react-charts": "^7.2.0",
     "@patternfly/react-code-editor": "^5.2.3",
