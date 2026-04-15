@@ -17,12 +17,15 @@
  * ```
  */
 
-import { ReactNode, HTMLAttributes } from 'react';
-import { cn } from '../../styles/designTokens';
+import { ReactNode, HTMLAttributes } from "react";
+import { cn, LAYOUT } from "../../styles/designTokens";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
-export interface PageHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
+export interface PageHeaderProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "className"
+> {
   /**
    * Icône optionnelle affichée à gauche du titre
    * Taille recommandée : h-8 w-8
@@ -66,45 +69,50 @@ export function PageHeader({
   description,
   actions,
   breadcrumb,
-  className = '',
+  className = "",
   ...props
 }: PageHeaderProps) {
   return (
-    <div className={cn('space-y-4', className)} {...props}>
+    <div
+      className={cn(LAYOUT.pageHeader.container, "space-y-4", className)}
+      {...props}
+    >
       {/* Breadcrumb (optionnel) */}
       {breadcrumb && (
-        <div className="flex items-center text-sm text-gray-500">
+        <div className="flex items-center gap-2 text-sm text-gray-500">
           {breadcrumb}
         </div>
       )}
 
       {/* Header principal */}
-      <div className="flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap">
+      <div
+        className={cn(
+          LAYOUT.pageHeader.wrapper,
+          "gap-4 flex-wrap sm:flex-nowrap",
+        )}
+      >
         {/* Gauche : Icône + Titre + Description */}
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className={cn(LAYOUT.pageHeader.left, "min-w-0 flex-1")}>
           {/* Icône */}
-          {icon && (
-            <div className="flex-shrink-0">
-              {icon}
-            </div>
-          )}
+          {icon && <div className="flex-shrink-0">{icon}</div>}
 
           {/* Titre et Description */}
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 truncate">
-              {title}
-            </h1>
+            <h1 className={cn(LAYOUT.pageHeader.title, "truncate")}>{title}</h1>
             {description && (
-              <p className="mt-0.5 text-sm text-gray-500">
-                {description}
-              </p>
+              <p className={LAYOUT.pageHeader.subtitle}>{description}</p>
             )}
           </div>
         </div>
 
         {/* Droite : Actions */}
         {actions && (
-          <div className="flex-shrink-0 w-full sm:w-auto">
+          <div
+            className={cn(
+              LAYOUT.pageHeader.right,
+              "flex-shrink-0 w-full sm:w-auto",
+            )}
+          >
             {actions}
           </div>
         )}

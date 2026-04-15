@@ -2,6 +2,8 @@
 
 Composant d'en-tête de page réutilisable pour garantir la cohérence visuelle à travers toutes les pages de l'application. Ce composant standardise l'affichage des titres de page avec icônes, descriptions et actions.
 
+**🎨 Ce composant utilise les tokens `LAYOUT.pageHeader` pour garantir la cohérence visuelle.**
+
 ## 📦 Installation
 
 ```tsx
@@ -231,15 +233,35 @@ import { ChevronRightIcon } from '@patternfly/react-icons';
 </div>
 ```
 
-### Styles Appliqués
+### Styles Appliqués (via LAYOUT.pageHeader tokens)
 
+Le composant utilise les tokens de design centralisés pour garantir la cohérence :
+
+- **Container** : `LAYOUT.pageHeader.container` → `mb-6`
+- **Wrapper** : `LAYOUT.pageHeader.wrapper` → `flex items-center justify-between`
+- **Section gauche** : `LAYOUT.pageHeader.left` → `flex items-center gap-4`
+- **Section droite** : `LAYOUT.pageHeader.right` → `flex items-center gap-3`
+- **Titre** : `LAYOUT.pageHeader.title` → `text-2xl font-bold text-gray-900`
+- **Description** : `LAYOUT.pageHeader.subtitle` → `mt-1 text-sm text-gray-500`
 - **Icône** : `flex-shrink-0` (ne se réduit pas)
-- **Titre** : `text-2xl font-bold text-gray-900 truncate`
-- **Description** : `text-sm text-gray-500`
-- **Container** : `flex items-center justify-between gap-4`
 - **Responsive** : Actions passent en pleine largeur sur mobile (`w-full sm:w-auto`)
 
+**Pourquoi les tokens ?**
+- ✅ Cohérence garantie à travers toute l'application
+- ✅ Maintenance centralisée (changement global via `designTokens.ts`)
+- ✅ Respect des standards du design system
+
 ---
+</text>
+
+<old_text line=663>
+## 📝 Notes Techniques
+
+- Le composant utilise `truncate` sur le titre pour éviter les débordements
+- `min-w-0` est appliqué pour permettre le truncate dans un flex container
+- `flex-shrink-0` sur l'icône empêche sa réduction
+- Le breadcrumb utilise `text-sm text-gray-500` pour la hiérarchie visuelle
+- Les actions utilisent `w-full sm:w-auto` pour le responsive
 
 ## ♿ Accessibilité
 
@@ -577,4 +599,5 @@ function CoursesPage() {
 - [Button Component](./Button.md) - Pour les actions
 - [Card Component](./Card.md) - Pour les conteneurs de contenu
 - [Badge Component](./Badge.md) - Pour les statuts dans la description
-- [Design Tokens](../styles/designTokens.ts) - Pour la cohérence visuelle
+- [Design Tokens](../styles/designTokens.ts) - **Tokens `LAYOUT.pageHeader` utilisés par ce composant**
+- [AUDIT_STYLE.md](../../../docs/AUDIT_STYLE.md) - Documentation complète du design system
