@@ -38,9 +38,6 @@ import { CoursesPage } from "./features/courses/pages";
 import { StorePage } from "./features/store/pages";
 import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
 
-// Statistics Module
-import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
-
 // Dashboard (placeholder)
 const DashboardPage = () => (
   <div className="bg-white rounded-lg shadow p-6">
