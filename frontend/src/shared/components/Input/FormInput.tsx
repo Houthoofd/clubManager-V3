@@ -28,12 +28,15 @@
  * ```
  */
 
-import { InputHTMLAttributes } from 'react';
-import { UseFormRegisterReturn } from 'react-hook-form';
+import { InputHTMLAttributes, useEffect } from "react";
+import { UseFormRegisterReturn } from "react-hook-form";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
-export interface FormInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id' | 'className'> {
+export interface FormInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "id" | "className"
+> {
   /**
    * Label du champ
    * Affiché au-dessus de l'input
@@ -50,7 +53,7 @@ export interface FormInputProps extends Omit<InputHTMLAttributes<HTMLInputElemen
    * Type d'input HTML
    * @default "text"
    */
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
+  type?: "text" | "email" | "password" | "number" | "tel" | "url";
 
   /**
    * Icône à afficher à gauche de l'input
@@ -106,7 +109,7 @@ export interface FormInputProps extends Omit<InputHTMLAttributes<HTMLInputElemen
  * Combine plusieurs classes CSS conditionnellement
  */
 function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }
 
 // ─── COMPOSANT ───────────────────────────────────────────────────────────────
@@ -114,7 +117,7 @@ function cn(...classes: (string | boolean | undefined)[]) {
 export function FormInput({
   label,
   id,
-  type = 'text',
+  type = "text",
   leftIcon,
   rightElement,
   error,
@@ -122,27 +125,55 @@ export function FormInput({
   placeholder,
   required = false,
   disabled = false,
-  className = '',
+  className = "",
   ...props
 }: FormInputProps) {
+  // ⚠️ DEPRECATION WARNING
+  useEffect(() => {
+    console.warn(
+      "⚠️ DEPRECATED: FormInput is deprecated and will be removed in a future version.\n" +
+        "Please use FormField + Input instead.\n\n" +
+        "Migration example:\n" +
+        "  // BEFORE (FormInput):\n" +
+        "  <FormInput\n" +
+        '    label="Email"\n' +
+        '    id="email"\n' +
+        '    type="email"\n' +
+        '    register={register("email")}\n' +
+        "    error={errors.email?.message}\n" +
+        "    required\n" +
+        "  />\n\n" +
+        "  // AFTER (FormField + Input):\n" +
+        '  <FormField id="email" label="Email" required error={errors.email?.message}>\n' +
+        "    <Input\n" +
+        '      id="email"\n' +
+        '      type="email"\n' +
+        '      {...register("email")}\n' +
+        "    />\n" +
+        "  </FormField>\n\n" +
+        "See: docs/audits/migrations/003-deprecate-forminput.md",
+    );
+  }, []);
+
   // Classes de base de l'input
-  const baseInputClasses = 'block w-full py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-colors';
+  const baseInputClasses =
+    "block w-full py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-colors";
 
   // Padding gauche selon la présence de leftIcon
-  const leftPaddingClass = leftIcon ? 'pl-10' : 'pl-3';
+  const leftPaddingClass = leftIcon ? "pl-10" : "pl-3";
 
   // Padding droit selon la présence de rightElement
-  const rightPaddingClass = rightElement ? 'pr-10' : 'pr-3';
+  const rightPaddingClass = rightElement ? "pr-10" : "pr-3";
 
   // Classes de couleur selon l'état (erreur ou normal)
   const stateClasses = error
-    ? 'border-red-300 focus:ring-red-500 focus:border-red-500 text-red-900 placeholder-red-300'
-    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500';
+    ? "border-red-300 focus:ring-red-500 focus:border-red-500 text-red-900 placeholder-red-300"
+    : "border-gray-300 focus:ring-blue-500 focus:border-blue-500";
 
   // Classes pour l'état disabled
   const disabledClasses = disabled
-    ? 'bg-gray-50 text-gray-500 cursor-not-allowed'
-    : '';
+    ? "bg-gray-50 text-gray-500 cursor-not-allowed"
+    : "";
 
   // Combiner toutes les classes de l'input
   const inputClasses = cn(
@@ -150,16 +181,16 @@ export function FormInput({
     leftPaddingClass,
     rightPaddingClass,
     stateClasses,
-    disabledClasses
+    disabledClasses,
   );
 
   // Classes pour les icônes (couleur selon l'état)
-  const iconClasses = error ? 'text-red-400' : 'text-gray-400';
+  const iconClasses = error ? "text-red-400" : "text-gray-400";
 
   // Props aria pour l'accessibilité
   const ariaProps = {
-    'aria-invalid': error ? true : undefined,
-    'aria-describedby': error ? `${id}-error` : undefined,
+    "aria-invalid": error ? true : undefined,
+    "aria-describedby": error ? `${id}-error` : undefined,
   };
 
   return (
