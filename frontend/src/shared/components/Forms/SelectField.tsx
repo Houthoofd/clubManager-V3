@@ -50,8 +50,8 @@
  * ```
  */
 
-import { ReactNode, SelectHTMLAttributes } from 'react';
-import { cn } from '../../styles/designTokens';
+import { ReactNode, SelectHTMLAttributes } from "react";
+import { cn, FORM } from "../../styles/designTokens";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -79,7 +79,10 @@ export interface SelectOption {
 /**
  * Props du composant SelectField
  */
-export interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'value' | 'className'> {
+export interface SelectFieldProps extends Omit<
+  SelectHTMLAttributes<HTMLSelectElement>,
+  "onChange" | "value" | "className"
+> {
   /**
    * Identifiant unique du champ
    * Utilisé pour l'association label/select via htmlFor
@@ -161,7 +164,7 @@ interface ChevronDownIconProps {
   className?: string;
 }
 
-function ChevronDownIcon({ className = '' }: ChevronDownIconProps) {
+function ChevronDownIcon({ className = "" }: ChevronDownIconProps) {
   return (
     <svg
       className={className}
@@ -195,7 +198,7 @@ export function SelectField({
   placeholder,
   disabled = false,
   icon,
-  className = '',
+  className = "",
   ...props
 }: SelectFieldProps) {
   // Handler pour le changement de valeur
@@ -203,8 +206,8 @@ export function SelectField({
     if (onChange) {
       const selectedValue = e.target.value;
       // Tenter de convertir en nombre si la valeur d'origine était un nombre
-      const option = options.find(opt => String(opt.value) === selectedValue);
-      if (option && typeof option.value === 'number') {
+      const option = options.find((opt) => String(opt.value) === selectedValue);
+      if (option && typeof option.value === "number") {
         onChange(Number(selectedValue));
       } else {
         onChange(selectedValue);
@@ -213,11 +216,11 @@ export function SelectField({
   };
 
   return (
-    <div className={cn('space-y-1.5', className)}>
+    <div className={cn(FORM.field, className)}>
       {/* Label avec icône optionnelle et indicateur requis */}
       <label
         htmlFor={id}
-        className="flex items-center text-sm font-medium text-gray-700"
+        className={cn(FORM.label, icon ? "flex items-center" : undefined)}
       >
         {/* Icône optionnelle */}
         {icon && (
@@ -241,21 +244,18 @@ export function SelectField({
       <div className="relative">
         <select
           id={id}
-          value={value !== undefined ? value : ''}
+          value={value !== undefined ? value : ""}
           onChange={handleChange}
           disabled={disabled}
           required={required}
           className={cn(
-            'block w-full px-3 py-2.5 pr-10 border rounded-lg shadow-sm',
-            'bg-white appearance-none text-sm',
-            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-            'transition-colors',
-            error
-              ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-              : 'border-gray-300',
-            disabled && 'bg-gray-50 text-gray-500 cursor-not-allowed opacity-60'
+            FORM.select,
+            "pr-10 appearance-none",
+            error && FORM.selectError,
+            disabled &&
+              "bg-gray-50 text-gray-500 cursor-not-allowed opacity-60",
           )}
-          aria-invalid={error ? 'true' : 'false'}
+          aria-invalid={error ? "true" : "false"}
           aria-describedby={
             error ? `${id}-error` : helpText ? `${id}-help` : undefined
           }
@@ -284,8 +284,8 @@ export function SelectField({
         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
           <ChevronDownIcon
             className={cn(
-              'h-5 w-5',
-              disabled ? 'text-gray-400' : 'text-gray-400'
+              "h-5 w-5",
+              disabled ? "text-gray-400" : "text-gray-400",
             )}
           />
         </div>
@@ -295,15 +295,11 @@ export function SelectField({
       {(error || helpText) && (
         <div>
           {error ? (
-            <p
-              id={`${id}-error`}
-              className="text-xs text-red-600"
-              role="alert"
-            >
+            <p id={`${id}-error`} className={FORM.errorText} role="alert">
               {error}
             </p>
           ) : (
-            <p id={`${id}-help`} className="text-xs text-gray-500">
+            <p id={`${id}-help`} className={FORM.helpText}>
               {helpText}
             </p>
           )}
