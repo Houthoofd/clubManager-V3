@@ -3,6 +3,7 @@
  *
  * Composant réutilisable pour sélectionner une plage de dates (date de début et date de fin).
  * Utilise des inputs HTML natifs `<input type="date">` avec validation automatique et raccourcis prédéfinis.
+ * Refactorisé pour utiliser les design tokens FORM, INPUT et BUTTON.
  *
  * @example
  * // Exemple 1 : Usage basique
@@ -100,7 +101,7 @@
  * />
  */
 
-import { cn } from "../../styles/designTokens";
+import { cn, FORM, INPUT, BUTTON } from "../../styles/designTokens";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -162,6 +163,11 @@ export interface DateRangePickerProps {
   error?: string;
 
   /**
+   * Message d'aide à afficher sous le composant (si pas d'erreur)
+   */
+  helpText?: string;
+
+  /**
    * Désactive le composant
    * @default false
    */
@@ -185,22 +191,6 @@ type PresetType =
   | "thisYear"
   | "clear";
 
-// ─── STYLES ──────────────────────────────────────────────────────────────────
-
-const inputClasses = cn(
-  "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm",
-  "text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
-  "disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed",
-  "transition-colors",
-);
-
-const presetButtonClasses = cn(
-  "px-3 py-1.5 text-xs font-medium rounded-md",
-  "border border-gray-300 bg-white",
-  "hover:bg-gray-50 transition-colors",
-  "disabled:opacity-40 disabled:cursor-not-allowed",
-);
-
 // ─── COMPOSANT ───────────────────────────────────────────────────────────────
 
 export function DateRangePicker({
@@ -211,6 +201,7 @@ export function DateRangePicker({
   minDate,
   maxDate,
   error,
+  helpText,
   disabled = false,
   className = "",
 }: DateRangePickerProps) {
@@ -322,53 +313,57 @@ export function DateRangePicker({
     }
   };
 
+  // Classes pour les inputs de date
+  const dateInputClass = cn(
+    INPUT.base,
+    FORM.dateInput,
+    error && INPUT.error,
+    disabled && INPUT.disabled,
+  );
+
+  // Classes pour les boutons de preset
+  const presetButtonClass = cn(
+    BUTTON.base,
+    BUTTON.variant.secondary,
+    BUTTON.size.xs,
+  );
+
   return (
-    <div className={cn("space-y-3", className)}>
-      {/* Label optionnel */}
-      {label && (
-        <label className="block text-sm font-medium text-gray-700">
-          {label}
-        </label>
-      )}
+    <div className={cn(FORM.field, className)}>
+      {/* Label principal */}
+      {label && <label className={FORM.label}>{label}</label>}
 
-      {/* Inputs de dates */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {/* Date de début */}
-        <div className="flex-1">
-          <label
-            htmlFor="startDate"
-            className="block text-xs text-gray-600 mb-1"
-          >
-            Date de début
-          </label>
-          <input
-            type="date"
-            id="startDate"
-            value={value.startDate || ""}
-            onChange={(e) => handleStartDateChange(e.target.value)}
-            min={minDate}
-            max={value.endDate || maxDate}
-            disabled={disabled}
-            className={cn(inputClasses, error && "border-red-300")}
-          />
-        </div>
+      {/* Inputs de dates avec séparateur */}
+      <div className={FORM.dateWrapper}>
+        <input
+          type="date"
+          id="startDate"
+          value={value.startDate || ""}
+          onChange={(e) => handleStartDateChange(e.target.value)}
+          min={minDate}
+          max={value.endDate || maxDate}
+          disabled={disabled}
+          className={dateInputClass}
+          aria-label="Date de début"
+          aria-invalid={error ? "true" : "false"}
+        />
 
-        {/* Date de fin */}
-        <div className="flex-1">
-          <label htmlFor="endDate" className="block text-xs text-gray-600 mb-1">
-            Date de fin
-          </label>
-          <input
-            type="date"
-            id="endDate"
-            value={value.endDate || ""}
-            onChange={(e) => handleEndDateChange(e.target.value)}
-            min={value.startDate || minDate}
-            max={maxDate}
-            disabled={disabled}
-            className={cn(inputClasses, error && "border-red-300")}
-          />
-        </div>
+        <span className={FORM.dateSeparator} aria-hidden="true">
+          →
+        </span>
+
+        <input
+          type="date"
+          id="endDate"
+          value={value.endDate || ""}
+          onChange={(e) => handleEndDateChange(e.target.value)}
+          min={value.startDate || minDate}
+          max={maxDate}
+          disabled={disabled}
+          className={dateInputClass}
+          aria-label="Date de fin"
+          aria-invalid={error ? "true" : "false"}
+        />
       </div>
 
       {/* Raccourcis prédéfinis */}
@@ -378,7 +373,7 @@ export function DateRangePicker({
             type="button"
             onClick={() => applyPreset("today")}
             disabled={disabled}
-            className={presetButtonClasses}
+            className={presetButtonClass}
           >
             Aujourd'hui
           </button>
@@ -386,7 +381,7 @@ export function DateRangePicker({
             type="button"
             onClick={() => applyPreset("last7days")}
             disabled={disabled}
-            className={presetButtonClasses}
+            className={presetButtonClass}
           >
             7 derniers jours
           </button>
@@ -394,7 +389,7 @@ export function DateRangePicker({
             type="button"
             onClick={() => applyPreset("last30days")}
             disabled={disabled}
-            className={presetButtonClasses}
+            className={presetButtonClass}
           >
             30 derniers jours
           </button>
@@ -402,7 +397,7 @@ export function DateRangePicker({
             type="button"
             onClick={() => applyPreset("thisMonth")}
             disabled={disabled}
-            className={presetButtonClasses}
+            className={presetButtonClass}
           >
             Ce mois
           </button>
@@ -410,7 +405,7 @@ export function DateRangePicker({
             type="button"
             onClick={() => applyPreset("lastMonth")}
             disabled={disabled}
-            className={presetButtonClasses}
+            className={presetButtonClass}
           >
             Mois dernier
           </button>
@@ -418,7 +413,7 @@ export function DateRangePicker({
             type="button"
             onClick={() => applyPreset("thisYear")}
             disabled={disabled}
-            className={presetButtonClasses}
+            className={presetButtonClass}
           >
             Cette année
           </button>
@@ -426,7 +421,7 @@ export function DateRangePicker({
             type="button"
             onClick={() => applyPreset("clear")}
             disabled={disabled}
-            className={cn(presetButtonClasses, "text-red-600 hover:bg-red-50")}
+            className={cn(presetButtonClass, "text-red-600 hover:bg-red-50")}
           >
             Effacer
           </button>
@@ -435,10 +430,24 @@ export function DateRangePicker({
 
       {/* Message d'erreur */}
       {error && (
-        <p className="text-xs text-red-600" role="alert">
+        <p className={FORM.errorText} role="alert">
+          <svg
+            className="h-4 w-4 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clipRule="evenodd"
+            />
+          </svg>
           {error}
         </p>
       )}
+
+      {/* Message d'aide */}
+      {!error && helpText && <p className={FORM.helpText}>{helpText}</p>}
     </div>
   );
 }
