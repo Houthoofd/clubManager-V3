@@ -28,6 +28,7 @@ import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner
 import { EmptyState } from "../../../shared/components/Layout/EmptyState";
 import { Badge } from "../../../shared/components/Badge";
 import { ConfirmDialog } from "../../../shared/components/Modal/ConfirmDialog";
+import { Modal } from "../../../shared/components/Modal/Modal";
 import type {
   CourseRecurrentListItemDto,
   ProfessorListItemDto,
@@ -92,27 +93,6 @@ function formatDate(dateStr: string): string {
 
 function formatTime(timeStr: string): string {
   return timeStr.slice(0, 5);
-}
-
-// ─── Custom hook: Escape key + body scroll lock ───────────────────────────────
-
-function useModalEffects(isOpen: boolean, onClose: () => void): void {
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [isOpen, onClose]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
 }
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -197,26 +177,6 @@ function PlusIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
-function XMarkIcon({ className = "h-5 w-5" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6 18 18 6M6 6l12 12"
-      />
-    </svg>
-  );
-}
-
 function ClipboardIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg
@@ -285,54 +245,6 @@ function Spinner({ className = "h-8 w-8" }: { className?: string }) {
   );
 }
 
-// ─── Modal backdrop wrapper ───────────────────────────────────────────────────
-
-function ModalBackdrop({
-  children,
-  onClose,
-}: {
-  children: React.ReactNode;
-  onClose: () => void;
-}) {
-  return (
-    <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
-    >
-      <div
-        className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg mx-auto overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function ModalHeader({
-  title,
-  onClose,
-}: {
-  title: string;
-  onClose: () => void;
-}) {
-  return (
-    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-      <button
-        type="button"
-        onClick={onClose}
-        className="text-gray-400 hover:text-gray-600 transition-colors rounded-lg p-1"
-        aria-label="Fermer"
-      >
-        <XMarkIcon />
-      </button>
-    </div>
-  );
-}
-
 // ─── MODAL 1 : Create / Edit CourseRecurrent ──────────────────────────────────
 
 interface CreateEditCourseRecurrentModalProps {
@@ -375,8 +287,6 @@ function CreateEditCourseRecurrentModal({
           );
         }) ?? null)
       : null;
-
-  useModalEffects(isOpen, onClose);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -461,182 +371,194 @@ function CreateEditCourseRecurrentModal({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <ModalBackdrop onClose={onClose}>
-      <ModalHeader
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      <Modal.Header
         title={
           editItem ? "Modifier le cours récurrent" : "Nouveau cours récurrent"
         }
-        onClose={onClose}
       />
-      <form
-        onSubmit={handleSubmit}
-        className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto"
-      >
-        {conflictCourse && (
-          <div className="flex items-start gap-2 px-3 py-2.5 bg-amber-50 border border-amber-300 rounded-lg text-sm text-amber-800">
-            <svg
-              className="h-4 w-4 flex-shrink-0 mt-0.5 text-amber-500"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
+      <Modal.Body>
+        <form
+          id="course-recurrent-form"
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
+          {conflictCourse && (
+            <div className="flex items-start gap-2 px-3 py-2.5 bg-amber-50 border border-amber-300 rounded-lg text-sm text-amber-800">
+              <svg
+                className="h-4 w-4 flex-shrink-0 mt-0.5 text-amber-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+                />
+              </svg>
+              <span>
+                Ce créneau chevauche{" "}
+                <strong>{conflictCourse.type_cours}</strong> (
+                {formatTime(conflictCourse.heure_debut)}–
+                {formatTime(conflictCourse.heure_fin)}) le{" "}
+                {conflictCourse.jour_semaine_nom}.
+              </span>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Type de cours <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={form.type_cours}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, type_cours: e.target.value }))
+              }
+              placeholder="Ex. Judo, Karaté, Aïkido…"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Jour de la semaine <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={form.jour_semaine}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, jour_semaine: Number(e.target.value) }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-              />
-            </svg>
-            <span>
-              Ce créneau chevauche <strong>{conflictCourse.type_cours}</strong>{" "}
-              ({formatTime(conflictCourse.heure_debut)}–
-              {formatTime(conflictCourse.heure_fin)}) le{" "}
-              {conflictCourse.jour_semaine_nom}.
-            </span>
-          </div>
-        )}
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Type de cours <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={form.type_cours}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, type_cours: e.target.value }))
-            }
-            placeholder="Ex. Judo, Karaté, Aïkido…"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Jour de la semaine <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={form.jour_semaine}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, jour_semaine: Number(e.target.value) }))
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {DAY_OPTIONS.map((d) => (
-              <option key={d.value} value={d.value}>
-                {d.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Heure début <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="time"
-              value={form.heure_debut}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, heure_debut: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Heure fin <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="time"
-              value={form.heure_fin}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, heure_fin: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <input
-            id="cr-active"
-            type="checkbox"
-            checked={form.active}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, active: e.target.checked }))
-            }
-            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-          <label
-            htmlFor="cr-active"
-            className="text-sm font-medium text-gray-700"
-          >
-            Cours actif
-          </label>
-        </div>
-
-        {professors.length > 0 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Professeurs assignés
-            </label>
-            <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-md p-3">
-              {professors.map((prof) => (
-                <label
-                  key={prof.id}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={form.professeur_ids.includes(prof.id)}
-                    onChange={() => toggleProfessor(prof.id)}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm text-gray-700">
-                    {prof.nom_complet}
-                  </span>
-                  {prof.specialite && (
-                    <span className="text-xs text-gray-400">
-                      — {prof.specialite}
-                    </span>
-                  )}
-                </label>
+              {DAY_OPTIONS.map((d) => (
+                <option key={d.value} value={d.value}>
+                  {d.label}
+                </option>
               ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Heure début <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="time"
+                value={form.heure_debut}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, heure_debut: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Heure fin <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="time"
+                value={form.heure_fin}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, heure_fin: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
           </div>
-        )}
 
-        <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={saving}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-60"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            disabled={saving || !!conflictCourse}
-            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            title={
-              conflictCourse
-                ? `Créneau occupé par "${conflictCourse.type_cours}"`
-                : undefined
+          <div className="flex items-center gap-3">
+            <input
+              id="cr-active"
+              type="checkbox"
+              checked={form.active}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, active: e.target.checked }))
+              }
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label
+              htmlFor="cr-active"
+              className="text-sm font-medium text-gray-700"
+            >
+              Cours actif
+            </label>
+          </div>
+
+          {professors.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Professeurs assignés
+              </label>
+              <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-md p-3">
+                {professors.map((prof) => (
+                  <label
+                    key={prof.id}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={form.professeur_ids.includes(prof.id)}
+                      onChange={() => toggleProfessor(prof.id)}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">
+                      {prof.nom_complet}
+                    </span>
+                    {prof.specialite && (
+                      <span className="text-xs text-gray-400">
+                        — {prof.specialite}
+                      </span>
+                    )}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+        </form>
+      </Modal.Body>
+      <Modal.Footer align="right">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          form="course-recurrent-form"
+          disabled={saving || !!conflictCourse}
+          className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          onClick={(e) => {
+            e.preventDefault();
+            const form = document.getElementById(
+              "course-recurrent-form",
+            ) as HTMLFormElement;
+            if (form) {
+              form.dispatchEvent(
+                new Event("submit", { cancelable: true, bubbles: true }),
+              );
             }
-          >
-            {saving && <Spinner className="h-4 w-4" />}
-            {saving ? "Enregistrement…" : editItem ? "Modifier" : "Créer"}
-          </button>
-        </div>
-      </form>
-    </ModalBackdrop>
+          }}
+          title={
+            conflictCourse
+              ? `Créneau occupé par "${conflictCourse.type_cours}"`
+              : undefined
+          }
+        >
+          {saving && <Spinner className="h-4 w-4" />}
+          {saving ? "Enregistrement…" : editItem ? "Modifier" : "Créer"}
+        </button>
+      </Modal.Footer>
+    </Modal>
   );
 }
 
@@ -666,8 +588,6 @@ function CreateProfessorModal({
     actif: true,
   });
   const [saving, setSaving] = useState(false);
-
-  useModalEffects(isOpen, onClose);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -730,123 +650,136 @@ function CreateProfessorModal({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <ModalBackdrop onClose={onClose}>
-      <ModalHeader
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      <Modal.Header
         title={editProfessor ? "Modifier le professeur" : "Nouveau professeur"}
-        onClose={onClose}
       />
-      <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+      <Modal.Body>
+        <form id="professor-form" onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Prénom <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={form.prenom}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, prenom: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nom <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={form.nom}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, nom: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Prénom <span className="text-red-500">*</span>
+              Email
             </label>
             <input
-              type="text"
-              value={form.prenom}
+              type="email"
+              value={form.email}
               onChange={(e) =>
-                setForm((f) => ({ ...f, prenom: e.target.value }))
+                setForm((f) => ({ ...f, email: e.target.value }))
               }
+              placeholder="prof@exemple.fr"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nom <span className="text-red-500">*</span>
+              Téléphone
+            </label>
+            <input
+              type="tel"
+              value={form.telephone}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, telephone: e.target.value }))
+              }
+              placeholder="+33 6 12 34 56 78"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Spécialité
             </label>
             <input
               type="text"
-              value={form.nom}
-              onChange={(e) => setForm((f) => ({ ...f, nom: e.target.value }))}
+              value={form.specialite}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, specialite: e.target.value }))
+              }
+              placeholder="Ex. Judo, Ceinture noire 3e dan…"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-            placeholder="prof@exemple.fr"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Téléphone
-          </label>
-          <input
-            type="tel"
-            value={form.telephone}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, telephone: e.target.value }))
+          <div className="flex items-center gap-3">
+            <input
+              id="prof-actif"
+              type="checkbox"
+              checked={form.actif}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, actif: e.target.checked }))
+              }
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label
+              htmlFor="prof-actif"
+              className="text-sm font-medium text-gray-700"
+            >
+              Professeur actif
+            </label>
+          </div>
+        </form>
+      </Modal.Body>
+      <Modal.Footer align="right">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60"
+          onClick={(e) => {
+            e.preventDefault();
+            const form = document.getElementById(
+              "professor-form",
+            ) as HTMLFormElement;
+            if (form) {
+              form.dispatchEvent(
+                new Event("submit", { cancelable: true, bubbles: true }),
+              );
             }
-            placeholder="+33 6 12 34 56 78"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Spécialité
-          </label>
-          <input
-            type="text"
-            value={form.specialite}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, specialite: e.target.value }))
-            }
-            placeholder="Ex. Judo, Ceinture noire 3e dan…"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="flex items-center gap-3">
-          <input
-            id="prof-actif"
-            type="checkbox"
-            checked={form.actif}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, actif: e.target.checked }))
-            }
-            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-          <label
-            htmlFor="prof-actif"
-            className="text-sm font-medium text-gray-700"
-          >
-            Professeur actif
-          </label>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={saving}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-60"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60"
-          >
-            {saving && <Spinner className="h-4 w-4" />}
-            {saving ? "Enregistrement…" : editProfessor ? "Modifier" : "Créer"}
-          </button>
-        </div>
-      </form>
-    </ModalBackdrop>
+          }}
+        >
+          {saving && <Spinner className="h-4 w-4" />}
+          {saving ? "Enregistrement…" : editProfessor ? "Modifier" : "Créer"}
+        </button>
+      </Modal.Footer>
+    </Modal>
   );
 }
 
@@ -871,8 +804,6 @@ function GenerateCoursesModal({
     date_fin: "",
   });
   const [saving, setSaving] = useState(false);
-
-  useModalEffects(isOpen, onClose);
 
   useEffect(() => {
     if (isOpen) {
@@ -906,88 +837,99 @@ function GenerateCoursesModal({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <ModalBackdrop onClose={onClose}>
-      <ModalHeader
-        title="Générer des séances depuis le planning"
-        onClose={onClose}
-      />
-      <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Cours récurrent <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={form.cours_recurrent_id}
-            onChange={(e) =>
-              setForm((f) => ({
-                ...f,
-                cours_recurrent_id: Number(e.target.value),
-              }))
+    <Modal isOpen={isOpen} onClose={onClose} size="md">
+      <Modal.Header title="Générer des séances depuis le planning" />
+      <Modal.Body>
+        <form
+          id="generate-courses-form"
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Cours récurrent <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={form.cours_recurrent_id}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  cours_recurrent_id: Number(e.target.value),
+                }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value={0}>— Sélectionner un cours —</option>
+              {planning.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.type_cours} — {c.jour_semaine_nom}{" "}
+                  {formatTime(c.heure_debut)}-{formatTime(c.heure_fin)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date début <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={form.date_debut}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, date_debut: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date fin <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={form.date_fin}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, date_fin: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        </form>
+      </Modal.Body>
+      <Modal.Footer align="right">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60"
+          onClick={(e) => {
+            e.preventDefault();
+            const form = document.getElementById(
+              "generate-courses-form",
+            ) as HTMLFormElement;
+            if (form) {
+              form.dispatchEvent(
+                new Event("submit", { cancelable: true, bubbles: true }),
+              );
             }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value={0}>— Sélectionner un cours —</option>
-            {planning.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.type_cours} — {c.jour_semaine_nom}{" "}
-                {formatTime(c.heure_debut)}-{formatTime(c.heure_fin)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date début <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={form.date_debut}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, date_debut: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date fin <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={form.date_fin}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, date_fin: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={saving}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-60"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60"
-          >
-            {saving && <Spinner className="h-4 w-4" />}
-            {saving ? "Génération…" : "Générer"}
-          </button>
-        </div>
-      </form>
-    </ModalBackdrop>
+          }}
+        >
+          {saving && <Spinner className="h-4 w-4" />}
+          {saving ? "Génération…" : "Générer"}
+        </button>
+      </Modal.Footer>
+    </Modal>
   );
 }
 
@@ -1014,8 +956,6 @@ function CreateSessionModal({
     cours_recurrent_id: "" as string,
   });
   const [saving, setSaving] = useState(false);
-
-  useModalEffects(isOpen, onClose);
 
   useEffect(() => {
     if (isOpen) {
@@ -1060,112 +1000,126 @@ function CreateSessionModal({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <ModalBackdrop onClose={onClose}>
-      <ModalHeader title="Nouvelle séance" onClose={onClose} />
-      <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Date <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            value={form.date_cours}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, date_cours: e.target.value }))
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Type de cours <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={form.type_cours}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, type_cours: e.target.value }))
-            }
-            placeholder="Ex. Judo, Karaté…"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+    <Modal isOpen={isOpen} onClose={onClose} size="md">
+      <Modal.Header title="Nouvelle séance" />
+      <Modal.Body>
+        <form
+          id="create-session-form"
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Heure début <span className="text-red-500">*</span>
+              Date <span className="text-red-500">*</span>
             </label>
             <input
-              type="time"
-              value={form.heure_debut}
+              type="date"
+              value={form.date_cours}
               onChange={(e) =>
-                setForm((f) => ({ ...f, heure_debut: e.target.value }))
+                setForm((f) => ({ ...f, date_cours: e.target.value }))
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Heure fin <span className="text-red-500">*</span>
+              Type de cours <span className="text-red-500">*</span>
             </label>
             <input
-              type="time"
-              value={form.heure_fin}
+              type="text"
+              value={form.type_cours}
               onChange={(e) =>
-                setForm((f) => ({ ...f, heure_fin: e.target.value }))
+                setForm((f) => ({ ...f, type_cours: e.target.value }))
               }
+              placeholder="Ex. Judo, Karaté…"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-        </div>
 
-        {planning.length > 0 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Cours récurrent lié (optionnel)
-            </label>
-            <select
-              value={form.cours_recurrent_id}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, cours_recurrent_id: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">— Aucun —</option>
-              {planning.map((c) => (
-                <option key={c.id} value={String(c.id)}>
-                  {c.type_cours} — {c.jour_semaine_nom}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Heure début <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="time"
+                value={form.heure_debut}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, heure_debut: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Heure fin <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="time"
+                value={form.heure_fin}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, heure_fin: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
-        )}
 
-        <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={saving}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-60"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60"
-          >
-            {saving && <Spinner className="h-4 w-4" />}
-            {saving ? "Création…" : "Créer"}
-          </button>
-        </div>
-      </form>
-    </ModalBackdrop>
+          {planning.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Cours récurrent lié (optionnel)
+              </label>
+              <select
+                value={form.cours_recurrent_id}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, cours_recurrent_id: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">— Aucun —</option>
+                {planning.map((c) => (
+                  <option key={c.id} value={String(c.id)}>
+                    {c.type_cours} — {c.jour_semaine_nom}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </form>
+      </Modal.Body>
+      <Modal.Footer align="right">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60"
+          onClick={(e) => {
+            e.preventDefault();
+            const form = document.getElementById(
+              "create-session-form",
+            ) as HTMLFormElement;
+            if (form) {
+              form.dispatchEvent(
+                new Event("submit", { cancelable: true, bubbles: true }),
+              );
+            }
+          }}
+        >
+          {saving && <Spinner className="h-4 w-4" />}
+          {saving ? "Création…" : "Créer"}
+        </button>
+      </Modal.Footer>
+    </Modal>
   );
 }
 
@@ -1192,8 +1146,6 @@ function AttendanceModal({
     {},
   );
   const [saving, setSaving] = useState(false);
-
-  useModalEffects(isOpen, onClose);
 
   useEffect(() => {
     if (attendanceSheet && isOpen) {
@@ -1232,174 +1184,144 @@ function AttendanceModal({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
-    >
-      <div
-        className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-auto flex flex-col max-h-[90vh]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              Feuille d'appel
-            </h2>
-            {session && (
-              <p className="text-sm text-gray-500 mt-0.5">
-                {session.type_cours} — {formatDate(session.date_cours)}{" "}
-                {formatTime(session.heure_debut)}–
-                {formatTime(session.heure_fin)}
-              </p>
-            )}
+    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+      <Modal.Header
+        title="Feuille d'appel"
+        subtitle={
+          session
+            ? `${session.type_cours} — ${formatDate(session.date_cours)} ${formatTime(session.heure_debut)}–${formatTime(session.heure_fin)}`
+            : undefined
+        }
+      />
+      <Modal.Body padding="px-6 py-5">
+        {attendanceLoading ? (
+          <div className="flex justify-center py-12">
+            <LoadingSpinner size="lg" />
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 rounded-lg p-1 ml-4 flex-shrink-0"
-            aria-label="Fermer"
-          >
-            <XMarkIcon />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-6 py-5">
-          {attendanceLoading ? (
-            <div className="flex justify-center py-12">
-              <LoadingSpinner size="lg" />
-            </div>
-          ) : !attendanceSheet ? (
-            <p className="text-center text-gray-500 py-12">
-              Aucune donnée disponible.
-            </p>
-          ) : (
-            <>
-              <div className="flex flex-wrap gap-4 mb-5 p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm text-gray-600">
-                  Total :{" "}
-                  <strong>{attendanceSheet.statistiques.total_inscrits}</strong>
+        ) : !attendanceSheet ? (
+          <p className="text-center text-gray-500 py-12">
+            Aucune donnée disponible.
+          </p>
+        ) : (
+          <>
+            <div className="flex flex-wrap gap-4 mb-5 p-3 bg-gray-50 rounded-lg">
+              <span className="text-sm text-gray-600">
+                Total :{" "}
+                <strong>{attendanceSheet.statistiques.total_inscrits}</strong>
+              </span>
+              <span className="text-sm text-green-700">
+                Présents :{" "}
+                <strong>{attendanceSheet.statistiques.nombre_presents}</strong>
+              </span>
+              <span className="text-sm text-red-600">
+                Absents :{" "}
+                <strong>{attendanceSheet.statistiques.nombre_absents}</strong>
+              </span>
+              {attendanceSheet.professeurs.length > 0 && (
+                <span className="text-sm text-blue-600">
+                  Prof :{" "}
+                  {attendanceSheet.professeurs
+                    .map((p) => p.nom_complet)
+                    .join(", ")}
                 </span>
-                <span className="text-sm text-green-700">
-                  Présents :{" "}
-                  <strong>
-                    {attendanceSheet.statistiques.nombre_presents}
-                  </strong>
-                </span>
-                <span className="text-sm text-red-600">
-                  Absents :{" "}
-                  <strong>{attendanceSheet.statistiques.nombre_absents}</strong>
-                </span>
-                {attendanceSheet.professeurs.length > 0 && (
-                  <span className="text-sm text-blue-600">
-                    Prof :{" "}
-                    {attendanceSheet.professeurs
-                      .map((p) => p.nom_complet)
-                      .join(", ")}
-                  </span>
-                )}
-              </div>
-
-              {attendanceSheet.inscriptions.length === 0 ? (
-                <p className="text-center text-gray-400 py-8">
-                  Aucun inscrit pour cette séance.
-                </p>
-              ) : (
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-100">
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-4">
-                        Nom complet
-                      </th>
-                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-4">
-                        Grade
-                      </th>
-                      <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 w-24">
-                        Présent
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {attendanceSheet.inscriptions.map((ins) => (
-                      <tr
-                        key={ins.id}
-                        className="hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="py-3 pr-4 text-sm font-medium text-gray-900">
-                          {ins.nom_complet}
-                        </td>
-                        <td className="py-3 pr-4 text-sm text-gray-500">
-                          {ins.grade ? (
-                            <span className="inline-flex items-center gap-1.5">
-                              {ins.grade.couleur && (
-                                <span
-                                  className="inline-block h-2.5 w-2.5 rounded-full flex-shrink-0"
-                                  style={{ backgroundColor: ins.grade.couleur }}
-                                />
-                              )}
-                              {ins.grade.nom}
-                            </span>
-                          ) : (
-                            <span className="text-gray-300">—</span>
-                          )}
-                        </td>
-                        <td className="py-3 text-center">
-                          <button
-                            type="button"
-                            role="switch"
-                            aria-checked={presenceMap[ins.id] === 1}
-                            onClick={() => togglePresence(ins.id)}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                              presenceMap[ins.id] === 1
-                                ? "bg-green-500"
-                                : "bg-gray-200"
-                            }`}
-                          >
-                            <span
-                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${
-                                presenceMap[ins.id] === 1
-                                  ? "translate-x-6"
-                                  : "translate-x-1"
-                              }`}
-                            />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               )}
-            </>
-          )}
-        </div>
+            </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 flex-shrink-0">
+            {attendanceSheet.inscriptions.length === 0 ? (
+              <p className="text-center text-gray-400 py-8">
+                Aucun inscrit pour cette séance.
+              </p>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-4">
+                      Nom complet
+                    </th>
+                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-4">
+                      Grade
+                    </th>
+                    <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 w-24">
+                      Présent
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {attendanceSheet.inscriptions.map((ins) => (
+                    <tr
+                      key={ins.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="py-3 pr-4 text-sm font-medium text-gray-900">
+                        {ins.nom_complet}
+                      </td>
+                      <td className="py-3 pr-4 text-sm text-gray-500">
+                        {ins.grade ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            {ins.grade.couleur && (
+                              <span
+                                className="inline-block h-2.5 w-2.5 rounded-full flex-shrink-0"
+                                style={{ backgroundColor: ins.grade.couleur }}
+                              />
+                            )}
+                            {ins.grade.nom}
+                          </span>
+                        ) : (
+                          <span className="text-gray-300">—</span>
+                        )}
+                      </td>
+                      <td className="py-3 text-center">
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={presenceMap[ins.id] === 1}
+                          onClick={() => togglePresence(ins.id)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                            presenceMap[ins.id] === 1
+                              ? "bg-green-500"
+                              : "bg-gray-200"
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${
+                              presenceMap[ins.id] === 1
+                                ? "translate-x-6"
+                                : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </>
+        )}
+      </Modal.Body>
+      <Modal.Footer align="right">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60"
+        >
+          Fermer
+        </button>
+        {attendanceSheet && attendanceSheet.inscriptions.length > 0 && (
           <button
             type="button"
-            onClick={onClose}
-            disabled={saving}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-60"
+            onClick={handleSave}
+            disabled={saving || attendanceLoading}
+            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60"
           >
-            Fermer
+            {saving && <Spinner className="h-4 w-4" />}
+            {saving ? "Sauvegarde…" : "Sauvegarder les présences"}
           </button>
-          {attendanceSheet && attendanceSheet.inscriptions.length > 0 && (
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving || attendanceLoading}
-              className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-60"
-            >
-              {saving && <Spinner className="h-4 w-4" />}
-              {saving ? "Sauvegarde…" : "Sauvegarder les présences"}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+        )}
+      </Modal.Footer>
+    </Modal>
   );
 }
 
