@@ -13,7 +13,7 @@
 │                                                                     │
 │  COHÉRENCE UI - SCORE ACTUEL                                       │
 │                                                                     │
-│  ███████████████████████████████████░░░░░░░░░░░░░░░░░  73%         │
+│  ███████████████████████████████████░░░░░░░░░░░░░░░░░  74%         │
 │                                                                     │
 │  Objectif Sprint 1:  ██████████████████████████████████████░░░░ 82% │
 │  Objectif Final:     ███████████████████████████████████████████ 92%│
@@ -44,7 +44,7 @@
 |----------|--------|-------------|-------|
 | **Code dupliqué** | 500 ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ | 70% | 230 |
 | **Pages migrées** | 55% ▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░ | 0% | 100% |
-| **Overlaps résolus** | 2/3 ▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░ | 66% | 3/3 |
+| **Overlaps résolus** | 3/3 ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ | 100% ✅ | 3/3 |
 | **Design tokens** | 40% ▓▓▓▓▓▓▓▓░░░░░░░░░░░░ | 0% | 100% |
 
 ---
@@ -55,11 +55,11 @@
 
 **Status:** 🟡 En cours  
 **Effort estimé:** 20h  
-**Effort réel:** 2.5h  
-**Progression:** 28%
+**Effort réel:** 4h  
+**Progression:** 37%
 
 ```
-Sprint 1: Overlaps + UsersPage     ▓▓▓▓▓░░░░░░░░░░░░░░░  28%
+Sprint 1: Overlaps + UsersPage     ▓▓▓▓▓▓▓░░░░░░░░░░░░░  37%
 Sprint 2: Modals CoursesPage       ░░░░░░░░░░░░░░░░░░░░  0%
 ```
 
@@ -82,10 +82,13 @@ Sprint 2: Modals CoursesPage       ░░░░░░░░░░░░░░░
   - [x] Tests TypeScript passent (aucune erreur introduite)
   - [x] Documentation de migration créée
 
-- [ ] 🔴 **Déprécier FormInput.tsx** (1h)
-  - [ ] Ajouter console.warn de dépréciation
-  - [ ] Documenter alternative (FormField + Input)
-  - [ ] Créer issue de migration
+- [x] ✅ **Déprécier FormInput.tsx** (1h 30min) - COMPLÉTÉ
+  - [x] Ajouté console.warn dans useEffect (dépréciation active)
+  - [x] Ajouté annotation @deprecated dans exports TypeScript
+  - [x] Documenté alternative (FormField + Input) avec 5 exemples
+  - [x] Créé migration guide complet (003-deprecate-forminput.md)
+  - [x] Vérifié : 0 usage en production (uniquement exemples)
+  - [x] Planifié suppression définitive en Phase 3
 
 - [ ] 🔴 **Migrer UsersPage** (6h)
   - [ ] Remplacer header par PageHeader
@@ -97,6 +100,7 @@ Sprint 2: Modals CoursesPage       ░░░░░░░░░░░░░░░
   - [ ] Validation visuelle
 
 **Gain réel jusqu'ici:** -1190 lignes (-280 StatusBadge, -1110 ErrorBanner)  
+**Gain attendu Phase 3:** -220 lignes (FormInput, suppression planifiée)  
 **Gain attendu total Sprint 1:** -490 lignes
 
 ---
