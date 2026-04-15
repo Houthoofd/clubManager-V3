@@ -1,7 +1,11 @@
 /**
  * UserStatusBadge
  * Badge coloré affichant le statut d'un utilisateur selon son status_id.
+ *
+ * ⚠️ Ce composant utilise maintenant Badge.Status pour la cohérence visuelle.
  */
+
+import { Badge } from "../../../shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -9,14 +13,17 @@ interface UserStatusBadgeProps {
   statusId: number;
 }
 
-// ─── Config ───────────────────────────────────────────────────────────────────
+// ─── Mapping ──────────────────────────────────────────────────────────────────
 
-const statusConfig: Record<number, { label: string; className: string }> = {
-  1: { label: 'Actif',       className: 'bg-green-100 text-green-700'  },
-  2: { label: 'Inactif',     className: 'bg-gray-100 text-gray-600'    },
-  3: { label: 'Suspendu',    className: 'bg-orange-100 text-orange-700' },
-  4: { label: 'En attente',  className: 'bg-yellow-100 text-yellow-700' },
-  5: { label: 'Archivé',     className: 'bg-red-100 text-red-800'      },
+const statusIdToStatus: Record<
+  number,
+  "actif" | "inactif" | "suspendu" | "en_attente" | "archive"
+> = {
+  1: "actif",
+  2: "inactif",
+  3: "suspendu",
+  4: "en_attente",
+  5: "archive",
 };
 
 // ─── Composant ────────────────────────────────────────────────────────────────
@@ -28,19 +35,13 @@ const statusConfig: Record<number, { label: string; className: string }> = {
  * - 2 (Inactif)    → gris
  * - 3 (Suspendu)   → orange
  * - 4 (En attente) → jaune
- * - 5 (Archivé)    → rouge foncé
- * - inconnu        → gris
+ * - 5 (Archivé)    → rouge
+ * - inconnu        → gris (inactif)
  */
-export const UserStatusBadge: React.FC<UserStatusBadgeProps> = ({ statusId }) => {
-  const config = statusConfig[statusId];
+export const UserStatusBadge: React.FC<UserStatusBadgeProps> = ({
+  statusId,
+}) => {
+  const status = statusIdToStatus[statusId] || "inactif";
 
-  return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-        config?.className ?? 'bg-gray-100 text-gray-700'
-      }`}
-    >
-      {config?.label ?? 'Inconnu'}
-    </span>
-  );
+  return <Badge.Status status={status} />;
 };

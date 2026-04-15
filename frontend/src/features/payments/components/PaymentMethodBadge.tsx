@@ -1,9 +1,11 @@
 /**
  * PaymentMethodBadge
  * Badge coloré affichant la méthode de paiement avec une icône SVG.
+ * Utilise le composant Badge partagé avec la prop icon.
  */
 
 import { PaymentMethod, PAYMENT_METHOD_LABELS } from "@clubmanager/types";
+import { Badge, BadgeProps } from "../../../shared/components";
 
 // ─── Icônes SVG ───────────────────────────────────────────────────────────────
 
@@ -90,27 +92,27 @@ interface PaymentMethodBadgeProps {
 
 const methodConfig: Record<
   string,
-  { label: string; Icon: () => JSX.Element; className: string }
+  { label: string; Icon: () => JSX.Element; variant: BadgeProps["variant"] }
 > = {
   [PaymentMethod.STRIPE]: {
     label: PAYMENT_METHOD_LABELS[PaymentMethod.STRIPE],
     Icon: CreditCardIcon,
-    className: "bg-blue-100 text-blue-800 ring-1 ring-blue-200",
+    variant: "info", // Bleu pour carte bancaire
   },
   [PaymentMethod.ESPECES]: {
     label: PAYMENT_METHOD_LABELS[PaymentMethod.ESPECES],
     Icon: BanknotesIcon,
-    className: "bg-green-100 text-green-800 ring-1 ring-green-200",
+    variant: "success", // Vert pour espèces
   },
   [PaymentMethod.VIREMENT]: {
     label: PAYMENT_METHOD_LABELS[PaymentMethod.VIREMENT],
     Icon: BuildingLibraryIcon,
-    className: "bg-indigo-100 text-indigo-800 ring-1 ring-indigo-200",
+    variant: "purple", // Violet pour virement
   },
   [PaymentMethod.AUTRE]: {
     label: PAYMENT_METHOD_LABELS[PaymentMethod.AUTRE],
     Icon: TagIcon,
-    className: "bg-gray-100 text-gray-700 ring-1 ring-gray-200",
+    variant: "neutral", // Gris pour autre
   },
 };
 
@@ -121,7 +123,7 @@ const methodConfig: Record<
  *
  * - stripe   → bleu   + icône carte bancaire
  * - especes  → vert   + icône billets
- * - virement → indigo + icône établissement bancaire
+ * - virement → violet + icône établissement bancaire
  * - autre    → gris   + icône étiquette
  */
 export const PaymentMethodBadge: React.FC<PaymentMethodBadgeProps> = ({
@@ -129,20 +131,13 @@ export const PaymentMethodBadge: React.FC<PaymentMethodBadgeProps> = ({
 }) => {
   const config = methode ? methodConfig[methode] : null;
 
+  if (!config) {
+    return <Badge variant="neutral">{methode ?? "Inconnu"}</Badge>;
+  }
+
   return (
-    <span
-      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-        config?.className ?? "bg-gray-100 text-gray-700 ring-1 ring-gray-200"
-      }`}
-    >
-      {config ? (
-        <>
-          <config.Icon />
-          {config.label}
-        </>
-      ) : (
-        (methode ?? "Inconnu")
-      )}
-    </span>
+    <Badge variant={config.variant} icon={<config.Icon />}>
+      {config.label}
+    </Badge>
   );
 };

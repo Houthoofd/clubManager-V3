@@ -1,9 +1,9 @@
 /**
  * AddFamilyMemberModal
  * Modal d'ajout d'un membre à la famille. Utilise react-hook-form + zod + sonner.
+ * Migré vers les composants centralisés Modal, Input, Button.
  */
 
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { InfoCircleIcon } from "@patternfly/react-icons";
 import { useFamily } from "../hooks/useFamily";
 import type { AddFamilyMemberDto } from "@clubmanager/types";
+import { Modal, Input, Button } from "../../../shared/components";
 
 // ─── Schéma de validation ────────────────────────────────────────────────────
 
@@ -46,41 +47,13 @@ function getTodayString(): string {
   return `${year}-${month}-${day}`;
 }
 
-// ─── Icône spinner inline ────────────────────────────────────────────────────
-
-function SpinnerIcon() {
-  return (
-    <svg
-      className="animate-spin h-4 w-4 text-white"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-  );
-}
-
 // ─── Composant ───────────────────────────────────────────────────────────────
 
 /**
  * AddFamilyMemberModal — Modal d'ajout d'un membre de famille.
  *
  * Affiche un formulaire validé par zod permettant d'ajouter un membre sans
- * email ni mot de passe. Se ferme sur clic en dehors ou touche Escape.
+ * email ni mot de passe. Utilise les composants centralisés Modal, Input, Button.
  */
 export function AddFamilyMemberModal({
   isOpen,
@@ -105,33 +78,6 @@ export function AddFamilyMemberModal({
       role: "enfant",
     },
   });
-
-  // ── Fermeture sur touche Escape ───────────────────────────────────────────
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        handleClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
-
-  // ── Bloquer le scroll du body quand la modal est ouverte ──────────────────
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
 
   const handleClose = () => {
     reset();
@@ -162,30 +108,14 @@ export function AddFamilyMemberModal({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    /* ── Overlay ─────────────────────────────────────────────────────────── */
-    <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="add-member-title"
-      onClick={handleClose}
-    >
-      {/* ── Dialog ─────────────────────────────────────────────────────────── */}
-      <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* ── Titre ── */}
-        <h2
-          id="add-member-title"
-          className="text-xl font-semibold text-gray-900 mb-4"
-        >
-          Ajouter un membre de la famille
-        </h2>
+    <Modal isOpen={isOpen} onClose={handleClose} size="md">
+      <Modal.Header
+        title="Ajouter un membre de la famille"
+        onClose={handleClose}
+      />
 
+      <Modal.Body>
         {/* ── Boîte d'information ── */}
         <div className="mb-5 rounded-lg bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-blue-700 leading-relaxed flex items-start gap-2">
           <InfoCircleIcon
@@ -204,171 +134,87 @@ export function AddFamilyMemberModal({
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-5"
           noValidate
+          id="add-member-form"
         >
           {/* Prénom / Nom (2 colonnes) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Prénom */}
-            <div>
-              <label
-                htmlFor="first_name"
-                className="block text-sm font-medium text-gray-700 mb-1.5"
-              >
-                Prénom <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="first_name"
-                type="text"
-                autoComplete="off"
-                {...register("first_name")}
-                className={`block w-full px-3 py-2.5 border ${
-                  errors.first_name
-                    ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                    : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                } rounded-lg shadow-sm placeholder-gray-400 text-sm focus:outline-none focus:ring-2 transition-colors`}
-                placeholder="Marie"
-              />
-              {errors.first_name && (
-                <p className="mt-1.5 text-xs text-red-600">
-                  {errors.first_name.message}
-                </p>
-              )}
-            </div>
+            <Input
+              id="first_name"
+              label="Prénom"
+              type="text"
+              placeholder="Marie"
+              autoComplete="off"
+              required
+              error={errors.first_name?.message}
+              {...register("first_name")}
+            />
 
-            {/* Nom */}
-            <div>
-              <label
-                htmlFor="last_name"
-                className="block text-sm font-medium text-gray-700 mb-1.5"
-              >
-                Nom <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="last_name"
-                type="text"
-                autoComplete="off"
-                {...register("last_name")}
-                className={`block w-full px-3 py-2.5 border ${
-                  errors.last_name
-                    ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                    : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                } rounded-lg shadow-sm placeholder-gray-400 text-sm focus:outline-none focus:ring-2 transition-colors`}
-                placeholder="Dupont"
-              />
-              {errors.last_name && (
-                <p className="mt-1.5 text-xs text-red-600">
-                  {errors.last_name.message}
-                </p>
-              )}
-            </div>
+            <Input
+              id="last_name"
+              label="Nom"
+              type="text"
+              placeholder="Dupont"
+              autoComplete="off"
+              required
+              error={errors.last_name?.message}
+              {...register("last_name")}
+            />
           </div>
 
           {/* Date de naissance */}
-          <div>
-            <label
-              htmlFor="date_of_birth"
-              className="block text-sm font-medium text-gray-700 mb-1.5"
-            >
-              Date de naissance <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="date_of_birth"
-              type="date"
-              max={getTodayString()}
-              {...register("date_of_birth")}
-              className={`block w-full px-3 py-2.5 border ${
-                errors.date_of_birth
-                  ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                  : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-              } rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 transition-colors`}
-            />
-            {errors.date_of_birth && (
-              <p className="mt-1.5 text-xs text-red-600">
-                {errors.date_of_birth.message}
-              </p>
-            )}
-          </div>
+          <Input
+            id="date_of_birth"
+            label="Date de naissance"
+            type="date"
+            max={getTodayString()}
+            required
+            error={errors.date_of_birth?.message}
+            {...register("date_of_birth")}
+          />
 
           {/* Genre / Rôle (2 colonnes) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Genre */}
-            <div>
-              <label
-                htmlFor="genre_id"
-                className="block text-sm font-medium text-gray-700 mb-1.5"
-              >
-                Genre <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="genre_id"
-                {...register("genre_id")}
-                className={`block w-full px-3 py-2.5 border ${
-                  errors.genre_id
-                    ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                    : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                } rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 transition-colors`}
-              >
-                <option value="">Sélectionner…</option>
-                <option value="1">Homme</option>
-                <option value="2">Femme</option>
-                <option value="3">Autre / Non spécifié</option>
-              </select>
-              {errors.genre_id && (
-                <p className="mt-1.5 text-xs text-red-600">
-                  {errors.genre_id.message}
-                </p>
-              )}
-            </div>
-
-            {/* Rôle */}
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-sm font-medium text-gray-700 mb-1.5"
-              >
-                Rôle <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="role"
-                {...register("role")}
-                className={`block w-full px-3 py-2.5 border ${
-                  errors.role
-                    ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                    : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                } rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 transition-colors`}
-              >
-                <option value="enfant">Enfant</option>
-                <option value="conjoint">Conjoint(e)</option>
-                <option value="autre">Autre</option>
-              </select>
-              {errors.role && (
-                <p className="mt-1.5 text-xs text-red-600">
-                  {errors.role.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* ── Actions ── */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={handleClose}
-              disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            <Input.Select
+              id="genre_id"
+              label="Genre"
+              required
+              error={errors.genre_id?.message}
+              {...register("genre_id")}
             >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              <option value="">Sélectionner…</option>
+              <option value="1">Homme</option>
+              <option value="2">Femme</option>
+              <option value="3">Autre / Non spécifié</option>
+            </Input.Select>
+
+            <Input.Select
+              id="role"
+              label="Rôle"
+              required
+              error={errors.role?.message}
+              {...register("role")}
             >
-              {isSubmitting && <SpinnerIcon />}
-              {isSubmitting ? "Ajout en cours…" : "Ajouter le membre"}
-            </button>
+              <option value="enfant">Enfant</option>
+              <option value="conjoint">Conjoint(e)</option>
+              <option value="autre">Autre</option>
+            </Input.Select>
           </div>
         </form>
-      </div>
-    </div>
+      </Modal.Body>
+
+      <Modal.Footer align="right">
+        <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+          Annuler
+        </Button>
+        <Button
+          type="submit"
+          form="add-member-form"
+          loading={isSubmitting}
+          disabled={isSubmitting}
+        >
+          Ajouter le membre
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }

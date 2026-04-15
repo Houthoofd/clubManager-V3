@@ -4,6 +4,14 @@
  *
  * Detailed store and sales statistics page.
  * Displays order analytics, popular products, sales by category, and inventory alerts.
+ *
+ * @migrated Utilise les composants réutilisables :
+ * - PageHeader : Header avec breadcrumb et actions
+ * - LoadingSpinner : État de chargement
+ * - EmptyState : État vide
+ * - ErrorBanner : Gestion des erreurs
+ * - AlertBanner : Alertes de stock bas
+ * - Button : Boutons d'action
  */
 
 import React, { useState } from "react";
@@ -19,6 +27,16 @@ import {
   formatNumber,
   formatPercentage,
 } from "../utils/formatting";
+
+// ─── SHARED COMPONENTS ───────────────────────────────────────────────────────
+import {
+  PageHeader,
+  LoadingSpinner,
+  EmptyState,
+  ErrorBanner,
+  AlertBanner,
+  Button,
+} from "../../../shared/components";
 
 // ─── Local Types ──────────────────────────────────────────────────────────────
 
@@ -176,6 +194,24 @@ function WarningTriangleIcon({
   );
 }
 
+function ArrowLeftIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+      />
+    </svg>
+  );
+}
+
 /**
  * Store Statistics Page Component
  *
@@ -247,26 +283,58 @@ export const StoreStatsPage: React.FC = () => {
   };
 
   /**
+   * Render Breadcrumb
+   */
+  const breadcrumb = (
+    <nav className="flex" aria-label="Breadcrumb">
+      <ol className="inline-flex items-center space-x-1 md:space-x-3">
+        <li className="inline-flex items-center">
+          <button
+            onClick={handleBackToDashboard}
+            className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
+          >
+            Tableau de bord
+          </button>
+        </li>
+        <li aria-current="page">
+          <div className="flex items-center">
+            <svg
+              className="w-3 h-3 text-gray-400 mx-1"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 6 10"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="m1 9 4-4-4-4"
+              />
+            </svg>
+            <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
+              Statistiques Magasin
+            </span>
+          </div>
+        </li>
+      </ol>
+    </nav>
+  );
+
+  /**
    * Render loading state
    */
   if (isLoading) {
     return (
       <div className="space-y-6">
+        {breadcrumb}
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Statistiques Magasin
           </h1>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(8)].map((_, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-lg shadow p-6 animate-pulse"
-            >
-              <div className="h-24 bg-gray-200 rounded"></div>
-            </div>
-          ))}
-        </div>
+        <LoadingSpinner size="lg" text="Chargement des statistiques..." />
       </div>
     );
   }
@@ -277,28 +345,23 @@ export const StoreStatsPage: React.FC = () => {
   if (error) {
     return (
       <div className="space-y-6">
+        {breadcrumb}
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Statistiques Magasin
           </h1>
         </div>
-        <div className="bg-red-50 border-l-4 border-red-400 p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <ExclamationTriangleIcon className="h-5 w-5 text-red-400" />
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-700">
-                Erreur de chargement: {error.message}
-              </p>
-              <button
-                onClick={handleRefresh}
-                className="mt-2 text-sm font-medium text-red-700 hover:text-red-600"
-              >
-                Réessayer
-              </button>
-            </div>
-          </div>
+        <ErrorBanner
+          variant="error"
+          title="Erreur de chargement"
+          message={error.message}
+          dismissible
+          onDismiss={handleRefresh}
+        />
+        <div className="flex justify-center">
+          <Button variant="primary" onClick={handleRefresh}>
+            Réessayer
+          </Button>
         </div>
       </div>
     );
@@ -310,20 +373,17 @@ export const StoreStatsPage: React.FC = () => {
   if (!data) {
     return (
       <div className="space-y-6">
+        {breadcrumb}
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Statistiques Magasin
           </h1>
         </div>
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <ShoppingCartIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">
-            Aucune donnée disponible
-          </h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Les statistiques du magasin ne sont pas encore disponibles.
-          </p>
-        </div>
+        <EmptyState
+          icon={<ShoppingCartIcon className="h-12 w-12 text-gray-400" />}
+          title="Aucune donnée disponible"
+          description="Les statistiques du magasin ne sont pas encore disponibles."
+        />
       </div>
     );
   }
@@ -333,102 +393,45 @@ export const StoreStatsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <nav className="flex" aria-label="Breadcrumb">
-        <ol className="inline-flex items-center space-x-1 md:space-x-3">
-          <li className="inline-flex items-center">
-            <button
-              onClick={handleBackToDashboard}
-              className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
-            >
-              Tableau de bord
-            </button>
-          </li>
-          <li aria-current="page">
-            <div className="flex items-center">
-              <svg
-                className="w-3 h-3 text-gray-400 mx-1"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 6 10"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m1 9 4-4-4-4"
-                />
-              </svg>
-              <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
-                Statistiques Magasin
-              </span>
-            </div>
-          </li>
-        </ol>
-      </nav>
+      {breadcrumb}
 
       {/* Page Header */}
       <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Statistiques Magasin
-            </h1>
-            <p className="text-sm text-gray-600">
-              Vue détaillée des ventes, commandes et analytics du magasin
-            </p>
-          </div>
-          <button
-            onClick={handleBackToDashboard}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600"
-          >
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        <PageHeader
+          title="Statistiques Magasin"
+          description="Vue détaillée des ventes, commandes et analytics du magasin"
+          actions={
+            <Button
+              variant="ghost"
+              onClick={handleBackToDashboard}
+              icon={<ArrowLeftIcon className="h-4 w-4" />}
+              iconPosition="left"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
-            Retour au tableau de bord
-          </button>
-        </div>
+              Retour au tableau de bord
+            </Button>
+          }
+        />
 
         {/* Period Selector */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mt-6">
           <PeriodSelector showPeriodType={false} />
-          <button
+          <Button
+            variant="outline"
             onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            loading={isRefreshing}
           >
             {isRefreshing ? "Actualisation..." : "Actualiser"}
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Low Stock Alerts */}
       {low_stock && low_stock.length > 0 && (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <WarningTriangleIcon className="h-5 w-5 text-yellow-400" />
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-yellow-700">
-                <strong>{low_stock.length} article(s)</strong> nécessitent votre
-                attention - Des articles ont un stock bas ou sont en rupture de
-                stock.
-              </p>
-            </div>
-          </div>
-        </div>
+        <AlertBanner
+          variant="warning"
+          message={`${low_stock.length} article(s) nécessitent votre attention - Des articles ont un stock bas ou sont en rupture de stock.`}
+          icon={<WarningTriangleIcon className="h-5 w-5" />}
+        />
       )}
 
       {/* Overview Cards */}
@@ -562,12 +565,11 @@ export const StoreStatsPage: React.FC = () => {
               </table>
             </div>
           ) : (
-            <div className="text-center py-12">
-              <BoxIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
-                Aucun produit vendu
-              </h3>
-            </div>
+            <EmptyState
+              icon={<BoxIcon className="h-12 w-12 text-gray-400" />}
+              title="Aucun produit vendu"
+              description="Aucune vente n'a été enregistrée pour le moment."
+            />
           )}
         </div>
       </div>
@@ -613,12 +615,11 @@ export const StoreStatsPage: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <BoxIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">
-                  Aucune catégorie
-                </h3>
-              </div>
+              <EmptyState
+                icon={<BoxIcon className="h-12 w-12 text-gray-400" />}
+                title="Aucune catégorie"
+                description="Aucune vente par catégorie disponible."
+              />
             )}
           </div>
         </div>
@@ -677,15 +678,11 @@ export const StoreStatsPage: React.FC = () => {
                 })}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <BoxIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">
-                  Aucune alerte
-                </h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Tous les articles ont un stock suffisant.
-                </p>
-              </div>
+              <EmptyState
+                icon={<BoxIcon className="h-12 w-12 text-gray-400" />}
+                title="Aucune alerte"
+                description="Tous les articles ont un stock suffisant."
+              />
             )}
           </div>
         </div>

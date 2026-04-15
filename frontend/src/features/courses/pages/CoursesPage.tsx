@@ -1,13 +1,33 @@
 /**
- * CoursesPage
+ * CoursesPage - Version migrée avec composants réutilisables
  * Page principale de gestion des cours.
  * Onglets : Planning hebdomadaire récurrent, Séances (instances), Professeurs.
+ *
+ * COMPOSANTS RÉUTILISABLES UTILISÉS :
+ * - PageHeader : En-tête de page avec icône et description
+ * - TabGroup : Navigation par onglets avec scroll
+ * - LoadingSpinner : Indicateurs de chargement centrés
+ * - EmptyState : États vides avec icône et message
+ * - StatusBadge : Badges de statut (actif/inactif/annulé)
+ * - ConfirmDialog : Dialogue de confirmation de suppression
+ *
+ * CONSERVÉS (pour compatibilité) :
+ * - Formulaires custom avec inputs HTML natifs
+ * - Icônes SVG personnalisées
+ * - Modaux custom avec leur logique métier
+ * - Tableau de séances custom
  */
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useCourses } from "../hooks/useCourses";
 import { useAuth } from "../../../shared/hooks/useAuth";
+import { PageHeader } from "../../../shared/components/Layout/PageHeader";
+import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
+import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
+import { EmptyState } from "../../../shared/components/Layout/EmptyState";
+import { StatusBadge } from "../../../shared/components/Badge/StatusBadge";
+import { ConfirmDialog } from "../../../shared/components/Modal/ConfirmDialog";
 import type {
   CourseRecurrentListItemDto,
   ProfessorListItemDto,
@@ -197,46 +217,6 @@ function XMarkIcon({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
-function ChevronLeftIcon() {
-  return (
-    <svg
-      className="h-4 w-4"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15.75 19.5 8.25 12l7.5-7.5"
-      />
-    </svg>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg
-      className="h-4 w-4"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="m8.25 4.5 7.5 7.5-7.5 7.5"
-      />
-    </svg>
-  );
-}
-
 function ClipboardIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg
@@ -297,28 +277,6 @@ function MailIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
-function WarningIcon() {
-  return (
-    <svg
-      className="h-6 w-6 text-red-600 flex-shrink-0"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-      />
-    </svg>
-  );
-}
-
-// ─── Spinner ──────────────────────────────────────────────────────────────────
-
 function Spinner({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <div
@@ -353,8 +311,6 @@ function ModalBackdrop({
   );
 }
 
-// ─── Modal header ─────────────────────────────────────────────────────────────
-
 function ModalHeader({
   title,
   onClose,
@@ -377,68 +333,12 @@ function ModalHeader({
   );
 }
 
-// ─── MODAL 1 : Confirm Delete ─────────────────────────────────────────────────
-
-interface ConfirmDeleteModalProps {
-  isOpen: boolean;
-  title: string;
-  message: string;
-  isLoading: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-}
-
-function ConfirmDeleteModal({
-  isOpen,
-  title,
-  message,
-  isLoading,
-  onClose,
-  onConfirm,
-}: ConfirmDeleteModalProps) {
-  useModalEffects(isOpen, onClose);
-  if (!isOpen) return null;
-  return (
-    <ModalBackdrop onClose={onClose}>
-      <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
-        <WarningIcon />
-        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-      </div>
-      <div className="px-6 py-5">
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 leading-relaxed">
-          {message}
-        </div>
-      </div>
-      <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
-        <button
-          type="button"
-          onClick={onClose}
-          disabled={isLoading}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-60"
-        >
-          Annuler
-        </button>
-        <button
-          type="button"
-          onClick={onConfirm}
-          disabled={isLoading}
-          className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm transition-colors disabled:opacity-60"
-        >
-          {isLoading && <Spinner className="h-4 w-4" />}
-          {isLoading ? "Suppression…" : "Supprimer"}
-        </button>
-      </div>
-    </ModalBackdrop>
-  );
-}
-
-// ─── MODAL 2 : Create / Edit CourseRecurrent ──────────────────────────────────
+// ─── MODAL 1 : Create / Edit CourseRecurrent ──────────────────────────────────
 
 interface CreateEditCourseRecurrentModalProps {
   isOpen: boolean;
   editItem: CourseRecurrentListItemDto | null;
   professors: ProfessorListItemDto[];
-  /** Liste complète du planning — utilisée pour la détection de conflit côté client */
   planning: CourseRecurrentListItemDto[];
   onClose: () => void;
   onSubmit: (dto: CreateCourseRecurrentDto) => Promise<void>;
@@ -464,13 +364,10 @@ function CreateEditCourseRecurrentModal({
   });
   const [saving, setSaving] = useState(false);
 
-  // ── Détection de conflit en temps réel ──────────────────────────────────────
-  // Recalculé à chaque frappe sur les champs horaires / jour.
-  // Condition de chevauchement : existant.debut < form.fin ET existant.fin > form.debut
   const conflictCourse =
     form.heure_debut && form.heure_fin && form.heure_fin > form.heure_debut
       ? (planning.find((c) => {
-          if (editItem && c.id === editItem.id) return false; // exclure soi-même
+          if (editItem && c.id === editItem.id) return false;
           if (c.jour_semaine !== form.jour_semaine) return false;
           return (
             form.heure_debut < c.heure_fin.slice(0, 5) &&
@@ -578,7 +475,6 @@ function CreateEditCourseRecurrentModal({
         onSubmit={handleSubmit}
         className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto"
       >
-        {/* Bannière de conflit — visible dès que le créneau chevauche un cours existant */}
         {conflictCourse && (
           <div className="flex items-start gap-2 px-3 py-2.5 bg-amber-50 border border-amber-300 rounded-lg text-sm text-amber-800">
             <svg
@@ -588,7 +484,6 @@ function CreateEditCourseRecurrentModal({
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -605,7 +500,6 @@ function CreateEditCourseRecurrentModal({
           </div>
         )}
 
-        {/* Type de cours */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Type de cours <span className="text-red-500">*</span>
@@ -621,7 +515,6 @@ function CreateEditCourseRecurrentModal({
           />
         </div>
 
-        {/* Jour de la semaine */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Jour de la semaine <span className="text-red-500">*</span>
@@ -641,7 +534,6 @@ function CreateEditCourseRecurrentModal({
           </select>
         </div>
 
-        {/* Horaires */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -671,7 +563,6 @@ function CreateEditCourseRecurrentModal({
           </div>
         </div>
 
-        {/* Actif */}
         <div className="flex items-center gap-3">
           <input
             id="cr-active"
@@ -690,7 +581,6 @@ function CreateEditCourseRecurrentModal({
           </label>
         </div>
 
-        {/* Professeurs */}
         {professors.length > 0 && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -750,7 +640,7 @@ function CreateEditCourseRecurrentModal({
   );
 }
 
-// ─── MODAL 3 : Create / Edit Professor ───────────────────────────────────────
+// ─── MODAL 2 : Create / Edit Professor ───────────────────────────────────────
 
 interface CreateProfessorModalProps {
   isOpen: boolean;
@@ -960,7 +850,7 @@ function CreateProfessorModal({
   );
 }
 
-// ─── MODAL 4 : Generate Courses ───────────────────────────────────────────────
+// ─── MODAL 3 : Generate Courses ───────────────────────────────────────────────
 
 interface GenerateCoursesModalProps {
   isOpen: boolean;
@@ -1101,7 +991,7 @@ function GenerateCoursesModal({
   );
 }
 
-// ─── MODAL 5 : Create Session ─────────────────────────────────────────────────
+// ─── MODAL 4 : Create Session ─────────────────────────────────────────────────
 
 interface CreateSessionModalProps {
   isOpen: boolean;
@@ -1279,7 +1169,7 @@ function CreateSessionModal({
   );
 }
 
-// ─── MODAL 6 : Attendance Sheet ───────────────────────────────────────────────
+// ─── MODAL 5 : Attendance Sheet ───────────────────────────────────────────────
 
 interface AttendanceModalProps {
   isOpen: boolean;
@@ -1305,7 +1195,6 @@ function AttendanceModal({
 
   useModalEffects(isOpen, onClose);
 
-  // Initialize presence map from sheet (only when sheet changes for this session)
   useEffect(() => {
     if (attendanceSheet && isOpen) {
       const initial: Record<number, number | null> = {};
@@ -1356,7 +1245,6 @@ function AttendanceModal({
         className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-auto flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
@@ -1380,11 +1268,10 @@ function AttendanceModal({
           </button>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {attendanceLoading ? (
             <div className="flex justify-center py-12">
-              <Spinner className="h-8 w-8" />
+              <LoadingSpinner size="lg" />
             </div>
           ) : !attendanceSheet ? (
             <p className="text-center text-gray-500 py-12">
@@ -1392,7 +1279,6 @@ function AttendanceModal({
             </p>
           ) : (
             <>
-              {/* Stats bar */}
               <div className="flex flex-wrap gap-4 mb-5 p-3 bg-gray-50 rounded-lg">
                 <span className="text-sm text-gray-600">
                   Total :{" "}
@@ -1418,7 +1304,6 @@ function AttendanceModal({
                 )}
               </div>
 
-              {/* Inscriptions table */}
               {attendanceSheet.inscriptions.length === 0 ? (
                 <p className="text-center text-gray-400 py-8">
                   Aucun inscrit pour cette séance.
@@ -1492,7 +1377,6 @@ function AttendanceModal({
           )}
         </div>
 
-        {/* Footer */}
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 flex-shrink-0">
           <button
             type="button"
@@ -1525,20 +1409,13 @@ export function CoursesPage() {
   const { user } = useAuth();
   const isAdmin = user?.role_app === "admin";
 
-  // ── UI state ────────────────────────────────────────────────────────────────
-  // Déclarés avant useCourses pour pouvoir dériver attendanceCourseId,
-  // qui est passé au hook afin que React Query active/désactive la query
-  // de feuille d'appel automatiquement — sans useEffect manuel.
   const [activeTab, setActiveTab] = useState<TabId>("planning");
   const [modal, setModal] = useState<ModalState>({ type: "none" });
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Dérivé du modal : non-null uniquement quand la modale d'appel est ouverte.
-  // React Query active la query attendance seulement dans ce cas (enabled).
   const attendanceCourseId =
     modal.type === "attendance" ? modal.session.id : null;
 
-  // ── React Query (data + mutations) ──────────────────────────────────────────
   const {
     planning,
     planningLoading,
@@ -1563,9 +1440,6 @@ export function CoursesPage() {
     clearError,
   } = useCourses({ attendanceCourseId });
 
-  const tabsScrollRef = useRef<HTMLDivElement>(null);
-
-  // ── Dismiss errors via toast ───────────────────────────────────────────────
   useEffect(() => {
     if (planningError) {
       toast.error(planningError);
@@ -1580,20 +1454,10 @@ export function CoursesPage() {
     }
   }, [sessionsError, clearError]);
 
-  // ── Tab scroll helpers ─────────────────────────────────────────────────────
-  const scrollTabs = (direction: "left" | "right") => {
-    tabsScrollRef.current?.scrollBy({
-      left: direction === "left" ? -180 : 180,
-      behavior: "smooth",
-    });
-  };
-
-  // ── Sessions: unique types for filter ─────────────────────────────────────
   const uniqueTypes = Array.from(
     new Set(sessions.map((s) => s.type_cours)),
   ).sort();
 
-  // ── Delete handler ─────────────────────────────────────────────────────────
   const handleConfirmDelete = useCallback(async () => {
     if (modal.type !== "deleteCourseRecurrent") return;
     setDeleteLoading(true);
@@ -1610,92 +1474,43 @@ export function CoursesPage() {
     }
   }, [modal, storeDeleteCourseRecurrent]);
 
-  // ── Tabs config ────────────────────────────────────────────────────────────
-  const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
+  const tabs = [
     {
-      id: "planning",
+      id: "planning" as TabId,
       label: "Planning",
       icon: <CalendarIcon className="h-4 w-4" />,
     },
     {
-      id: "sessions",
+      id: "sessions" as TabId,
       label: "Séances",
       icon: <ClipboardIcon className="h-4 w-4" />,
     },
     {
-      id: "professeurs",
+      id: "professeurs" as TabId,
       label: "Professeurs",
       icon: <SparklesIcon className="h-4 w-4" />,
     },
   ];
 
-  // ────────────────────────────────────────────────────────────────────────────
-
   return (
     <div className="space-y-6">
-      {/* ── Page header ───────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3">
-        <CalendarIcon className="h-8 w-8 text-blue-600 flex-shrink-0" />
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Cours</h1>
-          <p className="mt-0.5 text-sm text-gray-500">
-            Gestion du planning, des séances et des professeurs
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Cours"
+        description="Gestion du planning, des séances et des professeurs"
+        icon={<CalendarIcon className="h-8 w-8 text-blue-600" />}
+      />
 
-      {/* ── Tab navigation ────────────────────────────────────────────────── */}
-      <div className="relative flex items-end border-b border-gray-200">
-        <button
-          type="button"
-          onClick={() => scrollTabs("left")}
-          className="flex-shrink-0 flex items-center justify-center w-8 h-10 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors rounded-tl-lg"
-          aria-label="Défiler vers la gauche"
-        >
-          <ChevronLeftIcon />
-        </button>
-
-        <div
-          ref={tabsScrollRef}
-          className="flex-1 flex overflow-x-auto scroll-smooth"
-          style={{ scrollbarWidth: "none" }}
-          role="tablist"
-        >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium whitespace-nowrap transition-colors focus:outline-none ${
-                activeTab === tab.id
-                  ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50"
-                  : "border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <button
-          type="button"
-          onClick={() => scrollTabs("right")}
-          className="flex-shrink-0 flex items-center justify-center w-8 h-10 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors rounded-tr-lg"
-          aria-label="Défiler vers la droite"
-        >
-          <ChevronRightIcon />
-        </button>
-      </div>
+      <TabGroup
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(tabId) => setActiveTab(tabId as TabId)}
+      />
 
       {/* ══════════════════════════════════════════════════════════════════════
           TAB 1 — PLANNING
       ══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "planning" && (
         <div className="space-y-4">
-          {/* Admin toolbar */}
           {isAdmin && (
             <div className="flex justify-end">
               <button
@@ -1709,14 +1524,12 @@ export function CoursesPage() {
             </div>
           )}
 
-          {/* Loading */}
           {planningLoading && (
             <div className="flex justify-center py-16">
-              <Spinner className="h-8 w-8" />
+              <LoadingSpinner size="lg" />
             </div>
           )}
 
-          {/* Weekly grid */}
           {!planningLoading && (
             <div className="overflow-x-auto rounded-lg">
               <div className="min-w-[800px] grid grid-cols-7 gap-3 pb-2">
@@ -1727,12 +1540,10 @@ export function CoursesPage() {
                     .sort((a, b) => a.heure_debut.localeCompare(b.heure_debut));
                   return (
                     <div key={day}>
-                      {/* Day header */}
                       <div className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-2 mb-2 border-b border-gray-200">
                         {day}
                       </div>
 
-                      {/* Course cards */}
                       <div className="space-y-2">
                         {dayCourses.length === 0 ? (
                           <div className="text-xs text-gray-300 text-center py-6 border border-dashed border-gray-200 rounded-lg">
@@ -1761,15 +1572,13 @@ export function CoursesPage() {
                                 </p>
                               )}
                               <div className="flex items-center justify-between mt-1.5">
-                                <span
-                                  className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${
-                                    course.active
-                                      ? "bg-green-100 text-green-700"
-                                      : "bg-gray-100 text-gray-500"
-                                  }`}
-                                >
-                                  {course.active ? "Actif" : "Inactif"}
-                                </span>
+                                <StatusBadge
+                                  status={
+                                    course.active ? "success" : "inactive"
+                                  }
+                                  label={course.active ? "Actif" : "Inactif"}
+                                  size="sm"
+                                />
                                 {isAdmin && (
                                   <div className="flex gap-0.5">
                                     <button
@@ -1812,17 +1621,16 @@ export function CoursesPage() {
             </div>
           )}
 
-          {/* Empty state */}
           {!planningLoading && planning.length === 0 && (
-            <div className="text-center py-16 bg-white rounded-lg shadow border border-gray-100">
-              <CalendarIcon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500 font-medium">Aucun cours récurrent</p>
-              <p className="text-sm text-gray-400 mt-1">
-                {isAdmin
+            <EmptyState
+              icon={<CalendarIcon className="h-12 w-12" />}
+              title="Aucun cours récurrent"
+              description={
+                isAdmin
                   ? "Créez votre premier cours récurrent pour commencer."
-                  : "Le planning est vide pour le moment."}
-              </p>
-            </div>
+                  : "Le planning est vide pour le moment."
+              }
+            />
           )}
         </div>
       )}
@@ -1832,7 +1640,6 @@ export function CoursesPage() {
       ══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "sessions" && (
         <div className="space-y-4">
-          {/* Filter bar */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-100">
             <div className="flex flex-wrap gap-4 items-end">
               <div>
@@ -1881,7 +1688,6 @@ export function CoursesPage() {
             </div>
           </div>
 
-          {/* Admin toolbar */}
           {isAdmin && (
             <div className="flex gap-3 justify-end">
               <button
@@ -1903,23 +1709,17 @@ export function CoursesPage() {
             </div>
           )}
 
-          {/* Table */}
           <div className="bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
             {sessionsLoading ? (
               <div className="flex justify-center py-16">
-                <Spinner className="h-8 w-8" />
+                <LoadingSpinner size="lg" />
               </div>
             ) : sessions.length === 0 ? (
-              <div className="text-center py-16">
-                <CalendarIcon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 font-medium">
-                  Aucune séance trouvée
-                </p>
-                <p className="text-sm text-gray-400 mt-1">
-                  Modifiez les filtres ou générez des séances depuis le
-                  planning.
-                </p>
-              </div>
+              <EmptyState
+                icon={<CalendarIcon className="h-12 w-12" />}
+                title="Aucune séance trouvée"
+                description="Modifiez les filtres ou générez des séances depuis le planning."
+              />
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-100">
@@ -1967,9 +1767,12 @@ export function CoursesPage() {
                             {session.type_cours}
                           </span>
                           {session.annule && (
-                            <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-600">
-                              Annulé
-                            </span>
+                            <StatusBadge
+                              status="error"
+                              label="Annulé"
+                              size="sm"
+                              className="ml-2"
+                            />
                           )}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
@@ -2021,7 +1824,6 @@ export function CoursesPage() {
       ══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "professeurs" && (
         <div className="space-y-4">
-          {/* Admin toolbar */}
           {isAdmin && (
             <div className="flex justify-end">
               <button
@@ -2035,24 +1837,22 @@ export function CoursesPage() {
             </div>
           )}
 
-          {/* Loading */}
           {professorsLoading && (
             <div className="flex justify-center py-16">
-              <Spinner className="h-8 w-8" />
+              <LoadingSpinner size="lg" />
             </div>
           )}
 
-          {/* Cards grid */}
           {!professorsLoading && professors.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-lg shadow border border-gray-100">
-              <SparklesIcon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500 font-medium">Aucun professeur</p>
-              <p className="text-sm text-gray-400 mt-1">
-                {isAdmin
+            <EmptyState
+              icon={<SparklesIcon className="h-12 w-12" />}
+              title="Aucun professeur"
+              description={
+                isAdmin
                   ? "Ajoutez votre premier professeur."
-                  : "La liste est vide pour le moment."}
-              </p>
-            </div>
+                  : "La liste est vide pour le moment."
+              }
+            />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {professors.map((prof) => (
@@ -2060,7 +1860,6 @@ export function CoursesPage() {
                   key={prof.id}
                   className="bg-white rounded-lg shadow border border-gray-100 p-4 hover:shadow-md transition-shadow"
                 >
-                  {/* Top: avatar + name + badge */}
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
                       <span className="text-sm font-bold text-blue-700 uppercase">
@@ -2091,18 +1890,13 @@ export function CoursesPage() {
                         </div>
                       )}
                     </div>
-                    <span
-                      className={`flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        prof.actif
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {prof.actif ? "Actif" : "Inactif"}
-                    </span>
+                    <StatusBadge
+                      status={prof.actif ? "success" : "inactive"}
+                      label={prof.actif ? "Actif" : "Inactif"}
+                      size="sm"
+                    />
                   </div>
 
-                  {/* Info */}
                   <div className="mt-3 pt-3 border-t border-gray-50 space-y-1.5">
                     <div className="flex items-center gap-2 text-xs text-gray-500">
                       <CalendarIcon className="h-3.5 w-3.5 flex-shrink-0" />
@@ -2119,7 +1913,6 @@ export function CoursesPage() {
                     )}
                   </div>
 
-                  {/* Admin actions */}
                   {isAdmin && (
                     <div className="mt-3 pt-3 border-t border-gray-50 flex justify-end">
                       <button
@@ -2145,8 +1938,7 @@ export function CoursesPage() {
           MODALS
       ══════════════════════════════════════════════════════════════════════ */}
 
-      {/* Delete confirmation */}
-      <ConfirmDeleteModal
+      <ConfirmDialog
         isOpen={modal.type === "deleteCourseRecurrent"}
         title="Supprimer le cours récurrent"
         message={
@@ -2154,12 +1946,12 @@ export function CoursesPage() {
             ? `Vous êtes sur le point de supprimer le cours "${modal.item.type_cours}" du ${modal.item.jour_semaine_nom}. Cette action est irréversible.`
             : ""
         }
-        isLoading={deleteLoading}
-        onClose={() => setModal({ type: "none" })}
         onConfirm={handleConfirmDelete}
+        onClose={() => setModal({ type: "none" })}
+        isLoading={deleteLoading}
+        variant="danger"
       />
 
-      {/* Create / Edit CourseRecurrent */}
       <CreateEditCourseRecurrentModal
         isOpen={
           modal.type === "createCourseRecurrent" ||
@@ -2173,7 +1965,6 @@ export function CoursesPage() {
         onUpdate={storeUpdateCourseRecurrent}
       />
 
-      {/* Create / Edit Professor */}
       <CreateProfessorModal
         isOpen={
           modal.type === "createProfessor" || modal.type === "editProfessor"
@@ -2184,7 +1975,6 @@ export function CoursesPage() {
         onUpdate={storeUpdateProfessor}
       />
 
-      {/* Create Session */}
       <CreateSessionModal
         isOpen={modal.type === "createSession"}
         planning={planning}
@@ -2192,7 +1982,6 @@ export function CoursesPage() {
         onSubmit={storeCreateSession}
       />
 
-      {/* Generate Courses */}
       <GenerateCoursesModal
         isOpen={modal.type === "generateCourses"}
         planning={planning}
@@ -2200,7 +1989,6 @@ export function CoursesPage() {
         onSubmit={generateSessions}
       />
 
-      {/* Attendance Sheet */}
       <AttendanceModal
         isOpen={modal.type === "attendance"}
         session={modal.type === "attendance" ? modal.session : null}

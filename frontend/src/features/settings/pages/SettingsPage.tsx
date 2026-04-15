@@ -4,11 +4,13 @@
  * Accessible aux administrateurs uniquement.
  */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useSettings } from "../hooks/useSettings";
 import { INFORMATION_KEYS } from "@clubmanager/types";
 import type { CreateInformation } from "@clubmanager/types";
+import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
+import type { Tab } from "../../../shared/components/Navigation/TabGroup";
 
 // ─── Tab type ─────────────────────────────────────────────────────────────────
 
@@ -203,41 +205,6 @@ function SpinnerIcon({ className = "h-4 w-4" }: { className?: string }) {
         className="opacity-75"
         fill="currentColor"
         d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-  );
-}
-
-function ChevronLeftIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={2}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15.75 19.5 8.25 12l7.5-7.5"
-      />
-    </svg>
-  );
-}
-function ChevronRightIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={2}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="m8.25 4.5 7.5 7.5-7.5 7.5"
       />
     </svg>
   );
@@ -845,7 +812,7 @@ export const SettingsPage = () => {
     );
 
   // ── Tab definitions ───────────────────────────────────────────────────────
-  const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
+  const tabs: Tab[] = [
     {
       id: "club",
       label: "Informations du club",
@@ -866,27 +833,22 @@ export const SettingsPage = () => {
       label: "Finance & Légal",
       icon: <BanknotesIcon />,
     },
-    { id: "apparence" as TabId, label: "Apparence", icon: <PaintBrushIcon /> },
     {
-      id: "navigation" as TabId,
+      id: "apparence",
+      label: "Apparence",
+      icon: <PaintBrushIcon />,
+    },
+    {
+      id: "navigation",
       label: "Navigation",
       icon: <Squares2x2Icon />,
     },
     {
-      id: "localisation" as TabId,
+      id: "localisation",
       label: "Localisation",
       icon: <LanguageIcon />,
     },
   ];
-
-  const tabsScrollRef = useRef<HTMLDivElement>(null);
-
-  const scrollTabs = (direction: "left" | "right") => {
-    tabsScrollRef.current?.scrollBy({
-      left: direction === "left" ? -180 : 180,
-      behavior: "smooth",
-    });
-  };
 
   // ── Loading state ─────────────────────────────────────────────────────────
   if (isLoading && settings.length === 0) {
@@ -909,55 +871,14 @@ export const SettingsPage = () => {
         </div>
       </div>
 
-      {/* ── Tab navigation carousel ───────────────────────────────────────── */}
-      <div className="relative flex items-end border-b border-gray-200">
-        {/* Left scroll button */}
-        <button
-          type="button"
-          onClick={() => scrollTabs("left")}
-          className="flex-shrink-0 flex items-center justify-center w-8 h-10 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors rounded-tl-lg"
-          aria-label="Faire défiler les onglets vers la gauche"
-        >
-          <ChevronLeftIcon />
-        </button>
-
-        {/* Scrollable tab list */}
-        <div
-          ref={tabsScrollRef}
-          className="flex-1 flex overflow-x-auto scroll-smooth"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          role="tablist"
-        >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              onClick={() => setActiveTab(tab.id)}
-              aria-selected={activeTab === tab.id}
-              aria-current={activeTab === tab.id ? "page" : undefined}
-              className={`flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors focus:outline-none ${
-                activeTab === tab.id
-                  ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50"
-                  : "border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Right scroll button */}
-        <button
-          type="button"
-          onClick={() => scrollTabs("right")}
-          className="flex-shrink-0 flex items-center justify-center w-8 h-10 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors rounded-tr-lg"
-          aria-label="Faire défiler les onglets vers la droite"
-        >
-          <ChevronRightIcon />
-        </button>
-      </div>
+      {/* ── Tab navigation ────────────────────────────────────────────────── */}
+      <TabGroup
+        variant="highlight"
+        scrollable={true}
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(tabId) => setActiveTab(tabId as TabId)}
+      />
 
       {/* ── Section: Informations du club ─────────────────────────────────── */}
       {activeTab === "club" && (

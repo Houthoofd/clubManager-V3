@@ -1,22 +1,29 @@
 /**
  * LoginPage
  * Page de connexion avec formulaire de login
+ *
+ * Migré pour utiliser les composants réutilisables :
+ * - AuthPageContainer : Layout auth avec card centrée
+ * - FormField : Gestion des labels et erreurs
+ * - PasswordInput : Champ mot de passe avec toggle visibilité
+ * - SubmitButton : Bouton de soumission avec état loading
+ * - AlertBanner : Messages de succès/erreur
  */
 
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import {
-  EyeIcon,
-  EyeSlashIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-} from "@patternfly/react-icons";
+import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { UserIcon, LockIcon } from "@patternfly/react-icons";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { loginSchema, type LoginDto } from "@clubmanager/types";
+import { AuthPageContainer } from "../../../shared/components/Auth/AuthPageContainer";
+import { FormField } from "../../../shared/components/Forms/FormField";
+import { PasswordInput } from "../../../shared/components/Input/PasswordInput";
+import { SubmitButton } from "../../../shared/components/Button/SubmitButton";
+import { AlertBanner } from "../../../shared/components/Feedback/AlertBanner";
 
 /**
  * LoginPage Component
@@ -25,7 +32,6 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isLoading } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
   const [emailNotVerified, setEmailNotVerified] = useState(false);
   const [registerSuccessMessage, setRegisterSuccessMessage] = useState<
     string | null
@@ -35,6 +41,7 @@ export const LoginPage = () => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<LoginDto>({
     resolver: zodResolver(loginSchema),
@@ -87,240 +94,182 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Bienvenue</h1>
-          <p className="text-gray-600">
-            Connectez-vous à votre compte ClubManager
+    <AuthPageContainer
+      title="Bienvenue"
+      subtitle="Connectez-vous à votre compte ClubManager"
+      footer={
+        <>
+          {/* Lien vers inscription */}
+          <p className="text-center text-sm text-gray-600">
+            Vous n'avez pas de compte ?{" "}
+            <Link
+              to="/register"
+              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            >
+              Créer un compte
+            </Link>
           </p>
-        </div>
 
-        {/* Formulaire de connexion */}
-        <div className="bg-white shadow-2xl rounded-2xl p-8">
-          {/* Bandeau succès inscription */}
-          {registerSuccessMessage && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-300 rounded-lg">
-              <p className="text-sm font-medium text-green-800 mb-1 flex items-center gap-1.5">
-                <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                Inscription réussie !
-              </p>
-              <p className="text-sm text-green-700">{registerSuccessMessage}</p>
-            </div>
-          )}
+          {/* Footer CGU */}
+          <p className="text-center text-xs text-gray-500 mt-4">
+            En vous connectant, vous acceptez nos{" "}
+            <Link to="/terms" className="underline hover:text-gray-700">
+              Conditions d'utilisation
+            </Link>{" "}
+            et notre{" "}
+            <Link to="/privacy" className="underline hover:text-gray-700">
+              Politique de confidentialité
+            </Link>
+          </p>
+        </>
+      }
+    >
+      {/* Bandeau succès inscription */}
+      {registerSuccessMessage && (
+        <AlertBanner
+          variant="success"
+          title="Inscription réussie !"
+          message={registerSuccessMessage}
+          dismissible
+          onDismiss={() => setRegisterSuccessMessage(null)}
+          className="mb-6"
+        />
+      )}
 
-          {/* Bandeau email non vérifié */}
-          {emailNotVerified && (
-            <div className="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
-              <p className="text-sm font-medium text-amber-800 mb-1 flex items-center gap-1.5">
-                <ExclamationTriangleIcon className="h-4 w-4 text-amber-600" />
-                Adresse email non vérifiée
-              </p>
-              <p className="text-sm text-amber-700 mb-3">
-                Veuillez vérifier votre adresse email avant de vous connecter.
-                Consultez votre boîte de réception.
-              </p>
-              <Link
-                to="/resend-verification"
-                className="text-sm font-medium text-amber-800 underline hover:text-amber-900 transition-colors"
+      {/* Bandeau email non vérifié (custom car contient un lien avec icône) */}
+      {emailNotVerified && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
+          <p className="text-sm font-medium text-amber-800 mb-1 flex items-center gap-1.5">
+            <ExclamationTriangleIcon className="h-4 w-4 text-amber-600" />
+            Adresse email non vérifiée
+          </p>
+          <p className="text-sm text-amber-700 mb-3">
+            Veuillez vérifier votre adresse email avant de vous connecter.
+            Consultez votre boîte de réception.
+          </p>
+          <Link
+            to="/resend-verification"
+            className="text-sm font-medium text-amber-800 underline hover:text-amber-900 transition-colors"
+          >
+            <span className="inline-flex items-center gap-1">
+              Renvoyer l'email de vérification
+              <svg
+                className="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                aria-hidden="true"
               >
-                <span className="inline-flex items-center gap-1">
-                  Renvoyer l'email de vérification
-                  <svg
-                    className="h-3.5 w-3.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                    />
-                  </svg>
-                </span>
-              </Link>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Identifiant membre */}
-            <div>
-              <label
-                htmlFor="userId"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Identifiant membre
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <UserIcon className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="userId"
-                  type="text"
-                  autoComplete="username"
-                  {...register("userId")}
-                  className={`block w-full pl-10 pr-3 py-3 border ${
-                    errors.userId
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                  } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors`}
-                  placeholder="U-2025-0001"
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
                 />
-              </div>
-              {errors.userId && (
-                <p className="mt-2 text-sm text-red-600">
-                  {errors.userId.message}
-                </p>
-              )}
-            </div>
+              </svg>
+            </span>
+          </Link>
+        </div>
+      )}
 
-            {/* Mot de passe */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Mot de passe
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <LockIcon className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
+      {/* Formulaire de connexion */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Identifiant membre */}
+        <FormField
+          id="userId"
+          label="Identifiant membre"
+          required
+          error={errors.userId?.message}
+        >
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <UserIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              id="userId"
+              type="text"
+              autoComplete="username"
+              {...register("userId")}
+              className={`block w-full pl-10 pr-3 py-3 border ${
+                errors.userId
+                  ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                  : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+              } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors`}
+              placeholder="U-2025-0001"
+            />
+          </div>
+        </FormField>
+
+        {/* Mot de passe */}
+        <FormField
+          id="password"
+          label="Mot de passe"
+          required
+          error={errors.password?.message}
+        >
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+              <LockIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <PasswordInput
                   id="password"
-                  type={showPassword ? "text" : "password"}
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  hasError={!!errors.password}
+                  placeholder="••••••••"
                   autoComplete="current-password"
-                  {...register("password")}
-                  className={`block w-full pl-10 pr-12 py-3 border ${
+                  className={`pl-10 ${
                     errors.password
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                       : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                  } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors`}
-                  placeholder="••••••••"
+                  }`}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 transition-colors"
-                  aria-label={
-                    showPassword
-                      ? "Masquer le mot de passe"
-                      : "Afficher le mot de passe"
-                  }
-                >
-                  {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="mt-2 text-sm text-red-600">
-                  {errors.password.message}
-                </p>
               )}
-            </div>
+            />
+          </div>
+        </FormField>
 
-            {/* Lien mot de passe oublié */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-700 cursor-pointer"
-                >
-                  Se souvenir de moi
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <Link
-                  to="/forgot-password"
-                  className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-                >
-                  Mot de passe oublié ?
-                </Link>
-              </div>
-            </div>
-
-            {/* Bouton de soumission */}
-            <button
-              type="submit"
-              disabled={isSubmitting || isLoading}
-              className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white ${
-                isSubmitting || isLoading
-                  ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              } transition-colors`}
+        {/* Lien mot de passe oublié et Remember me */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+            />
+            <label
+              htmlFor="remember-me"
+              className="ml-2 block text-sm text-gray-700 cursor-pointer"
             >
-              {isSubmitting || isLoading ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Connexion en cours...
-                </>
-              ) : (
-                "Se connecter"
-              )}
-            </button>
-          </form>
+              Se souvenir de moi
+            </label>
+          </div>
 
-          {/* Lien vers inscription */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Vous n'avez pas de compte ?{" "}
-              <Link
-                to="/register"
-                className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-              >
-                Créer un compte
-              </Link>
-            </p>
+          <div className="text-sm">
+            <Link
+              to="/forgot-password"
+              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            >
+              Mot de passe oublié ?
+            </Link>
           </div>
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-xs text-gray-500">
-          En vous connectant, vous acceptez nos{" "}
-          <Link to="/terms" className="underline hover:text-gray-700">
-            Conditions d'utilisation
-          </Link>{" "}
-          et notre{" "}
-          <Link to="/privacy" className="underline hover:text-gray-700">
-            Politique de confidentialité
-          </Link>
-        </p>
-      </div>
-    </div>
+        {/* Bouton de soumission */}
+        <SubmitButton
+          isLoading={isSubmitting || isLoading}
+          loadingText="Connexion en cours..."
+          fullWidth
+        >
+          Se connecter
+        </SubmitButton>
+      </form>
+    </AuthPageContainer>
   );
 };
 

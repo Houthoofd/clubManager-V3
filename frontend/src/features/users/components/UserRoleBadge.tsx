@@ -1,9 +1,12 @@
 /**
  * UserRoleBadge
  * Badge coloré affichant le rôle applicatif d'un utilisateur.
+ *
+ * Utilise Badge.Role depuis shared/components pour la cohérence visuelle.
  */
 
-import { UserRole } from '@clubmanager/types';
+import { UserRole } from "@clubmanager/types";
+import { Badge } from "../../../shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -11,43 +14,41 @@ interface UserRoleBadgeProps {
   role?: string;
 }
 
-// ─── Config ───────────────────────────────────────────────────────────────────
-
-const roleConfig: Record<string, { label: string; className: string }> = {
-  [UserRole.ADMIN]: {
-    label: 'Admin',
-    className: 'bg-red-100 text-red-700',
-  },
-  [UserRole.PROFESSOR]: {
-    label: 'Professeur',
-    className: 'bg-blue-100 text-blue-700',
-  },
-  [UserRole.MEMBER]: {
-    label: 'Membre',
-    className: 'bg-green-100 text-green-700',
-  },
-};
-
 // ─── Composant ────────────────────────────────────────────────────────────────
 
 /**
  * UserRoleBadge — Affiche le rôle d'un utilisateur sous forme de badge coloré.
  *
- * - admin     → rouge
- * - professor → bleu
- * - member    → vert
- * - inconnu   → gris
+ * - admin     → rouge (danger)
+ * - professor → violet (purple)
+ * - member    → vert (success)
+ * - parent    → bleu (info)
+ * - inconnu   → gris (neutral)
+ *
+ * @example
+ * ```tsx
+ * <UserRoleBadge role={UserRole.ADMIN} />
+ * <UserRoleBadge role="professor" />
+ * ```
  */
 export const UserRoleBadge: React.FC<UserRoleBadgeProps> = ({ role }) => {
-  const config = role ? roleConfig[role] : null;
+  // Mapping des valeurs UserRole vers les valeurs de Badge.Role
+  const normalizedRole = role?.toLowerCase();
 
-  return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-        config?.className ?? 'bg-gray-100 text-gray-700'
-      }`}
-    >
-      {config?.label ?? 'Inconnu'}
-    </span>
-  );
+  // Si le rôle est reconnu, utiliser Badge.Role
+  if (
+    normalizedRole === UserRole.ADMIN ||
+    normalizedRole === UserRole.PROFESSOR ||
+    normalizedRole === UserRole.MEMBER ||
+    normalizedRole === "parent"
+  ) {
+    return (
+      <Badge.Role
+        role={normalizedRole as "admin" | "professor" | "member" | "parent"}
+      />
+    );
+  }
+
+  // Fallback pour les rôles inconnus
+  return <Badge variant="neutral">Inconnu</Badge>;
 };

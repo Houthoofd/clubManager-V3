@@ -3,6 +3,14 @@
  * @module features/statistics/pages
  *
  * Main dashboard page displaying overview statistics for all modules.
+ * Migrated to use reusable components from shared library.
+ *
+ * @migrations
+ * - PageHeader: Replaced custom header with reusable PageHeader component
+ * - ErrorBanner: Replaced custom error state with ErrorBanner component
+ * - TabGroup: Replaced custom tabs with TabGroup component
+ * - AlertBanner: Replaced custom alert divs with AlertBanner component
+ * - LoadingSpinner: Replaced SkeletonCard/SkeletonChart with LoadingSpinner
  */
 
 import React, { useState } from "react";
@@ -19,8 +27,15 @@ import { FinanceStats } from "../components/FinanceStats";
 import { StoreStats } from "../components/StoreStats";
 import { formatCurrency, formatPercentage } from "../utils/formatting";
 
+// Shared Components
+import { PageHeader } from "../../../shared/components/Layout/PageHeader";
+import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
+import { ErrorBanner } from "../../../shared/components/Feedback/ErrorBanner";
+import { AlertBanner } from "../../../shared/components/Feedback/AlertBanner";
+import { TabGroup, Tab } from "../../../shared/components/Navigation/TabGroup";
+
 // ============================================================================
-// SVG Icons
+// SVG Icons (Preserved for statistics specificity)
 // ============================================================================
 
 function ChartLineIcon({ className }: { className?: string }) {
@@ -113,65 +128,6 @@ function ShoppingCartIcon({ className }: { className?: string }) {
   );
 }
 
-function ExclamationTriangleIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-      />
-    </svg>
-  );
-}
-
-function RefreshIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-      />
-    </svg>
-  );
-}
-
-// ============================================================================
-// Loading Skeleton Components
-// ============================================================================
-
-function SkeletonCard() {
-  return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 animate-pulse">
-      <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-      <div className="h-8 bg-gray-200 rounded w-3/4 mb-2"></div>
-      <div className="h-3 bg-gray-200 rounded w-1/3"></div>
-    </div>
-  );
-}
-
-function SkeletonChart() {
-  return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 animate-pulse">
-      <div className="h-5 bg-gray-200 rounded w-1/3 mb-4"></div>
-      <div className="h-64 bg-gray-200 rounded"></div>
-    </div>
-  );
-}
-
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -185,6 +141,9 @@ type TabId = "overview" | "members" | "courses" | "finance" | "store";
  * - Key performance indicators (KPIs)
  * - Trend charts for growth analysis
  * - Module-specific statistics (members, courses, finance, store)
+ *
+ * @component
+ * @reusable_components PageHeader, ErrorBanner, AlertBanner, TabGroup, LoadingSpinner
  */
 export const DashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
@@ -206,62 +165,67 @@ export const DashboardPage: React.FC = () => {
     }
   };
 
-  // Tabs configuration
-  const tabs: Array<{
-    id: TabId;
-    label: string;
-    icon: React.FC<{ className?: string }>;
-  }> = [
-    { id: "overview", label: "Vue d'ensemble", icon: ChartLineIcon },
-    { id: "members", label: "Membres", icon: UsersIcon },
-    { id: "courses", label: "Cours", icon: CalendarIcon },
-    { id: "finance", label: "Finances", icon: CurrencyDollarIcon },
-    { id: "store", label: "Magasin", icon: ShoppingCartIcon },
+  // Tabs configuration for TabGroup component
+  const tabs: Tab[] = [
+    {
+      id: "overview",
+      label: "Vue d'ensemble",
+      icon: <ChartLineIcon className="w-5 h-5" />,
+    },
+    {
+      id: "members",
+      label: "Membres",
+      icon: <UsersIcon className="w-5 h-5" />,
+    },
+    {
+      id: "courses",
+      label: "Cours",
+      icon: <CalendarIcon className="w-5 h-5" />,
+    },
+    {
+      id: "finance",
+      label: "Finances",
+      icon: <CurrencyDollarIcon className="w-5 h-5" />,
+    },
+    {
+      id: "store",
+      label: "Magasin",
+      icon: <ShoppingCartIcon className="w-5 h-5" />,
+    },
   ];
 
-  // Error state
+  // Error state - Using ErrorBanner component
   if (error) {
     return (
       <div className="space-y-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Tableau de Bord - Statistiques
-          </h1>
-        </div>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <div className="flex items-start gap-3">
-            <ExclamationTriangleIcon className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-lg font-semibold text-red-900 mb-1">
-                Erreur de chargement
-              </h3>
-              <p className="text-sm text-red-700">
-                Une erreur est survenue lors du chargement des statistiques du
-                dashboard.
-              </p>
-              {error.message && (
-                <p className="text-sm text-red-600 mt-2 font-mono">
-                  {error.message}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          icon={<ChartLineIcon className="h-8 w-8 text-blue-600" />}
+          title="Tableau de Bord - Statistiques"
+          description="Vue d'ensemble des statistiques du club"
+        />
+        <ErrorBanner
+          variant="error"
+          title="Erreur de chargement"
+          message={
+            error.message ||
+            "Une erreur est survenue lors du chargement des statistiques du dashboard."
+          }
+        />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Tableau de Bord - Statistiques
-          </h1>
-        </div>
+      {/* Page Header - Using PageHeader component */}
+      <PageHeader
+        icon={<ChartLineIcon className="h-8 w-8 text-blue-600" />}
+        title="Tableau de Bord - Statistiques"
+        description="Vue d'ensemble des statistiques et indicateurs de performance"
+      />
 
-        {/* Period Selector */}
+      {/* Period Selector Card */}
+      <div className="bg-white rounded-lg shadow p-6">
         <PeriodSelector
           showPeriodType
           showRefresh
@@ -270,34 +234,15 @@ export const DashboardPage: React.FC = () => {
         />
       </div>
 
-      {/* Tabs */}
+      {/* Tabs & Content - Using TabGroup component */}
       <div className="bg-white rounded-lg shadow">
         <div className="border-b border-gray-200">
-          <nav className="flex -mb-px overflow-x-auto" aria-label="Tabs">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    group inline-flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm
-                    whitespace-nowrap transition-colors
-                    ${
-                      isActive
-                        ? "border-blue-500 text-blue-600"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }
-                  `}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  <Icon className="w-5 h-5" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
+          <TabGroup
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={(tabId) => setActiveTab(tabId as TabId)}
+            scrollable
+          />
         </div>
 
         {/* Tab Content */}
@@ -312,12 +257,9 @@ export const DashboardPage: React.FC = () => {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {isLoading ? (
-                    <>
-                      <SkeletonCard />
-                      <SkeletonCard />
-                      <SkeletonCard />
-                      <SkeletonCard />
-                    </>
+                    <div className="col-span-full">
+                      <LoadingSpinner text="Chargement des indicateurs..." />
+                    </div>
                   ) : (
                     <>
                       <StatCard
@@ -362,48 +304,23 @@ export const DashboardPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Alerts */}
+              {/* Alerts - Using AlertBanner component */}
               {data && (
                 <div className="space-y-3">
                   {data.finance.overview.nombre_echeances_retard > 0 && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                      <div className="flex items-start gap-3">
-                        <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <h4 className="text-sm font-semibold text-yellow-900">
-                            Paiements en retard
-                          </h4>
-                          <p className="text-sm text-yellow-700 mt-1">
-                            {data.finance.overview.nombre_echeances_retard}{" "}
-                            paiement(s) en retard pour un montant total de{" "}
-                            <strong>
-                              {formatCurrency(
-                                data.finance.overview.montant_echeances_retard,
-                              )}
-                            </strong>
-                            .
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                    <AlertBanner
+                      variant="warning"
+                      title="Paiements en retard"
+                      message={`${data.finance.overview.nombre_echeances_retard} paiement(s) en retard pour un montant total de ${formatCurrency(data.finance.overview.montant_echeances_retard)}.`}
+                    />
                   )}
 
                   {data.store.low_stock.length > 0 && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                      <div className="flex items-start gap-3">
-                        <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <h4 className="text-sm font-semibold text-yellow-900">
-                            Alertes de stock
-                          </h4>
-                          <p className="text-sm text-yellow-700 mt-1">
-                            {data.store.low_stock.length} article(s) avec stock
-                            bas ou en rupture nécessitent un
-                            réapprovisionnement.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                    <AlertBanner
+                      variant="warning"
+                      title="Alertes de stock"
+                      message={`${data.store.low_stock.length} article(s) avec stock bas ou en rupture nécessitent un réapprovisionnement.`}
+                    />
                   )}
                 </div>
               )}
@@ -415,11 +332,9 @@ export const DashboardPage: React.FC = () => {
                 </h2>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   {isLoading && !data ? (
-                    <>
-                      <SkeletonChart />
-                      <SkeletonChart />
-                      <SkeletonChart />
-                    </>
+                    <div className="col-span-full">
+                      <LoadingSpinner text="Chargement des graphiques..." />
+                    </div>
                   ) : (
                     <>
                       {data?.trends.member_growth && (
@@ -514,5 +429,3 @@ export const DashboardPage: React.FC = () => {
     </div>
   );
 };
-
-export default DashboardPage;

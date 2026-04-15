@@ -1,7 +1,12 @@
 /**
  * StockBadge
  * Badge coloré indiquant le statut du stock d'un article.
+ *
+ * Ce composant est maintenant un wrapper autour de Badge.Stock
+ * pour maintenir la compatibilité avec l'ancienne API.
  */
+
+import { Badge } from "../../../shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,37 +28,26 @@ interface StockBadgeProps {
 export const StockBadge: React.FC<StockBadgeProps> = ({
   quantite,
   quantite_minimum,
-  className = '',
+  className = "",
 }) => {
+  // Déterminer le label selon la logique originale
   let label: string;
-  let colorClass: string;
 
   if (quantite <= 0) {
-    label = 'Rupture';
-    colorClass = 'bg-red-100 text-red-800 ring-1 ring-red-200';
+    label = "Rupture";
   } else if (quantite <= quantite_minimum) {
-    label = 'Stock bas';
-    colorClass = 'bg-orange-100 text-orange-800 ring-1 ring-orange-200';
+    label = "Stock bas";
   } else {
-    label = 'En stock';
-    colorClass = 'bg-green-100 text-green-800 ring-1 ring-green-200';
+    label = "En stock";
   }
 
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass} ${className}`}
+    <Badge.Stock
+      quantity={quantite}
+      threshold={quantite_minimum}
+      className={className}
     >
-      {/* Dot indicator */}
-      <span
-        className={`mr-1.5 h-1.5 w-1.5 rounded-full ${
-          quantite <= 0
-            ? 'bg-red-500'
-            : quantite <= quantite_minimum
-              ? 'bg-orange-500'
-              : 'bg-green-500'
-        }`}
-      />
       {label}
-    </span>
+    </Badge.Stock>
   );
 };

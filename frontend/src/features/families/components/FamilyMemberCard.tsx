@@ -9,6 +9,7 @@ import {
   TrashIcon as PFTrashIcon,
 } from "@patternfly/react-icons";
 import type { FamilyMemberResponseDto } from "@clubmanager/types";
+import { Card } from "../../../shared/components";
 
 /**
  * Props du composant FamilyMemberCard
@@ -140,7 +141,7 @@ export function FamilyMemberCard({
   };
 
   return (
-    <article className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col p-5 gap-4">
+    <Card variant="compact" hover className="flex flex-col gap-4">
       {/* ── En-tête : avatar + nom + userId ── */}
       <div className="flex items-center gap-3">
         {/* Cercle avatar avec initiales */}
@@ -232,6 +233,6 @@ export function FamilyMemberCard({
           </button>
         </div>
       )}
-    </article>
+    </Card>
   );
 }

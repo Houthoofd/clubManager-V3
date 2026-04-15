@@ -3,7 +3,7 @@
  * Protège les routes selon le rôle de l'utilisateur
  */
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import { UserRole } from '@clubmanager/types';
 
 interface RoleGuardProps {

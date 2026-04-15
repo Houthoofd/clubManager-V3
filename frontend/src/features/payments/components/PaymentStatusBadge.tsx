@@ -1,36 +1,18 @@
 /**
  * PaymentStatusBadge
  * Badge coloré affichant le statut d'un paiement.
+ *
+ * ⚠️ Ce composant est un wrapper pour Badge.PaymentStatus
+ * Utilisez directement Badge.PaymentStatus pour les nouveaux composants.
  */
 
-import { PaymentStatus, PAYMENT_STATUS_LABELS } from '@clubmanager/types';
+import { Badge } from "@/shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface PaymentStatusBadgeProps {
   statut?: string;
 }
-
-// ─── Config ───────────────────────────────────────────────────────────────────
-
-const statusConfig: Record<string, { label: string; className: string }> = {
-  [PaymentStatus.EN_ATTENTE]: {
-    label: PAYMENT_STATUS_LABELS[PaymentStatus.EN_ATTENTE],
-    className: 'bg-yellow-100 text-yellow-800 ring-1 ring-yellow-200',
-  },
-  [PaymentStatus.VALIDE]: {
-    label: PAYMENT_STATUS_LABELS[PaymentStatus.VALIDE],
-    className: 'bg-green-100 text-green-800 ring-1 ring-green-200',
-  },
-  [PaymentStatus.ECHOUE]: {
-    label: PAYMENT_STATUS_LABELS[PaymentStatus.ECHOUE],
-    className: 'bg-red-100 text-red-800 ring-1 ring-red-200',
-  },
-  [PaymentStatus.REMBOURSE]: {
-    label: PAYMENT_STATUS_LABELS[PaymentStatus.REMBOURSE],
-    className: 'bg-purple-100 text-purple-800 ring-1 ring-purple-200',
-  },
-};
 
 // ─── Composant ────────────────────────────────────────────────────────────────
 
@@ -39,20 +21,59 @@ const statusConfig: Record<string, { label: string; className: string }> = {
  *
  * - en_attente → jaune/orange
  * - valide     → vert
+ * - paye       → vert
+ * - partiel    → bleu
  * - echoue     → rouge
  * - rembourse  → violet
+ * - annule     → rouge
  * - inconnu    → gris
+ *
+ * @deprecated Utilisez Badge.PaymentStatus directement
  */
-export const PaymentStatusBadge: React.FC<PaymentStatusBadgeProps> = ({ statut }) => {
-  const config = statut ? statusConfig[statut] : null;
+export const PaymentStatusBadge: React.FC<PaymentStatusBadgeProps> = ({
+  statut,
+}) => {
+  // Mapper les statuts valides vers Badge.PaymentStatus
+  const validStatuses = [
+    "en_attente",
+    "paye",
+    "valide",
+    "partiel",
+    "echoue",
+    "rembourse",
+    "annule",
+  ];
 
+  if (!statut) {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 ring-1 ring-gray-200">
+        Inconnu
+      </span>
+    );
+  }
+
+  // Si le statut est valide, utiliser Badge.PaymentStatus
+  if (validStatuses.includes(statut)) {
+    return (
+      <Badge.PaymentStatus
+        status={
+          statut as
+            | "en_attente"
+            | "paye"
+            | "valide"
+            | "partiel"
+            | "echoue"
+            | "rembourse"
+            | "annule"
+        }
+      />
+    );
+  }
+
+  // Statut inconnu
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-        config?.className ?? 'bg-gray-100 text-gray-700 ring-1 ring-gray-200'
-      }`}
-    >
-      {config?.label ?? statut ?? 'Inconnu'}
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 ring-1 ring-gray-200">
+      {statut}
     </span>
   );
 };

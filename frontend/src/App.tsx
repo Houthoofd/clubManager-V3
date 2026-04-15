@@ -20,8 +20,7 @@ import { PrivateLayout } from "./layouts/PrivateLayout";
 import { useAuth } from "./shared/hooks/useAuth";
 
 // Route Guards
-import { PublicRoute } from "./shared/components/PublicRoute";
-import { RoleGuard } from "./shared/components/RoleGuard";
+import { PublicRoute, RoleGuard } from "./shared/components/Auth";
 import { UserRole } from "@clubmanager/types";
 
 // Auth Pages
@@ -37,6 +36,7 @@ import { SettingsPage } from "./features/settings/pages";
 import { PaymentsPage } from "./features/payments/pages";
 import { CoursesPage } from "./features/courses/pages";
 import { StorePage } from "./features/store/pages";
+import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
 
 // Statistics Module
 import { StatisticsRouter } from "./features/statistics/StatisticsRouter";

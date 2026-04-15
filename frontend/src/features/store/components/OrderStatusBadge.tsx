@@ -1,63 +1,79 @@
 /**
  * OrderStatusBadge
- * Badge coloré affichant le statut d'une commande boutique.
+ * Wrapper vers Badge.OrderStatus du Design System.
+ *
+ * Ce composant maintient la compatibilité avec l'ancienne interface
+ * tout en utilisant le composant Badge.OrderStatus du design system.
  */
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { Badge } from "../../../shared/components";
 
-type OrderStatus = 'en_attente' | 'payee' | 'expediee' | 'livree' | 'annulee';
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface OrderStatusBadgeProps {
   statut?: string;
 }
-
-// ─── Config ───────────────────────────────────────────────────────────────────
-
-const statusConfig: Record<OrderStatus, { label: string; className: string }> = {
-  en_attente: {
-    label: 'En attente',
-    className: 'bg-yellow-100 text-yellow-800 ring-1 ring-yellow-200',
-  },
-  payee: {
-    label: 'Payée',
-    className: 'bg-blue-100 text-blue-800 ring-1 ring-blue-200',
-  },
-  expediee: {
-    label: 'Expédiée',
-    className: 'bg-purple-100 text-purple-800 ring-1 ring-purple-200',
-  },
-  livree: {
-    label: 'Livrée',
-    className: 'bg-green-100 text-green-800 ring-1 ring-green-200',
-  },
-  annulee: {
-    label: 'Annulée',
-    className: 'bg-red-100 text-red-800 ring-1 ring-red-200',
-  },
-};
 
 // ─── Composant ────────────────────────────────────────────────────────────────
 
 /**
  * OrderStatusBadge — Affiche le statut d'une commande sous forme de badge coloré.
  *
+ * Utilise Badge.OrderStatus du design system.
+ *
+ * Statuts supportés:
  * - en_attente → jaune
+ * - en_cours   → bleu
  * - payee      → bleu
  * - expediee   → violet
+ * - prete      → violet
  * - livree     → vert
  * - annulee    → rouge
- * - inconnu    → gris
  */
-export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({ statut }) => {
-  const config = statut ? statusConfig[statut as OrderStatus] : null;
+export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({
+  statut,
+}) => {
+  // Si pas de statut ou statut invalide, on affiche un badge neutre
+  if (!statut) {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 ring-1 ring-gray-200">
+        Inconnu
+      </span>
+    );
+  }
 
+  // Vérifier si le statut est valide pour Badge.OrderStatus
+  const validStatuses = [
+    "en_attente",
+    "en_cours",
+    "payee",
+    "expediee",
+    "prete",
+    "livree",
+    "annulee",
+  ];
+
+  if (validStatuses.includes(statut)) {
+    return (
+      <Badge.OrderStatus
+        status={
+          statut as
+            | "en_attente"
+            | "en_cours"
+            | "payee"
+            | "expediee"
+            | "prete"
+            | "livree"
+            | "annulee"
+        }
+      />
+    );
+  }
+
+  // Fallback pour statuts inconnus
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-        config?.className ?? 'bg-gray-100 text-gray-700 ring-1 ring-gray-200'
-      }`}
-    >
-      {config?.label ?? statut ?? 'Inconnu'}
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 ring-1 ring-gray-200">
+      {statut}
     </span>
   );
 };
