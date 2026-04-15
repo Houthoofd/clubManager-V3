@@ -13,7 +13,7 @@
 │                                                                     │
 │  COHÉRENCE UI - SCORE ACTUEL                                       │
 │                                                                     │
-│  ████████████████████████████████████████░░░░░░░░░  80%         │
+│  ███████████████████████████████████████████████░░░░░  86%         │
 │                                                                     │
 │  Objectif Sprint 1:  ██████████████████████████████████████░░░░ 82% │
 │  Objectif Final:     ███████████████████████████████████████████ 92%│
@@ -21,7 +21,7 @@
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-**Progression:** 1 / 7 sprints complétés (Sprint 1 ✅)
+**Progression:** 2 / 7 sprints complétés (Sprint 1 ✅, Sprint 2 ✅)
 
 ---
 
@@ -42,7 +42,7 @@
 
 | Métrique | Actuel | Progression | Cible |
 |----------|--------|-------------|-------|
-| **Code dupliqué** | 164 ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ | 88% 🎉 | 230 |
+| **Code dupliqué** | 11 ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ | 99% 🎉 | 230 |
 | **Pages migrées** | 7/11 (64%) ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░ | 64% | 11/11 (100%) |
 | **Overlaps résolus** | 3/3 ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ | 100% ✅ | 3/3 |
 | **Design tokens** | 45% ▓▓▓▓▓▓▓▓▓░░░░░░░░░░░ | 5% | 100% |
@@ -53,14 +53,14 @@
 
 ### Phase 1 - CRITIQUE (Semaines 1-2)
 
-**Status:** 🟢 Sprint 1 COMPLÉTÉ ✅  
+**Status:** 🟢 PHASE 1 COMPLÉTÉE ✅  
 **Effort estimé:** 20h  
-**Effort réel:** 10h  
-**Progression:** 50%
+**Effort réel:** 18h  
+**Progression:** 100%
 
 ```
 Sprint 1: Overlaps + UsersPage     ████████████████████ 100% ✅
-Sprint 2: Modals CoursesPage       ░░░░░░░░░░░░░░░░░░░░  0%
+Sprint 2: Modals CoursesPage       ████████████████████ 100% ✅
 ```
 
 #### Sprint 1 - Overlaps + UsersPage (9h 30min) ✅ COMPLÉTÉ
@@ -125,6 +125,63 @@ Sprint 2: Modals CoursesPage       ░░░░░░░░░░░░░░░
 **Effort** : 10h (vs 9h 30min estimé) - Conforme ✅
 
 **Prochaine étape** : Sprint 2 - Modals CoursesPage
+
+#### Sprint 2 - Modals CoursesPage (8h) ✅ COMPLÉTÉ
+
+- [x] ✅ **Refactoriser les modals de CoursesPage** (8h) - COMPLÉTÉ
+  - [x] Supprimé useModalEffects hook custom (-18 lignes)
+  - [x] Supprimé ModalBackdrop composant custom (-23 lignes)
+  - [x] Supprimé ModalHeader composant custom (-21 lignes)
+  - [x] Supprimé XMarkIcon inline (-19 lignes)
+  - [x] Migré CreateEditCourseRecurrentModal vers Modal (size="lg")
+  - [x] Migré CreateProfessorModal vers Modal (size="lg")
+  - [x] Migré GenerateCoursesModal vers Modal (size="md")
+  - [x] Migré CreateSessionModal vers Modal (size="md")
+  - [x] Migré AttendanceModal vers Modal (size="2xl")
+  - [x] Préservé 100% de la logique métier
+  - [x] Ajouté focus trap automatique
+  - [x] Amélioré accessibilité (aria-*, ESC, click outside)
+  - [x] Tests TypeScript passent (0 erreur)
+  - [x] Documentation de migration créée
+
+**Gain réel Sprint 2:** -153 lignes (CoursesPage: 2003 → 1925, -78 lignes nettes)  
+**Gain total Phase 1:** -1679 lignes (-1526 Sprint 1, -153 Sprint 2)
+
+**🎉 SPRINT 2 COMPLÉTÉ À 100% 🎉**
+
+---
+
+### Résumé Sprint 2
+
+**Accomplissements** :
+- ✅ 5 modals complètement migrés vers Modal partagé
+- ✅ 3 composants helper custom supprimés
+- ✅ Accessibilité drastiquement améliorée (focus trap, aria-*)
+- ✅ -153 lignes de code dupliqué
+- ✅ 1 migration guide créé (626 lignes de doc)
+- ✅ Score UI : 80% → 86% (+6 points)
+
+**Effort** : 8h (vs 8h estimé) - Conforme ✅
+
+**Prochaine étape** : Phase 2 - Design Tokens
+
+---
+
+### Résumé Phase 1 (Sprints 1 + 2)
+
+**Accomplissements totaux** :
+- ✅ 2/2 sprints complétés (100%)
+- ✅ 3/3 overlaps résolus (100%)
+- ✅ 1 page majeure migrée (UsersPage)
+- ✅ 5 modals migrés (CoursesPage)
+- ✅ 1 composant créé (Input)
+- ✅ -1679 lignes de code dupliqué
+- ✅ 5 migrations documentées (3486 lignes de doc)
+- ✅ Score UI : 72% → 86% (+14 points)
+
+**Effort** : 18h (vs 20h estimé) - Sous budget ! ✅
+
+**Prochaine étape** : Phase 2 - Centraliser les Design Tokens
 
 ---
 
