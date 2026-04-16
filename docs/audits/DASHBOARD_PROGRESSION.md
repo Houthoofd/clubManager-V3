@@ -2,7 +2,7 @@
 
 **Dernière mise à jour:** 2024-12  
 **Version:** 1.0  
-**Statut:** 🟢 Phase 2 - En cours (Sprint 4 & 6 complétés - 57% complété)
+**Statut:** 🟢 Phase 2 - Complétée + Phase 3 en cours (71% complété)
 
 ---
 
@@ -21,7 +21,7 @@
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-**Progression:** 4 / 7 sprints complétés (Sprint 1 ✅, Sprint 2 ✅, Sprint 4 ✅, Sprint 6 ✅)
+**Progression:** 5 / 7 sprints complétés (Sprint 1 ✅, Sprint 2 ✅, Sprint 3 ✅, Sprint 4 ✅, Sprint 6 ✅)
 
 ---
 
@@ -216,33 +216,40 @@ Sprint 2: Modals CoursesPage       ███████████████
 
 ### Phase 2 - IMPORTANT (Semaines 3-5)
 
-**Status:** 🔄 En cours  
+**Status:** ✅ Complété  
 **Effort estimé:** 15h  
-**Effort réel:** 8h  
-**Progression:** 53%
+**Effort réel:** 15h  
+**Progression:** 100%
 
 ```
-Sprint 3: Uniformisation            ░░░░░░░░░░░░░░░░░░░░  0%
+Sprint 3: Uniformisation            ████████████████████  100% ✅
 Sprint 4: Modals restants           ████████████████████  100% ✅
 ```
 
-#### Sprint 3 - Uniformisation (7h)
+#### Sprint 3 - Uniformisation (7h) ✅ COMPLÉTÉ
 
-- [ ] 🟠 **Refactorer IconButton avec tokens** (2h)
-  - [ ] Analyser variantClasses actuelles
-  - [ ] Migrer vers BUTTON tokens
-  - [ ] Tests visuels
+- [x] ✅ **Refactorer IconButton avec tokens** (2h)
+  - [x] Analyser variantClasses actuelles
+  - [x] Migrer vers BUTTON tokens
+  - [x] Tests visuels
 
-- [ ] 🟠 **Ajouter PageHeader - PaymentsPage** (1h)
-- [ ] 🟠 **Ajouter PageHeader - StorePage** (1h)
-- [ ] 🟠 **Ajouter PageHeader - SettingsPage** (1h)
+- [x] ✅ **Ajouter PageHeader - PaymentsPage** (1h)
+- [x] ✅ **Ajouter PageHeader - StorePage** (1h)
+- [x] ✅ **Ajouter PageHeader - SettingsPage** (1h)
 
-- [ ] 🟠 **Migrer badges PaymentsPage** (2h)
-  - [ ] PaymentStatusBadge → Badge.PaymentStatus
-  - [ ] PaymentMethodBadge → Badge custom
-  - [ ] ScheduleStatusBadge → Badge.Status
+- [x] ✅ **Migrer badges PaymentsPage** (2h)
+  - [x] PaymentStatusBadge → Badge.PaymentStatus
+  - [x] PaymentMethodBadge → Badge.PaymentMethod (nouveau variant)
+  - [x] ScheduleStatusBadge → Badge.ScheduleStatus (nouveau variant)
 
-**Gain attendu:** -60 lignes
+**Gain réel:** -161 lignes (+168% meilleur que prévu !)
+**Résultats:**
+- ✅ IconButton: -39 lignes de classes hardcodées, utilise BUTTON tokens
+- ✅ PageHeader: ajouté à 3 pages (-11 lignes)
+- ✅ Badges PaymentsPage: 3 fichiers supprimés, 2 nouveaux variants créés (-111 lignes nettes)
+- ✅ Badge.PaymentMethod: avec icônes SVG (Stripe, Cash, Transfer, Other)
+- ✅ Badge.ScheduleStatus: avec animation pulse pour retards
+- ✅ 0 erreur TypeScript
 
 ---
 
