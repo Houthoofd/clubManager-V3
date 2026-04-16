@@ -7,7 +7,8 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import type { PricingPlan } from "@clubmanager/types";
-import { Modal, Input, Button } from "../../../shared/components";
+import { Modal, Button } from "../../../shared/components";
+import { Input } from "../../../shared/components/Input/Input";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
