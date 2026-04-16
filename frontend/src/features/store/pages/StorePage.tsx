@@ -60,6 +60,7 @@ import {
   TrashIcon,
 } from "../../../shared/components/Button/IconButton";
 import { ConfirmDialog } from "../../../shared/components/Modal/ConfirmDialog";
+import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
 import { EmptyState } from "../../../shared/components/Layout/EmptyState";
 import { AlertBanner } from "../../../shared/components/Feedback/AlertBanner";
@@ -1738,14 +1739,14 @@ export function StorePage() {
   return (
     <div className="space-y-6">
       {/* ── En-tête ── */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Boutique</h1>
-        <p className="mt-0.5 text-sm text-gray-500">
-          {canManageStore
+      <PageHeader
+        title="Boutique"
+        description={
+          canManageStore
             ? "Gestion de la boutique du club"
-            : "Parcourez les articles disponibles et suivez vos commandes"}
-        </p>
-      </div>
+            : "Parcourez les articles disponibles et suivez vos commandes"
+        }
+      />
 
       {/* ── Conteneur onglets ── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">

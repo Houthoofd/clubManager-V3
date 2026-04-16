@@ -13,6 +13,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
+import { PageHeader } from "@/shared/components/Layout/PageHeader";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import apiClient from "../../../shared/api/apiClient";
 import { UserRole, PaymentStatus } from "@clubmanager/types";
@@ -26,7 +27,7 @@ import {
 } from "../hooks/usePayments";
 
 // ─── Composants réutilisables ─────────────────────────────────────────────────
-import { Modal, Button } from "../../../shared/components";
+import { Modal, Button, Badge } from "../../../shared/components";
 import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
 import { DataTable } from "../../../shared/components/Table/DataTable";
 import { SearchBar } from "../../../shared/components/Forms/SearchBar";
@@ -35,9 +36,6 @@ import type { Column } from "../../../shared/components/Table/DataTable";
 import type { Tab } from "../../../shared/components/Navigation/TabGroup";
 
 // ─── Composants spécifiques paiements ─────────────────────────────────────────
-import { PaymentStatusBadge } from "../components/PaymentStatusBadge";
-import { PaymentMethodBadge } from "../components/PaymentMethodBadge";
-import { ScheduleStatusBadge } from "../components/ScheduleStatusBadge";
 import { RecordPaymentModal } from "../components/RecordPaymentModal";
 import type { RecordPaymentFormData } from "../components/RecordPaymentModal";
 import { PricingPlanFormModal } from "../components/PricingPlanFormModal";
@@ -645,12 +643,12 @@ export function PaymentsPage() {
       {
         key: "methode_paiement",
         label: "Méthode",
-        render: (value) => <PaymentMethodBadge methode={value} />,
+        render: (value) => <Badge.PaymentMethod method={value} />,
       },
       {
         key: "statut",
         label: "Statut",
-        render: (value) => <PaymentStatusBadge statut={value} />,
+        render: (value) => <Badge.PaymentStatus status={value} />,
       },
       {
         key: "plan_tarifaire_nom",
@@ -721,7 +719,7 @@ export function PaymentsPage() {
         key: "statut",
         label: "Statut",
         render: (value, row) => (
-          <ScheduleStatusBadge statut={value} joursRetard={row.jours_retard} />
+          <Badge.ScheduleStatus status={value} daysLate={row.jours_retard} />
         ),
       },
       {
@@ -787,12 +785,10 @@ export function PaymentsPage() {
   return (
     <div className="space-y-6">
       {/* ── En-tête ── */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Paiements</h1>
-        <p className="mt-0.5 text-sm text-gray-500">
-          Gestion des paiements, échéances et plans tarifaires du club
-        </p>
-      </div>
+      <PageHeader
+        title="Paiements"
+        description="Gestion des paiements, échéances et plans tarifaires du club"
+      />
 
       {/* ── Conteneur onglets ── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
@@ -1082,9 +1078,9 @@ export function PaymentsPage() {
                             <span className="text-sm font-semibold text-red-700">
                               {formatCurrency(s.montant)}
                             </span>
-                            <ScheduleStatusBadge
-                              statut={s.statut}
-                              joursRetard={s.jours_retard}
+                            <Badge.ScheduleStatus
+                              status={s.statut}
+                              daysLate={s.jours_retard}
                             />
                             {isAdmin && (
                               <button

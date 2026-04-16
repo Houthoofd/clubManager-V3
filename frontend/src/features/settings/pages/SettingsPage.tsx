@@ -11,6 +11,7 @@ import { INFORMATION_KEYS } from "@clubmanager/types";
 import type { CreateInformation } from "@clubmanager/types";
 import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
 import type { Tab } from "../../../shared/components/Navigation/TabGroup";
+import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 
 // ─── Tab type ─────────────────────────────────────────────────────────────────
 
@@ -859,17 +860,11 @@ export const SettingsPage = () => {
   return (
     <div className="space-y-6">
       {/* ── Page header ───────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3">
-        <CogIcon className="h-8 w-8 text-blue-600 flex-shrink-0" />
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Param&egrave;tres
-          </h1>
-          <p className="mt-0.5 text-sm text-gray-500">
-            G&eacute;rez les informations et la configuration de votre club.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        icon={<CogIcon className="h-8 w-8 text-blue-600 flex-shrink-0" />}
+        title="Paramètres"
+        description="Gérez les informations et la configuration de votre club."
+      />
 
       {/* ── Tab navigation ────────────────────────────────────────────────── */}
       <TabGroup
