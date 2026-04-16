@@ -13,6 +13,11 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
+import {
+  CheckIcon,
+  CreditCardIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
 import { PageHeader } from "@/shared/components/Layout/PageHeader";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import apiClient from "../../../shared/api/apiClient";
@@ -121,68 +126,6 @@ function buildPageRange(current: number, total: number): (number | "...")[] {
   pages.push(total);
 
   return pages;
-}
-
-// ─── Icônes SVG ───────────────────────────────────────────────────────────────
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={2.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M4.5 12.75l6 6 9-13.5"
-      />
-    </svg>
-  );
-}
-
-function CreditCardIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.8}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"
-      />
-    </svg>
-  );
-}
-
-function ExclamationTriangleIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={2}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-      />
-    </svg>
-  );
 }
 
 // ─── Sous-composants ──────────────────────────────────────────────────────────
