@@ -11,6 +11,8 @@ export {
   RoleBadge,
   PaymentStatusBadge,
   OrderStatusBadge,
+  PaymentMethodBadge,
+  ScheduleStatusBadge,
 } from "./Badge";
 export type {
   BadgeProps,
@@ -18,4 +20,6 @@ export type {
   RoleBadgeProps,
   PaymentStatusBadgeProps,
   OrderStatusBadgeProps,
+  PaymentMethodBadgeProps,
+  ScheduleStatusBadgeProps,
 } from "./Badge";

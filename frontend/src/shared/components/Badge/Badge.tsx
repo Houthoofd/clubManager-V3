@@ -383,6 +383,232 @@ export function OrderStatusBadge({
   );
 }
 
+/**
+ * Badge de méthode de paiement avec icône
+ * Affiche la méthode de paiement avec une icône appropriée
+ */
+
+// Icônes pour PaymentMethod
+const CreditCardIcon = () => (
+  <svg
+    className="h-3.5 w-3.5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.8}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"
+    />
+  </svg>
+);
+
+const BanknotesIcon = () => (
+  <svg
+    className="h-3.5 w-3.5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.8}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"
+    />
+  </svg>
+);
+
+const BuildingLibraryIcon = () => (
+  <svg
+    className="h-3.5 w-3.5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.8}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z"
+    />
+  </svg>
+);
+
+const TagIcon = () => (
+  <svg
+    className="h-3.5 w-3.5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.8}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6 6h.008v.008H6V6Z"
+    />
+  </svg>
+);
+
+export interface PaymentMethodBadgeProps extends Omit<
+  BadgeProps,
+  "variant" | "icon" | "children"
+> {
+  method: string;
+  children?: ReactNode;
+}
+
+export function PaymentMethodBadge({
+  method,
+  children,
+  ...props
+}: PaymentMethodBadgeProps) {
+  const methodConfigMap: Record<
+    string,
+    {
+      variant: BadgeProps["variant"];
+      Icon: () => JSX.Element;
+      label: string;
+    }
+  > = {
+    stripe: {
+      variant: "info",
+      Icon: CreditCardIcon,
+      label: children?.toString() || "Carte bancaire",
+    },
+    especes: {
+      variant: "success",
+      Icon: BanknotesIcon,
+      label: children?.toString() || "Espèces",
+    },
+    virement: {
+      variant: "purple",
+      Icon: BuildingLibraryIcon,
+      label: children?.toString() || "Virement",
+    },
+    autre: {
+      variant: "neutral",
+      Icon: TagIcon,
+      label: children?.toString() || "Autre",
+    },
+  };
+
+  const methodConfig = methodConfigMap[method] || {
+    variant: "neutral" as const,
+    Icon: TagIcon,
+    label: children?.toString() || method || "Inconnu",
+  };
+
+  return (
+    <Badge
+      variant={methodConfig.variant}
+      icon={<methodConfig.Icon />}
+      {...props}
+    >
+      {methodConfig.label}
+    </Badge>
+  );
+}
+
+/**
+ * Badge de statut d'échéance de paiement
+ * Supporte l'affichage des retards avec animation et jours de retard
+ */
+
+// Icône pour les échéances en retard
+const ExclamationTriangleIcon = () => (
+  <svg
+    className="h-3 w-3"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+    />
+  </svg>
+);
+
+export interface ScheduleStatusBadgeProps extends Omit<
+  BadgeProps,
+  "variant" | "children" | "icon" | "dot"
+> {
+  status: string;
+  daysLate?: number;
+  children?: ReactNode;
+}
+
+export function ScheduleStatusBadge({
+  status,
+  daysLate,
+  children,
+  className = "",
+  ...props
+}: ScheduleStatusBadgeProps) {
+  const statusConfigMap: Record<
+    string,
+    {
+      variant: BadgeProps["variant"];
+      label: string;
+    }
+  > = {
+    en_attente: {
+      variant: "orange",
+      label: children?.toString() || "En attente",
+    },
+    paye: {
+      variant: "success",
+      label: children?.toString() || "Payé",
+    },
+    en_retard: {
+      variant: "danger",
+      label: children?.toString() || "En retard",
+    },
+    annule: {
+      variant: "neutral",
+      label: children?.toString() || "Annulé",
+    },
+  };
+
+  const statusConfig = statusConfigMap[status] || {
+    variant: "neutral" as const,
+    label: children?.toString() || status || "Inconnu",
+  };
+
+  const isOverdue = status === "en_retard";
+  const icon = isOverdue ? <ExclamationTriangleIcon /> : undefined;
+
+  // Ajouter l'animation pulse pour les retards
+  const combinedClassName = cn(className, isOverdue && "animate-pulse");
+
+  return (
+    <Badge
+      variant={statusConfig.variant}
+      icon={icon}
+      className={combinedClassName}
+      {...props}
+    >
+      <span className="flex items-center gap-1">
+        {statusConfig.label}
+        {isOverdue && daysLate !== undefined && daysLate > 0 && (
+          <span className="font-semibold">({daysLate}j)</span>
+        )}
+      </span>
+    </Badge>
+  );
+}
+
 // ─── EXPORTS ─────────────────────────────────────────────────────────────────
 
 Badge.Status = StatusBadge;
@@ -390,5 +616,7 @@ Badge.Stock = StockBadge;
 Badge.Role = RoleBadge;
 Badge.PaymentStatus = PaymentStatusBadge;
 Badge.OrderStatus = OrderStatusBadge;
+Badge.PaymentMethod = PaymentMethodBadge;
+Badge.ScheduleStatus = ScheduleStatusBadge;
 
 export default Badge;
