@@ -26,6 +26,7 @@ import {
 } from "../hooks/usePayments";
 
 // ─── Composants réutilisables ─────────────────────────────────────────────────
+import { Modal, Button } from "../../../shared/components";
 import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
 import { DataTable } from "../../../shared/components/Table/DataTable";
 import { SearchBar } from "../../../shared/components/Forms/SearchBar";
@@ -1436,225 +1437,176 @@ export function PaymentsPage() {
       />
 
       {/* Modal Stripe — étape 1 : saisie des informations */}
-      {stripeSetup.isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="stripe-setup-title"
-          onClick={() => {
-            if (!stripeSetup.isLoading)
-              setStripeSetup((s) => ({ ...s, isOpen: false }));
-          }}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4"
-            onClick={(e) => e.stopPropagation()}
+      <Modal
+        isOpen={stripeSetup.isOpen}
+        onClose={() => setStripeSetup((s) => ({ ...s, isOpen: false }))}
+        size="md"
+        closeOnOverlayClick={!stripeSetup.isLoading}
+        closeOnEscape={!stripeSetup.isLoading}
+      >
+        <Modal.Header
+          title="Paiement par carte"
+          subtitle="Initier un paiement Stripe pour un membre du club."
+          showCloseButton
+          onClose={() => setStripeSetup((s) => ({ ...s, isOpen: false }))}
+        />
+
+        <Modal.Body>
+          <form
+            id="stripe-setup-form"
+            onSubmit={handleStripeSetupSubmit}
+            className="space-y-4"
           >
-            <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <h2
-                  id="stripe-setup-title"
-                  className="text-xl font-semibold text-gray-900"
-                >
-                  Paiement par carte
-                </h2>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setStripeSetup((s) => ({ ...s, isOpen: false }))
-                  }
-                  disabled={stripeSetup.isLoading}
-                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100
-                             transition-colors disabled:opacity-50"
-                  aria-label="Fermer"
-                >
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <p className="mt-1 text-sm text-gray-500">
-                Initier un paiement Stripe pour un membre du club.
-              </p>
+            {/* Membre */}
+            <div>
+              <label
+                htmlFor="stripe-user"
+                className="block text-sm font-medium text-gray-700 mb-1.5"
+              >
+                Membre <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="stripe-user"
+                required
+                value={stripeSetup.userId}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setStripeSetup((s) => ({ ...s, userId: e.target.value }))
+                }
+                disabled={stripeSetup.isLoading}
+                className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           disabled:bg-gray-50 transition-colors"
+              >
+                <option value="">— Sélectionner un membre —</option>
+                {userOptions.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.nom_complet}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            <form
-              onSubmit={handleStripeSetupSubmit}
-              className="px-6 py-5 space-y-4"
-            >
-              {/* Membre */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Membre <span className="text-red-500">*</span>
-                </label>
-                <select
-                  required
-                  value={stripeSetup.userId}
-                  onChange={(e) =>
-                    setStripeSetup((s) => ({ ...s, userId: e.target.value }))
-                  }
-                  disabled={stripeSetup.isLoading}
-                  className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white
-                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                             disabled:bg-gray-50 transition-colors"
-                >
-                  <option value="">— Sélectionner un membre —</option>
-                  {userOptions.map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.nom_complet}
+            {/* Montant */}
+            <div>
+              <label
+                htmlFor="stripe-montant"
+                className="block text-sm font-medium text-gray-700 mb-1.5"
+              >
+                Montant (€) <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="stripe-montant"
+                type="number"
+                min="0.5"
+                step="0.01"
+                placeholder="0,00"
+                required
+                value={stripeSetup.montant}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setStripeSetup((s) => ({ ...s, montant: e.target.value }))
+                }
+                disabled={stripeSetup.isLoading}
+                className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           disabled:bg-gray-50 transition-colors"
+              />
+            </div>
+
+            {/* Plan (optionnel) */}
+            <div>
+              <label
+                htmlFor="stripe-plan"
+                className="block text-sm font-medium text-gray-700 mb-1.5"
+              >
+                Plan tarifaire
+                <span className="ml-1 text-xs text-gray-400 font-normal">
+                  (optionnel)
+                </span>
+              </label>
+              <select
+                id="stripe-plan"
+                value={stripeSetup.planId}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setStripeSetup((s) => ({ ...s, planId: e.target.value }))
+                }
+                disabled={stripeSetup.isLoading}
+                className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           disabled:bg-gray-50 transition-colors"
+              >
+                <option value="">— Aucun plan —</option>
+                {plans
+                  .filter((p) => p.actif)
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nom} — {formatCurrency(p.prix)}
                     </option>
                   ))}
-                </select>
-              </div>
+              </select>
+            </div>
 
-              {/* Montant */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Montant (€) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  required
-                  min="0.5"
-                  step="0.01"
-                  placeholder="0,00"
-                  value={stripeSetup.montant}
-                  onChange={(e) =>
-                    setStripeSetup((s) => ({ ...s, montant: e.target.value }))
-                  }
-                  disabled={stripeSetup.isLoading}
-                  className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm
-                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                             disabled:bg-gray-50 transition-colors"
-                />
-              </div>
+            {/* Description */}
+            <div>
+              <label
+                htmlFor="stripe-description"
+                className="block text-sm font-medium text-gray-700 mb-1.5"
+              >
+                Description
+                <span className="ml-1 text-xs text-gray-400 font-normal">
+                  (optionnel)
+                </span>
+              </label>
+              <input
+                id="stripe-description"
+                type="text"
+                placeholder="Objet du paiement…"
+                value={stripeSetup.description}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setStripeSetup((s) => ({
+                    ...s,
+                    description: e.target.value,
+                  }))
+                }
+                disabled={stripeSetup.isLoading}
+                className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           disabled:bg-gray-50 transition-colors"
+              />
+            </div>
 
-              {/* Plan (optionnel) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Plan tarifaire
-                  <span className="ml-1 text-xs text-gray-400 font-normal">
-                    (optionnel)
-                  </span>
-                </label>
-                <select
-                  value={stripeSetup.planId}
-                  onChange={(e) =>
-                    setStripeSetup((s) => ({ ...s, planId: e.target.value }))
-                  }
-                  disabled={stripeSetup.isLoading}
-                  className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white
-                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                             disabled:bg-gray-50 transition-colors"
-                >
-                  <option value="">— Aucun plan —</option>
-                  {plans
-                    .filter((p) => p.actif)
-                    .map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.nom} — {formatCurrency(p.prix)}
-                      </option>
-                    ))}
-                </select>
+            {/* Erreur */}
+            {stripeSetup.error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                {stripeSetup.error}
               </div>
+            )}
+          </form>
+        </Modal.Body>
 
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Description
-                  <span className="ml-1 text-xs text-gray-400 font-normal">
-                    (optionnel)
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Objet du paiement…"
-                  value={stripeSetup.description}
-                  onChange={(e) =>
-                    setStripeSetup((s) => ({
-                      ...s,
-                      description: e.target.value,
-                    }))
-                  }
-                  disabled={stripeSetup.isLoading}
-                  className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm
-                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                             disabled:bg-gray-50 transition-colors"
-                />
-              </div>
-
-              {/* Erreur */}
-              {stripeSetup.error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-                  {stripeSetup.error}
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setStripeSetup((s) => ({ ...s, isOpen: false }))
-                  }
-                  disabled={stripeSetup.isLoading}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200
-                             rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  disabled={
-                    stripeSetup.isLoading ||
-                    !stripeSetup.userId ||
-                    !stripeSetup.montant
-                  }
-                  className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white
-                             bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors
-                             disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {stripeSetup.isLoading && (
-                    <svg
-                      className="animate-spin h-4 w-4 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                  )}
-                  {stripeSetup.isLoading
-                    ? "Création du paiement…"
-                    : "Continuer vers le paiement"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+        <Modal.Footer align="right">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setStripeSetup((s) => ({ ...s, isOpen: false }))}
+            disabled={stripeSetup.isLoading}
+          >
+            Annuler
+          </Button>
+          <Button
+            type="submit"
+            form="stripe-setup-form"
+            variant="primary"
+            loading={stripeSetup.isLoading}
+            disabled={
+              stripeSetup.isLoading ||
+              !stripeSetup.userId ||
+              !stripeSetup.montant
+            }
+          >
+            Continuer vers le paiement
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Modal Stripe — étape 2 : formulaire de carte */}
       <StripePaymentModal
