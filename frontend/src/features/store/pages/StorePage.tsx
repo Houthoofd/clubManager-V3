@@ -1623,7 +1623,7 @@ function ConfigurationTab() {
         isOpen={store.sizeModalOpen}
         onClose={store.closeSizeModal}
         size={store.editingSize ?? undefined}
-        onSubmit={async (data) => {
+        onSubmit={async (data: { nom: string; ordre?: number }) => {
           if (store.editingSize) {
             await updateSizeMutation.mutateAsync({
               id: store.editingSize.id,

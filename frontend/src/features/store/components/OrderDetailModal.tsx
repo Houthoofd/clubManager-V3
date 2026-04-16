@@ -2,9 +2,12 @@
  * OrderDetailModal
  * Modal pour afficher les détails d'une commande (lecture seule).
  * Avec actions admin optionnelles pour changer le statut.
+ * Utilise le composant Modal partagé pour la structure et la gestion des interactions.
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Modal } from "@/shared/components/Modal/Modal";
+import { BUTTON, cn } from "@/shared/styles/designTokens";
 import type { OrderWithItems } from "../api/storeApi";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 
@@ -73,24 +76,6 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 }) => {
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // ── Fermeture sur Escape ──────────────────────────────────────────────────
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !isUpdating) onClose();
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, isUpdating, onClose]);
-
-  // ── Bloquer le scroll du body ─────────────────────────────────────────────
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
   // ── Gestion du changement de statut ───────────────────────────────────────
   const handleStatusChange = async (newStatus: string) => {
     if (!onUpdateStatus) return;
@@ -105,7 +90,12 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
+  // ── Handler de fermeture (bloque si en mise à jour) ───────────────────────
+  const handleClose = () => {
+    if (!isUpdating) {
+      onClose();
+    }
+  };
 
   // Calcul du total
   const total = order.items.reduce(
@@ -127,62 +117,22 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
   // ── Rendu ─────────────────────────────────────────────────────────────────
   return (
-    <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="order-detail-title"
-      onClick={() => {
-        if (!isUpdating) onClose();
-      }}
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="2xl"
+      closeOnOverlayClick={!isUpdating}
+      closeOnEscape={!isUpdating}
     >
-      <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* ── En-tête ── */}
-        <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2
-                id="order-detail-title"
-                className="text-xl font-semibold text-gray-900"
-              >
-                Détails de la commande
-              </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                {order.numero_commande}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                if (!isUpdating) onClose();
-              }}
-              disabled={isUpdating}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100
-                         transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Fermer"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
+      <Modal.Header
+        title="Détails de la commande"
+        subtitle={order.numero_commande}
+        showCloseButton
+        onClose={handleClose}
+      />
 
-        {/* ── Contenu ── */}
-        <div className="px-6 py-5 space-y-6">
+      <Modal.Body>
+        <div className="space-y-6">
           {/* Informations générales */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -320,11 +270,17 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     type="button"
                     onClick={() => handleStatusChange("payee")}
                     disabled={isUpdating}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white
-                               bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm
-                               transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    className={cn(
+                      BUTTON.base,
+                      BUTTON.variant.primary,
+                      BUTTON.size.md,
+                    )}
                   >
-                    {isUpdating && <SpinnerIcon />}
+                    {isUpdating && (
+                      <span className="mr-2">
+                        <SpinnerIcon />
+                      </span>
+                    )}
                     Marquer comme payée
                   </button>
                 )}
@@ -333,11 +289,17 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     type="button"
                     onClick={() => handleStatusChange("expediee")}
                     disabled={isUpdating}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white
-                               bg-purple-600 hover:bg-purple-700 active:bg-purple-800 rounded-lg shadow-sm
-                               transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    className={cn(
+                      BUTTON.base,
+                      "text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 shadow-sm",
+                      BUTTON.size.md,
+                    )}
                   >
-                    {isUpdating && <SpinnerIcon />}
+                    {isUpdating && (
+                      <span className="mr-2">
+                        <SpinnerIcon />
+                      </span>
+                    )}
                     Marquer comme expédiée
                   </button>
                 )}
@@ -346,11 +308,17 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     type="button"
                     onClick={() => handleStatusChange("livree")}
                     disabled={isUpdating}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white
-                               bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-lg shadow-sm
-                               transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    className={cn(
+                      BUTTON.base,
+                      BUTTON.variant.success,
+                      BUTTON.size.md,
+                    )}
                   >
-                    {isUpdating && <SpinnerIcon />}
+                    {isUpdating && (
+                      <span className="mr-2">
+                        <SpinnerIcon />
+                      </span>
+                    )}
                     Marquer comme livrée
                   </button>
                 )}
@@ -359,11 +327,17 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     type="button"
                     onClick={() => handleStatusChange("annulee")}
                     disabled={isUpdating}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white
-                               bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-lg shadow-sm
-                               transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    className={cn(
+                      BUTTON.base,
+                      BUTTON.variant.danger,
+                      BUTTON.size.md,
+                    )}
                   >
-                    {isUpdating && <SpinnerIcon />}
+                    {isUpdating && (
+                      <span className="mr-2">
+                        <SpinnerIcon />
+                      </span>
+                    )}
                     Annuler la commande
                   </button>
                 )}
@@ -371,25 +345,18 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
             </div>
           )}
         </div>
+      </Modal.Body>
 
-        {/* ── Footer / Fermer ── */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl">
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => {
-                if (!isUpdating) onClose();
-              }}
-              disabled={isUpdating}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300
-                         hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors
-                         disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              Fermer
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+      <Modal.Footer className="bg-gray-50">
+        <button
+          type="button"
+          onClick={handleClose}
+          disabled={isUpdating}
+          className={cn(BUTTON.base, BUTTON.variant.outline, BUTTON.size.md)}
+        >
+          Fermer
+        </button>
+      </Modal.Footer>
+    </Modal>
   );
 };
