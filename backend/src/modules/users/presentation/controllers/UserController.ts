@@ -5,12 +5,14 @@
 
 import type { Response } from "express";
 import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
+import { UserRole } from "@clubmanager/types";
 import { GetUsersUseCase } from "../../application/use-cases/GetUsersUseCase.js";
 import { GetUserByIdUseCase } from "../../application/use-cases/GetUserByIdUseCase.js";
 import { UpdateUserRoleUseCase } from "../../application/use-cases/UpdateUserRoleUseCase.js";
 import { UpdateUserStatusUseCase } from "../../application/use-cases/UpdateUserStatusUseCase.js";
 import { SoftDeleteUserUseCase } from "../../application/use-cases/SoftDeleteUserUseCase.js";
 import { RestoreUserUseCase } from "../../application/use-cases/RestoreUserUseCase.js";
+import { UpdateUserLanguageUseCase } from "../../application/use-cases/UpdateUserLanguageUseCase.js";
 import { MySQLUserRepository } from "../../infrastructure/repositories/MySQLUserRepository.js";
 import { NotifyUsersUseCase } from "../../application/use-cases/NotifyUsersUseCase.js";
 
@@ -21,6 +23,7 @@ const updateRoleUC = new UpdateUserRoleUseCase(repo);
 const updateStatusUC = new UpdateUserStatusUseCase(repo);
 const softDeleteUC = new SoftDeleteUserUseCase(repo);
 const restoreUC = new RestoreUserUseCase(repo);
+const updateLanguageUC = new UpdateUserLanguageUseCase(repo);
 const notifyUsersUC = new NotifyUsersUseCase(repo);
 
 export class UserController {
@@ -33,14 +36,20 @@ export class UserController {
       const query = {
         search: req.query.search as string | undefined,
         role_app: req.query.role_app as string | undefined,
-        status_id: req.query.status_id ? Number(req.query.status_id) : undefined,
+        status_id: req.query.status_id
+          ? Number(req.query.status_id)
+          : undefined,
         page: req.query.page ? Number(req.query.page) : 1,
         limit: req.query.limit ? Number(req.query.limit) : 20,
       };
       const result = await getUsersUC.execute(query);
       res.json({ success: true, message: "Users retrieved", data: result });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message, error: "INTERNAL_ERROR" });
+      res.status(500).json({
+        success: false,
+        message: error.message,
+        error: "INTERNAL_ERROR",
+      });
     }
   }
 
@@ -83,8 +92,46 @@ export class UserController {
     try {
       const targetId = Number(req.params.id);
       const requesterId = req.user!.userId;
-      await updateStatusUC.execute(targetId, Number(req.body.status_id), requesterId);
+      await updateStatusUC.execute(
+        targetId,
+        Number(req.body.status_id),
+        requesterId,
+      );
       res.json({ success: true, message: "Statut mis à jour" });
+    } catch (error: any) {
+      const status = error.message.includes("introuvable") ? 404 : 400;
+      res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * PATCH /api/users/:id/language
+   * Met à jour la langue préférée d'un utilisateur
+   * Note : Un utilisateur ne peut modifier que sa propre langue (sauf admin)
+   */
+  async updateLanguage(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const targetUserId = Number(req.params.id);
+      const currentUserId = req.user!.userId;
+      const currentUserRole = req.user!.role_app;
+
+      // Vérification de sécurité : un utilisateur ne peut modifier que sa propre langue (sauf admin)
+      if (
+        targetUserId !== currentUserId &&
+        currentUserRole !== UserRole.ADMIN
+      ) {
+        res.status(403).json({
+          success: false,
+          message: "Vous ne pouvez modifier que votre propre langue préférée",
+        });
+        return;
+      }
+
+      await updateLanguageUC.execute({
+        userId: targetUserId,
+        langue_preferee: req.body.langue_preferee,
+      });
+      res.json({ success: true, message: "Langue préférée mise à jour" });
     } catch (error: any) {
       const status = error.message.includes("introuvable") ? 404 : 400;
       res.status(status).json({ success: false, message: error.message });
@@ -132,23 +179,28 @@ export class UserController {
       const { user_ids, sujet, contenu, envoye_par_email } = req.body;
 
       if (!Array.isArray(user_ids) || user_ids.length === 0) {
-        res.status(400).json({ success: false, message: "user_ids doit être un tableau non vide" });
+        res.status(400).json({
+          success: false,
+          message: "user_ids doit être un tableau non vide",
+        });
         return;
       }
 
       const result = await notifyUsersUC.execute({
         expediteur_id,
         user_ids: (user_ids as unknown[]).map(Number),
-        sujet: typeof sujet === "string" ? sujet.trim() || undefined : undefined,
+        sujet:
+          typeof sujet === "string" ? sujet.trim() || undefined : undefined,
         contenu,
         envoye_par_email: Boolean(envoye_par_email),
       });
 
       res.json({
         success: true,
-        message: result.errors > 0
-          ? `${result.sent} notification(s) envoyée(s), ${result.errors} erreur(s)`
-          : `${result.sent} notification(s) envoyée(s)`,
+        message:
+          result.errors > 0
+            ? `${result.sent} notification(s) envoyée(s), ${result.errors} erreur(s)`
+            : `${result.sent} notification(s) envoyée(s)`,
         data: result,
       });
     } catch (error: any) {

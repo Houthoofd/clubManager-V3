@@ -28,6 +28,7 @@ interface UserRow extends RowDataPacket {
   telephone?: string | null;
   adresse?: string | null;
   genre_id: number;
+  langue_preferee?: string | null;
   grade_id?: number | null;
   abonnement_id?: number | null;
   tuteur_id?: number | null;
@@ -59,6 +60,7 @@ interface UserListRow extends RowDataPacket {
   active: boolean;
   status_id: number;
   role_app: string | null;
+  langue_preferee: string | null;
   date_inscription: Date;
 }
 
@@ -131,6 +133,7 @@ export class MySQLUserRepository implements IUserRepository {
          u.active,
          u.status_id,
          u.role_app,
+         u.langue_preferee,
          u.date_inscription
        FROM utilisateurs u
        LEFT JOIN genres g  ON g.id  = u.genre_id
@@ -153,6 +156,7 @@ export class MySQLUserRepository implements IUserRepository {
       active: Boolean(row.active),
       status_id: row.status_id,
       role_app: row.role_app ?? undefined,
+      langue_preferee: row.langue_preferee ?? undefined,
       date_inscription: new Date(row.date_inscription).toISOString(),
     }));
 
@@ -204,6 +208,16 @@ export class MySQLUserRepository implements IUserRepository {
     await pool.query(
       "UPDATE utilisateurs SET status_id = ?, updated_at = NOW() WHERE id = ?",
       [status_id, id],
+    );
+  }
+
+  /**
+   * Met à jour la langue préférée d'un utilisateur
+   */
+  async updateLanguage(id: number, langue_preferee: string): Promise<void> {
+    await pool.query(
+      "UPDATE utilisateurs SET langue_preferee = ?, updated_at = NOW() WHERE id = ?",
+      [langue_preferee, id],
     );
   }
 
@@ -263,6 +277,7 @@ export class MySQLUserRepository implements IUserRepository {
       est_mineur: Boolean(row.est_mineur),
       peut_se_connecter: Boolean(row.peut_se_connecter),
       role_app: (row.role_app as UserRole) ?? UserRole.MEMBER,
+      langue_preferee: row.langue_preferee ?? undefined,
       photo_url: row.photo_url ?? undefined,
       deleted_at: row.deleted_at ? new Date(row.deleted_at) : null,
       deleted_by: row.deleted_by ?? null,
