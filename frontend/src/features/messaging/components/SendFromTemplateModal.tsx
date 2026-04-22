@@ -404,7 +404,7 @@ export const SendFromTemplateModal = ({
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                     Titre
                   </p>
-                  <p className="text-sm font-medium text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
+                  <p className="text-sm font-medium text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
                     {preview.titre}
                   </p>
                 </div>
@@ -434,7 +434,7 @@ export const SendFromTemplateModal = ({
                     <ExclamationTriangleIcon style={{ fontSize: "14px" }} />
                     Variables manquantes ({preview.missingVariables.length}) :
                   </p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {preview.missingVariables.map((v) => (
                       <code
                         key={v}
@@ -451,7 +451,7 @@ export const SendFromTemplateModal = ({
               )}
 
               {/* Info destinataire */}
-              <div className="text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-lg px-4 py-2.5 flex items-center gap-2">
+              <div className="text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 flex items-center gap-2">
                 <InfoCircleIcon
                   className="flex-shrink-0"
                   style={{ fontSize: "14px" }}

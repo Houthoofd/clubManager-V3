@@ -6,8 +6,7 @@
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Modal } from "@/shared/components/Modal/Modal";
-import { cn, BUTTON } from "@/shared/styles/designTokens";
+import { Modal, Button } from "../../../shared/components";
 import type { Category } from "../api/storeApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -23,34 +22,6 @@ export interface CategoryFormData {
   nom: string;
   description?: string;
   ordre?: number;
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function SpinnerIcon() {
-  return (
-    <svg
-      className="animate-spin h-4 w-4 text-white"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-  );
 }
 
 // ─── Composant ────────────────────────────────────────────────────────────────
@@ -143,7 +114,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               type="text"
               placeholder="Ex : Vêtements, Équipements, Accessoires…"
               disabled={isSubmitting}
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.nom ? "border-red-400" : "border-gray-300"
               }`}
               {...register("nom", {
@@ -179,7 +150,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               rows={3}
               placeholder="Décrivez le type d'articles dans cette catégorie…"
               disabled={isSubmitting}
-              className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors resize-none"
+              className="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors resize-y"
               {...register("description")}
             />
           </div>
@@ -190,7 +161,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               htmlFor="category-ordre"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Ordre d&apos;affichage
+              Ordre d'affichage
               <span className="ml-1 text-xs text-gray-400 font-normal">
                 (optionnel)
               </span>
@@ -202,7 +173,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               step="1"
               placeholder="0"
               disabled={isSubmitting}
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.ordre ? "border-red-400" : "border-gray-300"
               }`}
               {...register("ordre", {
@@ -223,31 +194,18 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
       </Modal.Body>
 
       <Modal.Footer align="right">
-        <button
-          type="button"
-          onClick={onClose}
-          disabled={isSubmitting}
-          className={cn(BUTTON.base, BUTTON.variant.secondary, BUTTON.size.md)}
-        >
+        <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
           Annuler
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
           form="category-form"
+          variant="primary"
+          loading={isSubmitting}
           disabled={isSubmitting}
-          className={cn(BUTTON.base, BUTTON.variant.primary, BUTTON.size.md)}
         >
-          {isSubmitting && (
-            <span className="mr-2">
-              <SpinnerIcon />
-            </span>
-          )}
-          {isSubmitting
-            ? "Enregistrement…"
-            : isEditMode
-              ? "Mettre à jour"
-              : "Créer la catégorie"}
-        </button>
+          {isEditMode ? "Mettre à jour" : "Créer la catégorie"}
+        </Button>
       </Modal.Footer>
     </Modal>
   );

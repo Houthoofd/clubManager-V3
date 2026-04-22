@@ -139,7 +139,7 @@ export const SizeModal: React.FC<SizeModalProps> = ({
               type="text"
               placeholder="Ex : XS, S, M, L, XL…"
               disabled={isSubmitting}
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.nom ? "border-red-400" : "border-gray-300"
               }`}
               {...register("nom", {
@@ -177,7 +177,7 @@ export const SizeModal: React.FC<SizeModalProps> = ({
               step="1"
               placeholder="0"
               disabled={isSubmitting}
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.ordre ? "border-red-400" : "border-gray-300"
               }`}
               {...register("ordre", {

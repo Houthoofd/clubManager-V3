@@ -436,7 +436,7 @@ const CategoryPanel = ({
           <button
             type="button"
             onClick={onNewType}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
           >
             <PlusCircleIcon style={{ fontSize: "16px" }} />
             Nouvelle catégorie
@@ -685,7 +685,7 @@ export const TemplatesTab = () => {
           <button
             type="button"
             onClick={() => setIsCategoryPanelOpen(true)}
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-gray-200 hover:border-blue-200"
+            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-gray-200 hover:border-blue-200"
           >
             <FolderOpenIcon style={{ fontSize: "16px" }} />
             Gérer les catégories
@@ -746,7 +746,7 @@ export const TemplatesTab = () => {
                 // Small delay to let panel open before triggering new type
                 setTimeout(() => handleNewType(), 100);
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
             >
               <FolderOpenIcon style={{ fontSize: "16px" }} />
               Créer une première catégorie

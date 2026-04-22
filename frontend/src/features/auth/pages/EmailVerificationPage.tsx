@@ -37,6 +37,7 @@ import { AuthPageContainer } from "@/shared/components/Auth/AuthPageContainer";
 import { AlertBanner } from "@/shared/components/Feedback/AlertBanner";
 import { LoadingSpinner } from "@/shared/components/Layout/LoadingSpinner";
 import { SubmitButton } from "@/shared/components/Button/SubmitButton";
+import { Button } from "@/shared/components/Button/Button";
 
 type VerificationState = "loading" | "success" | "error";
 
@@ -265,12 +266,13 @@ export const EmailVerificationPage = () => {
                 Renvoyer l'email de vérification
               </SubmitButton>
 
-              <button
+              <Button
+                variant="outline"
+                fullWidth
                 onClick={() => navigate("/login")}
-                className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               >
                 Retour à la connexion
-              </button>
+              </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit(onResend)} className="space-y-4">
@@ -316,14 +318,15 @@ export const EmailVerificationPage = () => {
                   Renvoyer l'email
                 </SubmitButton>
 
-                <button
+                <Button
+                  variant="outline"
+                  fullWidth
                   type="button"
                   onClick={() => setShowResendForm(false)}
                   disabled={isSubmitting}
-                  className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Annuler
-                </button>
+                </Button>
               </div>
             </form>
           )}

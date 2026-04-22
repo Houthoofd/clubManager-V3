@@ -21,7 +21,7 @@ import {
   type ResetPasswordInput,
 } from "@clubmanager/types";
 import { AuthPageContainer } from "@/shared/components/Auth";
-import { PasswordInput } from "@/shared/components/Input";
+import { PasswordInput } from "@/shared/components/Input/PasswordInput";
 import { FormField } from "@/shared/components/Forms";
 import { SubmitButton } from "@/shared/components/Button";
 import { AlertBanner } from "@/shared/components/Feedback";
@@ -320,3 +320,6 @@ export const ResetPasswordPage = () => {
     </AuthPageContainer>
   );
 };
+
+// Export par défaut pour compatibilité avec l'index
+export default ResetPasswordPage;

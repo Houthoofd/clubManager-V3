@@ -11,7 +11,8 @@ import { toast } from "sonner";
 import { InfoCircleIcon } from "@patternfly/react-icons";
 import { useFamily } from "../hooks/useFamily";
 import type { AddFamilyMemberDto } from "@clubmanager/types";
-import { Modal, Input, Button } from "../../../shared/components";
+import { Modal, Input, Button, FormField } from "../../../shared/components";
+import { FORM } from "../../../shared/styles/designTokens";
 
 // ─── Schéma de validation ────────────────────────────────────────────────────
 
@@ -138,66 +139,84 @@ export function AddFamilyMemberModal({
         >
           {/* Prénom / Nom (2 colonnes) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
+            <FormField
               id="first_name"
               label="Prénom"
-              type="text"
-              placeholder="Marie"
-              autoComplete="off"
               required
               error={errors.first_name?.message}
-              {...register("first_name")}
-            />
+            >
+              <Input
+                id="first_name"
+                type="text"
+                placeholder="Marie"
+                autoComplete="off"
+                {...register("first_name")}
+              />
+            </FormField>
 
-            <Input
+            <FormField
               id="last_name"
               label="Nom"
-              type="text"
-              placeholder="Dupont"
-              autoComplete="off"
               required
               error={errors.last_name?.message}
-              {...register("last_name")}
-            />
+            >
+              <Input
+                id="last_name"
+                type="text"
+                placeholder="Dupont"
+                autoComplete="off"
+                {...register("last_name")}
+              />
+            </FormField>
           </div>
 
           {/* Date de naissance */}
-          <Input
+          <FormField
             id="date_of_birth"
             label="Date de naissance"
-            type="date"
-            max={getTodayString()}
             required
             error={errors.date_of_birth?.message}
-            {...register("date_of_birth")}
-          />
+          >
+            <Input
+              id="date_of_birth"
+              type="date"
+              max={getTodayString()}
+              {...register("date_of_birth")}
+            />
+          </FormField>
 
           {/* Genre / Rôle (2 colonnes) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input.Select
+            <FormField
               id="genre_id"
               label="Genre"
               required
               error={errors.genre_id?.message}
-              {...register("genre_id")}
             >
-              <option value="">Sélectionner…</option>
-              <option value="1">Homme</option>
-              <option value="2">Femme</option>
-              <option value="3">Autre / Non spécifié</option>
-            </Input.Select>
+              <select
+                id="genre_id"
+                className={FORM.select}
+                {...register("genre_id")}
+              >
+                <option value="">Sélectionner…</option>
+                <option value="1">Homme</option>
+                <option value="2">Femme</option>
+                <option value="3">Autre / Non spécifié</option>
+              </select>
+            </FormField>
 
-            <Input.Select
+            <FormField
               id="role"
               label="Rôle"
               required
               error={errors.role?.message}
-              {...register("role")}
             >
-              <option value="enfant">Enfant</option>
-              <option value="conjoint">Conjoint(e)</option>
-              <option value="autre">Autre</option>
-            </Input.Select>
+              <select id="role" className={FORM.select} {...register("role")}>
+                <option value="enfant">Enfant</option>
+                <option value="conjoint">Conjoint(e)</option>
+                <option value="autre">Autre</option>
+              </select>
+            </FormField>
           </div>
         </form>
       </Modal.Body>

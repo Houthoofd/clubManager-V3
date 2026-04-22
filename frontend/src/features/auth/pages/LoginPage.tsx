@@ -139,7 +139,7 @@ export const LoginPage = () => {
       {/* Bandeau email non vérifié (custom car contient un lien avec icône) */}
       {emailNotVerified && (
         <div className="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
-          <p className="text-sm font-medium text-amber-800 mb-1 flex items-center gap-1.5">
+          <p className="text-sm font-medium text-amber-800 mb-1 flex items-center gap-2">
             <ExclamationTriangleIcon className="h-4 w-4 text-amber-600" />
             Adresse email non vérifiée
           </p>
@@ -151,7 +151,7 @@ export const LoginPage = () => {
             to="/resend-verification"
             className="text-sm font-medium text-amber-800 underline hover:text-amber-900 transition-colors"
           >
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-2">
               Renvoyer l'email de vérification
               <svg
                 className="h-3.5 w-3.5"

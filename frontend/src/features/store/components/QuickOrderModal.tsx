@@ -210,7 +210,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
             <select
               id="order-taille"
               disabled={isSubmitting}
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                           focus:outline-none focus:ring-2 focus:ring-blue-500
                           focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
                           transition-colors
@@ -273,7 +273,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
               disabled={
                 isSubmitting || !selectedTailleId || stockDisponible === 0
               }
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                           placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                           focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
                           transition-colors

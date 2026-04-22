@@ -413,7 +413,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                   return (
                     <div key={s.id} className="flex items-start">
                       {/* Circle + label */}
-                      <div className="flex flex-col items-center gap-1.5">
+                      <div className="flex flex-col items-center gap-2">
                         <div
                           className={[
                             "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 transition-colors",
@@ -581,7 +581,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                                       {groupUsers.map((u) => (
                                         <li
                                           key={u.id}
-                                          className="text-xs text-gray-600 flex items-center gap-1.5"
+                                          className="text-xs text-gray-600 flex items-center gap-2"
                                         >
                                           <span className="w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
                                           <span>

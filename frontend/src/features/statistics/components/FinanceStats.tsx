@@ -273,7 +273,7 @@ const Alert: React.FC<AlertProps> = ({ variant, title, children, onClose }) => {
           <div className="ml-auto pl-3">
             <button
               onClick={onClose}
-              className="inline-flex rounded-md p-1.5 hover:bg-black/5 focus:outline-none focus:ring-2 focus:ring-offset-2"
+              className="inline-flex rounded-lg p-1.5 hover:bg-black/5 focus:outline-none focus:ring-2 focus:ring-offset-2"
             >
               <XIcon className="h-5 w-5" />
             </button>

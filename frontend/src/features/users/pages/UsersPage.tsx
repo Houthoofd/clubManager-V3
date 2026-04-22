@@ -2,6 +2,10 @@
  * UsersPage
  * Page principale de gestion des utilisateurs.
  * Accessible aux admins et professeurs.
+ *
+ * ✅ Migré vers le design system partagé :
+ * - Modal, SelectField, SubmitButton
+ * - Code plus propre et maintenable
  */
 
 import { useState, useEffect, useRef } from "react";
@@ -16,15 +20,13 @@ import {
   CheckIcon,
   EnvelopeIcon,
   BellAlertIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 
 import { useUsers } from "../hooks/useUsers";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { UserRoleBadge } from "../components/UserRoleBadge";
 import { UserStatusBadge } from "../components/UserStatusBadge";
-import { EditUserRoleModal } from "../components/EditUserRoleModal";
-import { EditUserStatusModal } from "../components/EditUserStatusModal";
-import { DeleteUserModal } from "../components/DeleteUserModal";
 import { SendToUserModal } from "../components/SendToUserModal";
 import { NotifyUsersModal } from "../components/NotifyUsersModal";
 import { UserRole } from "@clubmanager/types";
@@ -34,6 +36,10 @@ import { PageHeader } from "@/shared/components/Layout/PageHeader";
 import { DataTable } from "@/shared/components/Table/DataTable";
 import { PaginationBar } from "@/shared/components/Navigation/PaginationBar";
 import { Input } from "@/shared/components/Input";
+import { Modal } from "@/shared/components/Modal/Modal";
+import { SelectField } from "@/shared/components/Forms/SelectField";
+import { SubmitButton } from "@/shared/components/Button/SubmitButton";
+import { Button } from "@/shared/components/Button/Button";
 
 // ─── Types état modal ─────────────────────────────────────────────────────────
 
@@ -45,6 +51,22 @@ type ModalState =
   | { type: "sendEmail"; user: UserListItemDto }
   | { type: "notifyBulk" };
 
+// ─── Configuration des options ────────────────────────────────────────────────
+
+const roleOptions = [
+  { value: UserRole.ADMIN, label: "Admin" },
+  { value: UserRole.PROFESSOR, label: "Professeur" },
+  { value: UserRole.MEMBER, label: "Membre" },
+];
+
+const statusOptions = [
+  { value: 1, label: "Actif" },
+  { value: 2, label: "Inactif" },
+  { value: 3, label: "Suspendu" },
+  { value: 4, label: "En attente" },
+  { value: 5, label: "Archivé" },
+];
+
 // ─── Composant ────────────────────────────────────────────────────────────────
 
 /**
@@ -53,7 +75,7 @@ type ModalState =
  * Fonctionnalités :
  * - Liste paginée avec filtres (recherche, rôle, statut)
  * - Debounce 300 ms sur la recherche textuelle
- * - Modification du rôle et du statut via modals
+ * - Modification du rôle et du statut via modals partagées
  * - Suppression avec raison (admin uniquement)
  * - Restauration d'un compte archivé (admin uniquement)
  * - Notifications sonner sur succès / erreur
@@ -85,6 +107,13 @@ export function UsersPage() {
   // ── État des modals ───────────────────────────────────────────────────────
   const [modal, setModal] = useState<ModalState>({ type: "none" });
 
+  // ── État des formulaires ──────────────────────────────────────────────────
+  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [selectedStatusId, setSelectedStatusId] = useState<number>(1);
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteReasonTouched, setDeleteReasonTouched] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // ── Propagation de l'erreur du store vers le toast ────────────────────────
   useEffect(() => {
     if (error) {
@@ -111,15 +140,33 @@ export function UsersPage() {
     setSearchInput(filters.search);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Initialisation des états lors de l'ouverture d'une modal ──────────────
+  useEffect(() => {
+    if (modal.type === "editRole") {
+      setSelectedRole(modal.user.role_app ?? "member");
+      setIsSubmitting(false);
+    } else if (modal.type === "editStatus") {
+      setSelectedStatusId(modal.user.status_id);
+      setIsSubmitting(false);
+    } else if (modal.type === "delete") {
+      setDeleteReason("");
+      setDeleteReasonTouched(false);
+      setIsSubmitting(false);
+    }
+  }, [modal]);
+
   // ── Handlers modals ───────────────────────────────────────────────────────
 
-  const handleRoleConfirm = async (role: string) => {
+  const handleRoleSubmit = async () => {
     if (modal.type !== "editRole") return;
+
+    setIsSubmitting(true);
     try {
-      await updateUserRole(modal.user.id, role);
+      await updateUserRole(modal.user.id, selectedRole);
       toast.success("Rôle mis à jour", {
         description: `Le rôle de ${modal.user.first_name} ${modal.user.last_name} a été modifié.`,
       });
+      closeModal();
     } catch (err: any) {
       toast.error("Erreur", {
         description:
@@ -127,17 +174,21 @@ export function UsersPage() {
           err.message ??
           "Impossible de modifier le rôle.",
       });
-      throw err;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleStatusConfirm = async (statusId: number) => {
+  const handleStatusSubmit = async () => {
     if (modal.type !== "editStatus") return;
+
+    setIsSubmitting(true);
     try {
-      await updateUserStatus(modal.user.id, statusId);
+      await updateUserStatus(modal.user.id, selectedStatusId);
       toast.success("Statut mis à jour", {
         description: `Le statut de ${modal.user.first_name} ${modal.user.last_name} a été modifié.`,
       });
+      closeModal();
     } catch (err: any) {
       toast.error("Erreur", {
         description:
@@ -145,17 +196,25 @@ export function UsersPage() {
           err.message ??
           "Impossible de modifier le statut.",
       });
-      throw err;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteConfirm = async (reason: string) => {
+  const handleDeleteSubmit = async () => {
     if (modal.type !== "delete") return;
+
+    setDeleteReasonTouched(true);
+    const trimmedReason = deleteReason.trim();
+    if (trimmedReason.length < 5) return;
+
+    setIsSubmitting(true);
     try {
-      await deleteUser(modal.user.id, reason);
+      await deleteUser(modal.user.id, trimmedReason);
       toast.success("Utilisateur supprimé", {
         description: `${modal.user.first_name} ${modal.user.last_name} a été supprimé.`,
       });
+      closeModal();
     } catch (err: any) {
       toast.error("Erreur", {
         description:
@@ -163,7 +222,8 @@ export function UsersPage() {
           err.message ??
           "Impossible de supprimer l'utilisateur.",
       });
-      throw err;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -294,7 +354,7 @@ export function UsersPage() {
             type="button"
             onClick={() => setModal({ type: "editRole", user: row })}
             title="Modifier le rôle"
-            className="p-1.5 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50
+            className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50
                        transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <TagIcon className="h-4 w-4" />
@@ -305,7 +365,7 @@ export function UsersPage() {
             type="button"
             onClick={() => setModal({ type: "editStatus", user: row })}
             title="Modifier le statut"
-            className="p-1.5 rounded-md text-gray-500 hover:text-indigo-600 hover:bg-indigo-50
+            className="p-1.5 rounded-lg text-gray-500 hover:text-indigo-600 hover:bg-indigo-50
                        transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
             <PencilIcon className="h-4 w-4" />
@@ -316,7 +376,7 @@ export function UsersPage() {
             <button
               type="button"
               onClick={() => setModal({ type: "sendEmail", user: row })}
-              className="p-1.5 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+              className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
               title={`Envoyer un message à ${row.first_name} ${row.last_name}`}
               aria-label={`Envoyer un message à ${row.first_name} ${row.last_name}`}
             >
@@ -330,7 +390,7 @@ export function UsersPage() {
               type="button"
               onClick={() => setModal({ type: "delete", user: row })}
               title="Supprimer l'utilisateur"
-              className="p-1.5 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50
+              className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50
                          transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
             >
               <TrashIcon className="h-4 w-4" />
@@ -343,7 +403,7 @@ export function UsersPage() {
               type="button"
               onClick={() => handleRestore(row)}
               title="Restaurer le compte"
-              className="p-1.5 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50
+              className="p-1.5 rounded-lg text-gray-500 hover:text-green-600 hover:bg-green-50
                          transition-colors focus:outline-none focus:ring-2 focus:ring-green-400"
             >
               <ArrowPathIcon className="h-4 w-4" />
@@ -353,6 +413,11 @@ export function UsersPage() {
       ),
     },
   ];
+
+  // ── Validation du formulaire de suppression ───────────────────────────────
+  const trimmedDeleteReason = deleteReason.trim();
+  const isDeleteReasonValid = trimmedDeleteReason.length >= 5;
+  const showDeleteError = deleteReasonTouched && !isDeleteReasonValid;
 
   // ── Rendu ─────────────────────────────────────────────────────────────────
 
@@ -386,7 +451,7 @@ export function UsersPage() {
           <select
             value={filters.role_app}
             onChange={(e) => setFilter("role_app", e.target.value)}
-            className="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white
+            className="px-3 py-3 border border-gray-300 rounded-lg text-sm bg-white
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        transition-colors min-w-[140px]"
           >
@@ -400,7 +465,7 @@ export function UsersPage() {
           <select
             value={filters.status_id}
             onChange={(e) => setFilter("status_id", e.target.value)}
-            className="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white
+            className="px-3 py-3 border border-gray-300 rounded-lg text-sm bg-white
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        transition-colors min-w-[150px]"
           >
@@ -457,49 +522,188 @@ export function UsersPage() {
 
       {/* ── Modals ── */}
 
-      {/* Modifier le rôle */}
-      <EditUserRoleModal
-        userId={modal.type === "editRole" ? modal.user.id : 0}
-        currentRole={
-          modal.type === "editRole"
-            ? (modal.user.role_app ?? "member")
-            : "member"
-        }
-        isOpen={modal.type === "editRole"}
-        onClose={closeModal}
-        onConfirm={handleRoleConfirm}
-      />
+      {/* Modal : Modifier le rôle */}
+      <Modal isOpen={modal.type === "editRole"} onClose={closeModal} size="sm">
+        <Modal.Header
+          title="Modifier le rôle"
+          showCloseButton
+          onClose={closeModal}
+        />
+        <Modal.Body>
+          <SelectField
+            id="role-select"
+            label="Rôle applicatif"
+            options={roleOptions}
+            value={selectedRole}
+            onChange={(value) => setSelectedRole(String(value))}
+            required
+          />
+        </Modal.Body>
+        <Modal.Footer align="right">
+          <Button
+            variant="outline"
+            onClick={closeModal}
+            disabled={isSubmitting}
+          >
+            Annuler
+          </Button>
+          <SubmitButton
+            isLoading={isSubmitting}
+            loadingText="Enregistrement…"
+            onClick={handleRoleSubmit}
+            type="button"
+            disabled={
+              isSubmitting ||
+              (modal.type === "editRole" &&
+                selectedRole === modal.user.role_app)
+            }
+          >
+            Confirmer
+          </SubmitButton>
+        </Modal.Footer>
+      </Modal>
 
-      {/* Modifier le statut */}
-      <EditUserStatusModal
-        userId={modal.type === "editStatus" ? modal.user.id : 0}
-        currentStatusId={modal.type === "editStatus" ? modal.user.status_id : 1}
+      {/* Modal : Modifier le statut */}
+      <Modal
         isOpen={modal.type === "editStatus"}
         onClose={closeModal}
-        onConfirm={handleStatusConfirm}
-      />
+        size="sm"
+      >
+        <Modal.Header
+          title="Modifier le statut"
+          showCloseButton
+          onClose={closeModal}
+        />
+        <Modal.Body>
+          <SelectField
+            id="status-select"
+            label="Statut du compte"
+            options={statusOptions}
+            value={selectedStatusId}
+            onChange={(value) => setSelectedStatusId(Number(value))}
+            required
+          />
+        </Modal.Body>
+        <Modal.Footer align="right">
+          <Button
+            variant="outline"
+            onClick={closeModal}
+            disabled={isSubmitting}
+          >
+            Annuler
+          </Button>
+          <SubmitButton
+            isLoading={isSubmitting}
+            loadingText="Enregistrement…"
+            onClick={handleStatusSubmit}
+            type="button"
+            disabled={
+              isSubmitting ||
+              (modal.type === "editStatus" &&
+                selectedStatusId === modal.user.status_id)
+            }
+          >
+            Confirmer
+          </SubmitButton>
+        </Modal.Footer>
+      </Modal>
 
-      {/* Supprimer */}
-      <DeleteUserModal
-        userId={modal.type === "delete" ? modal.user.id : 0}
-        userName={
-          modal.type === "delete"
-            ? `${modal.user.first_name} ${modal.user.last_name}`
-            : ""
-        }
-        isOpen={modal.type === "delete"}
-        onClose={closeModal}
-        onConfirm={handleDeleteConfirm}
-      />
+      {/* Modal : Supprimer l'utilisateur */}
+      <Modal isOpen={modal.type === "delete"} onClose={closeModal} size="md">
+        <Modal.Header
+          title="Supprimer l'utilisateur"
+          showCloseButton
+          onClose={closeModal}
+        />
+        <Modal.Body>
+          {/* Avertissement */}
+          <div className="mb-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+            <div className="flex items-start gap-3">
+              <ExclamationTriangleIcon className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-red-700 leading-relaxed">
+                <p>
+                  Vous êtes sur le point de supprimer le compte de{" "}
+                  <span className="font-semibold">
+                    {modal.type === "delete" &&
+                      `${modal.user.first_name} ${modal.user.last_name}`}
+                  </span>
+                  .
+                </p>
+                <p className="mt-1">
+                  Cette action est{" "}
+                  <span className="font-semibold">irréversible</span>.
+                  L'utilisateur n'aura plus accès à son compte.
+                </p>
+              </div>
+            </div>
+          </div>
 
-      {/* Envoyer un email à un utilisateur */}
+          {/* Champ raison */}
+          <div>
+            <label
+              htmlFor="delete-reason"
+              className="block text-sm font-medium text-gray-700 mb-1.5"
+            >
+              Raison de la suppression <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="delete-reason"
+              rows={3}
+              value={deleteReason}
+              onChange={(e) => setDeleteReason(e.target.value)}
+              onBlur={() => setDeleteReasonTouched(true)}
+              disabled={isSubmitting}
+              placeholder="Décrivez la raison de cette suppression (min. 5 caractères)…"
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm resize-none
+                          placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors
+                          disabled:bg-gray-50 disabled:cursor-not-allowed
+                          ${
+                            showDeleteError
+                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                              : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                          }`}
+            />
+            {showDeleteError && (
+              <p className="mt-1.5 text-xs text-red-600">
+                La raison doit contenir au moins 5 caractères.
+              </p>
+            )}
+            {!showDeleteError && (
+              <p className="mt-1.5 text-xs text-gray-400">
+                {trimmedDeleteReason.length} / 5 caractères minimum
+              </p>
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer align="right">
+          <Button
+            variant="outline"
+            onClick={closeModal}
+            disabled={isSubmitting}
+          >
+            Annuler
+          </Button>
+          <SubmitButton
+            isLoading={isSubmitting}
+            loadingText="Suppression…"
+            onClick={handleDeleteSubmit}
+            type="button"
+            variant="danger"
+            disabled={isSubmitting}
+          >
+            Supprimer
+          </SubmitButton>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal : Envoyer un email à un utilisateur */}
       <SendToUserModal
         user={modal.type === "sendEmail" ? modal.user : null}
         isOpen={modal.type === "sendEmail"}
         onClose={closeModal}
       />
 
-      {/* Notification en masse */}
+      {/* Modal : Notification en masse */}
       <NotifyUsersModal
         isOpen={modal.type === "notifyBulk"}
         onClose={closeModal}

@@ -6,7 +6,7 @@
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Modal, Input, Button } from "../../../shared/components";
+import { Modal, Button } from "../../../shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -144,87 +144,132 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
           className="space-y-5"
         >
           {/* Nom */}
-          <Input
-            id="article-nom"
-            label="Nom de l'article"
-            type="text"
-            placeholder="Ex : T-shirt, Casquette, Gourde…"
-            disabled={isSubmitting}
-            required
-            error={errors.nom?.message}
-            {...register("nom", {
-              required: "Le nom de l'article est requis.",
-              minLength: {
-                value: 2,
-                message: "Le nom doit comporter au moins 2 caractères.",
-              },
-              maxLength: {
-                value: 100,
-                message: "Le nom ne peut pas dépasser 100 caractères.",
-              },
-            })}
-          />
+          <div>
+            <label
+              htmlFor="article-nom"
+              className="block text-sm font-medium text-gray-700 mb-1.5"
+            >
+              Nom de l'article <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="article-nom"
+              type="text"
+              placeholder="Ex : T-shirt, Casquette, Gourde…"
+              disabled={isSubmitting}
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
+                errors.nom ? "border-red-400" : "border-gray-300"
+              }`}
+              {...register("nom", {
+                required: "Le nom de l'article est requis.",
+                minLength: {
+                  value: 2,
+                  message: "Le nom doit comporter au moins 2 caractères.",
+                },
+                maxLength: {
+                  value: 100,
+                  message: "Le nom ne peut pas dépasser 100 caractères.",
+                },
+              })}
+            />
+            {errors.nom && (
+              <p className="mt-1 text-xs text-red-600">{errors.nom.message}</p>
+            )}
+          </div>
 
           {/* Prix */}
-          <Input
-            id="article-prix"
-            label="Prix (€)"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0,00"
-            disabled={isSubmitting}
-            required
-            error={errors.prix?.message}
-            {...register("prix", {
-              required: "Le prix est requis.",
-              min: {
-                value: 0,
-                message: "Le prix doit être supérieur ou égal à 0.",
-              },
-              valueAsNumber: true,
-            })}
-          />
+          <div>
+            <label
+              htmlFor="article-prix"
+              className="block text-sm font-medium text-gray-700 mb-1.5"
+            >
+              Prix (€) <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="article-prix"
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="0,00"
+              disabled={isSubmitting}
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
+                errors.prix ? "border-red-400" : "border-gray-300"
+              }`}
+              {...register("prix", {
+                required: "Le prix est requis.",
+                min: {
+                  value: 0,
+                  message: "Le prix doit être supérieur ou égal à 0.",
+                },
+                valueAsNumber: true,
+              })}
+            />
+            {errors.prix && (
+              <p className="mt-1 text-xs text-red-600">{errors.prix.message}</p>
+            )}
+          </div>
 
           {/* Catégorie */}
-          {/* @ts-ignore - Type issue with compound component */}
-          <Input.Select
-            id="article-categorie"
-            label="Catégorie"
-            disabled={isSubmitting}
-            helperText="(optionnel)"
-            options={[
-              { value: "", label: "Aucune catégorie" },
-              ...categories.map((cat) => ({
-                value: cat.id,
-                label: cat.nom,
-              })),
-            ]}
-            {...register("categorie_id", {
-              setValueAs: (v) => (v === "" ? undefined : Number(v)),
-            })}
-          />
+          <div>
+            <label
+              htmlFor="article-categorie"
+              className="block text-sm font-medium text-gray-700 mb-1.5"
+            >
+              Catégorie
+              <span className="ml-1 text-xs text-gray-400 font-normal">
+                (optionnel)
+              </span>
+            </label>
+            <select
+              id="article-categorie"
+              disabled={isSubmitting}
+              className="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
+              {...register("categorie_id", {
+                setValueAs: (v) => (v === "" ? undefined : Number(v)),
+              })}
+            >
+              <option value="">Aucune catégorie</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.nom}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Description */}
-          {/* @ts-ignore - Type issue with compound component */}
-          <Input.Textarea
-            id="article-description"
-            label="Description"
-            rows={3}
-            placeholder="Décrivez l'article…"
-            disabled={isSubmitting}
-            helperText="(optionnel)"
-            {...register("description")}
-          />
+          <div>
+            <label
+              htmlFor="article-description"
+              className="block text-sm font-medium text-gray-700 mb-1.5"
+            >
+              Description
+              <span className="ml-1 text-xs text-gray-400 font-normal">
+                (optionnel)
+              </span>
+            </label>
+            <textarea
+              id="article-description"
+              rows={3}
+              placeholder="Décrivez l'article…"
+              disabled={isSubmitting}
+              className="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors resize-y"
+              {...register("description")}
+            />
+          </div>
 
           {/* Actif */}
-          {/* @ts-ignore - Type issue with compound component */}
-          <Input.Checkbox
-            id="article-actif"
-            label="Article actif (visible dans le catalogue)"
-            disabled={isSubmitting}
-            {...register("actif")}
-          />
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="article-actif"
+              disabled={isSubmitting}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed"
+              {...register("actif")}
+            />
+            <label htmlFor="article-actif" className="text-sm text-gray-700">
+              Article actif (visible dans le catalogue)
+            </label>
+          </div>
         </form>
       </Modal.Body>
 

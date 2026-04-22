@@ -194,7 +194,7 @@ export function FamilyMemberCard({
 
       {/* ── Informations détaillées ── */}
       <dl className="text-sm text-gray-600 space-y-1">
-        <div className="flex gap-1.5">
+        <div className="flex gap-2">
           <dt className="font-medium text-gray-500 flex-shrink-0">Âge :</dt>
           <dd>
             {age} an{age > 1 ? "s" : ""}
@@ -202,7 +202,7 @@ export function FamilyMemberCard({
         </div>
 
         {member.grade?.nom && (
-          <div className="flex gap-1.5">
+          <div className="flex gap-2">
             <dt className="font-medium text-gray-500 flex-shrink-0">Grade :</dt>
             <dd>{member.grade.nom}</dd>
           </div>
@@ -217,7 +217,7 @@ export function FamilyMemberCard({
             onClick={handleRemove}
             disabled={isRemoving}
             aria-label={`Retirer ${member.first_name} ${member.last_name} de la famille`}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 active:bg-red-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 active:bg-red-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isRemoving ? (
               <>

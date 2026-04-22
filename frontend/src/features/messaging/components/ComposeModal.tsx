@@ -12,7 +12,8 @@ import type { SendMessagePayload } from "../api/messagingApi";
 import { getTemplates } from "../api/templatesApi";
 import type { Template } from "../api/templatesApi";
 import { PaperPlaneIcon, PficonTemplateIcon } from "@patternfly/react-icons";
-import { Modal, Input, Button } from "../../../shared/components";
+import { Modal, Input, Button, FormField } from "../../../shared/components";
+import { FORM } from "../../../shared/styles/designTokens";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -254,7 +255,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                             key={t.id}
                             type="button"
                             onClick={() => handleSelectTemplate(t)}
-                            className="w-full text-left px-3 py-2.5 hover:bg-blue-50 transition-colors border-b border-gray-50 last:border-0 group"
+                            className="w-full text-left px-3 py-3 hover:bg-blue-50 transition-colors border-b border-gray-50 last:border-0 group"
                           >
                             <p className="text-sm font-medium text-gray-800 group-hover:text-blue-700 truncate">
                               {t.titre}
@@ -329,93 +330,113 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
             {/* Champ ID utilisateur */}
             {recipientType === "user" && (
               <div className="mt-3">
-                <Input
+                <FormField
                   id="destinataire-id"
-                  type="number"
                   label="ID numérique de l'utilisateur"
-                  value={destinataireId}
-                  onChange={(e) => {
-                    setDestinatarioId(e.target.value);
-                    if (errors.destinataire) {
-                      setErrors((prev) => {
-                        const next = { ...prev };
-                        delete next.destinataire;
-                        return next;
-                      });
-                    }
-                  }}
-                  placeholder="Entrez l'ID numérique de l'utilisateur"
-                  error={errors.destinataire}
                   required
-                />
+                  error={errors.destinataire}
+                >
+                  <Input
+                    id="destinataire-id"
+                    type="number"
+                    value={destinataireId}
+                    onChange={(e) => {
+                      setDestinatarioId(e.target.value);
+                      if (errors.destinataire) {
+                        setErrors((prev) => {
+                          const next = { ...prev };
+                          delete next.destinataire;
+                          return next;
+                        });
+                      }
+                    }}
+                    placeholder="Entrez l'ID numérique de l'utilisateur"
+                  />
+                </FormField>
               </div>
             )}
 
             {/* Sélecteur de rôle */}
             {recipientType === "role" && (
               <div className="mt-3">
-                <Input.Select
-                  id="role-cible"
-                  label="Rôle cible"
-                  value={roleCible}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    setRoleCible(e.target.value as RoleCible)
-                  }
-                  options={[
-                    { value: "member", label: "Membres" },
-                    { value: "professor", label: "Professeurs" },
-                    { value: "admin", label: "Admins" },
-                  ]}
-                />
+                <FormField id="role-cible" label="Rôle cible">
+                  <select
+                    id="role-cible"
+                    className={FORM.select}
+                    value={roleCible}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      setRoleCible(e.target.value as RoleCible)
+                    }
+                  >
+                    <option value="member">Membres</option>
+                    <option value="professor">Professeurs</option>
+                    <option value="admin">Admins</option>
+                  </select>
+                </FormField>
               </div>
             )}
           </fieldset>
 
           {/* ── Sujet (optionnel) ── */}
-          <Input
-            id="sujet"
-            type="text"
-            label="Sujet"
-            value={sujet}
-            onChange={(e) => setSujet(e.target.value)}
-            placeholder="Objet du message"
-            maxLength={200}
-            helperText="Optionnel"
-          />
+          <FormField id="sujet" label="Sujet" helpText="Optionnel">
+            <Input
+              id="sujet"
+              type="text"
+              value={sujet}
+              onChange={(e) => setSujet(e.target.value)}
+              placeholder="Objet du message"
+              maxLength={200}
+            />
+          </FormField>
 
           {/* ── Contenu ── */}
-          <Input.Textarea
+          <FormField
             id="contenu"
             label="Message"
-            value={contenu}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-              setContenu(e.target.value);
-              if (errors.contenu) {
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.contenu;
-                  return next;
-                });
-              }
-            }}
-            placeholder="Écrivez votre message ici…"
-            rows={6}
-            maxLength={2000}
-            showCharCount
-            error={errors.contenu}
             required
-          />
+            error={errors.contenu}
+          >
+            <div className="relative">
+              <textarea
+                id="contenu"
+                className={FORM.select}
+                value={contenu}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                  setContenu(e.target.value);
+                  if (errors.contenu) {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.contenu;
+                      return next;
+                    });
+                  }
+                }}
+                placeholder="Écrivez votre message ici…"
+                rows={6}
+                maxLength={2000}
+              />
+              <div className="mt-1 text-right text-xs text-gray-500">
+                {contenu.length} / 2000
+              </div>
+            </div>
+          </FormField>
 
           {/* ── Envoi par email (admin/professor seulement) ── */}
           {canBroadcast && (
-            <Input.Checkbox
-              id="envoye-par-email"
-              label="Envoyer aussi par email"
-              checked={envoyeParEmail}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEnvoyeParEmail(e.target.checked)
-              }
-            />
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                id="envoye-par-email"
+                className={FORM.checkbox}
+                checked={envoyeParEmail}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEnvoyeParEmail(e.target.checked)
+                }
+              />
+              <span className="text-sm text-gray-700">
+                Envoyer aussi par email
+              </span>
+            </label>
           )}
         </form>
       </Modal.Body>

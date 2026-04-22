@@ -194,7 +194,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
           <select
             value={preset}
             onChange={handlePresetSelect}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pl-3 pr-10 bg-white"
+            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pl-3 pr-10 bg-white"
             style={{ minWidth: isCompact ? "180px" : "220px" }}
           >
             {PRESET_OPTIONS.map((option) => (
@@ -209,7 +209,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
         {preset === "custom" && !showCustomDates && (
           <button
             onClick={() => setShowCustomDates(true)}
-            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
           >
             <CalendarIcon className="w-4 h-4" />
             {formatDateRange(dateDebut, dateFin)}
@@ -222,7 +222,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
             <select
               value={periodType}
               onChange={handlePeriodTypeSelect}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pl-3 pr-10 bg-white"
+              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pl-3 pr-10 bg-white"
               style={{ minWidth: isCompact ? "140px" : "160px" }}
             >
               {PERIOD_TYPE_OPTIONS.map((option) => (
@@ -239,7 +239,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
           <button
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <RefreshIcon
               className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
@@ -276,7 +276,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
                 id="start-date"
                 value={tempStartDate}
                 onChange={(e) => setTempStartDate(e.target.value)}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
               />
             </div>
 
@@ -293,7 +293,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
                 value={tempEndDate}
                 onChange={(e) => setTempEndDate(e.target.value)}
                 min={tempStartDate}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
               />
             </div>
           </div>
@@ -301,13 +301,13 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
           <div className="flex gap-2">
             <button
               onClick={handleApplyCustomDates}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
               Appliquer
             </button>
             <button
               onClick={handleCancelCustomDates}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
               Annuler
             </button>

@@ -15,6 +15,15 @@ export type {
   InputType,
 } from "./Input";
 
+// Ré-exporter les sous-composants pour TypeScript
+// Permet d'utiliser Input.Select, Input.Textarea, etc. avec le bon typage
+import { Input as InputWithSubComponents } from "./Input";
+
+export const Select = InputWithSubComponents.Select;
+export const Textarea = InputWithSubComponents.Textarea;
+export const Checkbox = InputWithSubComponents.Checkbox;
+export const Radio = InputWithSubComponents.Radio;
+
 /**
  * @deprecated FormInput is deprecated. Use FormField + Input instead.
  *
@@ -43,3 +52,6 @@ export type { FormInputProps } from "./FormInput";
 
 export { PasswordInput } from "./PasswordInput";
 export type { PasswordInputProps } from "./PasswordInput";
+
+export { PasswordRequirements } from "./PasswordRequirements";
+export type { PasswordRequirementsProps } from "./PasswordRequirements";

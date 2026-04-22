@@ -322,7 +322,7 @@ export const TemplateEditorModal = ({
                 {autoVars.map((v) => (
                   <div
                     key={v}
-                    className="flex items-center gap-1.5 bg-white border border-green-200 rounded-lg px-2.5 py-1.5 shadow-sm"
+                    className="flex items-center gap-2 bg-white border border-green-200 rounded-lg px-2.5 py-1.5 shadow-sm"
                   >
                     <CheckCircleIcon
                       className="text-green-600"
@@ -337,7 +337,7 @@ export const TemplateEditorModal = ({
                 {manualVars.map((v) => (
                   <div
                     key={v}
-                    className="flex items-center gap-1.5 bg-white border border-orange-200 rounded-lg px-2.5 py-1.5 shadow-sm"
+                    className="flex items-center gap-2 bg-white border border-orange-200 rounded-lg px-2.5 py-1.5 shadow-sm"
                   >
                     <PencilAltIcon
                       className="text-orange-500"
@@ -364,7 +364,7 @@ export const TemplateEditorModal = ({
           )}
 
           {detectedVars.length === 0 && contenu.trim() !== "" && (
-            <p className="text-xs text-gray-400 flex items-center gap-1.5">
+            <p className="text-xs text-gray-400 flex items-center gap-2">
               <InfoCircleIcon style={{ fontSize: "12px" }} />
               Aucune variable détectée. Utilisez{" "}
               <code className="bg-gray-100 px-1 rounded font-mono">{`{{prenom}}`}</code>

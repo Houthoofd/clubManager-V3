@@ -154,7 +154,7 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
       )}
 
       {/* ── Message de sécurité ── */}
-      <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400 pt-2">
+      <div className="flex items-center justify-center gap-2 text-xs text-gray-400 pt-2">
         <svg
           className="h-3.5 w-3.5"
           fill="none"

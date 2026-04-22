@@ -123,7 +123,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
               type="text"
               placeholder="Ex : Abonnement mensuel, Pass annuel…"
               disabled={isSubmitting}
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                           placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                           focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
                           transition-colors
@@ -162,7 +162,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
                 min="0.01"
                 placeholder="0,00"
                 disabled={isSubmitting}
-                className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm
+                className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                             placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                             focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
                             transition-colors
@@ -198,7 +198,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
                 step="1"
                 placeholder="1"
                 disabled={isSubmitting}
-                className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm
+                className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                             placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                             focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
                             transition-colors
@@ -236,7 +236,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
               rows={3}
               placeholder="Décrivez les avantages ou conditions de ce plan…"
               disabled={isSubmitting}
-              className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm
+              className="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm text-sm
                          placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                          focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
                          transition-colors resize-none"

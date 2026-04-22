@@ -210,7 +210,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
               step="1"
               placeholder="Ex : +10, -5"
               disabled={isSubmitting}
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                           placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                           focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
                           transition-colors
@@ -255,7 +255,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
               rows={3}
               placeholder="Ex : Inventaire, Perte, Réception commande…"
               disabled={isSubmitting}
-              className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm
+              className="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm text-sm
                          placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                          focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
                          transition-colors resize-none"
