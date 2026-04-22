@@ -3,18 +3,34 @@
 > Index complet de tous les documents disponibles
 
 **Dernière mise à jour** : Décembre 2024  
-**Total de documents** : 40+ fichiers Markdown
+**Total de documents** : 80+ fichiers Markdown  
+**📦 Réorganisation** : [Voir fichiers déplacés](FICHIERS_DEPLACES.md)
 
 ---
 
 ## 🗂️ Navigation Rapide
 
+- [Fichiers de Navigation](#-fichiers-de-navigation) 📍 **NOUVEAU**
 - [Documents TFE](#-00-tfe---documents-tfe) ⭐ **PRIORITAIRE**
 - [Audits](#-01-audits---audits--analyses)
 - [Planning](#-02-planning---plans--roadmaps)
 - [Guides](#-03-guides---guides-méthodologiques)
 - [Rapports](#-04-reports---rapports-de-travail)
 - [Scripts](#-scripts---outils-danalyse)
+
+---
+
+## 📍 Fichiers de Navigation
+
+> **Fichiers à la racine de `docs/` pour navigation**
+
+| Document | Description |
+|----------|-------------|
+| **README.md** | 📚 Documentation principale<br>Point d'entrée, structure, conventions |
+| **INDEX.md** | 📑 Ce fichier - Index complet<br>Liste exhaustive de tous les documents |
+| **QUICK_START.md** | 🚀 Guide de démarrage rapide<br>Parcours guidés selon vos besoins |
+| **CHANGELOG_DOCS.md** | 📝 Historique de la documentation<br>Changements et réorganisations |
+| **FICHIERS_DEPLACES.md** | 📦 Suivi des déplacements<br>39 fichiers réorganisés - où les trouver |
 
 ---
 
@@ -35,7 +51,7 @@
 
 > **Analyse de l'état initial du projet**
 
-### 🏗️ Architecture (4 documents)
+### 🏗️ Architecture (6 documents)
 
 | Document | Description |
 |----------|-------------|
@@ -43,6 +59,8 @@
 | **REFACTORING_PATTERNS_AUDIT.md** | Analyse des patterns de refactorisation<br>Opportunités d'amélioration |
 | **AUDIT_SUMMARY_COMPLETE.md** | Résumé complet de tous les audits<br>Synthèse et roadmap globale |
 | **AUDIT_STATS.md** | Statistiques du code<br>Métriques par page, complexité |
+| **AUDIT_RAPPORT_FINAL.md** | 📊 Rapport final d'audit<br>Synthèse globale et recommandations |
+| **FRONTEND_ARCHITECTURE.md** | 🎨 Architecture frontend détaillée<br>Structure, modules, patterns |
 
 ### 🎨 Styles (10 documents)
 
@@ -58,11 +76,18 @@
 | **STYLE_CONSISTENCY_AUDIT_OLD.md** | Archive de la première version |
 | **STYLE_CONSISTENCY_EVALUATION.md** | Évaluation et scores de cohérence |
 
-### 🧩 Components (1 document)
+### 🧩 Components (2 documents)
 
 | Document | Description |
 |----------|-------------|
 | **COMPONENT_AUDIT.md** | Inventaire des composants UI<br>Analyse d'utilisation, composants manquants |
+| **TABGROUP_MODAL_INCONSISTENCIES.md** | 🔍 Incohérences TabGroup/Modal<br>Audit des inconsistances détectées |
+
+### 📄 Pages (1 document)
+
+| Document | Description |
+|----------|-------------|
+| **MIGRATION_AUDIT_PAGES.md** | 📋 Audit de migration des pages<br>État de migration, pages prioritaires |
 
 ### 🪟 Modals (2 documents)
 
@@ -86,11 +111,13 @@
 | **DESIGN_SYSTEM_ROADMAP.md** | Roadmap d'évolution du design system<br>Vision court/moyen/long terme |
 | **PLAN_ACTION_OPTIMISE.md** | Plan d'action optimisé<br>Actions prioritaires, timeline |
 
-### 🚀 Migration (1 document)
+### 🚀 Migration (3 documents)
 
 | Document | Description |
 |----------|-------------|
 | **MODALS_MIGRATION_ROADMAP.md** | Roadmap de migration des modals<br>Priorisation, pattern de migration |
+| **DESIGN_SYSTEM_MIGRATION_TRACKING.md** | 📊 Suivi de migration design system<br>Progression, composants migrés |
+| **MIGRATION_PRIORITIES.md** | 🎯 Priorités de migration<br>Ordre et importance des migrations |
 
 ---
 
@@ -98,22 +125,36 @@
 
 > **Guides pratiques et bonnes pratiques**
 
+### 🔄 Migration (7 documents)
+
+| Document | Description |
+|----------|-------------|
+| **GUIDE_SELECTION_COMPOSANTS.md** | 🎯 Guide de sélection de composants<br>Choisir le bon composant |
+| **MIGRATION_EXAMPLES.md** | 📚 Exemples de migration<br>Cas concrets et patterns |
+| **MIGRATION_ForgotPasswordPage.md** | Exemple ForgotPasswordPage<br>Migration complète étape par étape |
+| **MODAL_MIGRATION_GUIDE.md** | Guide migration modals<br>Pattern et bonnes pratiques |
+| **migration-loginpage.md** | Exemple LoginPage<br>Refonte avec design system |
+| **tabgroup-modal/MIGRATION_GUIDE_TABGROUP_MODAL.md** | 🔀 Guide TabGroup & Modal<br>Migration combinée |
+
+### 📦 Modules (1 document)
+
+| Document | Description |
+|----------|-------------|
+| **STATISTICS_QUICKSTART.md** | 📊 Quick Start Statistics<br>Démarrage rapide module statistiques |
+
+### ⚡ Optimization (2 documents)
+
+| Document | Description |
+|----------|-------------|
+| **FRONTEND_OPTIMIZATION_GUIDE.md** | Guide d'optimisation frontend<br>Performance, bundle size |
+| **OPTIMIZATION_CHECKLIST.md** | ✅ Checklist d'optimisation<br>Points de vérification |
+
 ### 🔨 Refactoring (2 documents)
 
 | Document | Description |
 |----------|-------------|
-| **REFACTORING_GUIDE.md** | Guide de refactorisation standard<br>Processus étape par étape |
-| **ADVANCED_REFACTORING_GUIDE.md** | Guide de refactorisation avancée<br>Techniques et patterns avancés |
-
-### 🚀 Migration (5 documents)
-
-| Document | Description |
-|----------|-------------|
-| **MODAL_MIGRATION_GUIDE.md** | Guide de migration des modals<br>Standardisation des modals |
-| **GUIDE_SELECTION_COMPOSANTS.md** | Guide de sélection des composants<br>Quel composant utiliser |
-| **MIGRATION_EXAMPLES.md** | Exemples de migration<br>Cas concrets avec code |
-| **MIGRATION_ForgotPasswordPage.md** | Migration de ForgotPasswordPage<br>Étude de cas détaillée |
-| **migration-loginpage.md** | Migration de LoginPage<br>Étude de cas détaillée |
+| **REFACTORING_GUIDE.md** | 📖 Guide de refactorisation<br>Méthodologie et patterns |
+| **ADVANCED_REFACTORING_GUIDE.md** | 🚀 Guide avancé<br>Techniques avancées |
 
 ### ⚡ Optimization (2 documents)
 
@@ -126,20 +167,77 @@
 
 ## 📊 04-reports - Rapports de Travail
 
-> **Documentation des travaux réalisés**
+> **Documentation des travaux réalisés** (39 nouveaux fichiers ajoutés)
 
-### 🔨 Refactoring (1 document)
+### 🔄 Création (1 document)
+
+| Document | Description |
+|----------|-------------|
+| **UTILS_CREATION_REPORT.md** | 📦 Création des utilities<br>139 fonctions utilitaires créées |
+
+### 🔨 Refactoring (4 documents)
 
 | Document | Description |
 |----------|-------------|
 | **PAGEHEADER_REFACTOR.md** | Refactorisation PageHeader<br>Standardisation du composant |
+| **MODAL_REFACTORING_REPORT.md** | 🔀 Refactorisation Modals<br>Unification des patterns |
+| **REFACTORING_SUMMARY.md** | 📋 Résumé refactorisation<br>Vue d'ensemble des travaux |
+| **REFACTOR_SEARCHBAR_REPORT.md** | 🔍 Refactorisation SearchBar<br>Amélioration du composant |
 
-### 🚀 Migration (2 documents)
+### 🚀 Migration - Synthèses Globales (4 documents)
 
 | Document | Description |
 |----------|-------------|
-| **MessagesPage-migration-report.md** | Migration de MessagesPage<br>Vers composants design system |
-| **HEROICONS_MIGRATION_REPORT.md** | Migration vers Heroicons<br>Standardisation des icônes |
+| **MIGRATION_SUMMARY.md** | 📊 Résumé migration global<br>Vue d'ensemble complète |
+| **MIGRATION_SUMMARY_FINAL.md** | ✅ Résumé final migration<br>Bilan et résultats |
+| **DESIGN_SYSTEM_FINAL_SESSION_REPORT.md** | 🎨 Session finale design system<br>Rapport de clôture |
+| **DESIGN_SYSTEM_SPRINT_SESSION_REPORT.md** | 🏃 Session sprint design system<br>Rapport de sprint |
+
+### 🚀 Migration - Pages (19 documents)
+
+| Document | Description |
+|----------|-------------|
+| **DASHBOARD_MIGRATION_REPORT.md** | 📊 Migration Dashboard<br>Composants et structure |
+| **SETTINGSPAGE_TABGROUP_MIGRATION.md** | ⚙️ Migration SettingsPage TabGroup<br>Navigation refonte |
+| **STOREPAGE_MIGRATION_COMPLETE.md** | 🏪 Migration StorePage complète<br>De 1692L à 110L (-93.5%) |
+| **STORE_PAGE_MIGRATION_SUMMARY.md** | 🏪 Résumé StorePage<br>Synthèse migration |
+| **MIGRATION_SUMMARY_CoursesStatsPage.md** | 📈 Migration CoursesStatsPage<br>Statistiques cours |
+| **MIGRATION_SUMMARY_ResetPasswordPage.md** | 🔐 Migration ResetPasswordPage<br>Réinitialisation mot de passe |
+| **MIGRATION_EmailVerificationPage.md** | ✉️ Migration EmailVerificationPage<br>Vérification email |
+| **ResetPasswordPage.MIGRATION.md** | 🔐 ResetPasswordPage détaillé<br>Migration complète |
+| **CoursesPage_MIGRATION_REPORT.md** | 📚 Migration CoursesPage<br>Module cours |
+| **MessagesPage_MIGRATION_QUICK_SUMMARY.md** | 💬 MessagesPage Quick Summary<br>Résumé rapide |
+| **MessagesPage_MIGRATION_SUMMARY.md** | 💬 MessagesPage résumé complet<br>Détails migration |
+| **PaymentsPage_BEFORE_AFTER.md** | 💳 PaymentsPage Avant/Après<br>Comparaison visuelle |
+| **PaymentsPage_FILES_CHANGED.md** | 💳 PaymentsPage fichiers modifiés<br>Liste des changements |
+| **PaymentsPage_MIGRATION.md** | 💳 Migration PaymentsPage<br>Rapport complet |
+| **PaymentsPage_MIGRATION_SUMMARY.md** | 💳 PaymentsPage résumé<br>Synthèse migration |
+| **PaymentsPage_UI_COMPONENTS_REFERENCE.md** | 💳 PaymentsPage composants UI<br>Référence composants |
+| **MIGRATION_FinanceStatsPage.md** | 💰 Migration FinanceStatsPage<br>Statistiques finance |
+| **StatisticsPages_MIGRATION_SUMMARY.md** | 📊 Résumé pages statistiques<br>Toutes les stats pages |
+| **MIGRATION_StoreStatsPage.md** | 🏪 Migration StoreStatsPage<br>Statistiques boutique |
+
+### 🚀 Migration - Modules (4 documents)
+
+| Document | Description |
+|----------|-------------|
+| **MIGRATION_REPORT_STORE_MODALS.md** | 🏪 Migration modals Store<br>Modals du module boutique |
+| **PAYMENTS_BADGES_MIGRATION_REPORT.md** | 💳 Migration badges Payments<br>Standardisation badges |
+| **STATISTICS_MODULE_SUMMARY.md** | 📊 Résumé module Statistics<br>Vue d'ensemble module |
+| **STORE_MODALS.md** | 🏪 Documentation modals Store<br>Inventaire et patterns |
+
+### 🚀 Migration - Composants (2 documents)
+
+| Document | Description |
+|----------|-------------|
+| **MODAL_MIGRATION_REPORT.md** | 🔀 Migration composant Modal<br>Standardisation globale |
+| **HEROICONS_MIGRATION_REPORT.md** | 🎨 Migration Heroicons<br>Standardisation icônes |
+
+### 🚀 Migration - Autres (1 document)
+
+| Document | Description |
+|----------|-------------|
+| **MessagesPage-migration-report.md** | 💬 MessagesPage rapport<br>Migration design system |
 
 ### ✨ Creation (1 document)
 
