@@ -1,12 +1,20 @@
 /**
  * LocalizationSection - Section de localisation
  * Extrait de SettingsPage.tsx (Phase 2 refactorisation)
+ *
+ * MIGRATION i18n v4.5:
+ * - Utilise useLanguage hook pour changement de langue en temps réel
+ * - Synchronisation automatique avec backend
+ * - Affichage des drapeaux dans le sélecteur
  */
 
+import { useState, useEffect } from "react";
 import { LanguageIcon } from "@heroicons/react/24/outline";
 import { Button } from "../../../../shared/components/Button";
 import { SectionHeader } from "../SectionHeader";
 import { SelectField as SharedSelectField } from "../../../../shared/components/Forms/SelectField";
+import { useLanguage } from "../../../../i18n/hooks/useLanguage";
+import { toast } from "sonner";
 
 interface LocalizationSectionProps {
   localisationForm: {
@@ -33,6 +41,44 @@ export function LocalizationSection({
   handleSaveLocalisation,
   isSaving,
 }: LocalizationSectionProps) {
+  // Hook i18n pour changement de langue avec sync backend
+  const {
+    language: currentLanguage,
+    changeLanguage,
+    availableLanguages,
+  } = useLanguage();
+  const [isChangingLanguage, setIsChangingLanguage] = useState(false);
+
+  // Synchroniser la langue actuelle avec le formulaire
+  useEffect(() => {
+    if (currentLanguage && localisationForm.app_language !== currentLanguage) {
+      setLocalisationForm({
+        ...localisationForm,
+        app_language: currentLanguage,
+      });
+    }
+  }, [currentLanguage]);
+
+  // Handler pour changement de langue (avec sync backend automatique)
+  const handleLanguageChange = async (newLang: string) => {
+    if (newLang === currentLanguage) return;
+
+    setIsChangingLanguage(true);
+    try {
+      await changeLanguage(newLang);
+      toast.success("Langue modifiée avec succès");
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors du changement de langue");
+      // Restaurer l'ancienne valeur en cas d'erreur
+      setLocalisationForm({
+        ...localisationForm,
+        app_language: currentLanguage,
+      });
+    } finally {
+      setIsChangingLanguage(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-6 space-y-6">
       <SectionHeader
@@ -44,21 +90,23 @@ export function LocalizationSection({
       />
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <SharedSelectField
-          id="app_language"
-          label="Langue de l'application"
-          value={localisationForm.app_language}
-          onChange={(val) =>
-            setLocalisationForm({
-              ...localisationForm,
-              app_language: val.toString(),
-            })
-          }
-          options={[
-            { value: "fr", label: "Français" },
-            { value: "en", label: "English" },
-          ]}
-        />
+        <div>
+          <SharedSelectField
+            id="app_language"
+            label="Langue de l'application"
+            value={localisationForm.app_language}
+            onChange={(val) => handleLanguageChange(val.toString())}
+            options={availableLanguages.map((lang) => ({
+              value: lang.code,
+              label: `${lang.flag} ${lang.label}`,
+            }))}
+            disabled={isChangingLanguage}
+          />
+          <p className="mt-2 text-sm text-gray-500">
+            Le changement de langue est appliqué immédiatement et sauvegardé
+            dans votre profil.
+          </p>
+        </div>
 
         <SharedSelectField
           id="date_format"
