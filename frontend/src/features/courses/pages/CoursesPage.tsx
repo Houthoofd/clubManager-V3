@@ -174,14 +174,14 @@ export default function CoursesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="space-y-6">
       <PageHeader
         title="Gestion des Cours"
         description="Gérez le planning récurrent, les séances ponctuelles et les professeurs."
         icon={<CalendarIcon className="h-8 w-8" />}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <TabGroup
           tabs={tabs}
           activeTab={activeTab}
@@ -190,7 +190,7 @@ export default function CoursesPage() {
 
         {/* ──────────────────────────────── TAB 1 : Planning récurrent */}
         {activeTab === "planning" && (
-          <div className="space-y-6">
+          <div className="p-6 space-y-6">
             {isAdmin && (
               <div className="flex flex-wrap gap-3">
                 <Button
@@ -352,7 +352,7 @@ export default function CoursesPage() {
 
         {/* ──────────────────────────────── TAB 2 : Séances */}
         {activeTab === "sessions" && (
-          <div className="space-y-6">
+          <div className="p-6 space-y-6">
             {isAdmin && (
               <div className="flex gap-3">
                 <Button
@@ -495,7 +495,7 @@ export default function CoursesPage() {
 
         {/* ──────────────────────────────── TAB 3 : Professeurs */}
         {activeTab === "professeurs" && (
-          <div className="space-y-6">
+          <div className="p-6 space-y-6">
             {isAdmin && (
               <Button
                 variant="primary"
