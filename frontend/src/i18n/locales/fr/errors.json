@@ -1,0 +1,77 @@
+{
+  "network": {
+    "connectionError": "Erreur de connexion au serveur",
+    "timeout": "La requête a expiré",
+    "serverError": "Erreur serveur",
+    "notFound": "Ressource non trouvée",
+    "unauthorized": "Non autorisé",
+    "forbidden": "Accès interdit",
+    "badRequest": "Requête invalide",
+    "serviceUnavailable": "Service temporairement indisponible",
+    "networkOffline": "Aucune connexion internet",
+    "requestFailed": "La requête a échoué"
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "invalid": "Valeur invalide",
+    "tooShort": "Valeur trop courte",
+    "tooLong": "Valeur trop longue",
+    "emailInvalid": "Adresse email invalide",
+    "passwordWeak": "Mot de passe trop faible",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+    "passwordNoUppercase": "Le mot de passe doit contenir au moins une majuscule",
+    "passwordNoLowercase": "Le mot de passe doit contenir au moins une minuscule",
+    "passwordNoNumber": "Le mot de passe doit contenir au moins un chiffre",
+    "passwordNoSpecial": "Le mot de passe doit contenir au moins un caractère spécial",
+    "phoneInvalid": "Numéro de téléphone invalide",
+    "urlInvalid": "URL invalide",
+    "dateInvalid": "Date invalide",
+    "numberInvalid": "Nombre invalide",
+    "minValue": "La valeur doit être supérieure ou égale à {{min}}",
+    "maxValue": "La valeur doit être inférieure ou égale à {{max}}",
+    "minLength": "La longueur minimale est de {{min}} caractères",
+    "maxLength": "La longueur maximale est de {{max}} caractères",
+    "pattern": "Le format est invalide",
+    "unique": "Cette valeur existe déjà",
+    "mustMatch": "Les valeurs ne correspondent pas",
+    "mustBeTrue": "Vous devez accepter ce champ",
+    "invalidFormat": "Format invalide"
+  },
+  "generic": {
+    "unknownError": "Une erreur inconnue est survenue",
+    "tryAgain": "Veuillez réessayer",
+    "contactSupport": "Veuillez contacter le support",
+    "somethingWentWrong": "Quelque chose s'est mal passé",
+    "operationFailed": "L'opération a échoué",
+    "cannotComplete": "Impossible de terminer l'opération",
+    "pleaseTryLater": "Veuillez réessayer plus tard",
+    "errorOccurred": "Une erreur est survenue",
+    "unexpectedError": "Erreur inattendue"
+  },
+  "file": {
+    "uploadFailed": "Échec du téléchargement du fichier",
+    "fileTooLarge": "Le fichier est trop volumineux",
+    "invalidFileType": "Type de fichier non autorisé",
+    "fileNotFound": "Fichier non trouvé",
+    "downloadFailed": "Échec du téléchargement"
+  },
+  "database": {
+    "queryFailed": "Échec de la requête",
+    "recordNotFound": "Enregistrement non trouvé",
+    "duplicateEntry": "Entrée en double",
+    "foreignKeyConstraint": "Contrainte de clé étrangère violée",
+    "saveFailed": "Échec de l'enregistrement",
+    "deleteFailed": "Échec de la suppression",
+    "updateFailed": "Échec de la mise à jour"
+  },
+  "auth": {
+    "invalidCredentials": "Identifiants invalides",
+    "sessionExpired": "Session expirée",
+    "tokenInvalid": "Jeton invalide",
+    "tokenExpired": "Jeton expiré",
+    "accessDenied": "Accès refusé",
+    "insufficientPermissions": "Permissions insuffisantes",
+    "accountLocked": "Compte verrouillé",
+    "accountSuspended": "Compte suspendu"
+  }
+}
