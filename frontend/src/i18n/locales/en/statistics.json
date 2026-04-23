@@ -1,0 +1,230 @@
+{
+  "page": {
+    "title": "Dashboard - Statistics",
+    "description": "Overview of statistics and performance indicators"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "members": "Members",
+    "courses": "Courses",
+    "finance": "Finance",
+    "store": "Store"
+  },
+  "sections": {
+    "keyIndicators": "Key Indicators",
+    "trends": "Trends",
+    "globalKpis": "Key Indicators"
+  },
+  "kpis": {
+    "totalMembers": "Total Members",
+    "activeCourses": "Active Courses",
+    "totalCourses": "Total Courses",
+    "totalRevenue": "Total Revenue",
+    "storeOrders": "Store Orders",
+    "growthRate": "growth rate",
+    "attendanceRate": "attendance",
+    "paymentRate": "payment rate",
+    "averageBasket": "average basket"
+  },
+  "charts": {
+    "memberGrowth": "Member Growth",
+    "memberGrowthSubtitle": "Member count evolution",
+    "courseAttendance": "Course Attendance",
+    "courseAttendanceSubtitle": "Attendance evolution",
+    "revenueEvolution": "Revenue Evolution",
+    "revenueEvolutionSubtitle": "Revenue by period"
+  },
+  "alerts": {
+    "latePayments": "Late Payments",
+    "latePaymentsMessage": "{{count}} payment(s) overdue for a total amount of {{amount}}.",
+    "lowStock": "Stock Alerts",
+    "lowStockMessage": "{{count}} item(s) with low stock or out of stock require restocking."
+  },
+  "loading": {
+    "indicators": "Loading indicators...",
+    "charts": "Loading charts..."
+  },
+  "errors": {
+    "loadingError": "Loading Error",
+    "dashboardError": "An error occurred while loading dashboard statistics."
+  },
+  "period": {
+    "presets": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "thisWeek": "This Week",
+      "lastWeek": "Last Week",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "last30Days": "Last 30 Days",
+      "last90Days": "Last 90 Days",
+      "thisYear": "This Year",
+      "lastYear": "Last Year",
+      "custom": "Custom"
+    },
+    "types": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "quarter": "Quarter",
+      "year": "Year"
+    },
+    "customPeriod": "Custom Period",
+    "startDate": "Start Date",
+    "endDate": "End Date"
+  },
+  "buttons": {
+    "refresh": "Refresh",
+    "apply": "Apply",
+    "cancel": "Cancel"
+  },
+  "statCard": {
+    "trendLabels": {
+      "vsLastMonth": "vs last month",
+      "vsLastWeek": "vs last week",
+      "vsLastYear": "vs last year"
+    }
+  },
+  "members": {
+    "title": "Member Statistics",
+    "overview": "Overview",
+    "totalMembers": "Total members",
+    "activeMembers": "Active members",
+    "newMembers": "New members",
+    "membersByAge": "Members by age",
+    "distributionByAge": "Distribution by Age",
+    "membersByGrade": "Members by grade",
+    "distributionByGrade": "Distribution by Grade",
+    "distributionByGender": "Distribution by Gender",
+    "membershipTypes": "Membership types",
+    "retention": "Retention rate"
+  },
+  "courses": {
+    "title": "Course Statistics",
+    "overview": "Overview",
+    "totalCourses": "Total Recurring Courses",
+    "activeCourses": "active courses",
+    "totalSessions": "Total Sessions",
+    "totalEnrollments": "Total Enrollments",
+    "averageAttendance": "Average attendance",
+    "averageAttendanceRate": "Average Attendance Rate",
+    "attendanceRate": "Attendance rate",
+    "fillRate": "Fill Rate",
+    "fillRateDescription": "Average course capacity",
+    "coursesByType": "Courses by type",
+    "distributionByType": "Distribution by Course Type",
+    "topProfessors": "Top 5 Professors",
+    "popularCourses": "Most Popular Courses",
+    "attendanceTrend": "Attendance trend"
+  },
+  "finance": {
+    "title": "Finance Statistics",
+    "overview": "Overview",
+    "totalRevenue": "Total revenue",
+    "pendingPayments": "Pending payments",
+    "latePayments": "Late payments",
+    "failedPayments": "Failed Payments",
+    "lateInstallments": "Late Installments",
+    "noLateInstallments": "No late payments",
+    "paymentRate": "Payment rate",
+    "revenueBySource": "Revenue by source",
+    "paymentMethods": "Payment methods",
+    "monthlyRevenue": "Monthly revenue"
+  },
+  "store": {
+    "title": "Store Statistics",
+    "overview": "Overview",
+    "totalOrders": "Total orders",
+    "totalSales": "Total sales",
+    "averageBasket": "Average basket",
+    "lowStock": "Low stock",
+    "topProducts": "Top products",
+    "salesByCategory": "Sales by category",
+    "ordersTrend": "Orders trend"
+  },
+  "empty": {
+    "noData": "No data available",
+    "noChartData": "No data to display for this period"
+  },
+  "cards": {
+    "totalRevenue": "Total Revenue",
+    "validPayments": "Valid Payments",
+    "pendingPayments": "Pending Payments",
+    "paymentRate": "Payment Rate",
+    "totalMembers": "Total Members",
+    "activeMembers": "Active Members",
+    "inactiveMembers": "Inactive Members",
+    "newMembersMonth": "New Members (Month)",
+    "newMembersWeek": "New Members (Week)",
+    "growthRate": "Growth Rate",
+    "totalOrders": "Total Orders",
+    "paidOrders": "Paid Orders",
+    "totalStoreRevenue": "Total Revenue",
+    "averageBasket": "Average Basket"
+  },
+  "pages": {
+    "courseStats": "Course Statistics",
+    "financeStats": "Finance Statistics",
+    "memberStats": "Member Statistics",
+    "storeStats": "Store Statistics"
+  },
+  "storeStats": {
+    "breadcrumb": {
+      "dashboard": "Dashboard",
+      "storeStats": "Store Statistics"
+    },
+    "title": "Store Statistics",
+    "description": "Detailed view of sales, orders and store analytics",
+    "backToDashboard": "Back to dashboard",
+    "loading": "Loading statistics...",
+    "errorTitle": "Loading Error",
+    "retry": "Retry",
+    "noData": "No data available",
+    "noDataDescription": "Store statistics are not yet available.",
+    "refreshing": "Refreshing...",
+    "refresh": "Refresh",
+    "lowStockAlert": "item(s) require your attention - Items have low stock or are out of stock.",
+    "cards": {
+      "totalOrders": "Total Orders",
+      "paidOrders": "Paid Orders",
+      "totalRevenue": "Total Revenue",
+      "averageBasket": "Average Basket",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "itemsSold": "Items Sold",
+      "conversionRate": "Conversion Rate"
+    },
+    "popularProducts": {
+      "title": "Popular Products",
+      "topLabel": "Top 10",
+      "rank": "Rank",
+      "product": "Product",
+      "quantity": "Quantity",
+      "revenue": "Revenue",
+      "sold": "sold",
+      "orders": "orders",
+      "noProducts": "No products sold",
+      "noProductsDescription": "No sales have been recorded yet."
+    },
+    "salesByCategory": {
+      "title": "Sales by Category",
+      "articles": "items",
+      "orders": "orders",
+      "ofTotal": "of total",
+      "noCategories": "No categories",
+      "noCategoriesDescription": "No sales by category available."
+    },
+    "stockAlerts": {
+      "title": "Stock Alerts",
+      "alertsCount": "alert(s)",
+      "size": "Size",
+      "availableMinimum": "available / minimum",
+      "statusCritical": "Critical stock",
+      "statusLow": "Low stock",
+      "statusOutOfStock": "Out of stock",
+      "statusNormal": "Normal",
+      "noAlerts": "No alerts",
+      "noAlertsDescription": "All items have sufficient stock."
+    }
+  }
+}

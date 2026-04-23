@@ -12,6 +12,7 @@
  */
 
 import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   CheckIcon,
@@ -49,7 +50,10 @@ import { PricingPlanFormModal } from "../components/PricingPlanFormModal";
 import { StripePaymentModal } from "../components/StripePaymentModal";
 
 // ─── Configurations de tables ─────────────────────────────────────────────────
-import { paymentsColumns, createSchedulesColumns } from "../components/tables";
+import {
+  createPaymentsColumns,
+  createSchedulesColumns,
+} from "../components/tables";
 
 // ─── Composants tabs ──────────────────────────────────────────────────────────
 import { PaymentsTab, SchedulesTab, PlansTab } from "../components/tabs";
@@ -95,6 +99,8 @@ function formatCurrency(amount: number): string {
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export function PaymentsPage() {
+  const { t } = useTranslation("payments");
+
   // ── Onglet actif ──────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<TabId>("payments");
 
@@ -210,24 +216,30 @@ export function PaymentsPage() {
   // ── Propagation des erreurs du store vers les toasts ──────────────────────
   useEffect(() => {
     if (paymentsError) {
-      toast.error("Erreur paiements", { description: paymentsError });
+      toast.error(t("messages.errorLoadingPayments"), {
+        description: paymentsError,
+      });
       clearPaymentsError();
     }
-  }, [paymentsError, clearPaymentsError]);
+  }, [paymentsError, clearPaymentsError, t]);
 
   useEffect(() => {
     if (schedulesError) {
-      toast.error("Erreur échéances", { description: schedulesError });
+      toast.error(t("messages.errorLoadingPayments"), {
+        description: schedulesError,
+      });
       clearSchedulesError();
     }
-  }, [schedulesError, clearSchedulesError]);
+  }, [schedulesError, clearSchedulesError, t]);
 
   useEffect(() => {
     if (plansError) {
-      toast.error("Erreur plans tarifaires", { description: plansError });
+      toast.error(t("messages.errorLoadingPayments"), {
+        description: plansError,
+      });
       clearPlansError();
     }
-  }, [plansError, clearPlansError]);
+  }, [plansError, clearPlansError, t]);
 
   // ── Filtrage côté client : recherche par nom ──────────────────────────────
   const filteredPayments = paymentSearch.trim()
@@ -269,24 +281,27 @@ export function PaymentsPage() {
 
   // ── Configuration TabGroup ────────────────────────────────────────────────
   const tabs: Tab[] = [
-    { id: "payments", label: "Paiements" },
+    { id: "payments", label: t("tabs.payments") },
     {
       id: "schedules",
-      label: "Échéances",
+      label: t("tabs.pending"),
       badge: overdueSchedules.length > 0 ? overdueSchedules.length : undefined,
     },
-    ...(isAdmin ? [{ id: "plans" as const, label: "Plans tarifaires" }] : []),
+    ...(isAdmin ? [{ id: "plans" as const, label: t("tabs.plans") }] : []),
   ];
 
-  // ── Configuration colonnes DataTable (Échéances) ──────────────────────────
+  // ── Configuration colonnes DataTable ──────────────────────────────────────
+  const paymentsColumns = useMemo(() => createPaymentsColumns(t), [t]);
+
   const schedulesColumns = useMemo(
     () =>
       createSchedulesColumns({
         isAdmin,
         markingScheduleId,
         onMarkAsPaid: handlers.handleMarkAsPaid,
+        t,
       }),
-    [isAdmin, markingScheduleId, handlers.handleMarkAsPaid],
+    [isAdmin, markingScheduleId, handlers.handleMarkAsPaid, t],
   );
 
   // ── Rendu ─────────────────────────────────────────────────────────────────
@@ -294,10 +309,7 @@ export function PaymentsPage() {
   return (
     <div className="space-y-6">
       {/* ── En-tête ── */}
-      <PageHeader
-        title="Paiements"
-        description="Gestion des paiements, échéances et plans tarifaires du club"
-      />
+      <PageHeader title={t("title")} description={t("subtitle")} />
 
       {/* ── Conteneur onglets ── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
@@ -406,8 +418,8 @@ export function PaymentsPage() {
         closeOnEscape={!stripeSetup.isLoading}
       >
         <Modal.Header
-          title="Paiement par carte"
-          subtitle="Initier un paiement Stripe pour un membre du club."
+          title={t("modal.stripe.title")}
+          subtitle={t("modal.stripe.subtitle")}
           showCloseButton
           onClose={() => setStripeSetup((s) => ({ ...s, isOpen: false }))}
         />
@@ -424,7 +436,7 @@ export function PaymentsPage() {
                 htmlFor="stripe-user"
                 className="block text-sm font-medium text-gray-700 mb-1.5"
               >
-                Membre <span className="text-red-500">*</span>
+                {t("fields.member")} <span className="text-red-500">*</span>
               </label>
               <select
                 id="stripe-user"
@@ -438,7 +450,9 @@ export function PaymentsPage() {
                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                            disabled:bg-gray-50 transition-colors"
               >
-                <option value="">— Sélectionner un membre —</option>
+                <option value="">
+                  {t("modal.recordPayment.selectMember")}
+                </option>
                 {userOptions.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.nom_complet}
@@ -453,7 +467,7 @@ export function PaymentsPage() {
                 htmlFor="stripe-montant"
                 className="block text-sm font-medium text-gray-700 mb-1.5"
               >
-                Montant (€) <span className="text-red-500">*</span>
+                {t("fields.amount")} (€) <span className="text-red-500">*</span>
               </label>
               <input
                 id="stripe-montant"
@@ -479,9 +493,9 @@ export function PaymentsPage() {
                 htmlFor="stripe-plan"
                 className="block text-sm font-medium text-gray-700 mb-1.5"
               >
-                Plan tarifaire
+                {t("fields.type")}
                 <span className="ml-1 text-xs text-gray-400 font-normal">
-                  (optionnel)
+                  ({t("modal.recordPayment.optional")})
                 </span>
               </label>
               <select
@@ -495,7 +509,7 @@ export function PaymentsPage() {
                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                            disabled:bg-gray-50 transition-colors"
               >
-                <option value="">— Aucun plan —</option>
+                <option value="">{t("modal.recordPayment.noPlan")}</option>
                 {plans
                   .filter((p) => p.actif)
                   .map((p) => (
@@ -512,15 +526,15 @@ export function PaymentsPage() {
                 htmlFor="stripe-description"
                 className="block text-sm font-medium text-gray-700 mb-1.5"
               >
-                Description
+                {t("fields.description")}
                 <span className="ml-1 text-xs text-gray-400 font-normal">
-                  (optionnel)
+                  ({t("modal.recordPayment.optional")})
                 </span>
               </label>
               <input
                 id="stripe-description"
                 type="text"
-                placeholder="Objet du paiement…"
+                placeholder={t("modal.stripe.paymentPurpose")}
                 value={stripeSetup.description}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setStripeSetup((s) => ({
@@ -551,7 +565,7 @@ export function PaymentsPage() {
             onClick={() => setStripeSetup((s) => ({ ...s, isOpen: false }))}
             disabled={stripeSetup.isLoading}
           >
-            Annuler
+            {t("modal.recordPayment.cancel")}
           </Button>
           <Button
             type="submit"
@@ -564,7 +578,7 @@ export function PaymentsPage() {
               !stripeSetup.montant
             }
           >
-            Continuer vers le paiement
+            {t("modal.stripe.continueToPayment")}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -574,8 +588,8 @@ export function PaymentsPage() {
         isOpen={stripeModal.isOpen}
         onClose={() => setStripeModal((s) => ({ ...s, isOpen: false }))}
         onSuccess={() => {
-          toast.success("Paiement réussi", {
-            description: "Le paiement par carte a été confirmé avec succès.",
+          toast.success(t("messages.paymentCreated"), {
+            description: t("messages.paymentMarkedPaid"),
           });
           setStripeModal((s) => ({ ...s, isOpen: false }));
           refetchPayments();

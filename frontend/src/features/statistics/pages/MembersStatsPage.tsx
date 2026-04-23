@@ -14,6 +14,7 @@
  */
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   useMemberAnalytics,
   useInvalidateStatistics,
@@ -37,6 +38,7 @@ import { Button } from "../../../shared/components/Button/Button";
  * ```
  */
 export const MembersStatsPage: React.FC = () => {
+  const { t } = useTranslation("statistics");
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const { data, isLoading, error, refetch } = useMemberAnalytics();
@@ -73,7 +75,7 @@ export const MembersStatsPage: React.FC = () => {
             onClick={handleBackToDashboard}
             className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
           >
-            Tableau de bord
+            {t("storeStats.breadcrumb.dashboard")}
           </button>
         </li>
         <li aria-current="page">
@@ -94,7 +96,7 @@ export const MembersStatsPage: React.FC = () => {
               />
             </svg>
             <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
-              Statistiques des Membres
+              {t("pages.memberStats")}
             </span>
           </div>
         </li>
@@ -127,8 +129,8 @@ export const MembersStatsPage: React.FC = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <PageHeader
           breadcrumb={breadcrumb}
-          title="Statistiques des Membres"
-          description="Vue détaillée des statistiques et analytics des membres du club"
+          title={t("pages.memberStats")}
+          description={t("members.title")}
           actions={
             <Button
               variant="ghost"
@@ -136,7 +138,7 @@ export const MembersStatsPage: React.FC = () => {
               icon={<BackIcon />}
               onClick={handleBackToDashboard}
             >
-              Retour au tableau de bord
+              {t("storeStats.backToDashboard")}
             </Button>
           }
         />

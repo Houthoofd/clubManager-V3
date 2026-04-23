@@ -6,6 +6,7 @@
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Modal, Button } from "../../../shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -69,6 +70,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
   categories,
   onSubmit,
 }) => {
+  const { t } = useTranslation("store");
   const isEditMode = !!article;
 
   const {
@@ -128,11 +130,15 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
       closeOnEscape={!isSubmitting}
     >
       <Modal.Header
-        title={isEditMode ? "Modifier l'article" : "Nouvel article"}
+        title={
+          isEditMode
+            ? t("articleModal.title.edit")
+            : t("articleModal.title.create")
+        }
         subtitle={
           isEditMode
-            ? "Modifiez les informations de l'article existant."
-            : "Ajoutez un nouvel article au catalogue du store."
+            ? t("articleModal.subtitle.edit")
+            : t("articleModal.subtitle.create")
         }
         onClose={isSubmitting ? undefined : onClose}
       />
@@ -149,25 +155,26 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
               htmlFor="article-nom"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Nom de l'article <span className="text-red-500">*</span>
+              {t("articleModal.fields.name.label")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="article-nom"
               type="text"
-              placeholder="Ex : T-shirt, Casquette, Gourde…"
+              placeholder={t("articleModal.fields.name.placeholder")}
               disabled={isSubmitting}
               className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.nom ? "border-red-400" : "border-gray-300"
               }`}
               {...register("nom", {
-                required: "Le nom de l'article est requis.",
+                required: t("articleModal.fields.name.required"),
                 minLength: {
                   value: 2,
-                  message: "Le nom doit comporter au moins 2 caractères.",
+                  message: t("articleModal.fields.name.minLength"),
                 },
                 maxLength: {
                   value: 100,
-                  message: "Le nom ne peut pas dépasser 100 caractères.",
+                  message: t("articleModal.fields.name.maxLength"),
                 },
               })}
             />
@@ -182,23 +189,24 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
               htmlFor="article-prix"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Prix (€) <span className="text-red-500">*</span>
+              {t("articleModal.fields.price.label")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="article-prix"
               type="number"
               step="0.01"
               min="0"
-              placeholder="0,00"
+              placeholder={t("articleModal.fields.price.placeholder")}
               disabled={isSubmitting}
               className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.prix ? "border-red-400" : "border-gray-300"
               }`}
               {...register("prix", {
-                required: "Le prix est requis.",
+                required: t("articleModal.fields.price.required"),
                 min: {
                   value: 0,
-                  message: "Le prix doit être supérieur ou égal à 0.",
+                  message: t("articleModal.fields.price.min"),
                 },
                 valueAsNumber: true,
               })}
@@ -214,9 +222,9 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
               htmlFor="article-categorie"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Catégorie
+              {t("articleModal.fields.category.label")}
               <span className="ml-1 text-xs text-gray-400 font-normal">
-                (optionnel)
+                {t("articleModal.fields.category.optional")}
               </span>
             </label>
             <select
@@ -227,7 +235,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
                 setValueAs: (v) => (v === "" ? undefined : Number(v)),
               })}
             >
-              <option value="">Aucune catégorie</option>
+              <option value="">{t("articleModal.fields.category.none")}</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.nom}
@@ -242,15 +250,15 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
               htmlFor="article-description"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Description
+              {t("articleModal.fields.description.label")}
               <span className="ml-1 text-xs text-gray-400 font-normal">
-                (optionnel)
+                {t("articleModal.fields.description.optional")}
               </span>
             </label>
             <textarea
               id="article-description"
               rows={3}
-              placeholder="Décrivez l'article…"
+              placeholder={t("articleModal.fields.description.placeholder")}
               disabled={isSubmitting}
               className="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors resize-y"
               {...register("description")}
@@ -267,7 +275,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
               {...register("actif")}
             />
             <label htmlFor="article-actif" className="text-sm text-gray-700">
-              Article actif (visible dans le catalogue)
+              {t("articleModal.fields.active.label")}
             </label>
           </div>
         </form>
@@ -275,7 +283,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
 
       <Modal.Footer align="right">
         <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-          Annuler
+          {t("articleModal.actions.cancel")}
         </Button>
         <Button
           type="submit"
@@ -284,7 +292,9 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
           loading={isSubmitting}
           disabled={isSubmitting}
         >
-          {isEditMode ? "Mettre à jour" : "Créer l'article"}
+          {isEditMode
+            ? t("articleModal.actions.update")
+            : t("articleModal.actions.create")}
         </Button>
       </Modal.Footer>
     </Modal>

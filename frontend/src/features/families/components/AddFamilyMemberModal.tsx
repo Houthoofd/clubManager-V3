@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { InfoCircleIcon } from "@patternfly/react-icons";
 import { useFamily } from "../hooks/useFamily";
 import type { AddFamilyMemberDto } from "@clubmanager/types";
@@ -16,15 +17,15 @@ import { FORM } from "../../../shared/styles/designTokens";
 
 // ─── Schéma de validation ────────────────────────────────────────────────────
 
-const addMemberSchema = z.object({
-  first_name: z.string().min(2, "Au moins 2 caractères").max(100),
-  last_name: z.string().min(2, "Au moins 2 caractères").max(100),
-  date_of_birth: z.string().min(1, "Requis"),
-  genre_id: z.string().min(1, "Requis"),
-  role: z.enum(["enfant", "conjoint", "autre"]),
-});
+// Schema will be created inside component to access t() function
 
-type AddMemberFormData = z.infer<typeof addMemberSchema>;
+type AddMemberFormData = {
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  genre_id: string;
+  role: "enfant" | "conjoint" | "autre";
+};
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -61,7 +62,23 @@ export function AddFamilyMemberModal({
   onClose,
   onSuccess,
 }: AddFamilyMemberModalProps) {
+  const { t } = useTranslation("families");
   const { addMember } = useFamily();
+
+  // Create schema with translation
+  const addMemberSchema = z.object({
+    first_name: z
+      .string()
+      .min(2, t("validation.minLength", { count: 2 }))
+      .max(100),
+    last_name: z
+      .string()
+      .min(2, t("validation.minLength", { count: 2 }))
+      .max(100),
+    date_of_birth: z.string().min(1, t("validation.required")),
+    genre_id: z.string().min(1, t("validation.required")),
+    role: z.enum(["enfant", "conjoint", "autre"]),
+  });
 
   const {
     register,
@@ -97,24 +114,24 @@ export function AddFamilyMemberModal({
     const result = await addMember(dto);
 
     if (result.success) {
-      toast.success("Membre ajouté !", {
-        description: `${data.first_name} ${data.last_name} a été ajouté à la famille.`,
+      toast.success(t("messages.success.memberAdded"), {
+        description: t("messages.success.memberAddedDescription", {
+          firstName: data.first_name,
+          lastName: data.last_name,
+        }),
       });
       reset();
       onSuccess();
     } else {
-      toast.error("Erreur lors de l'ajout", {
-        description: result.error ?? "Une erreur est survenue.",
+      toast.error(t("messages.error.addError"), {
+        description: result.error ?? t("messages.error.genericError"),
       });
     }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="md">
-      <Modal.Header
-        title="Ajouter un membre de la famille"
-        onClose={handleClose}
-      />
+      <Modal.Header title={t("modal.addTitle")} onClose={handleClose} />
 
       <Modal.Body>
         {/* ── Boîte d'information ── */}
@@ -124,9 +141,8 @@ export function AddFamilyMemberModal({
             aria-hidden="true"
           />
           <span>
-            <span className="font-medium">Sans compte requis —</span> Aucun
-            email ni mot de passe requis. Un identifiant unique (userId) sera
-            généré automatiquement.
+            <span className="font-medium">{t("modal.infoTitle")}</span>{" "}
+            {t("modal.infoDescription")}
           </span>
         </div>
 
@@ -141,14 +157,14 @@ export function AddFamilyMemberModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
               id="first_name"
-              label="Prénom"
+              label={t("fields.firstName")}
               required
               error={errors.first_name?.message}
             >
               <Input
                 id="first_name"
                 type="text"
-                placeholder="Marie"
+                placeholder={t("placeholders.firstName")}
                 autoComplete="off"
                 {...register("first_name")}
               />
@@ -156,14 +172,14 @@ export function AddFamilyMemberModal({
 
             <FormField
               id="last_name"
-              label="Nom"
+              label={t("fields.lastName")}
               required
               error={errors.last_name?.message}
             >
               <Input
                 id="last_name"
                 type="text"
-                placeholder="Dupont"
+                placeholder={t("placeholders.lastName")}
                 autoComplete="off"
                 {...register("last_name")}
               />
@@ -173,7 +189,7 @@ export function AddFamilyMemberModal({
           {/* Date de naissance */}
           <FormField
             id="date_of_birth"
-            label="Date de naissance"
+            label={t("fields.dateOfBirth")}
             required
             error={errors.date_of_birth?.message}
           >
@@ -189,7 +205,7 @@ export function AddFamilyMemberModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
               id="genre_id"
-              label="Genre"
+              label={t("fields.genre")}
               required
               error={errors.genre_id?.message}
             >
@@ -198,23 +214,23 @@ export function AddFamilyMemberModal({
                 className={FORM.select}
                 {...register("genre_id")}
               >
-                <option value="">Sélectionner…</option>
-                <option value="1">Homme</option>
-                <option value="2">Femme</option>
-                <option value="3">Autre / Non spécifié</option>
+                <option value="">{t("genres.select")}</option>
+                <option value="1">{t("genres.homme")}</option>
+                <option value="2">{t("genres.femme")}</option>
+                <option value="3">{t("genres.autre")}</option>
               </select>
             </FormField>
 
             <FormField
               id="role"
-              label="Rôle"
+              label={t("fields.role")}
               required
               error={errors.role?.message}
             >
               <select id="role" className={FORM.select} {...register("role")}>
-                <option value="enfant">Enfant</option>
-                <option value="conjoint">Conjoint(e)</option>
-                <option value="autre">Autre</option>
+                <option value="enfant">{t("roles.enfant")}</option>
+                <option value="conjoint">{t("roles.conjoint")}</option>
+                <option value="autre">{t("roles.autre")}</option>
               </select>
             </FormField>
           </div>
@@ -223,7 +239,7 @@ export function AddFamilyMemberModal({
 
       <Modal.Footer align="right">
         <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-          Annuler
+          {t("actions.cancel")}
         </Button>
         <Button
           type="submit"
@@ -231,7 +247,7 @@ export function AddFamilyMemberModal({
           loading={isSubmitting}
           disabled={isSubmitting}
         >
-          Ajouter le membre
+          {t("modal.addButton")}
         </Button>
       </Modal.Footer>
     </Modal>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Modal } from "../../../../shared/components/Modal/Modal";
 import { Input } from "../../../../shared/components/Input/Input";
 import { Button } from "../../../../shared/components/Button/Button";
@@ -27,6 +28,7 @@ export function CreateProfessorModal({
   onSubmit,
   onUpdate,
 }: CreateProfessorModalProps) {
+  const { t } = useTranslation("courses");
   const [form, setForm] = useState({
     prenom: "",
     nom: "",
@@ -63,7 +65,7 @@ export function CreateProfessorModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.prenom.trim() || !form.nom.trim()) {
-      toast.error("Le prénom et le nom sont obligatoires.");
+      toast.error(t("messages.error.firstLastNameRequired"));
       return;
     }
     setSaving(true);
@@ -78,7 +80,7 @@ export function CreateProfessorModal({
           specialite: form.specialite.trim() || undefined,
           actif: form.actif,
         });
-        toast.success("Professeur modifié avec succès");
+        toast.success(t("messages.success.professorUpdated"));
       } else {
         await onSubmit({
           prenom: form.prenom.trim(),
@@ -88,11 +90,11 @@ export function CreateProfessorModal({
           specialite: form.specialite.trim() || undefined,
           actif: form.actif,
         });
-        toast.success("Professeur créé avec succès");
+        toast.success(t("messages.success.professorCreated"));
       }
       onClose();
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? "Une erreur est survenue.");
+      toast.error(error.response?.data?.message ?? t("messages.error.generic"));
     } finally {
       setSaving(false);
     }
@@ -101,13 +103,17 @@ export function CreateProfessorModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <Modal.Header
-        title={editProfessor ? "Modifier le professeur" : "Nouveau professeur"}
+        title={
+          editProfessor
+            ? t("modals.editProfessor")
+            : t("modals.createProfessor")
+        }
       />
       <Modal.Body>
         <form id="professor-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Prénom"
+              label={t("fields.firstName")}
               id="prenom"
               type="text"
               value={form.prenom}
@@ -117,7 +123,7 @@ export function CreateProfessorModal({
               required
             />
             <Input
-              label="Nom"
+              label={t("fields.lastName")}
               id="nom"
               type="text"
               value={form.nom}
@@ -127,39 +133,39 @@ export function CreateProfessorModal({
           </div>
 
           <Input
-            label="Email"
+            label={t("fields.email")}
             id="email"
             type="email"
             value={form.email}
             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-            placeholder="prof@exemple.fr"
+            placeholder={t("placeholders.email")}
           />
 
           <Input
-            label="Téléphone"
+            label={t("fields.phone")}
             id="telephone"
             type="tel"
             value={form.telephone}
             onChange={(e) =>
               setForm((f) => ({ ...f, telephone: e.target.value }))
             }
-            placeholder="+33 6 12 34 56 78"
+            placeholder={t("placeholders.phone")}
           />
 
           <Input
-            label="Spécialité"
+            label={t("fields.specialty")}
             id="specialite"
             type="text"
             value={form.specialite}
             onChange={(e) =>
               setForm((f) => ({ ...f, specialite: e.target.value }))
             }
-            placeholder="Ex. Judo, Ceinture noire 3e dan…"
+            placeholder={t("placeholders.specialty")}
           />
 
           <Input.Checkbox
             id="prof-actif"
-            label="Professeur actif"
+            label={t("fields.professorActive")}
             checked={form.actif}
             onChange={(e) =>
               setForm((f) => ({ ...f, actif: e.target.checked }))
@@ -169,7 +175,7 @@ export function CreateProfessorModal({
       </Modal.Body>
       <Modal.Footer align="right">
         <Button variant="outline" onClick={onClose} disabled={saving}>
-          Annuler
+          {t("buttons.cancel")}
         </Button>
         <SubmitButton
           type="button"
@@ -184,9 +190,9 @@ export function CreateProfessorModal({
             }
           }}
           isLoading={saving}
-          loadingText="Enregistrement…"
+          loadingText={t("loadingText.saving")}
         >
-          {editProfessor ? "Modifier" : "Créer"}
+          {editProfessor ? t("buttons.modify") : t("buttons.create")}
         </SubmitButton>
       </Modal.Footer>
     </Modal>

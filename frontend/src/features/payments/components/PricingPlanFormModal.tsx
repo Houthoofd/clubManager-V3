@@ -5,6 +5,7 @@
  */
 
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import type { PricingPlan } from "@clubmanager/types";
 import { Modal, Button } from "../../../shared/components";
@@ -41,6 +42,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
   plan,
   onSubmit,
 }) => {
+  const { t } = useTranslation("payments");
   const isEditMode = !!plan;
 
   const {
@@ -93,12 +95,14 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
     >
       <Modal.Header
         title={
-          isEditMode ? "Modifier le plan tarifaire" : "Nouveau plan tarifaire"
+          isEditMode
+            ? t("modal.pricingPlan.titleEdit")
+            : t("modal.pricingPlan.titleCreate")
         }
         subtitle={
           isEditMode
-            ? "Modifiez les informations du plan tarifaire existant."
-            : "Définissez un nouveau plan tarifaire pour les membres du club."
+            ? t("modal.pricingPlan.subtitleEdit")
+            : t("modal.pricingPlan.subtitleCreate")
         }
         showCloseButton
         onClose={onClose}
@@ -116,12 +120,13 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
               htmlFor="plan-nom"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Nom du plan <span className="text-red-500">*</span>
+              {t("modal.pricingPlan.planName")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="plan-nom"
               type="text"
-              placeholder="Ex : Abonnement mensuel, Pass annuel…"
+              placeholder={t("modal.pricingPlan.planNamePlaceholder")}
               disabled={isSubmitting}
               className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                           placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
@@ -129,14 +134,14 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
                           transition-colors
                           ${errors.nom ? "border-red-400" : "border-gray-300"}`}
               {...register("nom", {
-                required: "Le nom du plan est requis.",
+                required: t("modal.pricingPlan.planNameRequired"),
                 minLength: {
                   value: 2,
-                  message: "Le nom doit comporter au moins 2 caractères.",
+                  message: t("modal.pricingPlan.planNameMinLength"),
                 },
                 maxLength: {
                   value: 100,
-                  message: "Le nom ne peut pas dépasser 100 caractères.",
+                  message: t("modal.pricingPlan.planNameMaxLength"),
                 },
               })}
             />
@@ -153,7 +158,8 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
                 htmlFor="plan-prix"
                 className="block text-sm font-medium text-gray-700 mb-1.5"
               >
-                Prix (€) <span className="text-red-500">*</span>
+                {t("modal.pricingPlan.price")}{" "}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="plan-prix"
@@ -168,10 +174,10 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
                             transition-colors
                             ${errors.prix ? "border-red-400" : "border-gray-300"}`}
                 {...register("prix", {
-                  required: "Le prix est requis.",
+                  required: t("modal.pricingPlan.priceRequired"),
                   min: {
                     value: 0.01,
-                    message: "Le prix doit être supérieur à 0.",
+                    message: t("modal.pricingPlan.pricePositiveError"),
                   },
                   valueAsNumber: true,
                 })}
@@ -189,7 +195,8 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
                 htmlFor="plan-duree"
                 className="block text-sm font-medium text-gray-700 mb-1.5"
               >
-                Durée (mois) <span className="text-red-500">*</span>
+                {t("modal.pricingPlan.duration")}{" "}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="plan-duree"
@@ -204,10 +211,10 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
                             transition-colors
                             ${errors.duree_mois ? "border-red-400" : "border-gray-300"}`}
                 {...register("duree_mois", {
-                  required: "La durée est requise.",
+                  required: t("modal.pricingPlan.durationRequired"),
                   min: {
                     value: 1,
-                    message: "La durée doit être d'au moins 1 mois.",
+                    message: t("modal.pricingPlan.durationMinError"),
                   },
                   valueAsNumber: true,
                 })}
@@ -226,15 +233,15 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
               htmlFor="plan-description"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Description
+              {t("fields.description")}
               <span className="ml-1 text-xs text-gray-400 font-normal">
-                (optionnel)
+                ({t("modal.recordPayment.optional")})
               </span>
             </label>
             <textarea
               id="plan-description"
               rows={3}
-              placeholder="Décrivez les avantages ou conditions de ce plan…"
+              placeholder={t("modal.pricingPlan.descriptionPlaceholder")}
               disabled={isSubmitting}
               className="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm text-sm
                          placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
@@ -253,7 +260,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
           onClick={onClose}
           disabled={isSubmitting}
         >
-          Annuler
+          {t("modal.pricingPlan.cancel")}
         </Button>
         <Button
           type="submit"
@@ -262,7 +269,9 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
           loading={isSubmitting}
           disabled={isSubmitting}
         >
-          {isEditMode ? "Mettre à jour" : "Créer le plan"}
+          {isEditMode
+            ? t("modal.pricingPlan.submitEdit")
+            : t("modal.pricingPlan.submitCreate")}
         </Button>
       </Modal.Footer>
     </Modal>

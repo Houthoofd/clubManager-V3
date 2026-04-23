@@ -3,6 +3,7 @@
  * Affiche et gère les plans tarifaires (admin uniquement)
  */
 
+import { useTranslation } from "react-i18next";
 import type { PricingPlan } from "@clubmanager/types";
 import { LoadingSpinner } from "../../../../shared/components/Layout/LoadingSpinner";
 import { EmptyState } from "../../../../shared/components/Layout/EmptyState";
@@ -39,16 +40,19 @@ export function PlansTab({
   deletingPlanId,
   setDeletingPlanId,
 }: PlansTabProps) {
+  const { t } = useTranslation("payments");
+
   return (
     <div>
       {/* En-tête */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3">
           <h2 className="text-base font-semibold text-gray-900">
-            Plans tarifaires
+            {t("tabs.plansTitle")}
           </h2>
           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-            {plans.length} plan{plans.length > 1 ? "s" : ""}
+            {plans.length}{" "}
+            {plans.length > 1 ? t("tabs.planPlural") : t("tabs.planSingular")}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -56,7 +60,7 @@ export function PlansTab({
             type="button"
             onClick={refetchPlans}
             disabled={plansLoading}
-            title="Rafraîchir les plans"
+            title={t("tabs.refreshPlans")}
             className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200
                        text-gray-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200
                        transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
@@ -99,7 +103,7 @@ export function PlansTab({
                 d="M12 4.5v15m7.5-7.5h-15"
               />
             </svg>
-            Nouveau plan
+            {t("tabs.newPlan")}
           </button>
         </div>
       </div>
@@ -110,8 +114,8 @@ export function PlansTab({
 
         {!plansLoading && plans.length === 0 && (
           <EmptyState
-            title="Aucun plan tarifaire"
-            description="Créez votre premier plan tarifaire pour commencer à gérer les abonnements."
+            title={t("messages.noPayments")}
+            description={t("messages.selectType")}
           />
         )}
 
@@ -136,7 +140,7 @@ export function PlansTab({
                         : "bg-gray-200 text-gray-600"
                     }`}
                   >
-                    {plan.actif ? "Actif" : "Inactif"}
+                    {plan.actif ? t("tabs.active") : t("tabs.inactive")}
                   </span>
                 </div>
 
@@ -159,8 +163,8 @@ export function PlansTab({
                   {/* Prix mensuel si durée > 1 */}
                   {plan.duree_mois > 1 && (
                     <p className="mt-0.5 text-xs text-gray-400">
-                      ≈ {formatCurrency(plan.prix / plan.duree_mois)} /
-                      mois
+                      ≈ {formatCurrency(plan.prix / plan.duree_mois)} /{" "}
+                      {t("tabs.perMonth")}
                     </p>
                   )}
 
@@ -178,7 +182,9 @@ export function PlansTab({
                   <button
                     type="button"
                     onClick={() => handleTogglePlan(plan)}
-                    title={plan.actif ? "Désactiver" : "Activer"}
+                    title={
+                      plan.actif ? t("tabs.deactivate") : t("tabs.activate")
+                    }
                     className={`flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                       plan.actif
                         ? "text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200"
@@ -200,7 +206,7 @@ export function PlansTab({
                             d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
                           />
                         </svg>
-                        Désactiver
+                        {t("tabs.deactivate")}
                       </>
                     ) : (
                       <>
@@ -217,7 +223,7 @@ export function PlansTab({
                             d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
                           />
                         </svg>
-                        Activer
+                        {t("tabs.activate")}
                       </>
                     )}
                   </button>
@@ -230,7 +236,7 @@ export function PlansTab({
                         setSelectedPlan(plan);
                         setPlanFormOpen(true);
                       }}
-                      title="Modifier"
+                      title={t("tabs.edit")}
                       className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50
                                  transition-colors"
                     >
@@ -253,30 +259,28 @@ export function PlansTab({
                     {deletingPlanId === plan.id ? (
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-500">
-                          Confirmer ?
+                          {t("tabs.confirm")}
                         </span>
                         <button
                           type="button"
-                          onClick={() =>
-                            handleDeletePlan(plan.id, plan.nom)
-                          }
+                          onClick={() => handleDeletePlan(plan.id, plan.nom)}
                           className="px-2 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
                         >
-                          Oui
+                          {t("tabs.yes")}
                         </button>
                         <button
                           type="button"
                           onClick={() => setDeletingPlanId(null)}
                           className="px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                         >
-                          Non
+                          {t("tabs.no")}
                         </button>
                       </div>
                     ) : (
                       <button
                         type="button"
                         onClick={() => setDeletingPlanId(plan.id)}
-                        title="Supprimer"
+                        title={t("tabs.delete")}
                         className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50
                                    transition-colors"
                       >

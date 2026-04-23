@@ -6,6 +6,7 @@
  */
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useStoreUI } from "../../stores/storeStore";
 import {
   useCategories,
@@ -31,6 +32,7 @@ import {
 } from "../../../../shared/utils";
 
 export function CatalogueTab() {
+  const { t } = useTranslation("store");
   const store = useStoreUI();
   const categoriesQuery = useCategories();
   const actif =
@@ -66,16 +68,20 @@ export function CatalogueTab() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
           <h2 className="text-base font-semibold text-gray-900">
-            Catalogue des articles
+            {t("catalogue.title")}
           </h2>
           <Badge variant="info">
-            {articlesQuery.data?.pagination.total ?? 0} article
-            {(articlesQuery.data?.pagination.total ?? 0) > 1 ? "s" : ""}
+            {articlesQuery.data?.pagination.total ?? 0}{" "}
+            {(articlesQuery.data?.pagination.total ?? 0) > 1
+              ? t("catalogue.count.articles")
+              : t("catalogue.count.article")}
           </Badge>
           {categoriesQuery.data && categoriesQuery.data.length > 0 && (
             <Badge variant="purple">
-              {categoriesQuery.data.length} catégorie
-              {categoriesQuery.data.length > 1 ? "s" : ""}
+              {categoriesQuery.data.length}{" "}
+              {categoriesQuery.data.length > 1
+                ? t("catalogue.count.categories")
+                : t("catalogue.count.category")}
             </Badge>
           )}
         </div>
@@ -96,7 +102,7 @@ export function CatalogueTab() {
               d="M12 4.5v15m7.5-7.5h-15"
             />
           </svg>
-          Nouvel article
+          {t("catalogue.newArticle")}
         </button>
       </div>
 
@@ -123,7 +129,7 @@ export function CatalogueTab() {
             <input
               value={store.articleSearch}
               onChange={(event) => store.setArticleSearch(event.target.value)}
-              placeholder="Rechercher un article…"
+              placeholder={t("catalogue.filters.search")}
               className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
           </div>
@@ -132,7 +138,7 @@ export function CatalogueTab() {
           <SelectField
             id="article-category-filter"
             label=""
-            placeholder="Toutes les catégories"
+            placeholder={t("catalogue.filters.allCategories")}
             options={
               categoriesQuery.data?.map((cat) => ({
                 value: cat.id,
@@ -150,10 +156,10 @@ export function CatalogueTab() {
           <SelectField
             id="article-status-filter"
             label=""
-            placeholder="Tous les statuts"
+            placeholder={t("catalogue.filters.allStatuses")}
             options={[
-              { value: "true", label: "Actifs" },
-              { value: "false", label: "Inactifs" },
+              { value: "true", label: t("catalogue.filters.active") },
+              { value: "false", label: t("catalogue.filters.inactive") },
             ]}
             value={store.articleActifFilter}
             onChange={(value) => store.setArticleActifFilter(String(value))}
@@ -177,14 +183,16 @@ export function CatalogueTab() {
           />
         )}
 
-        {articlesQuery.isLoading && <LoadingSpinner text="Chargement..." />}
+        {articlesQuery.isLoading && (
+          <LoadingSpinner text={t("common.loading")} />
+        )}
 
         {!articlesQuery.isLoading &&
           !articlesQuery.isError &&
           !articlesQuery.data?.items.length && (
             <EmptyState
-              title="Aucun article trouvé"
-              description="Ajustez les filtres ou ajoutez des articles dans le catalogue."
+              title={t("catalogue.empty.title")}
+              description={t("catalogue.empty.description")}
               variant="dashed"
             />
           )}
@@ -203,7 +211,8 @@ export function CatalogueTab() {
                         {article.nom}
                       </h3>
                       <p className="mt-1 text-sm text-gray-500">
-                        {article.categorie_nom ?? "Sans catégorie"}
+                        {article.categorie_nom ??
+                          t("catalogue.card.noCategory")}
                       </p>
                     </div>
                     <span
@@ -214,12 +223,14 @@ export function CatalogueTab() {
                           : "bg-gray-100 text-gray-600",
                       )}
                     >
-                      {article.actif ? "Actif" : "Inactif"}
+                      {article.actif
+                        ? t("catalogue.card.active")
+                        : t("catalogue.card.inactive")}
                     </span>
                   </div>
 
                   <p className="mt-4 line-clamp-3 min-h-[3.75rem] text-sm text-gray-600">
-                    {article.description || "Aucune description disponible."}
+                    {article.description || t("catalogue.card.noDescription")}
                   </p>
 
                   <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
@@ -228,7 +239,8 @@ export function CatalogueTab() {
                         {formatCurrency(article.prix)}
                       </span>
                       <span className="text-xs text-gray-400">
-                        Créé le {formatDate(article.created_at)}
+                        {t("catalogue.card.createdOn")}{" "}
+                        {formatDate(article.created_at)}
                       </span>
                     </div>
 
@@ -238,7 +250,7 @@ export function CatalogueTab() {
                         onClick={() => store.openArticleModal(article)}
                         className="flex-1 rounded-lg border border-blue-600 bg-white px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
                       >
-                        Éditer
+                        {t("catalogue.actions.edit")}
                       </button>
                       <button
                         onClick={async () => {
@@ -246,7 +258,9 @@ export function CatalogueTab() {
                         }}
                         className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                       >
-                        {article.actif ? "Désactiver" : "Activer"}
+                        {article.actif
+                          ? t("catalogue.actions.deactivate")
+                          : t("catalogue.actions.activate")}
                       </button>
                       <button
                         onClick={() =>
@@ -258,7 +272,7 @@ export function CatalogueTab() {
                         }
                         className="rounded-lg border border-red-600 bg-white px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
                       >
-                        Supprimer
+                        {t("catalogue.actions.delete")}
                       </button>
                     </div>
                   </div>
@@ -313,8 +327,10 @@ export function CatalogueTab() {
             });
           }
         }}
-        title="Supprimer l'article"
-        message={`Êtes-vous sûr de vouloir supprimer l'article "${deleteConfirm.articleNom}" ? Cette action est irréversible.`}
+        title={t("catalogue.delete.title")}
+        message={t("catalogue.delete.message", {
+          articleNom: deleteConfirm.articleNom,
+        })}
         variant="danger"
         isLoading={deleteArticleMutation.isPending}
       />

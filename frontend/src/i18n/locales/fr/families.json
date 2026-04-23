@@ -1,0 +1,99 @@
+{
+  "page": {
+    "title": "Ma famille",
+    "titleWithName": "{{familyName}}",
+    "description": "{{userId}} — {{count}} membre",
+    "description_plural": "{{userId}} — {{count}} membres",
+    "loading": "Chargement de la famille…"
+  },
+  "fields": {
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "dateOfBirth": "Date de naissance",
+    "genre": "Genre",
+    "role": "Rôle",
+    "age": "Âge",
+    "grade": "Grade",
+    "userId": "Identifiant"
+  },
+  "roles": {
+    "parent": "Parent",
+    "tuteur": "Tuteur",
+    "enfant": "Enfant",
+    "conjoint": "Conjoint(e)",
+    "autre": "Autre"
+  },
+  "genres": {
+    "select": "Sélectionner…",
+    "homme": "Homme",
+    "femme": "Femme",
+    "autre": "Autre / Non spécifié"
+  },
+  "badges": {
+    "minor": "Mineur",
+    "legalGuardian": "Tuteur légal",
+    "responsible": "Responsable"
+  },
+  "actions": {
+    "addMember": "Ajouter un membre",
+    "editMember": "Modifier",
+    "removeMember": "Retirer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "confirm": "Confirmer"
+  },
+  "modal": {
+    "addTitle": "Ajouter un membre de la famille",
+    "editTitle": "Modifier le membre",
+    "addButton": "Ajouter le membre",
+    "infoTitle": "Sans compte requis —",
+    "infoDescription": "Aucun email ni mot de passe requis. Un identifiant unique (userId) sera généré automatiquement."
+  },
+  "placeholders": {
+    "firstName": "Marie",
+    "lastName": "Dupont"
+  },
+  "messages": {
+    "success": {
+      "memberAdded": "Membre ajouté !",
+      "memberAddedDescription": "{{firstName}} {{lastName}} a été ajouté à la famille.",
+      "memberRemoved": "Membre retiré",
+      "memberRemovedDescription": "Le membre a été retiré de la famille.",
+      "memberUpdated": "Membre modifié",
+      "memberUpdatedDescription": "Les informations ont été mises à jour."
+    },
+    "error": {
+      "familyError": "Erreur famille",
+      "loadError": "Erreur lors du chargement",
+      "addError": "Erreur lors de l'ajout",
+      "removeError": "Erreur lors du retrait",
+      "updateError": "Erreur lors de la modification",
+      "genericError": "Une erreur est survenue."
+    },
+    "empty": {
+      "title": "Aucun membre de famille",
+      "description": "Commencez par ajouter votre premier membre.",
+      "action": "Ajouter un membre"
+    },
+    "confirm": {
+      "removeTitle": "Retirer un membre",
+      "removeMessage": "Êtes-vous sûr de vouloir retirer {{firstName}} {{lastName}} de la famille ?"
+    }
+  },
+  "validation": {
+    "required": "Requis",
+    "minLength": "Au moins {{count}} caractères",
+    "maxLength": "Maximum {{count}} caractères",
+    "invalidDate": "Date invalide",
+    "invalidEmail": "Email invalide"
+  },
+  "states": {
+    "loading": "Chargement…",
+    "removing": "Retrait…",
+    "saving": "Enregistrement…",
+    "processing": "Traitement…"
+  },
+  "aria": {
+    "removeMember": "Retirer {{firstName}} {{lastName}} de la famille"
+  }
+}

@@ -27,13 +27,63 @@
     "courses": "Cours",
     "users": "Utilisateurs",
     "family": "Famille",
+    "families": "Familles",
     "store": "Boutique",
     "payments": "Paiements",
     "messages": "Messages",
     "statistics": "Statistiques",
     "settings": "Paramètres",
     "profile": "Profil",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "register": "Inscription"
+  },
+  "footer": {
+    "allRightsReserved": "Tous droits réservés",
+    "privacyPolicy": "Politique de confidentialité",
+    "termsOfService": "Conditions d'utilisation",
+    "contact": "Contact"
+  },
+  "layout": {
+    "clubManager": "ClubManager",
+    "notifications": "Notifications"
+  },
+  "modules": {
+    "title": "Modules de navigation",
+    "description": "Activez ou désactivez les modules du menu",
+    "dashboard": "Tableau de bord",
+    "courses": "Cours",
+    "users": "Utilisateurs",
+    "families": "Familles",
+    "payments": "Paiements",
+    "store": "Boutique",
+    "messages": "Messages",
+    "statistics": "Statistiques",
+    "save": "Sauvegarder"
+  },
+  "appearance": {
+    "title": "Apparence",
+    "description": "Personnalisez les couleurs et le logo",
+    "primaryColor": "Couleur principale",
+    "secondaryColor": "Couleur secondaire",
+    "sidebarBackground": "Fond barre latérale",
+    "sidebarText": "Texte barre latérale",
+    "logoUrl": "URL du logo",
+    "logoUrlPlaceholder": "https://exemple.com/logo.png",
+    "navbarName": "Nom affiché dans la navigation",
+    "navbarNamePlaceholder": "Mon Club",
+    "save": "Sauvegarder"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "previousPage": "Page précédente",
+    "nextPage": "Page suivante",
+    "page": "Page",
+    "showing": "Affichage",
+    "to": "à",
+    "of": "sur",
+    "results": "résultats"
   },
   "status": {
     "active": "Actif",
@@ -43,7 +93,8 @@
     "cancelled": "Annulé",
     "completed": "Terminé",
     "failed": "Échoué",
-    "loading": "Chargement"
+    "loading": "Chargement",
+    "alwaysActive": "Toujours actif"
   },
   "time": {
     "today": "Aujourd'hui",
@@ -84,6 +135,87 @@
     "email": "Email",
     "phone": "Téléphone",
     "address": "Adresse",
-    "notes": "Notes"
+    "notes": "Notes",
+    "loading": "Chargement..."
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "description": "Gestion des membres et des permissions",
+    "addUser": "Ajouter un utilisateur",
+    "editUser": "Modifier l'utilisateur",
+    "deleteUser": "Supprimer l'utilisateur",
+    "restoreUser": "Restaurer l'utilisateur",
+    "userId": "ID Utilisateur",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "role": "Rôle",
+    "status": "Statut",
+    "changeRole": "Changer le rôle",
+    "changeStatus": "Changer le statut",
+    "deleteReason": "Raison de la suppression",
+    "deleteReasonPlaceholder": "Expliquez pourquoi vous supprimez cet utilisateur...",
+    "deleteReasonRequired": "La raison est obligatoire (min. 10 caractères)",
+    "confirmDelete": "Confirmer la suppression",
+    "confirmRestore": "Êtes-vous sûr de vouloir restaurer cet utilisateur ?",
+    "userDeleted": "Utilisateur supprimé",
+    "userRestored": "Utilisateur restauré",
+    "roleUpdated": "Rôle mis à jour",
+    "statusUpdated": "Statut mis à jour",
+    "notifyUsers": "Notifier les utilisateurs",
+    "sendMessage": "Envoyer un message",
+    "selectUsers": "Sélectionner des utilisateurs",
+    "noUsers": "Aucun utilisateur",
+    "noUsersDescription": "Aucun utilisateur ne correspond à vos critères.",
+    "searchPlaceholder": "Rechercher par nom ou ID...",
+    "filterByRole": "Filtrer par rôle",
+    "filterByStatus": "Filtrer par statut",
+    "allRoles": "Tous les rôles",
+    "allStatuses": "Tous les statuts",
+    "roles": {
+      "admin": "Administrateur",
+      "professor": "Professeur",
+      "member": "Membre",
+      "parent": "Parent"
+    },
+    "statuses": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "suspended": "Suspendu",
+      "pending": "En attente",
+      "archived": "Archivé"
+    }
+  },
+  "families": {
+    "title": "Ma famille",
+    "description": "Gestion des membres de la famille",
+    "addMember": "Ajouter un membre",
+    "removeMember": "Retirer le membre",
+    "memberAdded": "Membre ajouté",
+    "memberRemoved": "Membre retiré",
+    "confirmRemove": "Êtes-vous sûr de vouloir retirer {{name}} de la famille ?",
+    "noMembers": "Aucun membre de famille",
+    "noMembersDescription": "Commencez par ajouter votre premier membre.",
+    "memberCount": "{{count}} membre",
+    "memberCount_plural": "{{count}} membres",
+    "selectMember": "Sélectionner un membre",
+    "familyName": "Nom de famille",
+    "relationship": "Relation",
+    "age": "Âge",
+    "grade": "Grade",
+    "minor": "Mineur",
+    "legalGuardian": "Tuteur légal",
+    "responsible": "Responsable",
+    "relationships": {
+      "parent": "Parent",
+      "guardian": "Tuteur",
+      "child": "Enfant",
+      "spouse": "Conjoint(e)",
+      "other": "Autre"
+    },
+    "errors": {
+      "loadFamily": "Erreur lors du chargement de la famille",
+      "addMember": "Erreur lors de l'ajout du membre",
+      "removeMember": "Erreur lors du retrait du membre"
+    }
   }
 }

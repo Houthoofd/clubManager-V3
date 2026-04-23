@@ -6,6 +6,7 @@
  * tout en utilisant le composant Badge.OrderStatus du design system.
  */
 
+import { useTranslation } from "react-i18next";
 import { Badge } from "../../../shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -33,11 +34,13 @@ interface OrderStatusBadgeProps {
 export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({
   statut,
 }) => {
+  const { t } = useTranslation("store");
+
   // Si pas de statut ou statut invalide, on affiche un badge neutre
   if (!statut) {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 ring-1 ring-gray-200">
-        Inconnu
+        {t("orderStatus.unknown")}
       </span>
     );
   }

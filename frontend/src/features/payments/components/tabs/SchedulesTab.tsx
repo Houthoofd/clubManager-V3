@@ -3,6 +3,7 @@
  * Affiche les échéances avec mise en évidence des retards
  */
 
+import { useTranslation } from "react-i18next";
 import {
   CheckIcon,
   ExclamationTriangleIcon,
@@ -65,18 +66,20 @@ export function SchedulesTab({
   markingScheduleId,
   isAdmin,
 }: SchedulesTabProps) {
+  const { t } = useTranslation("payments");
+
   return (
     <div>
       {/* En-tête de l'onglet */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
           <h2 className="text-base font-semibold text-gray-900">
-            Échéances de paiement
+            {t("tabs.schedulesTitle")}
           </h2>
           {overdueSchedules.length > 0 && (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">
               <ExclamationTriangleIcon className="h-3.5 w-3.5" />
-              {overdueSchedules.length} en retard
+              {overdueSchedules.length} {t("tabs.overdueSingular")}
             </span>
           )}
         </div>
@@ -84,7 +87,7 @@ export function SchedulesTab({
           type="button"
           onClick={refetchSchedules}
           disabled={schedulesLoading}
-          title="Rafraîchir les échéances"
+          title={t("tabs.refreshSchedules")}
           className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200
                      text-gray-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200
                      transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
@@ -116,11 +119,11 @@ export function SchedulesTab({
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        transition-colors min-w-[180px]"
           >
-            <option value="">Tous les statuts</option>
-            <option value="en_attente">En attente</option>
-            <option value="paye">Payé</option>
-            <option value="en_retard">En retard</option>
-            <option value="annule">Annulé</option>
+            <option value="">{t("tabs.allStatuses")}</option>
+            <option value="en_attente">{t("status.pending")}</option>
+            <option value="paye">{t("status.paid")}</option>
+            <option value="en_retard">{t("status.overdue")}</option>
+            <option value="annule">{t("status.cancelled")}</option>
           </select>
           {schedulesFilters.statut && (
             <button
@@ -129,7 +132,7 @@ export function SchedulesTab({
               className="px-3 py-3 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100
                          border border-gray-300 rounded-lg transition-colors"
             >
-              Réinitialiser
+              {t("tabs.reset")}
             </button>
           )}
         </div>
@@ -144,8 +147,11 @@ export function SchedulesTab({
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-semibold text-red-800 mb-3">
-                {overdueSchedules.length} échéance
-                {overdueSchedules.length > 1 ? "s" : ""} en retard
+                {overdueSchedules.length}{" "}
+                {overdueSchedules.length > 1
+                  ? t("tabs.schedulePlural")
+                  : t("tabs.scheduleSingular")}{" "}
+                {t("tabs.overdueSingular")}
               </h3>
               <div className="space-y-2">
                 {overdueSchedules.slice(0, 5).map((s) => (
@@ -187,7 +193,7 @@ export function SchedulesTab({
                           ) : (
                             <>
                               <CheckIcon className="h-3.5 w-3.5" />
-                              Payer
+                              {t("tabs.markPaid")}
                             </>
                           )}
                         </button>
@@ -197,8 +203,11 @@ export function SchedulesTab({
                 ))}
                 {overdueSchedules.length > 5 && (
                   <p className="text-xs text-red-600 text-center pt-1">
-                    + {overdueSchedules.length - 5} autre
-                    {overdueSchedules.length - 5 > 1 ? "s" : ""} en retard
+                    + {overdueSchedules.length - 5}{" "}
+                    {overdueSchedules.length - 5 > 1
+                      ? t("tabs.otherPlural")
+                      : t("tabs.otherSingular")}{" "}
+                    {t("tabs.overdueSingular")}
                   </p>
                 )}
               </div>
@@ -212,8 +221,8 @@ export function SchedulesTab({
         <LoadingSpinner />
       ) : schedules.length === 0 ? (
         <EmptyState
-          title="Aucune échéance trouvée"
-          description="Il n'y a aucune échéance de paiement à afficher pour le moment."
+          title={t("messages.noPendingPayments")}
+          description={t("messages.errorLoadingPayments")}
         />
       ) : (
         <>
@@ -222,7 +231,7 @@ export function SchedulesTab({
             data={schedules}
             rowKey="id"
             loading={schedulesLoading}
-            emptyMessage="Aucune échéance trouvée."
+            emptyMessage={t("messages.noPendingPayments")}
           />
           <PaginationBar
             currentPage={schedulesPagination.page}

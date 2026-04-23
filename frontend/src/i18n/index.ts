@@ -7,6 +7,30 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
+// Import des traductions FR
+import commonFr from "./locales/fr/common.json";
+import authFr from "./locales/fr/auth.json";
+import settingsFr from "./locales/fr/settings.json";
+import errorsFr from "./locales/fr/errors.json";
+import coursesFr from "./locales/fr/courses.json";
+import storeFr from "./locales/fr/store.json";
+import paymentsFr from "./locales/fr/payments.json";
+import statisticsFr from "./locales/fr/statistics.json";
+import messagesFr from "./locales/fr/messages.json";
+import familiesFr from "./locales/fr/families.json";
+
+// Import des traductions EN
+import commonEn from "./locales/en/common.json";
+import authEn from "./locales/en/auth.json";
+import settingsEn from "./locales/en/settings.json";
+import errorsEn from "./locales/en/errors.json";
+import coursesEn from "./locales/en/courses.json";
+import storeEn from "./locales/en/store.json";
+import paymentsEn from "./locales/en/payments.json";
+import statisticsEn from "./locales/en/statistics.json";
+import messagesEn from "./locales/en/messages.json";
+import familiesEn from "./locales/en/families.json";
+
 /**
  * Namespaces disponibles pour l'application
  * Chaque namespace correspond à une section de l'application
@@ -21,6 +45,7 @@ export const namespaces = [
   "payments", // Paiements
   "statistics", // Statistiques
   "messages", // Messagerie
+  "families", // Gestion des familles
 ] as const;
 
 /**
@@ -82,6 +107,34 @@ i18n
 
   // Initialiser i18next
   .init({
+    // Ressources de traduction
+    resources: {
+      fr: {
+        common: commonFr,
+        auth: authFr,
+        settings: settingsFr,
+        errors: errorsFr,
+        courses: coursesFr,
+        store: storeFr,
+        payments: paymentsFr,
+        statistics: statisticsFr,
+        messages: messagesFr,
+        families: familiesFr,
+      },
+      en: {
+        common: commonEn,
+        auth: authEn,
+        settings: settingsEn,
+        errors: errorsEn,
+        courses: coursesEn,
+        store: storeEn,
+        payments: paymentsEn,
+        statistics: statisticsEn,
+        messages: messagesEn,
+        families: familiesEn,
+      },
+    },
+
     // Langue de fallback si la traduction n'existe pas
     fallbackLng: defaultLanguage,
 

@@ -10,6 +10,8 @@
  * - PasswordInput : Champ mot de passe avec toggle visibilité et indicateur de force
  * - PasswordRequirements : Affichage détaillé des exigences de validation
  * - SubmitButton : Bouton de soumission avec état loading
+ *
+ * INTERNATIONALISÉ - Utilise react-i18next pour tous les textes
  */
 
 import { useForm, Controller } from "react-hook-form";
@@ -17,6 +19,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 import { useAuth } from "../../../shared/hooks/useAuth";
 import type { RegisterDto } from "@clubmanager/types";
@@ -41,115 +44,6 @@ type RegisterFormData = {
   genre_id: string;
   abonnement_id?: string;
 };
-
-// ─── VALIDATION SCHEMA ───────────────────────────────────────────────────────
-
-const registerFormSchema = z.object({
-  first_name: z
-    .string()
-    .min(2, "Le prénom doit contenir au moins 2 caractères")
-    .max(50, "Le prénom ne peut pas dépasser 50 caractères")
-    .regex(
-      /^[a-zA-ZÀ-ÿ\s'-]+$/,
-      "Le prénom ne peut contenir que des lettres, espaces, apostrophes et tirets",
-    ),
-  last_name: z
-    .string()
-    .min(2, "Le nom doit contenir au moins 2 caractères")
-    .max(50, "Le nom ne peut pas dépasser 50 caractères")
-    .regex(
-      /^[a-zA-ZÀ-ÿ\s'-]+$/,
-      "Le nom ne peut contenir que des lettres, espaces, apostrophes et tirets",
-    ),
-  nom_utilisateur: z
-    .string()
-    .min(3, "Le nom d'utilisateur doit contenir au moins 3 caractères")
-    .max(30, "Le nom d'utilisateur ne peut pas dépasser 30 caractères")
-    .regex(
-      /^[a-zA-Z0-9_-]+$/,
-      "Le nom d'utilisateur ne peut contenir que des lettres, chiffres, underscores et tirets",
-    )
-    .optional()
-    .or(z.literal("")),
-  email: z.string().email("Adresse email invalide"),
-  password: z
-    .string()
-    .min(8, "Le mot de passe doit contenir au moins 8 caractères")
-    .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une majuscule")
-    .regex(/[a-z]/, "Le mot de passe doit contenir au moins une minuscule")
-    .regex(/[0-9]/, "Le mot de passe doit contenir au moins un chiffre")
-    .regex(
-      /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/,
-      "Le mot de passe doit contenir au moins un caractère spécial",
-    ),
-  date_of_birth: z
-    .string()
-    .refine(
-      (dateStr) => {
-        if (!dateStr) return false;
-        const parts = dateStr.split("-").map(Number);
-        if (parts.length !== 3) return false;
-        const [year, month, day] = parts;
-        if (!year || !month || !day) return false;
-        const birthDate = new Date(year, month - 1, day);
-        const today = new Date();
-
-        const minAgeDate = new Date(
-          today.getFullYear() - 5,
-          today.getMonth(),
-          today.getDate(),
-        );
-
-        return birthDate <= minAgeDate;
-      },
-      {
-        message: "Vous devez avoir au moins 5 ans pour vous inscrire",
-      },
-    )
-    .refine(
-      (dateStr) => {
-        const parts = dateStr.split("-").map(Number);
-        if (parts.length !== 3) return true;
-        const [year, month, day] = parts;
-        if (!year || !month || !day) return true;
-        const birthDate = new Date(year, month - 1, day);
-        const today = new Date();
-        return birthDate < today;
-      },
-      {
-        message: "La date de naissance ne peut pas être future",
-      },
-    )
-    .refine(
-      (dateStr) => {
-        const parts = dateStr.split("-").map(Number);
-        if (parts.length !== 3) return true;
-        const [year, month, day] = parts;
-        if (!year || !month || !day) return true;
-        const birthDate = new Date(year, month - 1, day);
-        const today = new Date();
-        const maxAgeDate = new Date(
-          today.getFullYear() - 120,
-          today.getMonth(),
-          today.getDate(),
-        );
-        return birthDate >= maxAgeDate;
-      },
-      {
-        message: "La date de naissance n'est pas valide",
-      },
-    ),
-  genre_id: z.string().min(1, "Veuillez sélectionner un genre"),
-  abonnement_id: z.string().optional(),
-});
-
-// ─── OPTIONS SELECT ──────────────────────────────────────────────────────────
-
-const GENRE_OPTIONS = [
-  { value: "1", label: "Homme" },
-  { value: "2", label: "Femme" },
-  { value: "3", label: "Autre" },
-];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
@@ -188,8 +82,109 @@ const getMinBirthDate = (): string => {
 // ─── COMPOSANT ───────────────────────────────────────────────────────────────
 
 export const RegisterPage = () => {
+  const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const { register: registerUser, isLoading } = useAuth();
+
+  // ─── VALIDATION SCHEMA (dynamique avec traductions) ───────────────────────
+
+  const registerFormSchema = z.object({
+    first_name: z
+      .string()
+      .min(2, t("errors.firstNameTooShort"))
+      .max(50, t("errors.firstNameTooLong"))
+      .regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, t("errors.firstNameInvalidChars")),
+    last_name: z
+      .string()
+      .min(2, t("errors.lastNameTooShort"))
+      .max(50, t("errors.lastNameTooLong"))
+      .regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, t("errors.lastNameInvalidChars")),
+    nom_utilisateur: z
+      .string()
+      .min(3, t("errors.usernameTooShort"))
+      .max(30, t("errors.usernameTooLong"))
+      .regex(/^[a-zA-Z0-9_-]+$/, t("errors.usernameInvalidChars"))
+      .optional()
+      .or(z.literal("")),
+    email: z.string().email(t("errors.emailInvalid")),
+    password: z
+      .string()
+      .min(8, t("errors.passwordTooShort"))
+      .regex(/[A-Z]/, t("errors.passwordNeedsUppercase"))
+      .regex(/[a-z]/, t("errors.passwordNeedsLowercase"))
+      .regex(/[0-9]/, t("errors.passwordNeedsNumber"))
+      .regex(
+        /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/,
+        t("errors.passwordNeedsSpecial"),
+      ),
+    date_of_birth: z
+      .string()
+      .refine(
+        (dateStr) => {
+          if (!dateStr) return false;
+          const parts = dateStr.split("-").map(Number);
+          if (parts.length !== 3) return false;
+          const [year, month, day] = parts;
+          if (!year || !month || !day) return false;
+          const birthDate = new Date(year, month - 1, day);
+          const today = new Date();
+
+          const minAgeDate = new Date(
+            today.getFullYear() - 5,
+            today.getMonth(),
+            today.getDate(),
+          );
+
+          return birthDate <= minAgeDate;
+        },
+        {
+          message: t("errors.ageTooYoung"),
+        },
+      )
+      .refine(
+        (dateStr) => {
+          const parts = dateStr.split("-").map(Number);
+          if (parts.length !== 3) return true;
+          const [year, month, day] = parts;
+          if (!year || !month || !day) return true;
+          const birthDate = new Date(year, month - 1, day);
+          const today = new Date();
+          return birthDate < today;
+        },
+        {
+          message: t("errors.birthDateFuture"),
+        },
+      )
+      .refine(
+        (dateStr) => {
+          const parts = dateStr.split("-").map(Number);
+          if (parts.length !== 3) return true;
+          const [year, month, day] = parts;
+          if (!year || !month || !day) return true;
+          const birthDate = new Date(year, month - 1, day);
+          const today = new Date();
+          const maxAgeDate = new Date(
+            today.getFullYear() - 120,
+            today.getMonth(),
+            today.getDate(),
+          );
+          return birthDate >= maxAgeDate;
+        },
+        {
+          message: t("errors.birthDateInvalid"),
+        },
+      ),
+    genre_id: z.string().min(1, t("errors.genderRequired")),
+    abonnement_id: z.string().optional(),
+  });
+
+  // ─── OPTIONS SELECT ──────────────────────────────────────────────────────────
+
+  const GENRE_OPTIONS = [
+    { value: "1", label: t("register.genderMale") },
+    { value: "2", label: t("register.genderFemale") },
+    { value: "3", label: t("register.genderOther") },
+  ];
 
   // React Hook Form avec Zod validation
   const {
@@ -229,22 +224,19 @@ export const RegisterPage = () => {
       console.log("✅ API Response:", result);
 
       if (result.success) {
-        toast.success("Compte créé !", {
-          description:
-            "Un email de vérification vous a été envoyé. Consultez votre boîte mail pour activer votre compte.",
+        toast.success(t("register.accountCreated"), {
+          description: t("register.accountCreatedDescription"),
         });
 
         navigate("/login", {
           replace: true,
           state: {
-            message:
-              "Compte créé ! Votre identifiant de connexion vous a été envoyé par email. Vérifiez votre boîte mail avant de vous connecter.",
+            message: t("register.accountCreatedMessage"),
           },
         });
       } else {
-        toast.error("Erreur d'inscription", {
-          description:
-            result.error || "Une erreur est survenue lors de l'inscription.",
+        toast.error(t("register.errorTitle"), {
+          description: result.error || t("register.errorDescription"),
         });
       }
     } catch (error: any) {
@@ -254,46 +246,45 @@ export const RegisterPage = () => {
         response: error.response?.data,
         status: error.response?.status,
       });
-      toast.error("Erreur d'inscription", {
-        description:
-          error.message || "Une erreur est survenue lors de l'inscription.",
+      toast.error(t("register.errorTitle"), {
+        description: error.message || t("register.errorDescription"),
       });
     }
   };
 
   return (
     <AuthPageContainer
-      title="Créer un compte"
-      subtitle="Rejoignez ClubManager et gérez votre club facilement"
+      title={t("register.title")}
+      subtitle={t("register.subtitle")}
       footer={
         <>
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Vous avez déjà un compte ?{" "}
+              {t("register.alreadyHaveAccount")}{" "}
               <Link
                 to="/login"
                 className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
               >
-                Se connecter
+                {t("register.login")}
               </Link>
             </p>
           </div>
 
           {/* Conditions d'utilisation */}
           <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4">
-            En créant un compte, vous acceptez nos{" "}
+            {t("register.termsPrefix")}{" "}
             <Link
               to="/terms"
               className="underline hover:text-gray-700 dark:hover:text-gray-300"
             >
-              Conditions d'utilisation
+              {t("register.termsLink")}
             </Link>{" "}
-            et notre{" "}
+            {t("register.termsAnd")}{" "}
             <Link
               to="/privacy"
               className="underline hover:text-gray-700 dark:hover:text-gray-300"
             >
-              Politique de confidentialité
+              {t("register.privacyLink")}
             </Link>
           </p>
         </>
@@ -304,7 +295,7 @@ export const RegisterPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             id="first_name"
-            label="Prénom"
+            label={t("register.firstName")}
             required
             error={errors.first_name?.message}
           >
@@ -312,14 +303,14 @@ export const RegisterPage = () => {
               id="first_name"
               type="text"
               autoComplete="given-name"
-              placeholder="Jean"
+              placeholder={t("register.firstNamePlaceholder")}
               {...register("first_name")}
             />
           </FormField>
 
           <FormField
             id="last_name"
-            label="Nom"
+            label={t("register.lastName")}
             required
             error={errors.last_name?.message}
           >
@@ -327,7 +318,7 @@ export const RegisterPage = () => {
               id="last_name"
               type="text"
               autoComplete="family-name"
-              placeholder="Dupont"
+              placeholder={t("register.lastNamePlaceholder")}
               {...register("last_name")}
             />
           </FormField>
@@ -336,7 +327,7 @@ export const RegisterPage = () => {
         {/* Email */}
         <FormField
           id="email"
-          label="Adresse email"
+          label={t("register.email")}
           required
           error={errors.email?.message}
         >
@@ -344,7 +335,7 @@ export const RegisterPage = () => {
             id="email"
             type="email"
             autoComplete="email"
-            placeholder="exemple@email.com"
+            placeholder={t("register.emailPlaceholder")}
             {...register("email")}
           />
         </FormField>
@@ -353,7 +344,7 @@ export const RegisterPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             id="date_of_birth"
-            label="Date de naissance"
+            label={t("register.dateOfBirth")}
             required
             error={errors.date_of_birth?.message}
           >
@@ -372,9 +363,9 @@ export const RegisterPage = () => {
             render={({ field }) => (
               <SelectField
                 id="genre_id"
-                label="Genre"
+                label={t("register.gender")}
                 required
-                placeholder="Sélectionnez un genre"
+                placeholder={t("register.selectGender")}
                 options={GENRE_OPTIONS}
                 value={field.value}
                 onChange={field.onChange}
@@ -387,15 +378,15 @@ export const RegisterPage = () => {
         {/* Nom d'utilisateur (optionnel) */}
         <FormField
           id="nom_utilisateur"
-          label="Nom d'utilisateur"
+          label={t("register.username")}
           error={errors.nom_utilisateur?.message}
-          helpText="Optionnel - Uniquement des lettres, chiffres, _ et -"
+          helpText={t("register.usernameHelp")}
         >
           <Input
             id="nom_utilisateur"
             type="text"
             autoComplete="username"
-            placeholder="jeandupont"
+            placeholder={t("register.usernamePlaceholder")}
             {...register("nom_utilisateur")}
           />
         </FormField>
@@ -403,7 +394,7 @@ export const RegisterPage = () => {
         {/* Mot de passe avec indicateur de force et exigences */}
         <FormField
           id="password"
-          label="Mot de passe"
+          label={t("register.password")}
           required
           error={errors.password?.message}
         >
@@ -431,7 +422,7 @@ export const RegisterPage = () => {
 
         {/* Bouton de soumission */}
         <SubmitButton isLoading={isSubmitting || isLoading} fullWidth>
-          Créer mon compte
+          {t("register.submit")}
         </SubmitButton>
       </form>
     </AuthPageContainer>

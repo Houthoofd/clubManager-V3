@@ -4,6 +4,7 @@
  */
 
 import { Squares2X2Icon } from "@heroicons/react/24/outline";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../../../shared/components/Button";
 import { SectionHeader } from "../SectionHeader";
 import { ModuleToggle } from "../ModuleToggle";
@@ -41,81 +42,67 @@ export function NavigationSection({
   handleSaveNavigation,
   isSaving,
 }: NavigationSectionProps) {
+  const { t } = useTranslation("common");
+
   return (
     <div className="bg-white rounded-lg shadow p-6 space-y-6">
       <SectionHeader
         icon={<Squares2X2Icon className="h-5 w-5" />}
         iconBg="bg-teal-100"
         iconColor="text-teal-600"
-        title="Modules de navigation"
-        description="Activez ou désactivez les modules du menu"
+        title={t("modules.title")}
+        description={t("modules.description")}
       />
 
       <div className="space-y-3">
         <ModuleToggle
-          label="Tableau de bord"
+          label={t("modules.dashboard")}
           moduleKey="dashboard"
           enabled={activeModules.dashboard}
           disabled={true}
-          onChange={(k, v) =>
-            setActiveModules({ ...activeModules, [k]: v })
-          }
+          onChange={(k, v) => setActiveModules({ ...activeModules, [k]: v })}
         />
         <ModuleToggle
-          label="Cours"
+          label={t("modules.courses")}
           moduleKey="courses"
           enabled={activeModules.courses}
-          onChange={(k, v) =>
-            setActiveModules({ ...activeModules, [k]: v })
-          }
+          onChange={(k, v) => setActiveModules({ ...activeModules, [k]: v })}
         />
         <ModuleToggle
-          label="Utilisateurs"
+          label={t("modules.users")}
           moduleKey="users"
           enabled={activeModules.users}
-          onChange={(k, v) =>
-            setActiveModules({ ...activeModules, [k]: v })
-          }
+          onChange={(k, v) => setActiveModules({ ...activeModules, [k]: v })}
         />
         <ModuleToggle
-          label="Familles"
+          label={t("modules.families")}
           moduleKey="families"
           enabled={activeModules.families}
-          onChange={(k, v) =>
-            setActiveModules({ ...activeModules, [k]: v })
-          }
+          onChange={(k, v) => setActiveModules({ ...activeModules, [k]: v })}
         />
         <ModuleToggle
-          label="Paiements"
+          label={t("modules.payments")}
           moduleKey="payments"
           enabled={activeModules.payments}
-          onChange={(k, v) =>
-            setActiveModules({ ...activeModules, [k]: v })
-          }
+          onChange={(k, v) => setActiveModules({ ...activeModules, [k]: v })}
         />
         <ModuleToggle
-          label="Boutique"
+          label={t("modules.store")}
           moduleKey="store"
           enabled={activeModules.store}
-          onChange={(k, v) =>
-            setActiveModules({ ...activeModules, [k]: v })
-          }
+          onChange={(k, v) => setActiveModules({ ...activeModules, [k]: v })}
         />
         <ModuleToggle
-          label="Messages"
+          label={t("modules.messages")}
           moduleKey="messages"
           enabled={activeModules.messages}
-          onChange={(k, v) =>
-            setActiveModules({ ...activeModules, [k]: v })
-          }
+          onChange={(k, v) => setActiveModules({ ...activeModules, [k]: v })}
         />
         <ModuleToggle
-          label="Statistiques"
+          label={t("modules.statistics")}
           moduleKey="statistics"
           enabled={activeModules.statistics}
-          onChange={(k, v) =>
-            setActiveModules({ ...activeModules, [k]: v })
-          }
+          onChange={(k, v) => setActiveModules({ ...activeModules, [k]: v })}
         />
       </div>
 
@@ -125,7 +112,7 @@ export function NavigationSection({
           loading={isSaving}
           variant="primary"
         >
-          Sauvegarder
+          {t("modules.save")}
         </Button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Modal } from "../../../../shared/components/Modal/Modal";
 import { Button } from "../../../../shared/components/Button/Button";
 import { SubmitButton } from "../../../../shared/components/Button/SubmitButton";
@@ -44,6 +45,7 @@ export function AttendanceModal({
   onClose,
   onSave,
 }: AttendanceModalProps) {
+  const { t } = useTranslation("courses");
   const [presenceMap, setPresenceMap] = useState<Record<number, number | null>>(
     {},
   );
@@ -75,11 +77,11 @@ export function AttendanceModal({
         status_id,
       }));
       await onSave(session.id, { updates });
-      toast.success("Présences sauvegardées");
+      toast.success(t("messages.success.attendanceSaved"));
       onClose();
     } catch (error: any) {
       toast.error(
-        error.response?.data?.message ?? "Erreur lors de la sauvegarde.",
+        error.response?.data?.message ?? t("messages.error.savingAttendance"),
       );
     } finally {
       setSaving(false);
@@ -89,7 +91,7 @@ export function AttendanceModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="2xl">
       <Modal.Header
-        title="Feuille d'appel"
+        title={t("modals.attendanceSheet")}
         subtitle={
           session
             ? `${session.type_cours} — ${formatDate(session.date_cours)} ${formatTime(session.heure_debut)}–${formatTime(session.heure_fin)}`
@@ -100,27 +102,25 @@ export function AttendanceModal({
         {attendanceLoading ? (
           <LoadingSpinner size="lg" />
         ) : !attendanceSheet ? (
-          <p className="text-center text-gray-500 py-12">
-            Aucune donnée disponible.
-          </p>
+          <p className="text-center text-gray-500 py-12">{t("empty.noData")}</p>
         ) : (
           <>
             <div className="flex flex-wrap gap-4 mb-5 p-3 bg-gray-50 rounded-lg">
               <span className="text-sm text-gray-600">
-                Total :{" "}
+                {t("labels.total")}{" "}
                 <strong>{attendanceSheet.statistiques.total_inscrits}</strong>
               </span>
               <span className="text-sm text-green-700">
-                Présents :{" "}
+                {t("labels.present")}{" "}
                 <strong>{attendanceSheet.statistiques.nombre_presents}</strong>
               </span>
               <span className="text-sm text-red-600">
-                Absents :{" "}
+                {t("labels.absent")}{" "}
                 <strong>{attendanceSheet.statistiques.nombre_absents}</strong>
               </span>
               {attendanceSheet.professeurs.length > 0 && (
                 <span className="text-sm text-blue-600">
-                  Prof :{" "}
+                  {t("labels.professor")}{" "}
                   {attendanceSheet.professeurs
                     .map((p) => p.nom_complet)
                     .join(", ")}
@@ -130,20 +130,20 @@ export function AttendanceModal({
 
             {attendanceSheet.inscriptions.length === 0 ? (
               <p className="text-center text-gray-400 py-8">
-                Aucun inscrit pour cette séance.
+                {t("empty.noInscriptions")}
               </p>
             ) : (
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-100">
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-4">
-                      Nom complet
+                      {t("fields.fullName")}
                     </th>
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-4">
-                      Grade
+                      {t("fields.grade")}
                     </th>
                     <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 w-24">
-                      Présent
+                      {t("fields.present")}
                     </th>
                   </tr>
                 </thead>
@@ -202,7 +202,7 @@ export function AttendanceModal({
       </Modal.Body>
       <Modal.Footer align="right">
         <Button variant="outline" onClick={onClose} disabled={saving}>
-          Fermer
+          {t("buttons.close")}
         </Button>
         {attendanceSheet && attendanceSheet.inscriptions.length > 0 && (
           <SubmitButton
@@ -210,9 +210,9 @@ export function AttendanceModal({
             onClick={handleSave}
             isLoading={saving}
             disabled={attendanceLoading}
-            loadingText="Sauvegarde…"
+            loadingText={t("loadingText.savingAttendance")}
           >
-            Sauvegarder les présences
+            {t("buttons.saveAttendance")}
           </SubmitButton>
         )}
       </Modal.Footer>

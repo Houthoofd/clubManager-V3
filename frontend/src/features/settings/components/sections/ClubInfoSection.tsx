@@ -1,8 +1,11 @@
 /**
  * ClubInfoSection - Section des informations du club
  * Extrait de SettingsPage.tsx (Phase 2 refactorisation)
+ *
+ * INTERNATIONALISÉ - Utilise react-i18next pour tous les textes
  */
 
+import { useTranslation } from "react-i18next";
 import { BuildingOffice2Icon } from "@heroicons/react/24/outline";
 import { FormField } from "../../../../shared/components/Forms/FormField";
 import { Input } from "../../../../shared/components/Input";
@@ -36,19 +39,21 @@ export function ClubInfoSection({
   handleSaveClub,
   isSaving,
 }: ClubInfoSectionProps) {
+  const { t } = useTranslation("settings");
+
   return (
     <div className="bg-white rounded-lg shadow p-6 space-y-6">
       <SectionHeader
         icon={<BuildingOffice2Icon className="h-5 w-5" />}
         iconBg="bg-blue-100"
         iconColor="text-blue-600"
-        title="Informations du club"
-        description="Gérez les informations essentielles de votre club"
+        title={t("clubInfo.title")}
+        description={t("clubInfo.description")}
       />
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <FormField id="club_name" label="Nom du club" required>
+          <FormField id="club_name" label={t("clubInfo.name")} required>
             <Input
               id="club_name"
               type="text"
@@ -56,13 +61,13 @@ export function ClubInfoSection({
               onChange={(e) =>
                 setClubForm({ ...clubForm, club_name: e.target.value })
               }
-              placeholder="Club de Sport Exemple"
+              placeholder={t("clubInfo.namePlaceholder")}
             />
           </FormField>
         </div>
 
         <div className="sm:col-span-2">
-          <FormField id="club_address" label="Adresse">
+          <FormField id="club_address" label={t("clubInfo.address")}>
             <Input
               id="club_address"
               type="text"
@@ -70,12 +75,12 @@ export function ClubInfoSection({
               onChange={(e) =>
                 setClubForm({ ...clubForm, club_address: e.target.value })
               }
-              placeholder="123 Rue de la République, 75001 Paris"
+              placeholder={t("clubInfo.addressPlaceholder")}
             />
           </FormField>
         </div>
 
-        <FormField id="club_phone" label="Téléphone">
+        <FormField id="club_phone" label={t("clubInfo.phone")}>
           <Input
             id="club_phone"
             type="tel"
@@ -83,11 +88,11 @@ export function ClubInfoSection({
             onChange={(e) =>
               setClubForm({ ...clubForm, club_phone: e.target.value })
             }
-            placeholder="+33 1 23 45 67 89"
+            placeholder={t("clubInfo.phonePlaceholder")}
           />
         </FormField>
 
-        <FormField id="club_email" label="Email">
+        <FormField id="club_email" label={t("clubInfo.email")}>
           <Input
             id="club_email"
             type="email"
@@ -95,12 +100,12 @@ export function ClubInfoSection({
             onChange={(e) =>
               setClubForm({ ...clubForm, club_email: e.target.value })
             }
-            placeholder="contact@club.fr"
+            placeholder={t("clubInfo.emailPlaceholder")}
           />
         </FormField>
 
         <div className="sm:col-span-2">
-          <FormField id="club_website" label="Site web">
+          <FormField id="club_website" label={t("clubInfo.website")}>
             <Input
               id="club_website"
               type="url"
@@ -108,19 +113,15 @@ export function ClubInfoSection({
               onChange={(e) =>
                 setClubForm({ ...clubForm, club_website: e.target.value })
               }
-              placeholder="https://www.club.fr"
+              placeholder={t("clubInfo.websitePlaceholder")}
             />
           </FormField>
         </div>
       </div>
 
       <div className="flex justify-end pt-4 border-t border-gray-100">
-        <Button
-          onClick={handleSaveClub}
-          loading={isSaving}
-          variant="primary"
-        >
-          Sauvegarder
+        <Button onClick={handleSaveClub} loading={isSaving} variant="primary">
+          {t("actions.save")}
         </Button>
       </div>
     </div>

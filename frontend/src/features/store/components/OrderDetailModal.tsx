@@ -6,6 +6,7 @@
  */
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal } from "@/shared/components/Modal/Modal";
 import { BUTTON, cn } from "@/shared/styles/designTokens";
 import type { OrderWithItems } from "../api/storeApi";
@@ -74,6 +75,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   onUpdateStatus,
   canManage,
 }) => {
+  const { t } = useTranslation("store");
   const [isUpdating, setIsUpdating] = useState(false);
 
   // ── Gestion du changement de statut ───────────────────────────────────────
@@ -113,7 +115,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   const clientName =
     order.user_first_name && order.user_last_name
       ? `${order.user_first_name} ${order.user_last_name}`
-      : "Client inconnu";
+      : t("orderDetailModal.client.unknown");
 
   // ── Rendu ─────────────────────────────────────────────────────────────────
   return (
@@ -125,7 +127,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
       closeOnEscape={!isUpdating}
     >
       <Modal.Header
-        title="Détails de la commande"
+        title={t("orderDetailModal.title")}
         subtitle={order.numero_commande}
         showCloseButton
         onClose={handleClose}
@@ -136,12 +138,14 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           {/* Informations générales */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-medium text-gray-500 mb-1">Statut</p>
+              <p className="text-sm font-medium text-gray-500 mb-1">
+                {t("orderDetailModal.status")}
+              </p>
               <OrderStatusBadge statut={order.statut} />
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500 mb-1">
-                Date de commande
+                {t("orderDetailModal.orderDate")}
               </p>
               <p className="text-sm text-gray-900">
                 {formatDate(order.date_commande)}
@@ -152,16 +156,20 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           {/* Informations client */}
           <div>
             <h3 className="text-sm font-semibold text-gray-900 mb-3">
-              Informations client
+              {t("orderDetailModal.client.title")}
             </h3>
             <div className="bg-gray-50 rounded-lg p-4 space-y-2">
               <div>
-                <p className="text-sm font-medium text-gray-500">Nom</p>
+                <p className="text-sm font-medium text-gray-500">
+                  {t("orderDetailModal.client.name")}
+                </p>
                 <p className="text-sm text-gray-900">{clientName}</p>
               </div>
               {order.user_email && (
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Email</p>
+                  <p className="text-sm font-medium text-gray-500">
+                    {t("orderDetailModal.client.email")}
+                  </p>
                   <p className="text-sm text-gray-900">{order.user_email}</p>
                 </div>
               )}
@@ -171,7 +179,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           {/* Articles commandés */}
           <div>
             <h3 className="text-sm font-semibold text-gray-900 mb-3">
-              Articles commandés
+              {t("orderDetailModal.items.title")}
             </h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -181,31 +189,31 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                       scope="col"
                       className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Article
+                      {t("orderDetailModal.items.article")}
                     </th>
                     <th
                       scope="col"
                       className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Taille
+                      {t("orderDetailModal.items.size")}
                     </th>
                     <th
                       scope="col"
                       className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Quantité
+                      {t("orderDetailModal.items.quantity")}
                     </th>
                     <th
                       scope="col"
                       className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Prix unitaire
+                      {t("orderDetailModal.items.unitPrice")}
                     </th>
                     <th
                       scope="col"
                       className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Sous-total
+                      {t("orderDetailModal.items.subtotal")}
                     </th>
                   </tr>
                 </thead>
@@ -222,7 +230,8 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                             />
                           )}
                           <span className="text-sm font-medium text-gray-900">
-                            {item.article_nom || "Article inconnu"}
+                            {item.article_nom ||
+                              t("orderDetailModal.items.unknown")}
                           </span>
                         </div>
                       </td>
@@ -247,7 +256,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                       colSpan={4}
                       className="px-4 py-3 text-right text-sm font-semibold text-gray-900"
                     >
-                      Total
+                      {t("orderDetailModal.items.total")}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-right text-lg font-bold text-blue-600">
                       {total.toFixed(2)} €
@@ -262,7 +271,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           {canManage && onUpdateStatus && (
             <div className="border-t border-gray-200 pt-5">
               <h3 className="text-sm font-semibold text-gray-900 mb-3">
-                Actions administrateur
+                {t("orderDetailModal.admin.title")}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {canMarkAsPaid && (
@@ -281,7 +290,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                         <SpinnerIcon />
                       </span>
                     )}
-                    Marquer comme payée
+                    {t("orderDetailModal.admin.markAsPaid")}
                   </button>
                 )}
                 {canMarkAsShipped && (
@@ -300,7 +309,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                         <SpinnerIcon />
                       </span>
                     )}
-                    Marquer comme expédiée
+                    {t("orderDetailModal.admin.markAsShipped")}
                   </button>
                 )}
                 {canMarkAsDelivered && (
@@ -319,7 +328,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                         <SpinnerIcon />
                       </span>
                     )}
-                    Marquer comme livrée
+                    {t("orderDetailModal.admin.markAsDelivered")}
                   </button>
                 )}
                 {canCancel && (
@@ -338,7 +347,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                         <SpinnerIcon />
                       </span>
                     )}
-                    Annuler la commande
+                    {t("orderDetailModal.admin.cancelOrder")}
                   </button>
                 )}
               </div>
@@ -354,7 +363,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           disabled={isUpdating}
           className={cn(BUTTON.base, BUTTON.variant.outline, BUTTON.size.md)}
         >
-          Fermer
+          {t("orderDetailModal.actions.close")}
         </button>
       </Modal.Footer>
     </Modal>

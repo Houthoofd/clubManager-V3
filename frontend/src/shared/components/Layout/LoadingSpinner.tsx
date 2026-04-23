@@ -14,7 +14,8 @@
  * ```
  */
 
-import { cn } from '../../styles/designTokens';
+import { cn } from "../../styles/designTokens";
+import { useTranslation } from "react-i18next";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -26,7 +27,7 @@ export interface LoadingSpinnerProps {
    * - lg: h-8 w-8 (grand, pour pages principales)
    * @default "md"
    */
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
 
   /**
    * Texte optionnel à afficher à côté du spinner
@@ -44,27 +45,29 @@ export interface LoadingSpinnerProps {
 // ─── COMPOSANT ───────────────────────────────────────────────────────────────
 
 export function LoadingSpinner({
-  size = 'md',
+  size = "md",
   text,
   className,
 }: LoadingSpinnerProps) {
+  const { t } = useTranslation("common");
+
   // Mapping des tailles
   const sizeClasses = {
-    sm: 'h-4 w-4',
-    md: 'h-5 w-5',
-    lg: 'h-8 w-8',
+    sm: "h-4 w-4",
+    md: "h-5 w-5",
+    lg: "h-8 w-8",
   };
 
   const spinnerSize = sizeClasses[size];
 
   return (
     <div
-      className={cn('flex items-center justify-center py-12 gap-3', className)}
+      className={cn("flex items-center justify-center py-12 gap-3", className)}
       role="status"
       aria-live="polite"
     >
       <svg
-        className={cn(spinnerSize, 'animate-spin text-blue-600')}
+        className={cn(spinnerSize, "animate-spin text-blue-600")}
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
@@ -84,15 +87,9 @@ export function LoadingSpinner({
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
         />
       </svg>
-      {text && (
-        <span className="text-sm text-gray-500">
-          {text}
-        </span>
-      )}
+      {text && <span className="text-sm text-gray-500">{text}</span>}
       {/* Screen reader text */}
-      <span className="sr-only">
-        {text || 'Chargement en cours...'}
-      </span>
+      <span className="sr-only">{text || t("messages.loading")}</span>
     </div>
   );
 }

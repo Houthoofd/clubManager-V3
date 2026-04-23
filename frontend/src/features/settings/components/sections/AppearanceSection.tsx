@@ -4,6 +4,7 @@
  */
 
 import { PaintBrushIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "react-i18next";
 import { FormField } from "../../../../shared/components/Forms/FormField";
 import { Input } from "../../../../shared/components/Input";
 import { Button } from "../../../../shared/components/Button";
@@ -39,19 +40,21 @@ export function AppearanceSection({
   handleSaveApparence,
   isSaving,
 }: AppearanceSectionProps) {
+  const { t } = useTranslation("common");
+
   return (
     <div className="bg-white rounded-lg shadow p-6 space-y-6">
       <SectionHeader
         icon={<PaintBrushIcon className="h-5 w-5" />}
         iconBg="bg-indigo-100"
         iconColor="text-indigo-600"
-        title="Apparence"
-        description="Personnalisez les couleurs et le logo"
+        title={t("appearance.title")}
+        description={t("appearance.description")}
       />
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <ColorField
-          label="Couleur principale"
+          label={t("appearance.primaryColor")}
           value={apparenceForm.theme_primary_color}
           onChange={(val) =>
             setApparenceForm({
@@ -62,7 +65,7 @@ export function AppearanceSection({
         />
 
         <ColorField
-          label="Couleur secondaire"
+          label={t("appearance.secondaryColor")}
           value={apparenceForm.theme_secondary_color}
           onChange={(val) =>
             setApparenceForm({
@@ -73,7 +76,7 @@ export function AppearanceSection({
         />
 
         <ColorField
-          label="Fond barre latérale"
+          label={t("appearance.sidebarBackground")}
           value={apparenceForm.theme_sidebar_bg}
           onChange={(val) =>
             setApparenceForm({
@@ -84,7 +87,7 @@ export function AppearanceSection({
         />
 
         <ColorField
-          label="Texte barre latérale"
+          label={t("appearance.sidebarText")}
           value={apparenceForm.theme_sidebar_text}
           onChange={(val) =>
             setApparenceForm({
@@ -95,7 +98,7 @@ export function AppearanceSection({
         />
 
         <div className="sm:col-span-2">
-          <FormField id="club_logo_url" label="URL du logo">
+          <FormField id="club_logo_url" label={t("appearance.logoUrl")}>
             <Input
               id="club_logo_url"
               type="url"
@@ -106,16 +109,13 @@ export function AppearanceSection({
                   club_logo_url: e.target.value,
                 })
               }
-              placeholder="https://exemple.com/logo.png"
+              placeholder={t("appearance.logoUrlPlaceholder")}
             />
           </FormField>
         </div>
 
         <div className="sm:col-span-2">
-          <FormField
-            id="navbar_name"
-            label="Nom affiché dans la navigation"
-          >
+          <FormField id="navbar_name" label={t("appearance.navbarName")}>
             <Input
               id="navbar_name"
               type="text"
@@ -126,7 +126,7 @@ export function AppearanceSection({
                   navbar_name: e.target.value,
                 })
               }
-              placeholder="Mon Club"
+              placeholder={t("appearance.navbarNamePlaceholder")}
             />
           </FormField>
         </div>
@@ -138,7 +138,7 @@ export function AppearanceSection({
           loading={isSaving}
           variant="primary"
         >
-          Sauvegarder
+          {t("appearance.save")}
         </Button>
       </div>
     </div>

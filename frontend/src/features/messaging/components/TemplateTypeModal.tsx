@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { createTemplateType, updateTemplateType } from "../api/templatesApi";
 import type { TemplateType } from "../api/templatesApi";
 import {
@@ -30,6 +31,7 @@ export const TemplateTypeModal = ({
   onClose,
   onSaved,
 }: TemplateTypeModalProps) => {
+  const { t } = useTranslation("messages");
   const isEditing = Boolean(type);
 
   // ── Form state ─────────────────────────────────────────────────────────────
@@ -84,13 +86,13 @@ export const TemplateTypeModal = ({
           description: description.trim() || undefined,
           actif,
         });
-        toast.success("Catégorie mise à jour.");
+        toast.success(t("success.categoryUpdated"));
       } else {
         await createTemplateType({
           nom: nom.trim(),
           description: description.trim() || undefined,
         });
-        toast.success("Catégorie créée avec succès.");
+        toast.success(t("success.categoryCreated"));
       }
       onSaved();
       onClose();
@@ -189,7 +191,7 @@ export const TemplateTypeModal = ({
                         return n;
                       });
                   }}
-                  placeholder="Ex : Bienvenue, Cours annulé, Rappel…"
+                  placeholder={t("templateType.namePlaceholderAlt")}
                   maxLength={100}
                   autoFocus
                   className={[
@@ -220,7 +222,7 @@ export const TemplateTypeModal = ({
                   id="type-description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Décrivez l'usage de cette catégorie…"
+                  placeholder={t("templateType.descriptionPlaceholderAlt")}
                   rows={3}
                   maxLength={500}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors resize-none"

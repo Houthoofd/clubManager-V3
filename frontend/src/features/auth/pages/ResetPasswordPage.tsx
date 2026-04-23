@@ -7,6 +7,8 @@
  * - PasswordInput : Champs password avec toggle et indicateur de force
  * - SubmitButton : Bouton de soumission avec état de chargement
  * - ErrorBanner : Messages d'erreur
+ *
+ * INTERNATIONALISÉ - Utilise react-i18next pour tous les textes
  */
 
 import { useState, useEffect } from "react";
@@ -14,6 +16,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { CheckCircleIcon } from "@patternfly/react-icons";
 import { resetPassword } from "@/shared/api/authApi";
 import {
@@ -30,6 +33,7 @@ import { AlertBanner } from "@/shared/components/Feedback";
  * ResetPasswordPage Component
  */
 export const ResetPasswordPage = () => {
+  const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [resetSuccess, setResetSuccess] = useState(false);
@@ -69,12 +73,12 @@ export const ResetPasswordPage = () => {
    */
   useEffect(() => {
     if (!token) {
-      setTokenError("Aucun token de réinitialisation fourni.");
-      toast.error("Erreur", {
-        description: "Le lien de réinitialisation est invalide.",
+      setTokenError(t("resetPassword.noTokenError"));
+      toast.error(t("errors.invalidToken"), {
+        description: t("resetPassword.invalidLinkDescription"),
       });
     }
-  }, [token]);
+  }, [token, t]);
 
   /**
    * Soumission du formulaire de réinitialisation
@@ -83,7 +87,7 @@ export const ResetPasswordPage = () => {
     // Vérification explicite côté client (filet de sécurité)
     if (data.newPassword !== data.confirmPassword) {
       setError("confirmPassword", {
-        message: "Les mots de passe ne correspondent pas",
+        message: t("errors.passwordMismatch"),
       });
       return;
     }
@@ -92,8 +96,8 @@ export const ResetPasswordPage = () => {
       await resetPassword(data);
 
       setResetSuccess(true);
-      toast.success("Mot de passe réinitialisé !", {
-        description: "Votre mot de passe a été modifié avec succès.",
+      toast.success(t("resetPassword.success"), {
+        description: t("resetPassword.successDescription"),
       });
 
       // Redirection vers la page de connexion après 2 secondes
@@ -104,9 +108,9 @@ export const ResetPasswordPage = () => {
       const message =
         error.response?.data?.message ||
         error.message ||
-        "Le token est invalide ou a expiré.";
+        t("resetPassword.tokenExpiredError");
 
-      toast.error("Erreur de réinitialisation", {
+      toast.error(t("resetPassword.errorTitle"), {
         description: message,
       });
 
@@ -120,14 +124,14 @@ export const ResetPasswordPage = () => {
   if (tokenError && !searchParams.get("token")) {
     return (
       <AuthPageContainer
-        title="Réinitialisation de mot de passe"
-        subtitle="Lien invalide ou expiré"
+        title={t("resetPassword.title")}
+        subtitle={t("resetPassword.invalidLinkSubtitle")}
         showLogo={false}
       >
         <div className="space-y-6">
           <AlertBanner
             variant="error"
-            title="Lien invalide"
+            title={t("resetPassword.invalidLinkTitle")}
             message={tokenError}
           />
 
@@ -138,7 +142,7 @@ export const ResetPasswordPage = () => {
             type="button"
             onClick={() => navigate("/forgot-password")}
           >
-            Demander un nouveau lien
+            {t("resetPassword.requestNewLink")}
           </SubmitButton>
 
           <div className="text-center">
@@ -146,7 +150,7 @@ export const ResetPasswordPage = () => {
               to="/login"
               className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
             >
-              Retour à la connexion
+              {t("resetPassword.backToLogin")}
             </Link>
           </div>
         </div>
@@ -156,17 +160,17 @@ export const ResetPasswordPage = () => {
 
   return (
     <AuthPageContainer
-      title="Nouveau mot de passe"
-      subtitle="Choisissez un nouveau mot de passe sécurisé"
+      title={t("resetPassword.title")}
+      subtitle={t("resetPassword.description")}
       showLogo={false}
       footer={
         <p className="text-center text-sm text-gray-500">
-          Vous vous souvenez de votre mot de passe ?{" "}
+          {t("resetPassword.rememberPassword")}{" "}
           <Link
             to="/login"
             className="text-blue-600 hover:text-blue-500 font-medium"
           >
-            Se connecter
+            {t("resetPassword.login")}
           </Link>
         </p>
       }
@@ -176,10 +180,10 @@ export const ResetPasswordPage = () => {
           {/* Nouveau mot de passe avec indicateur de force */}
           <FormField
             id="newPassword"
-            label="Nouveau mot de passe"
+            label={t("resetPassword.newPassword")}
             required
             error={errors.newPassword?.message}
-            helpText="Utilisez au moins 8 caractères avec majuscules, minuscules, chiffres et caractères spéciaux"
+            helpText={t("resetPassword.passwordRequirements")}
           >
             <PasswordInput
               id="newPassword"
@@ -195,7 +199,7 @@ export const ResetPasswordPage = () => {
           {/* Confirmation mot de passe */}
           <FormField
             id="confirmPassword"
-            label="Confirmer le mot de passe"
+            label={t("resetPassword.confirmPassword")}
             required
             error={errors.confirmPassword?.message}
           >
@@ -236,7 +240,7 @@ export const ResetPasswordPage = () => {
                             d="M4.5 12.75l6 6 9-13.5"
                           />
                         </svg>
-                        Les mots de passe correspondent
+                        {t("resetPassword.passwordsMatch")}
                       </>
                     ) : (
                       <>
@@ -254,7 +258,7 @@ export const ResetPasswordPage = () => {
                             d="M6 18L18 6M6 6l12 12"
                           />
                         </svg>
-                        Les mots de passe ne correspondent pas
+                        {t("resetPassword.passwordsDontMatch")}
                       </>
                     )}
                   </p>
@@ -265,10 +269,10 @@ export const ResetPasswordPage = () => {
           {/* Bouton de soumission */}
           <SubmitButton
             isLoading={isSubmitting}
-            loadingText="Réinitialisation en cours..."
+            loadingText={t("resetPassword.resetting")}
             fullWidth
           >
-            Réinitialiser le mot de passe
+            {t("resetPassword.submit")}
           </SubmitButton>
 
           {/* Lien retour connexion */}
@@ -277,7 +281,7 @@ export const ResetPasswordPage = () => {
               to="/login"
               className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
             >
-              Retour à la connexion
+              {t("resetPassword.backToLogin")}
             </Link>
           </div>
         </form>
@@ -286,12 +290,9 @@ export const ResetPasswordPage = () => {
           <CheckCircleIcon className="h-16 w-16 text-green-500 mx-auto" />
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Mot de passe réinitialisé !
+              {t("resetPassword.successTitle")}
             </h2>
-            <p className="text-gray-600">
-              Votre mot de passe a été modifié avec succès. Vous allez être
-              redirigé vers la page de connexion...
-            </p>
+            <p className="text-gray-600">{t("resetPassword.redirecting")}</p>
           </div>
           <div className="flex justify-center">
             <svg

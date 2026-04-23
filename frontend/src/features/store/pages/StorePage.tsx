@@ -11,6 +11,7 @@
  */
 
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { UserRole } from "@clubmanager/types";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { useStoreUI } from "../stores/storeStore";
@@ -38,6 +39,7 @@ import { ConfigurationTab } from "../components/tabs/ConfigurationTab";
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function StorePage() {
+  const { t } = useTranslation("store");
   const { user } = useAuth();
   const { activeTab, setActiveTab } = useStoreUI();
   const userRole = (user?.role_app ?? UserRole.MEMBER) as UserRole;
@@ -65,25 +67,25 @@ export function StorePage() {
   // MIGRATION : TabGroup - Définition des onglets
   const tabs = canManageStore
     ? [
-        { id: "catalogue", label: "Catalogue" },
-        { id: "commandes", label: "Commandes" },
-        { id: "stocks", label: "Stocks" },
-        { id: "configuration", label: "Configuration" },
+        { id: "catalogue", label: t("tabs.catalogue") },
+        { id: "commandes", label: t("tabs.orders") },
+        { id: "stocks", label: t("tabs.stocks") },
+        { id: "configuration", label: t("tabs.configuration") },
       ]
     : [
-        { id: "boutique", label: "Boutique" },
-        { id: "mes_commandes", label: "Mes commandes" },
+        { id: "boutique", label: t("tabs.shop") },
+        { id: "mes_commandes", label: t("tabs.myOrders") },
       ];
 
   return (
     <div className="space-y-6">
       {/* ── En-tête ── */}
       <PageHeader
-        title="Boutique"
+        title={t("page.title")}
         description={
           canManageStore
-            ? "Gestion de la boutique du club"
-            : "Parcourez les articles disponibles et suivez vos commandes"
+            ? t("page.descriptionAdmin")
+            : t("page.descriptionMember")
         }
       />
 

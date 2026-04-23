@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import type { UserListItemDto } from "@clubmanager/types";
 import { getUsers, notifyBulkUsers } from "../api/usersApi";
 
@@ -156,31 +157,31 @@ interface StatusGroup {
   description: string;
 }
 
-const STATUS_GROUPS: StatusGroup[] = [
+const getStatusGroups = (t: any): StatusGroup[] => [
   {
     key: "inactive",
-    label: "Membres inactifs",
+    label: t("notify.statusGroups.inactive"),
     statusId: 2,
-    description: "Comptes marqués comme inactifs",
+    description: t("notify.statusGroups.inactiveDesc"),
   },
   {
     key: "suspended",
-    label: "Membres suspendus",
+    label: t("notify.statusGroups.suspended"),
     statusId: 3,
-    description: "Comptes actuellement suspendus",
+    description: t("notify.statusGroups.suspendedDesc"),
   },
   {
     key: "pending",
-    label: "En attente de validation",
+    label: t("notify.statusGroups.pending"),
     statusId: 4,
-    description: "Comptes non encore validés",
+    description: t("notify.statusGroups.pendingDesc"),
   },
 ];
 
-const STEP_META = [
-  { id: "select" as Step, label: "Destinataires", number: 1 },
-  { id: "compose" as Step, label: "Message", number: 2 },
-  { id: "confirm" as Step, label: "Confirmer", number: 3 },
+const getStepMeta = (t: any) => [
+  { id: "select" as Step, label: t("notify.steps.recipients"), number: 1 },
+  { id: "compose" as Step, label: t("notify.steps.message"), number: 2 },
+  { id: "confirm" as Step, label: t("notify.steps.confirm"), number: 3 },
 ];
 
 interface NotifyUsersModalProps {
@@ -194,6 +195,12 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { t } = useTranslation("users");
+
+  // ── Dynamic constants with i18n ───────────────────────────────────────────
+  const STATUS_GROUPS = getStatusGroups(t);
+  const STEP_META = getStepMeta(t);
+
   // ── Step & loading ────────────────────────────────────────────────────────
   const [step, setStep] = useState<Step>("select");
   const [isSending, setIsSending] = useState(false);
@@ -251,7 +258,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
         const result = await getUsers({ page: 1, limit: 200 });
         setAllUsers(result.users);
       } catch {
-        toast.error("Impossible de charger les utilisateurs.");
+        toast.error(t("common:errors.loadUsers"));
       } finally {
         setIsLoadingUsers(false);
       }
@@ -330,15 +337,15 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
         contenu: contenu.trim(),
         envoye_par_email: envoyeParEmail,
       });
-      toast.success(`${result.sent} notification(s) envoyée(s)`, {
+      toast.success(t("notify.notificationsSent", { count: result.sent }), {
         description:
           result.errors > 0
-            ? `${result.errors} erreur(s) ignorée(s)`
+            ? t("notify.errorsIgnored", { count: result.errors })
             : undefined,
       });
       onClose();
     } catch {
-      toast.error("Une erreur est survenue lors de l'envoi.");
+      toast.error(t("common:errors.sendError"));
     } finally {
       setIsSending(false);
     }
@@ -374,14 +381,14 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
               className="text-lg font-semibold text-gray-900 flex items-center gap-2"
             >
               <BellAlertIcon className="w-5 h-5 text-blue-600" />
-              Notifier les membres
+              {t("notify.title")}
             </h2>
             <button
               type="button"
               onClick={onClose}
               disabled={isSending}
               className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Fermer"
+              aria-label={t("notify.close")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -478,17 +485,17 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                 <div className="space-y-4">
                   <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
                     <UsersIcon className="w-4 h-4 text-gray-500" />
-                    Sélectionner les destinataires
+                    {t("notify.selectRecipients")}
                   </h3>
 
                   {isLoadingUsers ? (
                     <div className="flex items-center justify-center gap-2 py-10 text-gray-400 text-sm">
                       <SpinnerIcon className="w-5 h-5 animate-spin" />
-                      Chargement des utilisateurs...
+                      {t("notify.loadingUsers")}
                     </div>
                   ) : allGroupsEmpty ? (
                     <div className="flex items-center justify-center py-10 text-gray-400 text-sm">
-                      Aucun utilisateur non-conforme trouvé.
+                      {t("notify.noUsersFound")}
                     </div>
                   ) : (
                     <>
@@ -498,9 +505,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                           const isEmpty = groupUsers.length === 0;
                           const allChecked =
                             !isEmpty &&
-                            groupUsers.every((u) =>
-                              selectedUserIds.has(u.id),
-                            );
+                            groupUsers.every((u) => selectedUserIds.has(u.id));
                           const someChecked =
                             !isEmpty &&
                             groupUsers.some((u) => selectedUserIds.has(u.id));
@@ -546,8 +551,9 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                                           : "bg-blue-100 text-blue-700",
                                       ].join(" ")}
                                     >
-                                      {groupUsers.length} membre
-                                      {groupUsers.length !== 1 ? "s" : ""}
+                                      {t("notify.memberCount", {
+                                        count: groupUsers.length,
+                                      })}
                                     </span>
                                   </div>
                                   <p className="text-xs text-gray-500 mt-0.5">
@@ -565,12 +571,12 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                                       {isExpanded ? (
                                         <>
                                           <ChevronUpIcon className="w-3 h-3" />
-                                          Masquer les membres
+                                          {t("notify.hideMembers")}
                                         </>
                                       ) : (
                                         <>
                                           <ChevronDownIcon className="w-3 h-3" />
-                                          Voir les membres
+                                          {t("notify.showMembers")}
                                         </>
                                       )}
                                     </button>
@@ -602,9 +608,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                       </div>
 
                       <p className="text-sm text-gray-600 font-medium">
-                        {selectedCount} destinataire
-                        {selectedCount !== 1 ? "s" : ""} sélectionné
-                        {selectedCount !== 1 ? "s" : ""}
+                        {t("notify.selectedCount", { count: selectedCount })}
                       </p>
                     </>
                   )}
@@ -616,7 +620,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                 <div className="space-y-5">
                   <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
                     <PencilSquareIcon className="w-4 h-4 text-gray-500" />
-                    Rédiger le message
+                    {t("notify.composeMessage")}
                   </h3>
 
                   {/* Sujet */}
@@ -625,9 +629,9 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                       htmlFor="nu-sujet"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Sujet{" "}
+                      {t("notify.subject")}{" "}
                       <span className="text-gray-400 font-normal">
-                        (optionnel)
+                        {t("notify.subjectOptional")}
                       </span>
                     </label>
                     <input
@@ -635,7 +639,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                       type="text"
                       value={sujet}
                       onChange={(e) => setSujet(e.target.value)}
-                      placeholder="Objet du message..."
+                      placeholder={t("notify.subjectPlaceholder")}
                       maxLength={200}
                       className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
                     />
@@ -647,7 +651,8 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                       htmlFor="nu-contenu"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Message <span className="text-red-500">*</span>
+                      {t("notify.message")}{" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       id="nu-contenu"
@@ -656,7 +661,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                         setContenu(e.target.value);
                         if (contenuError) setContenuError("");
                       }}
-                      placeholder="Votre message..."
+                      placeholder={t("notify.messagePlaceholder")}
                       rows={6}
                       className={[
                         "w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-colors resize-y min-h-[140px]",
@@ -666,7 +671,9 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                       ].join(" ")}
                     />
                     {contenuError && (
-                      <p className="mt-1 text-xs text-red-600">{contenuError}</p>
+                      <p className="mt-1 text-xs text-red-600">
+                        {contenuError}
+                      </p>
                     )}
                   </div>
 
@@ -679,7 +686,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                       className="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
                     />
                     <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                      Envoyer par email également
+                      {t("notify.sendByEmail")}
                     </span>
                   </label>
 
@@ -688,8 +695,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                     <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 border border-blue-100">
                       <InformationCircleIcon className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
                       <p className="text-xs text-blue-700 leading-relaxed">
-                        Si activé, chaque membre recevra aussi une notification
-                        par email.
+                        {t("notify.emailInfo")}
                       </p>
                     </div>
                   )}
@@ -701,7 +707,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                 <div className="space-y-4">
                   <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
                     <CheckCircleIcon className="w-4 h-4 text-gray-500" />
-                    Confirmer et envoyer
+                    {t("notify.confirmAndSend")}
                   </h3>
 
                   {/* Summary card */}
@@ -709,18 +715,17 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                     {/* Destinataires */}
                     <div className="flex items-center justify-between px-4 py-3">
                       <span className="text-sm text-gray-600">
-                        Destinataires
+                        {t("notify.recipients")}
                       </span>
                       <span className="text-sm font-semibold text-gray-900">
-                        {selectedCount} destinataire
-                        {selectedCount !== 1 ? "s" : ""}
+                        {t("notify.memberCount", { count: selectedCount })}
                       </span>
                     </div>
 
                     {/* Email */}
                     <div className="flex items-center justify-between px-4 py-3">
                       <span className="text-sm text-gray-600">
-                        Envoi par email
+                        {t("notify.sendByEmailLabel")}
                       </span>
                       <span
                         className={[
@@ -728,14 +733,16 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                           envoyeParEmail ? "text-green-600" : "text-gray-500",
                         ].join(" ")}
                       >
-                        {envoyeParEmail ? "Oui" : "Non"}
+                        {envoyeParEmail ? t("notify.yes") : t("notify.no")}
                       </span>
                     </div>
 
                     {/* Sujet */}
                     {sujet.trim() && (
                       <div className="px-4 py-3">
-                        <p className="text-xs text-gray-500 mb-1">Sujet</p>
+                        <p className="text-xs text-gray-500 mb-1">
+                          {t("notify.subjectLabel")}
+                        </p>
                         <p className="text-sm text-gray-900 font-medium">
                           {sujet}
                         </p>
@@ -744,7 +751,9 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
 
                     {/* Contenu preview */}
                     <div className="px-4 py-3">
-                      <p className="text-xs text-gray-500 mb-1">Message</p>
+                      <p className="text-xs text-gray-500 mb-1">
+                        {t("notify.messageLabel")}
+                      </p>
                       <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
                         {contenu.length > 300
                           ? `${contenu.slice(0, 300)}\u2026`
@@ -768,7 +777,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                   disabled={isSending}
                   className="px-4 py-2 text-sm font-medium bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Retour
+                  {t("notify.back")}
                 </button>
               )}
             </div>
@@ -781,7 +790,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                 disabled={isSending}
                 className="px-4 py-2 text-sm font-medium bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Annuler
+                {t("notify.cancel")}
               </button>
 
               {step !== "confirm" ? (
@@ -791,7 +800,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                   disabled={step === "select" && selectedCount === 0}
                   className="px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
                 >
-                  Suivant
+                  {t("notify.next")}
                 </button>
               ) : (
                 <button
@@ -803,12 +812,12 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
                   {isSending ? (
                     <>
                       <SpinnerIcon className="w-4 h-4 animate-spin" />
-                      Envoi en cours...
+                      {t("notify.sending")}
                     </>
                   ) : (
                     <>
                       <CheckCircleIcon className="w-4 h-4" />
-                      Envoyer
+                      {t("notify.send")}
                     </>
                   )}
                 </button>

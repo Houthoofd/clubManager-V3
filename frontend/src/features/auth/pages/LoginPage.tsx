@@ -15,6 +15,7 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { UserIcon, LockIcon } from "@patternfly/react-icons";
 import { useAuth } from "../../../shared/hooks/useAuth";
@@ -29,6 +30,7 @@ import { AlertBanner } from "../../../shared/components/Feedback/AlertBanner";
  * LoginPage Component
  */
 export const LoginPage = () => {
+  const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isLoading } = useAuth();
@@ -65,16 +67,16 @@ export const LoginPage = () => {
       const result = await login(data);
 
       if (result.success) {
-        toast.success("Connexion réussie !", {
-          description: "Vous êtes maintenant connecté.",
+        toast.success(t("success.loginSuccess"), {
+          description: t("login.loginSuccessDescription"),
         });
 
         // Redirection vers la page d'origine ou le dashboard
         const from = (location.state as any)?.from?.pathname || "/dashboard";
         navigate(from, { replace: true });
       } else {
-        toast.error("Erreur de connexion", {
-          description: result.error || "Identifiant ou mot de passe incorrect.",
+        toast.error(t("errors.invalidCredentials"), {
+          description: result.error || t("login.invalidCredentialsDescription"),
         });
       }
     } catch (error: any) {
@@ -83,11 +85,11 @@ export const LoginPage = () => {
       if (code === "EMAIL_NOT_VERIFIED") {
         setEmailNotVerified(true);
       } else {
-        toast.error("Erreur de connexion", {
+        toast.error(t("errors.invalidCredentials"), {
           description:
             error.response?.data?.message ||
             error.message ||
-            "Une erreur est survenue lors de la connexion.",
+            t("login.errorDescription"),
         });
       }
     }
@@ -95,30 +97,30 @@ export const LoginPage = () => {
 
   return (
     <AuthPageContainer
-      title="Bienvenue"
-      subtitle="Connectez-vous à votre compte ClubManager"
+      title={t("login.welcomeTitle")}
+      subtitle={t("login.welcomeSubtitle")}
       footer={
         <>
           {/* Lien vers inscription */}
           <p className="text-center text-sm text-gray-600">
-            Vous n'avez pas de compte ?{" "}
+            {t("login.noAccount")}{" "}
             <Link
               to="/register"
               className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
             >
-              Créer un compte
+              {t("login.register")}
             </Link>
           </p>
 
           {/* Footer CGU */}
           <p className="text-center text-xs text-gray-500 mt-4">
-            En vous connectant, vous acceptez nos{" "}
+            {t("login.termsPrefix")}{" "}
             <Link to="/terms" className="underline hover:text-gray-700">
-              Conditions d'utilisation
+              {t("login.termsLink")}
             </Link>{" "}
-            et notre{" "}
+            {t("login.termsAnd")}{" "}
             <Link to="/privacy" className="underline hover:text-gray-700">
-              Politique de confidentialité
+              {t("login.privacyLink")}
             </Link>
           </p>
         </>
@@ -128,7 +130,7 @@ export const LoginPage = () => {
       {registerSuccessMessage && (
         <AlertBanner
           variant="success"
-          title="Inscription réussie !"
+          title={t("register.successTitle")}
           message={registerSuccessMessage}
           dismissible
           onDismiss={() => setRegisterSuccessMessage(null)}
@@ -141,18 +143,17 @@ export const LoginPage = () => {
         <div className="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
           <p className="text-sm font-medium text-amber-800 mb-1 flex items-center gap-2">
             <ExclamationTriangleIcon className="h-4 w-4 text-amber-600" />
-            Adresse email non vérifiée
+            {t("errors.emailNotVerified")}
           </p>
           <p className="text-sm text-amber-700 mb-3">
-            Veuillez vérifier votre adresse email avant de vous connecter.
-            Consultez votre boîte de réception.
+            {t("login.emailNotVerifiedDescription")}
           </p>
           <Link
             to="/resend-verification"
             className="text-sm font-medium text-amber-800 underline hover:text-amber-900 transition-colors"
           >
             <span className="inline-flex items-center gap-2">
-              Renvoyer l'email de vérification
+              {t("emailVerification.resend")}
               <svg
                 className="h-3.5 w-3.5"
                 fill="none"
@@ -177,7 +178,7 @@ export const LoginPage = () => {
         {/* Identifiant membre */}
         <FormField
           id="userId"
-          label="Identifiant membre"
+          label={t("login.userId")}
           required
           error={errors.userId?.message}
         >
@@ -195,7 +196,7 @@ export const LoginPage = () => {
                   ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                   : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
               } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors`}
-              placeholder="U-2025-0001"
+              placeholder={t("login.userIdPlaceholder")}
             />
           </div>
         </FormField>
@@ -203,7 +204,7 @@ export const LoginPage = () => {
         {/* Mot de passe */}
         <FormField
           id="password"
-          label="Mot de passe"
+          label={t("login.password")}
           required
           error={errors.password?.message}
         >
@@ -246,7 +247,7 @@ export const LoginPage = () => {
               htmlFor="remember-me"
               className="ml-2 block text-sm text-gray-700 cursor-pointer"
             >
-              Se souvenir de moi
+              {t("login.rememberMe")}
             </label>
           </div>
 
@@ -255,7 +256,7 @@ export const LoginPage = () => {
               to="/forgot-password"
               className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
             >
-              Mot de passe oublié ?
+              {t("login.forgotPassword")}
             </Link>
           </div>
         </div>
@@ -263,10 +264,10 @@ export const LoginPage = () => {
         {/* Bouton de soumission */}
         <SubmitButton
           isLoading={isSubmitting || isLoading}
-          loadingText="Connexion en cours..."
+          loadingText={t("login.loggingIn")}
           fullWidth
         >
-          Se connecter
+          {t("login.submit")}
         </SubmitButton>
       </form>
     </AuthPageContainer>

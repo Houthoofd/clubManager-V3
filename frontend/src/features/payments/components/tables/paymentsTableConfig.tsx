@@ -2,6 +2,7 @@
  * paymentsTableConfig.tsx - Configuration des colonnes pour le tableau des paiements
  */
 
+import type { TFunction } from "i18next";
 import type { Column } from "@/shared/components/Table/DataTable";
 import { Badge } from "@/shared/components";
 
@@ -31,10 +32,12 @@ function formatDate(date: string | null | undefined): string {
 
 // ─── Configuration des colonnes ───────────────────────────────────────────────
 
-export const paymentsColumns: Column<PaymentRow>[] = [
+export const createPaymentsColumns = (
+  t: TFunction<"payments">,
+): Column<PaymentRow>[] => [
   {
     key: "utilisateur_nom_complet",
-    label: "Membre",
+    label: t("table.member"),
     render: (_, row) => (
       <div>
         <div className="text-sm font-medium text-gray-900">
@@ -48,7 +51,7 @@ export const paymentsColumns: Column<PaymentRow>[] = [
   },
   {
     key: "montant",
-    label: "Montant",
+    label: t("table.amount"),
     render: (value) => (
       <span className="text-sm font-semibold text-gray-900">
         {formatCurrency(value)}
@@ -57,33 +60,36 @@ export const paymentsColumns: Column<PaymentRow>[] = [
   },
   {
     key: "methode_paiement",
-    label: "Méthode",
+    label: t("table.method"),
     render: (value) => <Badge.PaymentMethod method={value} />,
   },
   {
     key: "statut",
-    label: "Statut",
+    label: t("table.status"),
     render: (value) => <Badge.PaymentStatus status={value} />,
   },
   {
     key: "plan_tarifaire_nom",
-    label: "Plan",
+    label: t("table.type"),
     render: (value) => (
       <span className="text-sm text-gray-600">{value ?? "—"}</span>
     ),
   },
   {
     key: "date_paiement",
-    label: "Date",
+    label: t("table.date"),
     render: (value) => (
       <span className="text-sm text-gray-600">{formatDate(value)}</span>
     ),
   },
   {
     key: "id",
-    label: "Actions",
-    render: (value) => (
-      <span className="text-xs text-gray-400">#{value}</span>
-    ),
+    label: t("table.actions"),
+    render: (value) => <span className="text-xs text-gray-400">#{value}</span>,
   },
 ];
+
+// Export également les colonnes pour la compatibilité (deprecated)
+export const paymentsColumns = createPaymentsColumns(
+  ((key: string) => key) as TFunction<"payments">,
+);

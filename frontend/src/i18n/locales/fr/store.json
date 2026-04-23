@@ -1,0 +1,461 @@
+{
+  "page": {
+    "title": "Boutique",
+    "description": {
+      "admin": "Gestion de la boutique du club",
+      "member": "Parcourez les articles disponibles et suivez vos commandes"
+    }
+  },
+  "tabs": {
+    "catalogue": "Catalogue",
+    "boutique": "Boutique",
+    "shop": "Boutique",
+    "commandes": "Commandes",
+    "orders": "Commandes",
+    "mes_commandes": "Mes commandes",
+    "myOrders": "Mes commandes",
+    "stocks": "Stocks",
+    "configuration": "Configuration"
+  },
+  "catalogue": {
+    "title": "Catalogue des articles",
+    "newArticle": "Nouvel article",
+    "count": {
+      "article": "article",
+      "articles": "articles",
+      "category": "catégorie",
+      "categories": "catégories"
+    },
+    "filters": {
+      "search": "Rechercher un article…",
+      "allCategories": "Toutes les catégories",
+      "allStatuses": "Tous les statuts",
+      "active": "Actifs",
+      "inactive": "Inactifs"
+    },
+    "empty": {
+      "title": "Aucun article trouvé",
+      "description": "Ajustez les filtres ou ajoutez des articles dans le catalogue."
+    },
+    "card": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "noCategory": "Sans catégorie",
+      "noDescription": "Aucune description disponible.",
+      "createdOn": "Créé le"
+    },
+    "actions": {
+      "edit": "Éditer",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "delete": "Supprimer"
+    },
+    "delete": {
+      "title": "Supprimer l'article",
+      "message": "Êtes-vous sûr de vouloir supprimer l'article \"{{articleNom}}\" ? Cette action est irréversible."
+    }
+  },
+  "boutique": {
+    "title": "Articles disponibles",
+    "viewCart": "Voir le panier",
+    "count": {
+      "article": "article",
+      "articles": "articles",
+      "inCart": "article au panier",
+      "inCartPlural": "articles au panier"
+    },
+    "filters": {
+      "search": "Rechercher un article…",
+      "allCategories": "Toutes les catégories"
+    },
+    "empty": {
+      "title": "Aucun article disponible",
+      "description": "Les articles seront bientôt disponibles à l'achat."
+    },
+    "card": {
+      "noCategory": "Sans catégorie",
+      "noDescription": "Aucune description disponible.",
+      "order": "Commander"
+    }
+  },
+  "orders": {
+    "title": "Suivi des commandes",
+    "count": {
+      "order": "commande",
+      "orders": "commandes",
+      "pending": "en attente",
+      "cancelled": "annulée",
+      "cancelledPlural": "annulées"
+    },
+    "filters": {
+      "allStatuses": "Tous les statuts",
+      "pending": "En attente",
+      "paid": "Payée",
+      "shipped": "Expédiée",
+      "delivered": "Livrée",
+      "cancelled": "Annulée"
+    },
+    "empty": {
+      "title": "Aucune commande trouvée",
+      "description": "Les commandes passées apparaîtront ici."
+    },
+    "table": {
+      "order": "Commande",
+      "member": "Membre",
+      "date": "Date",
+      "total": "Total",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "actions": {
+      "details": "Détails",
+      "confirm": "Confirmer",
+      "cancel": "Annuler",
+      "ship": "Expédier",
+      "markDelivered": "Marquer livrée"
+    },
+    "unknownUser": "Utilisateur inconnu"
+  },
+  "myOrders": {
+    "title": "Mes commandes",
+    "count": {
+      "order": "commande",
+      "orders": "commandes",
+      "pending": "en attente",
+      "delivered": "livrée",
+      "deliveredPlural": "livrées"
+    },
+    "empty": {
+      "title": "Aucune commande",
+      "description": "Vous n'avez pas encore passé de commande."
+    },
+    "card": {
+      "orderNumber": "Commande #",
+      "viewDetails": "Voir les détails",
+      "cancel": "Annuler",
+      "confirmCancel": "Êtes-vous sûr de vouloir annuler cette commande ?"
+    }
+  },
+  "stocks": {
+    "title": "Gestion des stocks",
+    "count": {
+      "line": "ligne",
+      "lines": "lignes",
+      "lowStock": "stock bas",
+      "lowStocks": "stocks bas",
+      "outOfStock": "rupture",
+      "outOfStocks": "ruptures",
+      "article": "article",
+      "articles": "articles"
+    },
+    "alerts": {
+      "title": "⚠️ Alertes stock faible"
+    },
+    "empty": {
+      "title": "Aucun stock configuré",
+      "description": "Les niveaux de stock apparaîtront ici dès qu'ils seront disponibles."
+    },
+    "table": {
+      "article": "Article",
+      "size": "Taille",
+      "quantity": "Quantité",
+      "minimum": "Minimum",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "actions": {
+      "adjust": "Ajuster"
+    },
+    "badge": {
+      "outOfStock": "Rupture",
+      "lowStock": "Stock bas",
+      "inStock": "En stock"
+    }
+  },
+  "configuration": {
+    "title": "Configuration de la boutique",
+    "categories": {
+      "title": "Catégories",
+      "new": "Nouvelle catégorie",
+      "empty": {
+        "title": "Aucune catégorie",
+        "description": "Ajoutez des catégories pour organiser vos articles."
+      },
+      "table": {
+        "name": "Nom",
+        "description": "Description",
+        "order": "Ordre",
+        "actions": "Actions"
+      },
+      "delete": {
+        "title": "Supprimer la catégorie",
+        "message": "Êtes-vous sûr de vouloir supprimer la catégorie \"{{categoryNom}}\" ? Cette action est irréversible."
+      }
+    },
+    "sizes": {
+      "title": "Tailles",
+      "new": "Nouvelle taille",
+      "empty": {
+        "title": "Aucune taille",
+        "description": "Ajoutez des tailles pour vos articles (ex: XS, S, M, L, XL)."
+      },
+      "table": {
+        "name": "Nom",
+        "order": "Ordre",
+        "actions": "Actions"
+      },
+      "delete": {
+        "title": "Supprimer la taille",
+        "message": "Êtes-vous sûr de vouloir supprimer la taille \"{{sizeNom}}\" ? Cette action est irréversible."
+      }
+    },
+    "actions": {
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    }
+  },
+  "articleModal": {
+    "title": {
+      "create": "Nouvel article",
+      "edit": "Modifier l'article"
+    },
+    "subtitle": {
+      "create": "Ajoutez un nouvel article au catalogue du store.",
+      "edit": "Modifiez les informations de l'article existant."
+    },
+    "fields": {
+      "name": {
+        "label": "Nom de l'article",
+        "placeholder": "Ex : T-shirt, Casquette, Gourde…",
+        "required": "Le nom de l'article est requis.",
+        "minLength": "Le nom doit comporter au moins 2 caractères.",
+        "maxLength": "Le nom ne peut pas dépasser 100 caractères."
+      },
+      "price": {
+        "label": "Prix (€)",
+        "placeholder": "0,00",
+        "required": "Le prix est requis.",
+        "min": "Le prix doit être supérieur ou égal à 0."
+      },
+      "category": {
+        "label": "Catégorie",
+        "optional": "(optionnel)",
+        "none": "Aucune catégorie"
+      },
+      "description": {
+        "label": "Description",
+        "optional": "(optionnel)",
+        "placeholder": "Décrivez l'article…"
+      },
+      "active": {
+        "label": "Article actif (visible dans le catalogue)"
+      }
+    },
+    "actions": {
+      "cancel": "Annuler",
+      "create": "Créer l'article",
+      "update": "Mettre à jour"
+    }
+  },
+  "cartModal": {
+    "title": "Panier",
+    "subtitle": {
+      "empty": "Votre panier est vide",
+      "count": "{{count}} article",
+      "countPlural": "{{count}} articles"
+    },
+    "empty": {
+      "title": "Panier vide",
+      "description": "Ajoutez des articles pour commencer vos achats."
+    },
+    "item": {
+      "size": "Taille :",
+      "remove": "Retirer",
+      "decreaseQuantity": "Diminuer la quantité",
+      "increaseQuantity": "Augmenter la quantité"
+    },
+    "total": "Total",
+    "actions": {
+      "clear": "Vider le panier",
+      "confirmClear": "Voulez-vous vraiment vider le panier ?",
+      "checkout": "Passer commande",
+      "close": "Fermer"
+    }
+  },
+  "quickOrderModal": {
+    "title": "Commande rapide",
+    "fields": {
+      "size": {
+        "label": "Taille",
+        "placeholder": "-- Sélectionner une taille --",
+        "required": "Veuillez sélectionner une taille."
+      },
+      "quantity": {
+        "label": "Quantité",
+        "required": "La quantité est requise.",
+        "min": "La quantité doit être d'au moins 1.",
+        "max": "La quantité ne peut pas dépasser le stock disponible ({{stockDisponible}})."
+      },
+      "stock": {
+        "available": "Stock disponible :",
+        "none": "Aucun stock disponible pour cette taille"
+      }
+    },
+    "total": "Total",
+    "actions": {
+      "cancel": "Annuler",
+      "order": "Commander",
+      "ordering": "Commande en cours…"
+    }
+  },
+  "orderDetailModal": {
+    "title": "Détails de la commande",
+    "status": "Statut",
+    "orderDate": "Date de commande",
+    "client": {
+      "title": "Informations client",
+      "name": "Nom",
+      "email": "Email",
+      "unknown": "Client inconnu"
+    },
+    "items": {
+      "title": "Articles commandés",
+      "article": "Article",
+      "size": "Taille",
+      "quantity": "Quantité",
+      "unitPrice": "Prix unitaire",
+      "subtotal": "Sous-total",
+      "total": "Total",
+      "unknown": "Article inconnu"
+    },
+    "admin": {
+      "title": "Actions administrateur",
+      "markAsPaid": "Marquer comme payée",
+      "markAsShipped": "Marquer comme expédiée",
+      "markAsDelivered": "Marquer comme livrée",
+      "cancelOrder": "Annuler la commande"
+    },
+    "actions": {
+      "close": "Fermer"
+    }
+  },
+  "categoryModal": {
+    "title": {
+      "create": "Nouvelle catégorie",
+      "edit": "Modifier la catégorie"
+    },
+    "subtitle": {
+      "create": "Créez une nouvelle catégorie pour organiser vos articles.",
+      "edit": "Modifiez les informations de la catégorie existante."
+    },
+    "fields": {
+      "name": {
+        "label": "Nom de la catégorie",
+        "placeholder": "Ex : Vêtements, Équipements, Accessoires…",
+        "required": "Le nom de la catégorie est requis.",
+        "minLength": "Le nom doit comporter au moins 2 caractères.",
+        "maxLength": "Le nom ne peut pas dépasser 100 caractères."
+      },
+      "description": {
+        "label": "Description",
+        "optional": "(optionnel)",
+        "placeholder": "Décrivez le type d'articles dans cette catégorie…"
+      },
+      "order": {
+        "label": "Ordre d'affichage",
+        "optional": "(optionnel)",
+        "placeholder": "0",
+        "min": "L'ordre doit être supérieur ou égal à 0."
+      }
+    },
+    "actions": {
+      "cancel": "Annuler",
+      "create": "Créer la catégorie",
+      "update": "Mettre à jour"
+    }
+  },
+  "sizeModal": {
+    "title": {
+      "create": "Nouvelle taille",
+      "edit": "Modifier la taille"
+    },
+    "subtitle": {
+      "create": "Créez une nouvelle taille pour vos articles.",
+      "edit": "Modifiez les informations de la taille existante."
+    },
+    "fields": {
+      "name": {
+        "label": "Nom de la taille",
+        "placeholder": "Ex : XS, S, M, L, XL…",
+        "required": "Le nom de la taille est requis.",
+        "minLength": "Le nom doit comporter au moins 1 caractère.",
+        "maxLength": "Le nom ne peut pas dépasser 50 caractères."
+      },
+      "order": {
+        "label": "Ordre d'affichage",
+        "optional": "(optionnel)",
+        "placeholder": "0",
+        "min": "L'ordre doit être supérieur ou égal à 0."
+      }
+    },
+    "actions": {
+      "cancel": "Annuler",
+      "create": "Créer la taille",
+      "update": "Mettre à jour",
+      "saving": "Enregistrement…"
+    }
+  },
+  "stockAdjustModal": {
+    "title": "Ajuster le stock",
+    "subtitle": "Ajoutez ou retirez du stock pour cet article.",
+    "info": {
+      "article": "Article :",
+      "size": "Taille :",
+      "currentStock": "Stock actuel :",
+      "newStock": "Nouveau stock :",
+      "notAvailable": "N/A"
+    },
+    "fields": {
+      "adjustment": {
+        "label": "Ajustement",
+        "placeholder": "Ex : +10, -5",
+        "required": "L'ajustement est requis.",
+        "notZero": "L'ajustement ne peut pas être 0.",
+        "integer": "L'ajustement doit être un nombre entier.",
+        "helper": "Nombre positif pour ajouter, négatif pour retirer"
+      },
+      "reason": {
+        "label": "Motif",
+        "optional": "(optionnel)",
+        "placeholder": "Ex : Inventaire, Perte, Réception commande…"
+      }
+    },
+    "actions": {
+      "cancel": "Annuler",
+      "adjust": "Ajuster le stock",
+      "adjusting": "Enregistrement…"
+    }
+  },
+  "orderStatus": {
+    "en_attente": "En attente",
+    "payee": "Payée",
+    "expediee": "Expédiée",
+    "livree": "Livrée",
+    "annulee": "Annulée",
+    "unknown": "Inconnu"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "actions": {
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "save": "Enregistrer",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "close": "Fermer",
+      "yes": "Oui",
+      "no": "Non"
+    },
+    "refresh": "Rafraîchir"
+  }
+}

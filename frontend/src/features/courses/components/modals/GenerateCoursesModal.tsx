@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Modal } from "../../../../shared/components/Modal/Modal";
 import { Input } from "../../../../shared/components/Input/Input";
 import { Button } from "../../../../shared/components/Button/Button";
@@ -30,6 +31,7 @@ export function GenerateCoursesModal({
   onClose,
   onSubmit,
 }: GenerateCoursesModalProps) {
+  const { t } = useTranslation("courses");
   const [form, setForm] = useState({
     cours_recurrent_id: 0,
     date_debut: "",
@@ -50,7 +52,7 @@ export function GenerateCoursesModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.cours_recurrent_id || !form.date_debut || !form.date_fin) {
-      toast.error("Veuillez remplir tous les champs.");
+      toast.error(t("messages.error.allFieldsRequired"));
       return;
     }
     setSaving(true);
@@ -60,10 +62,12 @@ export function GenerateCoursesModal({
         date_debut: form.date_debut,
         date_fin: form.date_fin,
       });
-      toast.success(`${result.generated} séance(s) générée(s) avec succès`);
+      toast.success(
+        t("messages.success.sessionsGenerated", { count: result.generated }),
+      );
       onClose();
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? "Une erreur est survenue.");
+      toast.error(error.response?.data?.message ?? t("messages.error.generic"));
     } finally {
       setSaving(false);
     }
@@ -71,7 +75,7 @@ export function GenerateCoursesModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
-      <Modal.Header title="Générer des séances depuis le planning" />
+      <Modal.Header title={t("modals.generateSessions")} />
       <Modal.Body>
         <form
           id="generate-courses-form"
@@ -79,7 +83,7 @@ export function GenerateCoursesModal({
           className="space-y-4"
         >
           <Input.Select
-            label="Cours récurrent"
+            label={t("fields.recurrentCourse")}
             id="cours_recurrent_id"
             value={form.cours_recurrent_id}
             onChange={(e) =>
@@ -90,7 +94,7 @@ export function GenerateCoursesModal({
             }
             required
           >
-            <option value={0}>— Sélectionner un cours —</option>
+            <option value={0}>{t("placeholders.selectCourse")}</option>
             {planning.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.type_cours} — {c.jour_semaine_nom}{" "}
@@ -101,7 +105,7 @@ export function GenerateCoursesModal({
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Date début"
+              label={t("fields.startDate")}
               id="date_debut"
               type="date"
               value={form.date_debut}
@@ -111,7 +115,7 @@ export function GenerateCoursesModal({
               required
             />
             <Input
-              label="Date fin"
+              label={t("fields.endDate")}
               id="date_fin"
               type="date"
               value={form.date_fin}
@@ -125,7 +129,7 @@ export function GenerateCoursesModal({
       </Modal.Body>
       <Modal.Footer align="right">
         <Button variant="outline" onClick={onClose} disabled={saving}>
-          Annuler
+          {t("buttons.cancel")}
         </Button>
         <SubmitButton
           type="button"
@@ -140,9 +144,9 @@ export function GenerateCoursesModal({
             }
           }}
           isLoading={saving}
-          loadingText="Génération…"
+          loadingText={t("loadingText.generating")}
         >
-          Générer
+          {t("buttons.generate")}
         </SubmitButton>
       </Modal.Footer>
     </Modal>

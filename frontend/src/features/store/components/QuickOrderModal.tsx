@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Modal } from "@/shared/components/Modal/Modal";
 import { BUTTON, cn } from "@/shared/styles/designTokens";
 import type { ArticleWithImages, Size, Stock } from "../api/storeApi";
@@ -78,6 +79,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
   stocks,
   onSubmit,
 }) => {
+  const { t } = useTranslation("store");
   const {
     register,
     handleSubmit,
@@ -163,7 +165,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
       closeOnEscape={!isSubmitting}
     >
       <Modal.Header
-        title="Commande rapide"
+        title={t("quickOrderModal.title")}
         showCloseButton
         onClose={handleClose}
       />
@@ -205,7 +207,8 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
               htmlFor="order-taille"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Taille <span className="text-red-500">*</span>
+              {t("quickOrderModal.fields.size.label")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <select
               id="order-taille"
@@ -216,11 +219,13 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
                           transition-colors
                           ${errors.taille_id ? "border-red-400" : "border-gray-300"}`}
               {...register("taille_id", {
-                required: "Veuillez sélectionner une taille.",
+                required: t("quickOrderModal.fields.size.required"),
                 valueAsNumber: true,
               })}
             >
-              <option value="">-- Sélectionner une taille --</option>
+              <option value="">
+                {t("quickOrderModal.fields.size.placeholder")}
+              </option>
               {sizes.map((size) => (
                 <option key={size.id} value={size.id}>
                   {size.nom}
@@ -238,7 +243,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
               <div className="mt-2">
                 {selectedStock ? (
                   <p className="text-sm text-gray-600">
-                    Stock disponible :{" "}
+                    {t("quickOrderModal.fields.stock.available")}{" "}
                     <span
                       className={`font-semibold ${
                         stockDisponible > 0 ? "text-green-600" : "text-red-600"
@@ -249,7 +254,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
                   </p>
                 ) : (
                   <p className="text-sm text-red-600">
-                    Aucun stock disponible pour cette taille
+                    {t("quickOrderModal.fields.stock.none")}
                   </p>
                 )}
               </div>
@@ -262,7 +267,8 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
               htmlFor="order-quantite"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Quantité <span className="text-red-500">*</span>
+              {t("quickOrderModal.fields.quantity.label")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="order-quantite"
@@ -279,14 +285,16 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
                           transition-colors
                           ${errors.quantite ? "border-red-400" : "border-gray-300"}`}
               {...register("quantite", {
-                required: "La quantité est requise.",
+                required: t("quickOrderModal.fields.quantity.required"),
                 min: {
                   value: 1,
-                  message: "La quantité doit être d'au moins 1.",
+                  message: t("quickOrderModal.fields.quantity.min"),
                 },
                 max: {
                   value: stockDisponible,
-                  message: `La quantité ne peut pas dépasser le stock disponible (${stockDisponible}).`,
+                  message: t("quickOrderModal.fields.quantity.max", {
+                    stockDisponible,
+                  }),
                 },
                 valueAsNumber: true,
               })}
@@ -301,7 +309,9 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
           {/* Total */}
           <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Total</span>
+              <span className="text-sm font-medium text-gray-700">
+                {t("quickOrderModal.total")}
+              </span>
               <span className="text-2xl font-bold text-blue-600">
                 {total.toFixed(2)} €
               </span>
@@ -317,7 +327,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
           disabled={isSubmitting}
           className={cn(BUTTON.base, BUTTON.variant.secondary, BUTTON.size.md)}
         >
-          Annuler
+          {t("quickOrderModal.actions.cancel")}
         </button>
         <button
           type="submit"
@@ -330,7 +340,9 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
               <SpinnerIcon />
             </span>
           )}
-          {isSubmitting ? "Commande en cours…" : "Commander"}
+          {isSubmitting
+            ? t("quickOrderModal.actions.ordering")
+            : t("quickOrderModal.actions.order")}
         </button>
       </Modal.Footer>
     </Modal>

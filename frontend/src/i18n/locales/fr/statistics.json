@@ -1,0 +1,230 @@
+{
+  "page": {
+    "title": "Tableau de Bord - Statistiques",
+    "description": "Vue d'ensemble des statistiques et indicateurs de performance"
+  },
+  "tabs": {
+    "overview": "Vue d'ensemble",
+    "members": "Membres",
+    "courses": "Cours",
+    "finance": "Finances",
+    "store": "Magasin"
+  },
+  "sections": {
+    "keyIndicators": "Indicateurs Clés",
+    "trends": "Tendances",
+    "globalKpis": "Indicateurs Clés"
+  },
+  "kpis": {
+    "totalMembers": "Total Membres",
+    "activeCourses": "Cours actifs",
+    "totalCourses": "Total Cours",
+    "totalRevenue": "Total Revenus",
+    "storeOrders": "Commandes Magasin",
+    "growthRate": "taux de croissance",
+    "attendanceRate": "de présence",
+    "paymentRate": "de taux de paiement",
+    "averageBasket": "panier moyen"
+  },
+  "charts": {
+    "memberGrowth": "Croissance des Membres",
+    "memberGrowthSubtitle": "Évolution du nombre de membres",
+    "courseAttendance": "Fréquentation des Cours",
+    "courseAttendanceSubtitle": "Évolution des présences",
+    "revenueEvolution": "Évolution des Revenus",
+    "revenueEvolutionSubtitle": "Revenus par période"
+  },
+  "alerts": {
+    "latePayments": "Paiements en retard",
+    "latePaymentsMessage": "{{count}} paiement(s) en retard pour un montant total de {{amount}}.",
+    "lowStock": "Alertes de stock",
+    "lowStockMessage": "{{count}} article(s) avec stock bas ou en rupture nécessitent un réapprovisionnement."
+  },
+  "loading": {
+    "indicators": "Chargement des indicateurs...",
+    "charts": "Chargement des graphiques..."
+  },
+  "errors": {
+    "loadingError": "Erreur de chargement",
+    "dashboardError": "Une erreur est survenue lors du chargement des statistiques du dashboard."
+  },
+  "period": {
+    "presets": {
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "thisWeek": "Cette semaine",
+      "lastWeek": "Semaine dernière",
+      "thisMonth": "Ce mois",
+      "lastMonth": "Mois dernier",
+      "last30Days": "30 derniers jours",
+      "last90Days": "90 derniers jours",
+      "thisYear": "Cette année",
+      "lastYear": "Année dernière",
+      "custom": "Personnalisé"
+    },
+    "types": {
+      "day": "Jour",
+      "week": "Semaine",
+      "month": "Mois",
+      "quarter": "Trimestre",
+      "year": "Année"
+    },
+    "customPeriod": "Période personnalisée",
+    "startDate": "Date de début",
+    "endDate": "Date de fin"
+  },
+  "buttons": {
+    "refresh": "Actualiser",
+    "apply": "Appliquer",
+    "cancel": "Annuler"
+  },
+  "statCard": {
+    "trendLabels": {
+      "vsLastMonth": "vs mois dernier",
+      "vsLastWeek": "vs semaine dernière",
+      "vsLastYear": "vs année dernière"
+    }
+  },
+  "members": {
+    "title": "Statistiques Membres",
+    "overview": "Vue d'ensemble",
+    "totalMembers": "Total membres",
+    "activeMembers": "Membres actifs",
+    "newMembers": "Nouveaux membres",
+    "membersByAge": "Membres par âge",
+    "distributionByAge": "Répartition par Âge",
+    "membersByGrade": "Membres par grade",
+    "distributionByGrade": "Répartition par Grade",
+    "distributionByGender": "Répartition par Genre",
+    "membershipTypes": "Types d'adhésion",
+    "retention": "Taux de rétention"
+  },
+  "courses": {
+    "title": "Statistiques Cours",
+    "overview": "Vue d'ensemble",
+    "totalCourses": "Total Cours Récurrents",
+    "activeCourses": "cours actifs",
+    "totalSessions": "Séances Totales",
+    "totalEnrollments": "Total Inscriptions",
+    "averageAttendance": "Présence moyenne",
+    "averageAttendanceRate": "Taux de Présence Moyen",
+    "attendanceRate": "Taux de présence",
+    "fillRate": "Taux de Remplissage",
+    "fillRateDescription": "Capacité moyenne des cours",
+    "coursesByType": "Cours par type",
+    "distributionByType": "Répartition par Type de Cours",
+    "topProfessors": "Top 5 Professeurs",
+    "popularCourses": "Cours les Plus Populaires",
+    "attendanceTrend": "Tendance de fréquentation"
+  },
+  "finance": {
+    "title": "Statistiques Financières",
+    "overview": "Vue d'ensemble",
+    "totalRevenue": "Total revenus",
+    "pendingPayments": "Paiements en attente",
+    "latePayments": "Paiements en retard",
+    "failedPayments": "Paiements Échoués",
+    "lateInstallments": "Échéances en Retard",
+    "noLateInstallments": "Aucun retard",
+    "paymentRate": "Taux de paiement",
+    "revenueBySource": "Revenus par source",
+    "paymentMethods": "Méthodes de paiement",
+    "monthlyRevenue": "Revenus mensuels"
+  },
+  "store": {
+    "title": "Statistiques Magasin",
+    "overview": "Vue d'ensemble",
+    "totalOrders": "Total commandes",
+    "totalSales": "Total ventes",
+    "averageBasket": "Panier moyen",
+    "lowStock": "Stock bas",
+    "topProducts": "Produits populaires",
+    "salesByCategory": "Ventes par catégorie",
+    "ordersTrend": "Tendance des commandes"
+  },
+  "empty": {
+    "noData": "Aucune donnée disponible",
+    "noChartData": "Aucune donnée à afficher pour cette période"
+  },
+  "cards": {
+    "totalRevenue": "Total Revenus",
+    "validPayments": "Paiements Valides",
+    "pendingPayments": "Paiements En Attente",
+    "paymentRate": "Taux de Paiement",
+    "totalMembers": "Total Membres",
+    "activeMembers": "Membres Actifs",
+    "inactiveMembers": "Membres Inactifs",
+    "newMembersMonth": "Nouveaux Membres (Mois)",
+    "newMembersWeek": "Nouveaux Membres (Semaine)",
+    "growthRate": "Taux de Croissance",
+    "totalOrders": "Total Commandes",
+    "paidOrders": "Commandes Payées",
+    "totalStoreRevenue": "Revenus Total",
+    "averageBasket": "Panier Moyen"
+  },
+  "pages": {
+    "courseStats": "Statistiques des Cours",
+    "financeStats": "Statistiques Financières",
+    "memberStats": "Statistiques des Membres",
+    "storeStats": "Statistiques Magasin"
+  },
+  "storeStats": {
+    "breadcrumb": {
+      "dashboard": "Tableau de bord",
+      "storeStats": "Statistiques Magasin"
+    },
+    "title": "Statistiques Magasin",
+    "description": "Vue détaillée des ventes, commandes et analytics du magasin",
+    "backToDashboard": "Retour au tableau de bord",
+    "loading": "Chargement des statistiques...",
+    "errorTitle": "Erreur de chargement",
+    "retry": "Réessayer",
+    "noData": "Aucune donnée disponible",
+    "noDataDescription": "Les statistiques du magasin ne sont pas encore disponibles.",
+    "refreshing": "Actualisation...",
+    "refresh": "Actualiser",
+    "lowStockAlert": "article(s) nécessitent votre attention - Des articles ont un stock bas ou sont en rupture de stock.",
+    "cards": {
+      "totalOrders": "Total Commandes",
+      "paidOrders": "Commandes Payées",
+      "totalRevenue": "Revenus Total",
+      "averageBasket": "Panier Moyen",
+      "pending": "En Attente",
+      "cancelled": "Annulées",
+      "itemsSold": "Articles Vendus",
+      "conversionRate": "Taux de Conversion"
+    },
+    "popularProducts": {
+      "title": "Produits Populaires",
+      "topLabel": "Top 10",
+      "rank": "Rang",
+      "product": "Produit",
+      "quantity": "Quantité",
+      "revenue": "Revenus",
+      "sold": "vendus",
+      "orders": "commandes",
+      "noProducts": "Aucun produit vendu",
+      "noProductsDescription": "Aucune vente n'a été enregistrée pour le moment."
+    },
+    "salesByCategory": {
+      "title": "Ventes par Catégorie",
+      "articles": "articles",
+      "orders": "commandes",
+      "ofTotal": "du total",
+      "noCategories": "Aucune catégorie",
+      "noCategoriesDescription": "Aucune vente par catégorie disponible."
+    },
+    "stockAlerts": {
+      "title": "Alertes Stock",
+      "alertsCount": "alerte(s)",
+      "size": "Taille",
+      "availableMinimum": "disponible / minimum",
+      "statusCritical": "Stock critique",
+      "statusLow": "Stock bas",
+      "statusOutOfStock": "Rupture de stock",
+      "statusNormal": "Normal",
+      "noAlerts": "Aucune alerte",
+      "noAlertsDescription": "Tous les articles ont un stock suffisant."
+    }
+  }
+}

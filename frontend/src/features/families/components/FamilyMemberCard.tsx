@@ -3,6 +3,7 @@
  * Carte affichant les informations d'un membre de famille.
  */
 
+import { useTranslation } from "react-i18next";
 import {
   UserIcon,
   ShieldAltIcon,
@@ -41,14 +42,6 @@ const ROLE_BADGE_STYLE: Record<string, string> = {
   enfant: "bg-blue-100 text-blue-700",
   conjoint: "bg-purple-100 text-purple-700",
   autre: "bg-gray-100 text-gray-600",
-};
-
-const ROLE_LABEL: Record<string, string> = {
-  parent: "Parent",
-  tuteur: "Tuteur",
-  enfant: "Enfant",
-  conjoint: "Conjoint(e)",
-  autre: "Autre",
 };
 
 // ─── Utilitaires ─────────────────────────────────────────────────────────────
@@ -124,16 +117,20 @@ export function FamilyMemberCard({
   onRemove,
   isRemoving = false,
 }: FamilyMemberCardProps) {
+  const { t } = useTranslation("families");
   const avatarColor = ROLE_AVATAR_COLOR[member.role] ?? "bg-gray-400";
   const badgeStyle =
     ROLE_BADGE_STYLE[member.role] ?? "bg-gray-100 text-gray-600";
-  const roleLabel = ROLE_LABEL[member.role] ?? member.role;
+  const roleLabel = t(`roles.${member.role}` as any) || member.role;
   const age = calculateAge(member.date_of_birth);
   const initials = getInitials(member.first_name, member.last_name);
 
   const handleRemove = () => {
     const confirmed = window.confirm(
-      `Êtes-vous sûr de vouloir retirer ${member.first_name} ${member.last_name} de la famille ?`,
+      t("messages.confirm.removeMessage", {
+        firstName: member.first_name,
+        lastName: member.last_name,
+      }),
     );
     if (confirmed) {
       onRemove(member.userId);
@@ -179,7 +176,7 @@ export function FamilyMemberCard({
         {member.est_mineur && (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-700">
             <UserIcon className="h-3 w-3" aria-hidden="true" />
-            Mineur
+            {t("badges.minor")}
           </span>
         )}
 
@@ -187,7 +184,7 @@ export function FamilyMemberCard({
         {member.est_tuteur_legal && (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
             <ShieldAltIcon className="h-3 w-3" aria-hidden="true" />
-            Tuteur légal
+            {t("badges.legalGuardian")}
           </span>
         )}
       </div>
@@ -195,15 +192,19 @@ export function FamilyMemberCard({
       {/* ── Informations détaillées ── */}
       <dl className="text-sm text-gray-600 space-y-1">
         <div className="flex gap-2">
-          <dt className="font-medium text-gray-500 flex-shrink-0">Âge :</dt>
+          <dt className="font-medium text-gray-500 flex-shrink-0">
+            {t("fields.age")} :
+          </dt>
           <dd>
-            {age} an{age > 1 ? "s" : ""}
+            {age} {t("age.year", { count: age })}
           </dd>
         </div>
 
         {member.grade?.nom && (
           <div className="flex gap-2">
-            <dt className="font-medium text-gray-500 flex-shrink-0">Grade :</dt>
+            <dt className="font-medium text-gray-500 flex-shrink-0">
+              {t("fields.grade")} :
+            </dt>
             <dd>{member.grade.nom}</dd>
           </div>
         )}
@@ -216,18 +217,21 @@ export function FamilyMemberCard({
             type="button"
             onClick={handleRemove}
             disabled={isRemoving}
-            aria-label={`Retirer ${member.first_name} ${member.last_name} de la famille`}
+            aria-label={t("aria.removeMember", {
+              firstName: member.first_name,
+              lastName: member.last_name,
+            })}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 active:bg-red-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isRemoving ? (
               <>
                 <SpinnerIcon />
-                Retrait…
+                {t("states.removing")}
               </>
             ) : (
               <>
                 <PFTrashIcon className="h-4 w-4" aria-hidden="true" />
-                Retirer
+                {t("actions.removeMember")}
               </>
             )}
           </button>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Modal } from "../../../../shared/components/Modal/Modal";
 import { Input } from "../../../../shared/components/Input/Input";
 import { Button } from "../../../../shared/components/Button/Button";
@@ -13,15 +14,15 @@ import type {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 // TODO: Migrer vers shared/utils
-const DAY_OPTIONS = [
-  { value: 1, label: "Lundi" },
-  { value: 2, label: "Mardi" },
-  { value: 3, label: "Mercredi" },
-  { value: 4, label: "Jeudi" },
-  { value: 5, label: "Vendredi" },
-  { value: 6, label: "Samedi" },
-  { value: 7, label: "Dimanche" },
-];
+const DAY_KEYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 // TODO: Migrer vers shared/utils
@@ -50,6 +51,7 @@ export function CreateEditCourseRecurrentModal({
   onSubmit,
   onUpdate,
 }: CreateEditCourseRecurrentModalProps) {
+  const { t } = useTranslation("courses");
   const [form, setForm] = useState({
     type_cours: "",
     jour_semaine: 1,
@@ -110,16 +112,20 @@ export function CreateEditCourseRecurrentModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.type_cours.trim() || !form.heure_debut || !form.heure_fin) {
-      toast.error("Veuillez remplir tous les champs obligatoires.");
+      toast.error(t("messages.error.requiredFields"));
       return;
     }
     if (form.heure_fin <= form.heure_debut) {
-      toast.error("L'heure de fin doit être postérieure à l'heure de début.");
+      toast.error(t("messages.error.endTimeAfterStart"));
       return;
     }
     if (conflictCourse) {
       toast.error(
-        `Créneau déjà occupé par "${conflictCourse.type_cours}" (${formatTime(conflictCourse.heure_debut)}–${formatTime(conflictCourse.heure_fin)}).`,
+        t("messages.error.timeConflict", {
+          courseType: conflictCourse.type_cours,
+          startTime: formatTime(conflictCourse.heure_debut),
+          endTime: formatTime(conflictCourse.heure_fin),
+        }),
       );
       return;
     }
@@ -135,7 +141,7 @@ export function CreateEditCourseRecurrentModal({
           active: form.active,
           professeur_ids: form.professeur_ids,
         });
-        toast.success("Cours récurrent modifié avec succès");
+        toast.success(t("messages.success.recurrentCourseUpdated"));
       } else {
         await onSubmit({
           type_cours: form.type_cours.trim(),
@@ -145,11 +151,11 @@ export function CreateEditCourseRecurrentModal({
           active: form.active,
           professeur_ids: form.professeur_ids,
         });
-        toast.success("Cours récurrent créé avec succès");
+        toast.success(t("messages.success.recurrentCourseCreated"));
       }
       onClose();
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? "Une erreur est survenue.");
+      toast.error(error.response?.data?.message ?? t("messages.error.generic"));
     } finally {
       setSaving(false);
     }
@@ -159,7 +165,9 @@ export function CreateEditCourseRecurrentModal({
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <Modal.Header
         title={
-          editItem ? "Modifier le cours récurrent" : "Nouveau cours récurrent"
+          editItem
+            ? t("modals.editRecurrentCourse")
+            : t("modals.createRecurrentCourse")
         }
       />
       <Modal.Body>
@@ -184,42 +192,50 @@ export function CreateEditCourseRecurrentModal({
                   d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
                 />
               </svg>
-              <span>
-                Ce créneau chevauche{" "}
-                <strong>{conflictCourse.type_cours}</strong> (
-                {formatTime(conflictCourse.heure_debut)}–
-                {formatTime(conflictCourse.heure_fin)}) le{" "}
-                {conflictCourse.jour_semaine_nom}.
-              </span>
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: t("messages.warning.timeConflict", {
+                    courseType: conflictCourse.type_cours,
+                    startTime: formatTime(conflictCourse.heure_debut),
+                    endTime: formatTime(conflictCourse.heure_fin),
+                    day: conflictCourse.jour_semaine_nom,
+                  }),
+                }}
+              />
             </div>
           )}
 
           <Input
-            label="Type de cours"
+            label={t("fields.courseType")}
             id="type_cours"
             type="text"
             value={form.type_cours}
             onChange={(e) =>
               setForm((f) => ({ ...f, type_cours: e.target.value }))
             }
-            placeholder="Ex. Judo, Karaté, Aïkido…"
+            placeholder={t("placeholders.courseType")}
             required
           />
 
           <Input.Select
-            label="Jour de la semaine"
+            label={t("fields.dayOfWeek")}
             id="jour_semaine"
             value={form.jour_semaine}
             onChange={(e) =>
               setForm((f) => ({ ...f, jour_semaine: Number(e.target.value) }))
             }
-            options={DAY_OPTIONS}
             required
-          />
+          >
+            {DAY_KEYS.map((dayKey, idx) => (
+              <option key={dayKey} value={idx + 1}>
+                {t(`days.${dayKey}`)}
+              </option>
+            ))}
+          </Input.Select>
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Heure début"
+              label={t("fields.startTime")}
               id="heure_debut"
               type="time"
               value={form.heure_debut}
@@ -229,7 +245,7 @@ export function CreateEditCourseRecurrentModal({
               required
             />
             <Input
-              label="Heure fin"
+              label={t("fields.endTime")}
               id="heure_fin"
               type="time"
               value={form.heure_fin}
@@ -242,7 +258,7 @@ export function CreateEditCourseRecurrentModal({
 
           <Input.Checkbox
             id="cr-active"
-            label="Cours actif"
+            label={t("fields.active")}
             checked={form.active}
             onChange={(e) =>
               setForm((f) => ({ ...f, active: e.target.checked }))
@@ -252,7 +268,7 @@ export function CreateEditCourseRecurrentModal({
           {professors.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Professeurs assignés
+                {t("fields.professors")}
               </label>
               <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
                 {professors.map((prof) => (
@@ -283,7 +299,7 @@ export function CreateEditCourseRecurrentModal({
       </Modal.Body>
       <Modal.Footer align="right">
         <Button variant="outline" onClick={onClose} disabled={saving}>
-          Annuler
+          {t("buttons.cancel")}
         </Button>
         <SubmitButton
           type="button"
@@ -299,9 +315,9 @@ export function CreateEditCourseRecurrentModal({
           }}
           isLoading={saving}
           disabled={!!conflictCourse}
-          loadingText="Enregistrement…"
+          loadingText={t("loadingText.saving")}
         >
-          {editItem ? "Modifier" : "Créer"}
+          {editItem ? t("buttons.modify") : t("buttons.create")}
         </SubmitButton>
       </Modal.Footer>
     </Modal>

@@ -6,6 +6,7 @@
 
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Modal } from "@/shared/components/Modal/Modal";
 import { BUTTON, cn } from "@/shared/styles/designTokens";
 
@@ -78,6 +79,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
   stock,
   onSubmit,
 }) => {
+  const { t } = useTranslation("store");
   const {
     register,
     handleSubmit,
@@ -137,8 +139,8 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
       closeOnEscape={!isSubmitting}
     >
       <Modal.Header
-        title="Ajuster le stock"
-        subtitle="Ajoutez ou retirez du stock pour cet article."
+        title={t("stockAdjustModal.title")}
+        subtitle={t("stockAdjustModal.subtitle")}
         showCloseButton
         onClose={handleClose}
       />
@@ -149,23 +151,23 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">
-                Article :
+                {t("stockAdjustModal.info.article")}
               </span>
               <span className="text-sm text-gray-900">
-                {stock.article_nom || "N/A"}
+                {stock.article_nom || t("stockAdjustModal.info.notAvailable")}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">
-                Taille :
+                {t("stockAdjustModal.info.size")}
               </span>
               <span className="text-sm text-gray-900">
-                {stock.taille_nom || "N/A"}
+                {stock.taille_nom || t("stockAdjustModal.info.notAvailable")}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">
-                Stock actuel :
+                {t("stockAdjustModal.info.currentStock")}
               </span>
               <span className="text-sm font-semibold text-gray-900">
                 {stock.quantite}
@@ -173,7 +175,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
             </div>
             <div className="flex justify-between items-center pt-2 border-t border-gray-200">
               <span className="text-sm font-medium text-gray-700">
-                Nouveau stock :
+                {t("stockAdjustModal.info.newStock")}
               </span>
               <span
                 className={`text-sm font-bold ${
@@ -202,13 +204,14 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
               htmlFor="stock-quantite"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Ajustement <span className="text-red-500">*</span>
+              {t("stockAdjustModal.fields.adjustment.label")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="stock-quantite"
               type="number"
               step="1"
-              placeholder="Ex : +10, -5"
+              placeholder={t("stockAdjustModal.fields.adjustment.placeholder")}
               disabled={isSubmitting}
               className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                           placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
@@ -216,14 +219,14 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
                           transition-colors
                           ${errors.quantite ? "border-red-400" : "border-gray-300"}`}
               {...register("quantite", {
-                required: "L'ajustement est requis.",
+                required: t("stockAdjustModal.fields.adjustment.required"),
                 valueAsNumber: true,
                 validate: (value) => {
                   if (value === 0) {
-                    return "L'ajustement ne peut pas être 0.";
+                    return t("stockAdjustModal.fields.adjustment.notZero");
                   }
                   if (!Number.isInteger(value)) {
-                    return "L'ajustement doit être un nombre entier.";
+                    return t("stockAdjustModal.fields.adjustment.integer");
                   }
                   return true;
                 },
@@ -235,7 +238,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
               </p>
             )}
             <p className="mt-1 text-xs text-gray-500">
-              Nombre positif pour ajouter, négatif pour retirer
+              {t("stockAdjustModal.fields.adjustment.helper")}
             </p>
           </div>
 
@@ -245,15 +248,15 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
               htmlFor="stock-motif"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Motif
+              {t("stockAdjustModal.fields.reason.label")}
               <span className="ml-1 text-xs text-gray-400 font-normal">
-                (optionnel)
+                {t("stockAdjustModal.fields.reason.optional")}
               </span>
             </label>
             <textarea
               id="stock-motif"
               rows={3}
-              placeholder="Ex : Inventaire, Perte, Réception commande…"
+              placeholder={t("stockAdjustModal.fields.reason.placeholder")}
               disabled={isSubmitting}
               className="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm text-sm
                          placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
@@ -272,7 +275,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
           disabled={isSubmitting}
           className={cn(BUTTON.base, BUTTON.variant.secondary, BUTTON.size.md)}
         >
-          Annuler
+          {t("stockAdjustModal.actions.cancel")}
         </button>
         <button
           type="submit"
@@ -285,7 +288,9 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
               <SpinnerIcon />
             </span>
           )}
-          {isSubmitting ? "Enregistrement…" : "Ajuster le stock"}
+          {isSubmitting
+            ? t("stockAdjustModal.actions.adjusting")
+            : t("stockAdjustModal.actions.adjust")}
         </button>
       </Modal.Footer>
     </Modal>

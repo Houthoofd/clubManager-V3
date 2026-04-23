@@ -4,6 +4,7 @@
  */
 
 import { BanknotesIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "react-i18next";
 import { FormField } from "../../../../shared/components/Forms/FormField";
 import { Input } from "../../../../shared/components/Input";
 import { Button } from "../../../../shared/components/Button";
@@ -32,18 +33,20 @@ export function FinanceSection({
   handleSaveFinance,
   isSaving,
 }: FinanceSectionProps) {
+  const { t } = useTranslation("settings");
+
   return (
     <div className="bg-white rounded-lg shadow p-6 space-y-6">
       <SectionHeader
         icon={<BanknotesIcon className="h-5 w-5" />}
         iconBg="bg-yellow-100"
         iconColor="text-yellow-600"
-        title="Finance & Légal"
-        description="Informations bancaires et légales"
+        title={t("finance.title")}
+        description={t("finance.description")}
       />
 
       <div className="space-y-5">
-        <FormField id="bank_account" label="IBAN">
+        <FormField id="bank_account" label={t("finance.iban")}>
           <Input
             id="bank_account"
             type="text"
@@ -54,11 +57,11 @@ export function FinanceSection({
                 bank_account: e.target.value,
               })
             }
-            placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX"
+            placeholder={t("finance.ibanPlaceholder")}
           />
         </FormField>
 
-        <FormField id="vat_number" label="Numéro de TVA">
+        <FormField id="vat_number" label={t("finance.vatNumber")}>
           <Input
             id="vat_number"
             type="text"
@@ -69,11 +72,11 @@ export function FinanceSection({
                 vat_number: e.target.value,
               })
             }
-            placeholder="FR12345678901"
+            placeholder={t("finance.vatPlaceholder")}
           />
         </FormField>
 
-        <FormField id="legal_info" label="Mentions légales">
+        <FormField id="legal_info" label={t("finance.legalInfo")}>
           <Input
             id="legal_info"
             type="text"
@@ -84,7 +87,7 @@ export function FinanceSection({
                 legal_info: e.target.value,
               })
             }
-            placeholder="Siret, RCS, etc."
+            placeholder={t("finance.legalPlaceholder")}
           />
         </FormField>
       </div>
@@ -95,7 +98,7 @@ export function FinanceSection({
           loading={isSaving}
           variant="primary"
         >
-          Sauvegarder
+          {t("actions.save")}
         </Button>
       </div>
     </div>

@@ -27,13 +27,63 @@
     "courses": "Courses",
     "users": "Users",
     "family": "Family",
+    "families": "Families",
     "store": "Store",
     "payments": "Payments",
     "messages": "Messages",
     "statistics": "Statistics",
     "settings": "Settings",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
+  },
+  "footer": {
+    "allRightsReserved": "All rights reserved",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "contact": "Contact"
+  },
+  "layout": {
+    "clubManager": "ClubManager",
+    "notifications": "Notifications"
+  },
+  "modules": {
+    "title": "Navigation modules",
+    "description": "Enable or disable menu modules",
+    "dashboard": "Dashboard",
+    "courses": "Courses",
+    "users": "Users",
+    "families": "Families",
+    "payments": "Payments",
+    "store": "Store",
+    "messages": "Messages",
+    "statistics": "Statistics",
+    "save": "Save"
+  },
+  "appearance": {
+    "title": "Appearance",
+    "description": "Customize colors and logo",
+    "primaryColor": "Primary color",
+    "secondaryColor": "Secondary color",
+    "sidebarBackground": "Sidebar background",
+    "sidebarText": "Sidebar text",
+    "logoUrl": "Logo URL",
+    "logoUrlPlaceholder": "https://example.com/logo.png",
+    "navbarName": "Navigation bar name",
+    "navbarNamePlaceholder": "My Club",
+    "save": "Save"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "page": "Page",
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "results": "results"
   },
   "status": {
     "active": "Active",
@@ -43,7 +93,8 @@
     "cancelled": "Cancelled",
     "completed": "Completed",
     "failed": "Failed",
-    "loading": "Loading"
+    "loading": "Loading",
+    "alwaysActive": "Always active"
   },
   "time": {
     "today": "Today",
@@ -84,6 +135,87 @@
     "email": "Email",
     "phone": "Phone",
     "address": "Address",
-    "notes": "Notes"
+    "notes": "Notes",
+    "loading": "Loading..."
+  },
+  "users": {
+    "title": "Users",
+    "description": "Member and permission management",
+    "addUser": "Add user",
+    "editUser": "Edit user",
+    "deleteUser": "Delete user",
+    "restoreUser": "Restore user",
+    "userId": "User ID",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "role": "Role",
+    "status": "Status",
+    "changeRole": "Change role",
+    "changeStatus": "Change status",
+    "deleteReason": "Deletion reason",
+    "deleteReasonPlaceholder": "Explain why you are deleting this user...",
+    "deleteReasonRequired": "Reason is required (min. 10 characters)",
+    "confirmDelete": "Confirm deletion",
+    "confirmRestore": "Are you sure you want to restore this user?",
+    "userDeleted": "User deleted",
+    "userRestored": "User restored",
+    "roleUpdated": "Role updated",
+    "statusUpdated": "Status updated",
+    "notifyUsers": "Notify users",
+    "sendMessage": "Send message",
+    "selectUsers": "Select users",
+    "noUsers": "No users",
+    "noUsersDescription": "No users match your criteria.",
+    "searchPlaceholder": "Search by name or ID...",
+    "filterByRole": "Filter by role",
+    "filterByStatus": "Filter by status",
+    "allRoles": "All roles",
+    "allStatuses": "All statuses",
+    "roles": {
+      "admin": "Administrator",
+      "professor": "Professor",
+      "member": "Member",
+      "parent": "Parent"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended",
+      "pending": "Pending",
+      "archived": "Archived"
+    }
+  },
+  "families": {
+    "title": "My Family",
+    "description": "Family member management",
+    "addMember": "Add member",
+    "removeMember": "Remove member",
+    "memberAdded": "Member added",
+    "memberRemoved": "Member removed",
+    "confirmRemove": "Are you sure you want to remove {{name}} from the family?",
+    "noMembers": "No family members",
+    "noMembersDescription": "Start by adding your first member.",
+    "memberCount": "{{count}} member",
+    "memberCount_plural": "{{count}} members",
+    "selectMember": "Select a member",
+    "familyName": "Family name",
+    "relationship": "Relationship",
+    "age": "Age",
+    "grade": "Grade",
+    "minor": "Minor",
+    "legalGuardian": "Legal guardian",
+    "responsible": "Responsible",
+    "relationships": {
+      "parent": "Parent",
+      "guardian": "Guardian",
+      "child": "Child",
+      "spouse": "Spouse",
+      "other": "Other"
+    },
+    "errors": {
+      "loadFamily": "Error loading family",
+      "addMember": "Error adding member",
+      "removeMember": "Error removing member"
+    }
   }
 }

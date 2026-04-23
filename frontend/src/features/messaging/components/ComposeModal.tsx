@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { UserRole } from "@clubmanager/types";
@@ -34,6 +35,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
   onClose,
   onSent,
 }) => {
+  const { t } = useTranslation("messages");
   const { user } = useAuth();
   const sendMessage = useMessagingStore((s) => s.sendMessage);
   const isSending = useMessagingStore((s) => s.isSending);
@@ -90,7 +92,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
       const tpls = await getTemplates(undefined, true);
       setPickerTemplates(tpls);
     } catch {
-      toast.error("Impossible de charger les templates.");
+      toast.error(t("errors.loadTemplates"));
     } finally {
       setIsLoadingTemplates(false);
     }
@@ -118,14 +120,14 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!contenu.trim()) {
-      newErrors.contenu = "Le contenu du message est obligatoire.";
+      newErrors.contenu = t("errors.contentRequired");
     }
 
     if (recipientType === "user") {
       if (!destinataireId.trim()) {
-        newErrors.destinataire = "L'ID du destinataire est obligatoire.";
+        newErrors.destinataire = t("errors.recipientRequired");
       } else if (isNaN(Number(destinataireId)) || Number(destinataireId) <= 0) {
-        newErrors.destinataire = "L'ID doit être un nombre entier positif.";
+        newErrors.destinataire = t("errors.recipientRequired");
       }
     }
 
@@ -158,18 +160,18 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
 
     try {
       await sendMessage(payload);
-      toast.success("Message envoyé avec succès !");
+      toast.success(t("compose.sent"));
       onSent();
       onClose();
     } catch {
       // L'erreur est déjà affichée via le store ou toast
-      toast.error("Une erreur est survenue lors de l'envoi.");
+      toast.error(t("compose.error"));
     }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <Modal.Header title="Nouveau message" onClose={onClose} />
+      <Modal.Header title={t("compose.title")} onClose={onClose} />
 
       <Modal.Body>
         <form
@@ -192,7 +194,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
             >
               <span className="flex items-center gap-2">
                 <PficonTemplateIcon style={{ fontSize: "16px" }} />
-                <span className="font-medium">Utiliser un template</span>
+                <span className="font-medium">{t("actions.useTemplate")}</span>
               </span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -237,11 +239,11 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                         d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                       />
                     </svg>
-                    Chargement des templates…
+                    {t("loading.templates")}
                   </div>
                 ) : pickerTemplates.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-6 px-4">
-                    Aucun template actif disponible.
+                    {t("templates.emptyDescription")}
                   </p>
                 ) : (
                   Object.entries(groupedPickerTemplates).map(
@@ -277,7 +279,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
           {/* ── Destinataire ── */}
           <fieldset>
             <legend className="block text-sm font-medium text-gray-700 mb-2">
-              Destinataire
+              {t("compose.recipient")}
             </legend>
 
             {/* Type de destinataire */}
@@ -292,7 +294,9 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                   onChange={() => setRecipientType("user")}
                   className="text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">Un utilisateur</span>
+                <span className="text-sm text-gray-700">
+                  {t("compose.individual")}
+                </span>
               </label>
 
               {/* Options broadcast — admin/professor seulement */}
@@ -308,7 +312,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                       className="text-blue-600 focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">
-                      Tous les membres
+                      {t("compose.broadcast")}
                     </span>
                   </label>
 
@@ -321,7 +325,9 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                       onChange={() => setRecipientType("role")}
                       className="text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">Par rôle</span>
+                    <span className="text-sm text-gray-700">
+                      {t("roles.all")}
+                    </span>
                   </label>
                 </>
               )}
@@ -332,7 +338,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
               <div className="mt-3">
                 <FormField
                   id="destinataire-id"
-                  label="ID numérique de l'utilisateur"
+                  label={t("compose.recipient")}
                   required
                   error={errors.destinataire}
                 >
@@ -350,7 +356,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                         });
                       }
                     }}
-                    placeholder="Entrez l'ID numérique de l'utilisateur"
+                    placeholder={t("compose.recipientPlaceholder")}
                   />
                 </FormField>
               </div>
@@ -359,7 +365,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
             {/* Sélecteur de rôle */}
             {recipientType === "role" && (
               <div className="mt-3">
-                <FormField id="role-cible" label="Rôle cible">
+                <FormField id="role-cible" label={t("compose.targetRole")}>
                   <select
                     id="role-cible"
                     className={FORM.select}
@@ -368,9 +374,9 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                       setRoleCible(e.target.value as RoleCible)
                     }
                   >
-                    <option value="member">Membres</option>
-                    <option value="professor">Professeurs</option>
-                    <option value="admin">Admins</option>
+                    <option value="member">{t("roles.member")}</option>
+                    <option value="professor">{t("roles.professor")}</option>
+                    <option value="admin">{t("roles.admin")}</option>
                   </select>
                 </FormField>
               </div>
@@ -378,13 +384,17 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
           </fieldset>
 
           {/* ── Sujet (optionnel) ── */}
-          <FormField id="sujet" label="Sujet" helpText="Optionnel">
+          <FormField
+            id="sujet"
+            label={t("compose.subject")}
+            helpText="Optionnel"
+          >
             <Input
               id="sujet"
               type="text"
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
-              placeholder="Objet du message"
+              placeholder={t("compose.subjectPlaceholder")}
               maxLength={200}
             />
           </FormField>
@@ -392,7 +402,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
           {/* ── Contenu ── */}
           <FormField
             id="contenu"
-            label="Message"
+            label={t("compose.content")}
             required
             error={errors.contenu}
           >
@@ -411,7 +421,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                     });
                   }
                 }}
-                placeholder="Écrivez votre message ici…"
+                placeholder={t("compose.contentPlaceholder")}
                 rows={6}
                 maxLength={2000}
               />
@@ -434,7 +444,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                 }
               />
               <span className="text-sm text-gray-700">
-                Envoyer aussi par email
+                {t("compose.sendByEmail")}
               </span>
             </label>
           )}
@@ -459,7 +469,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
           icon={!isSending ? <PaperPlaneIcon /> : undefined}
           form="compose-message-form"
         >
-          {isSending ? "Envoi en cours…" : "Envoyer"}
+          {isSending ? t("compose.sending") : t("actions.send")}
         </Button>
       </Modal.Footer>
     </Modal>

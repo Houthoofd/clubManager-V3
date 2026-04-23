@@ -6,6 +6,7 @@
  */
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useStoreUI } from "../../stores/storeStore";
 import {
   useCategories,
@@ -30,6 +31,7 @@ import { ConfirmDialog } from "../../../../shared/components/Modal/ConfirmDialog
 import { getErrorMessage } from "../../../../shared/utils";
 
 export function ConfigurationTab() {
+  const { t } = useTranslation("store");
   const store = useStoreUI();
   const categoriesQuery = useCategories();
   const sizesQuery = useSizes();
@@ -60,7 +62,7 @@ export function ConfigurationTab() {
       {/* En-tête de l'onglet */}
       <div className="p-4 border-b border-gray-50">
         <h2 className="text-base font-semibold text-gray-900">
-          Configuration de la boutique
+          {t("configuration.title")}
         </h2>
       </div>
 
@@ -69,7 +71,9 @@ export function ConfigurationTab() {
         {/* Section Catégories */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Catégories</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {t("configuration.categories.title")}
+            </h3>
             <button
               onClick={() => store.openCategoryModal()}
               className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
@@ -87,7 +91,7 @@ export function ConfigurationTab() {
                   d="M12 4.5v15m7.5-7.5h-15"
                 />
               </svg>
-              Nouvelle catégorie
+              {t("configuration.categories.new")}
             </button>
           </div>
 
@@ -98,14 +102,16 @@ export function ConfigurationTab() {
             />
           )}
 
-          {categoriesQuery.isLoading && <LoadingSpinner text="Chargement..." />}
+          {categoriesQuery.isLoading && (
+            <LoadingSpinner text={t("common.loading")} />
+          )}
 
           {!categoriesQuery.isLoading &&
             !categoriesQuery.isError &&
             !categoriesQuery.data?.length && (
               <EmptyState
-                title="Aucune catégorie"
-                description="Ajoutez des catégories pour organiser vos articles."
+                title={t("configuration.categories.empty.title")}
+                description={t("configuration.categories.empty.description")}
                 variant="dashed"
               />
             )}
@@ -117,16 +123,16 @@ export function ConfigurationTab() {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Nom
+                        {t("configuration.categories.table.name")}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Description
+                        {t("configuration.categories.table.description")}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Ordre
+                        {t("configuration.categories.table.order")}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Actions
+                        {t("configuration.categories.table.actions")}
                       </th>
                     </tr>
                   </thead>
@@ -185,7 +191,9 @@ export function ConfigurationTab() {
         {/* Section Tailles */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Tailles</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {t("configuration.sizes.title")}
+            </h3>
             <button
               onClick={() => store.openSizeModal()}
               className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
@@ -203,7 +211,7 @@ export function ConfigurationTab() {
                   d="M12 4.5v15m7.5-7.5h-15"
                 />
               </svg>
-              Nouvelle taille
+              {t("configuration.sizes.new")}
             </button>
           </div>
 
@@ -214,14 +222,16 @@ export function ConfigurationTab() {
             />
           )}
 
-          {sizesQuery.isLoading && <LoadingSpinner text="Chargement..." />}
+          {sizesQuery.isLoading && (
+            <LoadingSpinner text={t("common.loading")} />
+          )}
 
           {!sizesQuery.isLoading &&
             !sizesQuery.isError &&
             !sizesQuery.data?.length && (
               <EmptyState
-                title="Aucune taille"
-                description="Ajoutez des tailles pour vos articles (ex: XS, S, M, L, XL)."
+                title={t("configuration.sizes.empty.title")}
+                description={t("configuration.sizes.empty.description")}
                 variant="dashed"
               />
             )}
@@ -233,13 +243,13 @@ export function ConfigurationTab() {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Nom
+                        {t("configuration.sizes.table.name")}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Ordre
+                        {t("configuration.sizes.table.order")}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Actions
+                        {t("configuration.sizes.table.actions")}
                       </th>
                     </tr>
                   </thead>
@@ -350,8 +360,10 @@ export function ConfigurationTab() {
             });
           }
         }}
-        title="Supprimer la catégorie"
-        message={`Êtes-vous sûr de vouloir supprimer la catégorie "${deleteCategoryConfirm.categoryNom}" ? Cette action est irréversible.`}
+        title={t("configuration.categories.delete.title")}
+        message={t("configuration.categories.delete.message", {
+          categoryNom: deleteCategoryConfirm.categoryNom,
+        })}
         variant="danger"
         isLoading={deleteCategoryMutation.isPending}
       />
@@ -376,8 +388,10 @@ export function ConfigurationTab() {
             });
           }
         }}
-        title="Supprimer la taille"
-        message={`Êtes-vous sûr de vouloir supprimer la taille "${deleteSizeConfirm.sizeNom}" ? Cette action est irréversible.`}
+        title={t("configuration.sizes.delete.title")}
+        message={t("configuration.sizes.delete.message", {
+          sizeNom: deleteSizeConfirm.sizeNom,
+        })}
         variant="danger"
         isLoading={deleteSizeMutation.isPending}
       />

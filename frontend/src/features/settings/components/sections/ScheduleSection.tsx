@@ -1,8 +1,11 @@
 /**
  * ScheduleSection - Section des horaires d'ouverture
  * Extrait de SettingsPage.tsx (Phase 2 refactorisation)
+ *
+ * INTERNATIONALISÉ - Utilise react-i18next pour tous les textes
  */
 
+import { useTranslation } from "react-i18next";
 import { ClockIcon } from "@heroicons/react/24/outline";
 import { FormField } from "../../../../shared/components/Forms/FormField";
 import { Input } from "../../../../shared/components/Input";
@@ -28,29 +31,29 @@ export function ScheduleSection({
   handleSaveHoraires,
   isSaving,
 }: ScheduleSectionProps) {
+  const { t } = useTranslation("settings");
+
   return (
     <div className="bg-white rounded-lg shadow p-6 space-y-6">
       <SectionHeader
         icon={<ClockIcon className="h-5 w-5" />}
         iconBg="bg-green-100"
         iconColor="text-green-600"
-        title="Horaires d'ouverture"
-        description="Définissez les horaires d'ouverture de votre club"
+        title={t("schedule.title")}
+        description={t("schedule.description")}
       />
 
       <FormField
         id="opening_hours"
-        label="Horaires"
-        helpText="Exemple: Lundi-Vendredi: 9h-20h, Samedi: 9h-18h"
+        label={t("schedule.openingHours")}
+        helpText={t("schedule.customHours")}
       >
         <Input
           id="opening_hours"
           type="text"
           value={horairesForm.opening_hours}
-          onChange={(e) =>
-            setHorairesForm({ opening_hours: e.target.value })
-          }
-          placeholder="Lundi-Vendredi: 9h-20h"
+          onChange={(e) => setHorairesForm({ opening_hours: e.target.value })}
+          placeholder={t("schedule.customHours")}
         />
       </FormField>
 
@@ -60,7 +63,7 @@ export function ScheduleSection({
           loading={isSaving}
           variant="primary"
         >
-          Sauvegarder
+          {t("actions.save")}
         </Button>
       </div>
     </div>

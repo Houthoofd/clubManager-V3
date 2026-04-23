@@ -14,6 +14,7 @@
  * - LoadingSpinner et EmptyState pour le feedback
  */
 
+import { useTranslation } from "react-i18next";
 import { Badge } from "../../../../shared/components/Badge/Badge";
 import { AlertBanner } from "../../../../shared/components/Feedback/AlertBanner";
 import { LoadingSpinner } from "../../../../shared/components/Layout/LoadingSpinner";
@@ -21,9 +22,14 @@ import { EmptyState } from "../../../../shared/components/Layout/EmptyState";
 import { useMyOrders, useUpdateOrderStatus } from "../../hooks/useStore";
 import { useStoreUI } from "../../stores/storeStore";
 import { OrderDetailModal, OrderStatusBadge } from "../";
-import { getErrorMessage, formatCurrency, formatDateTime } from "../../../../shared/utils";
+import {
+  getErrorMessage,
+  formatCurrency,
+  formatDateTime,
+} from "../../../../shared/utils";
 
 export function MyOrdersTab() {
+  const { t } = useTranslation("store");
   const store = useStoreUI();
   const ordersQuery = useMyOrders();
   const updateOrderStatusMutation = useUpdateOrderStatus();
@@ -40,18 +46,25 @@ export function MyOrdersTab() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
           <h2 className="text-base font-semibold text-gray-900">
-            Mes commandes
+            {t("myOrders.title")}
           </h2>
           <Badge variant="info">
-            {ordersQuery.data?.length ?? 0} commande
-            {(ordersQuery.data?.length ?? 0) > 1 ? "s" : ""}
+            {ordersQuery.data?.length ?? 0}{" "}
+            {(ordersQuery.data?.length ?? 0) > 1
+              ? t("myOrders.count.orders")
+              : t("myOrders.count.order")}
           </Badge>
           {enAttenteCount > 0 && (
-            <Badge variant="orange">{enAttenteCount} en attente</Badge>
+            <Badge variant="orange">
+              {enAttenteCount} {t("myOrders.count.pending")}
+            </Badge>
           )}
           {livreeCount > 0 && (
             <Badge variant="success">
-              {livreeCount} livrée{livreeCount > 1 ? "s" : ""}
+              {livreeCount}{" "}
+              {livreeCount > 1
+                ? t("myOrders.count.deliveredPlural")
+                : t("myOrders.count.delivered")}
             </Badge>
           )}
         </div>
@@ -66,14 +79,14 @@ export function MyOrdersTab() {
           />
         )}
 
-        {ordersQuery.isLoading && <LoadingSpinner text="Chargement..." />}
+        {ordersQuery.isLoading && <LoadingSpinner text={t("common.loading")} />}
 
         {!ordersQuery.isLoading &&
           !ordersQuery.isError &&
           !ordersQuery.data?.length && (
             <EmptyState
-              title="Aucune commande"
-              description="Vous n'avez pas encore passé de commande."
+              title={t("myOrders.empty.title")}
+              description={t("myOrders.empty.description")}
               variant="dashed"
             />
           )}
@@ -88,7 +101,9 @@ export function MyOrdersTab() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h3 className="text-base font-semibold text-gray-900">
-                      Commande #{order.numero_commande || order.id}
+                      {t("myOrders.card.orderNumber", {
+                        number: order.numero_commande || order.id,
+                      })}
                     </h3>
                     <p className="mt-1 text-sm text-gray-500">
                       {formatDateTime(order.date_commande)}
@@ -106,15 +121,13 @@ export function MyOrdersTab() {
                       onClick={() => store.openOrderDetailModal(order as any)}
                       className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
                     >
-                      Voir les détails
+                      {t("myOrders.card.viewDetails")}
                     </button>
                     {order.statut === "en_attente" && (
                       <button
                         onClick={async () => {
                           if (
-                            window.confirm(
-                              "Êtes-vous sûr de vouloir annuler cette commande ?",
-                            )
+                            window.confirm(t("myOrders.card.confirmCancel"))
                           ) {
                             await updateOrderStatusMutation.mutateAsync({
                               id: order.id,
@@ -124,7 +137,7 @@ export function MyOrdersTab() {
                         }}
                         className="rounded-lg border border-red-600 bg-white px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
                       >
-                        Annuler
+                        {t("myOrders.card.cancel")}
                       </button>
                     )}
                   </div>

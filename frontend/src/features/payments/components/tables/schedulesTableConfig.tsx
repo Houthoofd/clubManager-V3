@@ -3,6 +3,7 @@
  */
 
 import { CheckIcon } from "@heroicons/react/24/outline";
+import type { TFunction } from "i18next";
 import type { Column } from "@/shared/components/Table/DataTable";
 import { Badge } from "@/shared/components";
 
@@ -36,16 +37,18 @@ export interface SchedulesColumnsOptions {
   isAdmin: boolean;
   markingScheduleId: number | null;
   onMarkAsPaid: (id: number) => void;
+  t: TFunction<"payments">;
 }
 
 export const createSchedulesColumns = ({
   isAdmin,
   markingScheduleId,
   onMarkAsPaid,
+  t,
 }: SchedulesColumnsOptions): Column<ScheduleRow>[] => [
   {
     key: "utilisateur_nom_complet",
-    label: "Membre",
+    label: t("table.member"),
     render: (_, row) => (
       <div>
         <div className="text-sm font-medium text-gray-900">
@@ -59,14 +62,12 @@ export const createSchedulesColumns = ({
   },
   {
     key: "plan_tarifaire_nom",
-    label: "Plan",
-    render: (value) => (
-      <span className="text-sm text-gray-600">{value}</span>
-    ),
+    label: t("table.type"),
+    render: (value) => <span className="text-sm text-gray-600">{value}</span>,
   },
   {
     key: "montant",
-    label: "Montant",
+    label: t("table.amount"),
     render: (value) => (
       <span className="text-sm font-semibold text-gray-900">
         {formatCurrency(value)}
@@ -75,21 +76,21 @@ export const createSchedulesColumns = ({
   },
   {
     key: "date_echeance",
-    label: "Date échéance",
+    label: t("fields.dueDate"),
     render: (value) => (
       <span className="text-sm text-gray-600">{formatDate(value)}</span>
     ),
   },
   {
     key: "statut",
-    label: "Statut",
+    label: t("table.status"),
     render: (value, row) => (
       <Badge.ScheduleStatus status={value} daysLate={row.jours_retard} />
     ),
   },
   {
     key: "jours_retard",
-    label: "Jours retard",
+    label: t("fields.remaining"),
     render: (value) =>
       value !== undefined && value > 0 ? (
         <span className="text-sm font-medium text-red-600">{value}j</span>
@@ -99,7 +100,7 @@ export const createSchedulesColumns = ({
   },
   {
     key: "id",
-    label: "Actions",
+    label: t("table.actions"),
     render: (_, row) => {
       if (isAdmin && row.statut !== "paye" && row.statut !== "annule") {
         return (
@@ -134,7 +135,7 @@ export const createSchedulesColumns = ({
             ) : (
               <CheckIcon className="h-3.5 w-3.5" />
             )}
-            Marquer payé
+            {t("tabs.markPaid")}
           </button>
         );
       }

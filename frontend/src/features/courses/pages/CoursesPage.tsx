@@ -17,6 +17,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   CalendarIcon,
   PencilIcon,
@@ -53,14 +54,14 @@ import type {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const DAYS = [
-  "Lundi",
-  "Mardi",
-  "Mercredi",
-  "Jeudi",
-  "Vendredi",
-  "Samedi",
-  "Dimanche",
+const DAYS_KEYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
 ] as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -96,6 +97,7 @@ function formatTime(timeStr: string): string {
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
 export default function CoursesPage() {
+  const { t } = useTranslation("courses");
   const { user } = useAuth();
   const isAdmin = user?.role_app === "admin";
 
@@ -142,10 +144,10 @@ export default function CoursesPage() {
     setDeleteLoading(true);
     try {
       await deleteCourseRecurrent(modal.item.id);
-      toast.success("Cours récurrent supprimé avec succès");
+      toast.success(t("messages.success.recurrentCourseDeleted"));
       setModal({ type: "none" });
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? "Une erreur est survenue.");
+      toast.error(error.response?.data?.message ?? t("messages.error.generic"));
     } finally {
       setDeleteLoading(false);
     }
@@ -158,17 +160,17 @@ export default function CoursesPage() {
   const tabs = [
     {
       id: "planning" as const,
-      label: "Planning récurrent",
+      label: t("tabs.planning"),
       icon: <CalendarIcon className="h-5 w-5" />,
     },
     {
       id: "sessions" as const,
-      label: "Séances",
+      label: t("tabs.sessions"),
       icon: <ClipboardDocumentIcon className="h-5 w-5" />,
     },
     {
       id: "professeurs" as const,
-      label: "Professeurs",
+      label: t("tabs.professors"),
       icon: <EnvelopeIcon className="h-5 w-5" />,
     },
   ];
@@ -176,8 +178,8 @@ export default function CoursesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Gestion des Cours"
-        description="Gérez le planning récurrent, les séances ponctuelles et les professeurs."
+        title={t("page.title")}
+        description={t("page.description")}
         icon={<CalendarIcon className="h-8 w-8" />}
       />
 
@@ -199,7 +201,7 @@ export default function CoursesPage() {
                   icon={<PlusIcon className="h-5 w-5" />}
                   onClick={() => setModal({ type: "createCourseRecurrent" })}
                 >
-                  Nouveau cours récurrent
+                  {t("buttons.newRecurrentCourse")}
                 </Button>
                 {planning.length > 0 && (
                   <Button
@@ -208,7 +210,7 @@ export default function CoursesPage() {
                     icon={<SparklesIcon className="h-5 w-5" />}
                     onClick={() => setModal({ type: "generateCourses" })}
                   >
-                    Générer séances
+                    {t("buttons.generateSessions")}
                   </Button>
                 )}
               </div>
@@ -224,16 +226,16 @@ export default function CoursesPage() {
             )}
 
             {planningLoading ? (
-              <LoadingSpinner size="lg" text="Chargement du planning..." />
+              <LoadingSpinner size="lg" text={t("loading.planning")} />
             ) : planning.length === 0 ? (
               <EmptyState
                 icon={<CalendarIcon className="h-12 w-12" />}
-                title="Aucun cours récurrent"
-                description="Créez votre premier cours récurrent pour organiser votre planning hebdomadaire."
+                title={t("empty.noRecurrentCourses")}
+                description={t("empty.noRecurrentCoursesDescription")}
                 action={
                   isAdmin
                     ? {
-                        label: "Créer un cours",
+                        label: t("empty.noRecurrentCoursesAction"),
                         onClick: () =>
                           setModal({ type: "createCourseRecurrent" }),
                       }
@@ -242,7 +244,7 @@ export default function CoursesPage() {
               />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {DAYS.map((day, idx) => {
+                {DAYS_KEYS.map((dayKey, idx) => {
                   const dayNum = idx + 1;
                   const dayCourses = planning
                     .filter((c) => c.jour_semaine === dayNum)
@@ -254,18 +256,18 @@ export default function CoursesPage() {
 
                   return (
                     <div
-                      key={day}
+                      key={dayKey}
                       className="bg-white border border-gray-200 rounded-lg overflow-hidden"
                     >
                       <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
                         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                          {day}
+                          {t(`days.${dayKey}`)}
                         </h3>
                       </div>
                       <div className="p-3 space-y-2.5">
                         {dayCourses.length === 0 ? (
                           <p className="text-xs text-gray-400 text-center py-2">
-                            Aucun cours
+                            {t("empty.noCourse")}
                           </p>
                         ) : (
                           dayCourses.map((course) => (
@@ -299,7 +301,7 @@ export default function CoursesPage() {
 
                               {course.professeurs_noms.length > 0 && (
                                 <p className="text-xs text-gray-500 mb-2">
-                                  Prof :{" "}
+                                  {t("labels.professor")}{" "}
                                   {course.professeurs_noms
                                     .slice(0, 2)
                                     .join(", ")}
@@ -318,10 +320,10 @@ export default function CoursesPage() {
                                       })
                                     }
                                     className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-700 hover:text-blue-800 hover:bg-blue-100 rounded transition-colors"
-                                    title="Modifier"
+                                    title={t("buttons.modify")}
                                   >
                                     <PencilIcon className="h-3.5 w-3.5" />
-                                    Éditer
+                                    {t("buttons.edit")}
                                   </button>
                                   <button
                                     onClick={() =>
@@ -331,10 +333,10 @@ export default function CoursesPage() {
                                       })
                                     }
                                     className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-                                    title="Supprimer"
+                                    title={t("buttons.delete")}
                                   >
                                     <TrashIcon className="h-3.5 w-3.5" />
-                                    Supprimer
+                                    {t("buttons.delete")}
                                   </button>
                                 </div>
                               )}
@@ -361,7 +363,7 @@ export default function CoursesPage() {
                   icon={<PlusIcon className="h-5 w-5" />}
                   onClick={() => setModal({ type: "createSession" })}
                 >
-                  Nouvelle séance
+                  {t("buttons.newSession")}
                 </Button>
               </div>
             )}
@@ -378,7 +380,7 @@ export default function CoursesPage() {
             {/* Filtres */}
             <div className="flex flex-wrap gap-3">
               <Input.Select
-                label="Filtrer par type"
+                label={t("filters.filterByType")}
                 id="filter-type"
                 value={sessionFilters.type_cours ?? ""}
                 onChange={(e) =>
@@ -387,26 +389,26 @@ export default function CoursesPage() {
                 size="sm"
                 containerClassName="w-64"
               >
-                <option value="">Tous les types</option>
-                {uniqueTypes.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
+                <option value="">{t("filters.allTypes")}</option>
+                {uniqueTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
                   </option>
                 ))}
               </Input.Select>
             </div>
 
             {sessionsLoading ? (
-              <LoadingSpinner size="lg" text="Chargement des séances..." />
+              <LoadingSpinner size="lg" text={t("loading.sessions")} />
             ) : sessions.length === 0 ? (
               <EmptyState
                 icon={<ClipboardDocumentIcon className="h-12 w-12" />}
-                title="Aucune séance"
-                description="Créez une séance manuelle ou générez-les depuis le planning récurrent."
+                title={t("empty.noSessions")}
+                description={t("empty.noSessionsDescription")}
                 action={
                   isAdmin
                     ? {
-                        label: "Créer une séance",
+                        label: t("empty.noSessionsAction"),
                         onClick: () => setModal({ type: "createSession" }),
                       }
                     : undefined
@@ -418,17 +420,17 @@ export default function CoursesPage() {
                 columns={[
                   {
                     key: "date_cours",
-                    label: "Date",
+                    label: t("columns.date"),
                     render: (session: CourseListItemDto) =>
                       formatDate(session.date_cours),
                   },
                   {
                     key: "type_cours",
-                    label: "Type",
+                    label: t("columns.type"),
                   },
                   {
                     key: "horaire",
-                    label: "Horaire",
+                    label: t("columns.schedule"),
                     render: (session: CourseListItemDto) => (
                       <span>
                         {formatTime(session.heure_debut)} –{" "}
@@ -438,11 +440,11 @@ export default function CoursesPage() {
                   },
                   {
                     key: "recurrent",
-                    label: "Lié au planning",
+                    label: t("columns.linkedPlanning"),
                     render: (session: CourseListItemDto) =>
                       session.cours_recurrent_id ? (
                         <Badge variant="info" size="sm">
-                          Oui
+                          {t("status.yes")}
                         </Badge>
                       ) : (
                         <span className="text-gray-400 text-xs">—</span>
@@ -450,21 +452,21 @@ export default function CoursesPage() {
                   },
                   {
                     key: "status",
-                    label: "Statut",
+                    label: t("columns.status"),
                     render: (session: CourseListItemDto) =>
                       session.annule ? (
                         <Badge variant="danger" size="sm">
-                          Annulée
+                          {t("status.cancelled")}
                         </Badge>
                       ) : (
                         <Badge variant="success" size="sm">
-                          Prévue
+                          {t("status.scheduled")}
                         </Badge>
                       ),
                   },
                   {
                     key: "actions",
-                    label: "Actions",
+                    label: t("columns.actions"),
                     className: "text-right",
                     render: (session: CourseListItemDto) => (
                       <div className="flex items-center justify-end gap-2">
@@ -480,14 +482,14 @@ export default function CoursesPage() {
                             });
                           }}
                         >
-                          Appel
+                          {t("buttons.attendance")}
                         </Button>
                       </div>
                     ),
                   },
                 ]}
                 data={sessions}
-                emptyMessage="Aucune séance trouvée"
+                emptyMessage={t("empty.noSessionsFound")}
               />
             )}
           </div>
@@ -503,21 +505,21 @@ export default function CoursesPage() {
                 icon={<PlusIcon className="h-5 w-5" />}
                 onClick={() => setModal({ type: "createProfessor" })}
               >
-                Nouveau professeur
+                {t("buttons.newProfessor")}
               </Button>
             )}
 
             {professorsLoading ? (
-              <LoadingSpinner size="lg" text="Chargement des professeurs..." />
+              <LoadingSpinner size="lg" text={t("loading.professors")} />
             ) : professors.length === 0 ? (
               <EmptyState
                 icon={<EnvelopeIcon className="h-12 w-12" />}
-                title="Aucun professeur"
-                description="Ajoutez des professeurs pour les assigner aux cours."
+                title={t("empty.noProfessors")}
+                description={t("empty.noProfessorsDescription")}
                 action={
                   isAdmin
                     ? {
-                        label: "Ajouter un professeur",
+                        label: t("empty.noProfessorsAction"),
                         onClick: () => setModal({ type: "createProfessor" }),
                       }
                     : undefined
@@ -529,7 +531,7 @@ export default function CoursesPage() {
                 columns={[
                   {
                     key: "nom_complet",
-                    label: "Nom complet",
+                    label: t("columns.fullName"),
                     render: (professor: ProfessorListItemDto) => (
                       <div>
                         <p className="font-medium text-gray-900">
@@ -545,7 +547,7 @@ export default function CoursesPage() {
                   },
                   {
                     key: "email",
-                    label: "Email",
+                    label: t("columns.email"),
                     render: (professor: ProfessorListItemDto) =>
                       professor.email ? (
                         <a
@@ -560,7 +562,7 @@ export default function CoursesPage() {
                   },
                   {
                     key: "telephone",
-                    label: "Téléphone",
+                    label: t("columns.phone"),
                     render: (professor: ProfessorListItemDto) =>
                       professor.telephone || (
                         <span className="text-gray-400 text-sm">—</span>
@@ -568,7 +570,7 @@ export default function CoursesPage() {
                   },
                   {
                     key: "actif",
-                    label: "Statut",
+                    label: t("columns.status"),
                     render: (professor: ProfessorListItemDto) => (
                       <Badge.Status
                         status={professor.actif ? "active" : "inactive"}
@@ -577,7 +579,7 @@ export default function CoursesPage() {
                   },
                   {
                     key: "actions",
-                    label: "Actions",
+                    label: t("columns.actions"),
                     className: "text-right",
                     render: (professor: ProfessorListItemDto) => (
                       <Button
@@ -588,13 +590,13 @@ export default function CoursesPage() {
                           setModal({ type: "editProfessor", professor })
                         }
                       >
-                        Modifier
+                        {t("buttons.modify")}
                       </Button>
                     ),
                   },
                 ]}
                 data={professors}
-                emptyMessage="Aucun professeur trouvé"
+                emptyMessage={t("empty.noProfessorsFound")}
               />
             )}
           </div>
@@ -656,13 +658,18 @@ export default function CoursesPage() {
 
       <ConfirmDialog
         isOpen={modal.type === "deleteCourseRecurrent"}
-        title="Supprimer le cours récurrent"
+        title={t("modals.deleteRecurrentCourse")}
         message={
           modal.type === "deleteCourseRecurrent"
-            ? `Êtes-vous sûr de vouloir supprimer "${modal.item.type_cours}" (${modal.item.jour_semaine_nom} ${formatTime(modal.item.heure_debut)}-${formatTime(modal.item.heure_fin)}) ?`
+            ? t("messages.confirm.deleteRecurrentCourse", {
+                courseType: modal.item.type_cours,
+                day: modal.item.jour_semaine_nom,
+                startTime: formatTime(modal.item.heure_debut),
+                endTime: formatTime(modal.item.heure_fin),
+              })
             : ""
         }
-        confirmLabel="Supprimer"
+        confirmLabel={t("buttons.delete")}
         onConfirm={handleConfirmDelete}
         onClose={() => setModal({ type: "none" })}
         isLoading={deleteLoading}

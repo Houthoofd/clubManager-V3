@@ -6,6 +6,8 @@
  * - AuthPageContainer : Layout auth avec card et footer
  * - FormField : Champ email avec label et validation
  * - SubmitButton : Bouton de soumission avec état de chargement
+ *
+ * INTERNATIONALISÉ - Utilise react-i18next pour tous les textes
  */
 
 import { useState } from "react";
@@ -13,6 +15,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { EnvelopeIcon, CheckCircleIcon } from "@patternfly/react-icons";
 import { requestPasswordReset } from "@/shared/api/authApi";
 import {
@@ -29,6 +32,7 @@ import { SubmitButton } from "@/shared/components/Button/SubmitButton";
  * ForgotPasswordPage Component
  */
 export const ForgotPasswordPage = () => {
+  const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const [emailSent, setEmailSent] = useState(false);
 
@@ -48,34 +52,32 @@ export const ForgotPasswordPage = () => {
     try {
       await requestPasswordReset(data);
       setEmailSent(true);
-      toast.success("Email envoyé !", {
-        description:
-          "Vérifiez votre boîte de réception pour réinitialiser votre mot de passe.",
+      toast.success(t("forgotPassword.emailSentTitle"), {
+        description: t("forgotPassword.emailSent"),
       });
     } catch (error: any) {
       // Pour des raisons de sécurité (anti-énumération d'emails),
       // on affiche toujours la page de succès même en cas d'erreur
       setEmailSent(true);
-      toast.success("Email envoyé !", {
-        description:
-          "Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.",
+      toast.success(t("forgotPassword.emailSentTitle"), {
+        description: t("forgotPassword.emailSentSecurityMessage"),
       });
     }
   };
 
   return (
     <AuthPageContainer
-      title="Mot de passe oublié ?"
-      subtitle="Entrez votre adresse email pour recevoir un lien de réinitialisation"
+      title={t("forgotPassword.title")}
+      subtitle={t("forgotPassword.description")}
       showLogo={false}
       footer={
         <div className="text-center text-sm text-gray-600">
-          Vous n'avez pas de compte ?{" "}
+          {t("forgotPassword.noAccount")}{" "}
           <Link
             to="/register"
             className="text-blue-600 hover:text-blue-500 transition-colors font-medium"
           >
-            Créer un compte
+            {t("forgotPassword.createAccount")}
           </Link>
         </div>
       }
@@ -85,7 +87,7 @@ export const ForgotPasswordPage = () => {
           {/* Email Field */}
           <FormField
             id="email"
-            label="Adresse email"
+            label={t("forgotPassword.email")}
             required
             error={errors.email?.message}
           >
@@ -103,7 +105,7 @@ export const ForgotPasswordPage = () => {
                     ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                     : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                 } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors`}
-                placeholder="exemple@email.com"
+                placeholder={t("forgotPassword.emailPlaceholder")}
               />
             </div>
           </FormField>
@@ -111,10 +113,10 @@ export const ForgotPasswordPage = () => {
           {/* Submit Button */}
           <SubmitButton
             isLoading={isSubmitting}
-            loadingText="Envoi en cours..."
+            loadingText={t("forgotPassword.sending")}
             fullWidth
           >
-            Envoyer le lien de réinitialisation
+            {t("forgotPassword.submit")}
           </SubmitButton>
 
           {/* Lien retour connexion */}
@@ -123,7 +125,7 @@ export const ForgotPasswordPage = () => {
               to="/login"
               className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
             >
-              Retour à la connexion
+              {t("forgotPassword.backToLogin")}
             </Link>
           </div>
         </form>
@@ -132,12 +134,10 @@ export const ForgotPasswordPage = () => {
         <div className="text-center py-8">
           <CheckCircleIcon className="h-16 w-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Email envoyé !
+            {t("forgotPassword.checkEmail")}
           </h2>
           <p className="text-gray-600 mb-6">
-            Vérifiez votre boîte de réception pour le lien de réinitialisation.
-            Si vous ne recevez pas d'email dans quelques minutes, vérifiez vos
-            spams.
+            {t("forgotPassword.checkEmailDescription")}
           </p>
           <SubmitButton
             isLoading={false}
@@ -145,7 +145,7 @@ export const ForgotPasswordPage = () => {
             onClick={() => navigate("/login")}
             type="button"
           >
-            Retour à la connexion
+            {t("forgotPassword.backToLogin")}
           </SubmitButton>
         </div>
       )}

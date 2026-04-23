@@ -1,0 +1,156 @@
+{
+  "page": {
+    "title": "Gestion des Cours",
+    "description": "Gérez le planning récurrent, les séances ponctuelles et les professeurs."
+  },
+  "tabs": {
+    "planning": "Planning récurrent",
+    "sessions": "Séances",
+    "professors": "Professeurs"
+  },
+  "days": {
+    "monday": "Lundi",
+    "tuesday": "Mardi",
+    "wednesday": "Mercredi",
+    "thursday": "Jeudi",
+    "friday": "Vendredi",
+    "saturday": "Samedi",
+    "sunday": "Dimanche"
+  },
+  "buttons": {
+    "newRecurrentCourse": "Nouveau cours récurrent",
+    "generateSessions": "Générer séances",
+    "newSession": "Nouvelle séance",
+    "newProfessor": "Nouveau professeur",
+    "edit": "Éditer",
+    "delete": "Supprimer",
+    "modify": "Modifier",
+    "create": "Créer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "generate": "Générer",
+    "save": "Sauvegarder",
+    "attendance": "Appel",
+    "saveAttendance": "Sauvegarder les présences"
+  },
+  "loading": {
+    "planning": "Chargement du planning...",
+    "sessions": "Chargement des séances...",
+    "professors": "Chargement des professeurs..."
+  },
+  "empty": {
+    "noRecurrentCourses": "Aucun cours récurrent",
+    "noRecurrentCoursesDescription": "Créez votre premier cours récurrent pour organiser votre planning hebdomadaire.",
+    "noRecurrentCoursesAction": "Créer un cours",
+    "noSessions": "Aucune séance",
+    "noSessionsDescription": "Créez une séance manuelle ou générez-les depuis le planning récurrent.",
+    "noSessionsAction": "Créer une séance",
+    "noProfessors": "Aucun professeur",
+    "noProfessorsDescription": "Ajoutez des professeurs pour les assigner aux cours.",
+    "noProfessorsAction": "Ajouter un professeur",
+    "noCourse": "Aucun cours",
+    "noSessionsFound": "Aucune séance trouvée",
+    "noProfessorsFound": "Aucun professeur trouvé",
+    "noData": "Aucune donnée disponible.",
+    "noInscriptions": "Aucun inscrit pour cette séance."
+  },
+  "fields": {
+    "courseType": "Type de cours",
+    "dayOfWeek": "Jour de la semaine",
+    "startTime": "Heure début",
+    "endTime": "Heure fin",
+    "active": "Cours actif",
+    "professors": "Professeurs assignés",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "specialty": "Spécialité",
+    "professorActive": "Professeur actif",
+    "date": "Date",
+    "startDate": "Date début",
+    "endDate": "Date fin",
+    "recurrentCourse": "Cours récurrent",
+    "linkedRecurrentCourse": "Cours récurrent lié (optionnel)",
+    "fullName": "Nom complet",
+    "grade": "Grade",
+    "present": "Présent"
+  },
+  "placeholders": {
+    "courseType": "Ex. Judo, Karaté, Aïkido…",
+    "email": "prof@exemple.fr",
+    "phone": "+33 6 12 34 56 78",
+    "specialty": "Ex. Judo, Ceinture noire 3e dan…",
+    "selectCourse": "— Sélectionner un cours —",
+    "none": "— Aucun —"
+  },
+  "columns": {
+    "date": "Date",
+    "type": "Type",
+    "schedule": "Horaire",
+    "linkedPlanning": "Lié au planning",
+    "status": "Statut",
+    "actions": "Actions",
+    "fullName": "Nom complet",
+    "email": "Email",
+    "phone": "Téléphone"
+  },
+  "status": {
+    "yes": "Oui",
+    "cancelled": "Annulée",
+    "scheduled": "Prévue"
+  },
+  "labels": {
+    "professor": "Prof :",
+    "total": "Total :",
+    "present": "Présents :",
+    "absent": "Absents :"
+  },
+  "modals": {
+    "createRecurrentCourse": "Nouveau cours récurrent",
+    "editRecurrentCourse": "Modifier le cours récurrent",
+    "deleteRecurrentCourse": "Supprimer le cours récurrent",
+    "createProfessor": "Nouveau professeur",
+    "editProfessor": "Modifier le professeur",
+    "generateSessions": "Générer des séances depuis le planning",
+    "createSession": "Nouvelle séance",
+    "attendanceSheet": "Feuille d'appel"
+  },
+  "messages": {
+    "success": {
+      "recurrentCourseCreated": "Cours récurrent créé avec succès",
+      "recurrentCourseUpdated": "Cours récurrent modifié avec succès",
+      "recurrentCourseDeleted": "Cours récurrent supprimé avec succès",
+      "professorCreated": "Professeur créé avec succès",
+      "professorUpdated": "Professeur modifié avec succès",
+      "sessionCreated": "Séance créée avec succès",
+      "sessionsGenerated": "{{count}} séance(s) générée(s) avec succès",
+      "attendanceSaved": "Présences sauvegardées"
+    },
+    "error": {
+      "generic": "Une erreur est survenue.",
+      "requiredFields": "Veuillez remplir tous les champs obligatoires.",
+      "endTimeAfterStart": "L'heure de fin doit être postérieure à l'heure de début.",
+      "timeConflict": "Créneau déjà occupé par \"{{courseType}}\" ({{startTime}}–{{endTime}}).",
+      "firstLastNameRequired": "Le prénom et le nom sont obligatoires.",
+      "allFieldsRequired": "Veuillez remplir tous les champs.",
+      "savingAttendance": "Erreur lors de la sauvegarde."
+    },
+    "confirm": {
+      "deleteRecurrentCourse": "Êtes-vous sûr de vouloir supprimer \"{{courseType}}\" ({{day}} {{startTime}}-{{endTime}}) ?"
+    },
+    "warning": {
+      "timeConflict": "Ce créneau chevauche <strong>{{courseType}}</strong> ({{startTime}}–{{endTime}}) le {{day}}."
+    }
+  },
+  "filters": {
+    "filterByType": "Filtrer par type",
+    "allTypes": "Tous les types"
+  },
+  "loadingText": {
+    "saving": "Enregistrement…",
+    "generating": "Génération…",
+    "creating": "Création…",
+    "savingAttendance": "Sauvegarde…"
+  }
+}

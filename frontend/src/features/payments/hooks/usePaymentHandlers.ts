@@ -4,6 +4,7 @@
  * Centralise toute la logique métier liée aux paiements, échéances et plans tarifaires.
  */
 
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { PricingPlan } from "@clubmanager/types";
 import type { RecordPaymentFormData } from "../components/RecordPaymentModal";
@@ -67,6 +68,7 @@ export function usePaymentHandlers({
   setDeletingPlanId,
   selectedPlan,
 }: UsePaymentHandlersParams) {
+  const { t } = useTranslation("payments");
 
   /**
    * Enregistre un paiement manuel
@@ -80,8 +82,8 @@ export function usePaymentHandlers({
       description: data.description,
       date_paiement: data.date_paiement,
     });
-    toast.success("Paiement enregistré", {
-      description: "Le paiement manuel a été enregistré avec succès.",
+    toast.success(t("messages.paymentRecorded"), {
+      description: t("messages.paymentRecordedSuccess"),
     });
   };
 
@@ -121,7 +123,7 @@ export function usePaymentHandlers({
         error:
           error.response?.data?.message ??
           error.message ??
-          "Impossible de créer le Payment Intent.",
+          t("messages.errorCreatingIntent"),
       }));
     }
   };
@@ -133,19 +135,19 @@ export function usePaymentHandlers({
     setMarkingScheduleId(id);
     try {
       await markAsPaid(id);
-      toast.success("Échéance payée", {
-        description: "L'échéance a été marquée comme payée.",
+      toast.success(t("messages.schedulePaid"), {
+        description: t("messages.schedulePaidSuccess"),
       });
     } catch (err: unknown) {
       const error = err as {
         response?: { data?: { message?: string } };
         message?: string;
       };
-      toast.error("Erreur", {
+      toast.error(t("messages.error"), {
         description:
           error.response?.data?.message ??
           error.message ??
-          "Impossible de marquer l'échéance comme payée.",
+          t("messages.errorMarkingSchedule"),
       });
     } finally {
       setMarkingScheduleId(null);
@@ -158,19 +160,24 @@ export function usePaymentHandlers({
   const handleTogglePlan = async (plan: PricingPlan) => {
     try {
       await togglePlan(plan.id);
-      toast.success(plan.actif ? "Plan désactivé" : "Plan activé", {
-        description: `"${plan.nom}" a été ${plan.actif ? "désactivé" : "activé"}.`,
-      });
+      toast.success(
+        plan.actif
+          ? t("messages.planDeactivated")
+          : t("messages.planActivated"),
+        {
+          description: `"${plan.nom}" ${plan.actif ? t("messages.planDeactivatedSuccess") : t("messages.planActivatedSuccess")}`,
+        },
+      );
     } catch (err: unknown) {
       const error = err as {
         response?: { data?: { message?: string } };
         message?: string;
       };
-      toast.error("Erreur", {
+      toast.error(t("messages.error"), {
         description:
           error.response?.data?.message ??
           error.message ??
-          "Impossible de modifier le plan.",
+          t("messages.errorTogglingPlan"),
       });
     }
   };
@@ -181,19 +188,19 @@ export function usePaymentHandlers({
   const handleDeletePlan = async (id: number, nom: string) => {
     try {
       await deletePlan(id);
-      toast.success("Plan supprimé", {
-        description: `"${nom}" a été supprimé.`,
+      toast.success(t("messages.planDeleted"), {
+        description: `"${nom}" ${t("messages.planDeletedSuccess")}`,
       });
     } catch (err: unknown) {
       const error = err as {
         response?: { data?: { message?: string } };
         message?: string;
       };
-      toast.error("Erreur", {
+      toast.error(t("messages.error"), {
         description:
           error.response?.data?.message ??
           error.message ??
-          "Impossible de supprimer le plan.",
+          t("messages.errorDeletingPlan"),
       });
     } finally {
       setDeletingPlanId(null);
@@ -206,12 +213,14 @@ export function usePaymentHandlers({
   const handlePlanFormSubmit = async (data: PricingPlanFormData) => {
     if (selectedPlan) {
       await updatePlan(selectedPlan.id, data);
-      toast.success("Plan mis à jour", {
-        description: `"${data.nom}" a été modifié.`,
+      toast.success(t("messages.planUpdated"), {
+        description: `"${data.nom}" ${t("messages.planUpdatedSuccess")}`,
       });
     } else {
       await createPlan(data);
-      toast.success("Plan créé", { description: `"${data.nom}" a été créé.` });
+      toast.success(t("messages.planCreatedTitle"), {
+        description: `"${data.nom}" ${t("messages.planCreatedSuccess")}`,
+      });
     }
   };
 

@@ -3,8 +3,9 @@
  *
  * MIGRATIONS EFFECTUÉES :
  * ✅ Phase 1: Icônes Heroicons (suppression de 9 fonctions SVG custom, -180 lignes)
- * 🚧 Phase 2: Formulaires (FormField + Input/Select)
- * 🚧 Phase 3: LoadingSpinner partagé
+ * ✅ Phase 2: Formulaires (FormField + Input/Select)
+ * ✅ Phase 3: LoadingSpinner partagé
+ * ✅ Phase 4: Internationalisation (i18n avec react-i18next)
  *
  * Page de gestion des paramètres du club.
  * Accessible aux administrateurs uniquement.
@@ -12,6 +13,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useSettings } from "../hooks/useSettings";
 import { INFORMATION_KEYS } from "@clubmanager/types";
 import type { CreateInformation } from "@clubmanager/types";
@@ -59,6 +61,7 @@ type TabId =
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export const SettingsPage = () => {
+  const { t } = useTranslation("settings");
   const { settings, isLoading, isSaving, bulkUpsertSettings, getByKey } =
     useSettings();
 
@@ -209,9 +212,9 @@ export const SettingsPage = () => {
   const saveSection = async (payload: CreateInformation[]) => {
     try {
       await bulkUpsertSettings(payload);
-      toast.success("Paramètres sauvegardés avec succès");
+      toast.success(t("messages.saveSuccess"));
     } catch (error: any) {
-      toast.error(error.message || "Erreur lors de la sauvegarde");
+      toast.error(error.message || t("messages.saveError"));
     }
   };
 
@@ -260,37 +263,37 @@ export const SettingsPage = () => {
   const tabs: Tab[] = [
     {
       id: "club",
-      label: "Informations du club",
+      label: t("tabs.clubInfo"),
       icon: <BuildingOffice2Icon className="h-5 w-5" />,
     },
     {
       id: "horaires",
-      label: "Horaires d'ouverture",
+      label: t("tabs.schedule"),
       icon: <ClockIcon className="h-5 w-5" />,
     },
     {
       id: "social",
-      label: "Réseaux sociaux",
+      label: t("tabs.social"),
       icon: <GlobeAltIcon className="h-5 w-5" />,
     },
     {
       id: "finance",
-      label: "Finance & Légal",
+      label: t("tabs.finance"),
       icon: <BanknotesIcon className="h-5 w-5" />,
     },
     {
       id: "apparence",
-      label: "Apparence",
+      label: t("tabs.appearance"),
       icon: <PaintBrushIcon className="h-5 w-5" />,
     },
     {
       id: "navigation",
-      label: "Navigation",
+      label: t("tabs.navigation"),
       icon: <Squares2X2Icon className="h-5 w-5" />,
     },
     {
       id: "localisation",
-      label: "Localisation",
+      label: t("tabs.localization"),
       icon: <LanguageIcon className="h-5 w-5" />,
     },
   ];
@@ -300,7 +303,7 @@ export const SettingsPage = () => {
   if (isLoading) {
     return (
       <div className="p-6">
-        <LoadingSpinner size="lg" text="Chargement des paramètres..." />
+        <LoadingSpinner size="lg" text={t("loading")} />
       </div>
     );
   }
@@ -308,8 +311,8 @@ export const SettingsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Paramètres"
-        description="Configurez les paramètres de votre club"
+        title={t("title")}
+        description={t("subtitle")}
         icon={<Cog6ToothIcon className="h-8 w-8" />}
       />
 

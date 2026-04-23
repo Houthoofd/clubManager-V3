@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   UsersIcon,
@@ -53,20 +54,6 @@ type ModalState =
 
 // ─── Configuration des options ────────────────────────────────────────────────
 
-const roleOptions = [
-  { value: UserRole.ADMIN, label: "Admin" },
-  { value: UserRole.PROFESSOR, label: "Professeur" },
-  { value: UserRole.MEMBER, label: "Membre" },
-];
-
-const statusOptions = [
-  { value: 1, label: "Actif" },
-  { value: 2, label: "Inactif" },
-  { value: 3, label: "Suspendu" },
-  { value: 4, label: "En attente" },
-  { value: 5, label: "Archivé" },
-];
-
 // ─── Composant ────────────────────────────────────────────────────────────────
 
 /**
@@ -81,6 +68,22 @@ const statusOptions = [
  * - Notifications sonner sur succès / erreur
  */
 export function UsersPage() {
+  const { t } = useTranslation("users");
+
+  // ── Options dynamiques avec i18n ──
+  const roleOptions = [
+    { value: UserRole.ADMIN, label: t("roles.admin") },
+    { value: UserRole.PROFESSOR, label: t("roles.professor") },
+    { value: UserRole.MEMBER, label: t("roles.member") },
+  ];
+
+  const statusOptions = [
+    { value: 1, label: t("statuses.active") },
+    { value: 2, label: t("statuses.inactive") },
+    { value: 3, label: t("statuses.suspended") },
+    { value: 4, label: t("statuses.pending") },
+    { value: 5, label: t("statuses.archived") },
+  ];
   const {
     users,
     pagination,
@@ -117,7 +120,7 @@ export function UsersPage() {
   // ── Propagation de l'erreur du store vers le toast ────────────────────────
   useEffect(() => {
     if (error) {
-      toast.error("Erreur de chargement", { description: error });
+      toast.error(t("common:messages.error"), { description: error });
       clearError();
     }
   }, [error, clearError]);
@@ -163,16 +166,16 @@ export function UsersPage() {
     setIsSubmitting(true);
     try {
       await updateUserRole(modal.user.id, selectedRole);
-      toast.success("Rôle mis à jour", {
-        description: `Le rôle de ${modal.user.first_name} ${modal.user.last_name} a été modifié.`,
+      toast.success(t("roleUpdated"), {
+        description: `${modal.user.first_name} ${modal.user.last_name}`,
       });
       closeModal();
     } catch (err: any) {
-      toast.error("Erreur", {
+      toast.error(t("common:messages.error"), {
         description:
           err.response?.data?.message ??
           err.message ??
-          "Impossible de modifier le rôle.",
+          t("common:messages.error"),
       });
     } finally {
       setIsSubmitting(false);
@@ -185,16 +188,16 @@ export function UsersPage() {
     setIsSubmitting(true);
     try {
       await updateUserStatus(modal.user.id, selectedStatusId);
-      toast.success("Statut mis à jour", {
-        description: `Le statut de ${modal.user.first_name} ${modal.user.last_name} a été modifié.`,
+      toast.success(t("statusUpdated"), {
+        description: `${modal.user.first_name} ${modal.user.last_name}`,
       });
       closeModal();
     } catch (err: any) {
-      toast.error("Erreur", {
+      toast.error(t("common:messages.error"), {
         description:
           err.response?.data?.message ??
           err.message ??
-          "Impossible de modifier le statut.",
+          t("common:messages.error"),
       });
     } finally {
       setIsSubmitting(false);
@@ -211,16 +214,16 @@ export function UsersPage() {
     setIsSubmitting(true);
     try {
       await deleteUser(modal.user.id, trimmedReason);
-      toast.success("Utilisateur supprimé", {
-        description: `${modal.user.first_name} ${modal.user.last_name} a été supprimé.`,
+      toast.success(t("userDeleted"), {
+        description: `${modal.user.first_name} ${modal.user.last_name}`,
       });
       closeModal();
     } catch (err: any) {
-      toast.error("Erreur", {
+      toast.error(t("common:messages.error"), {
         description:
           err.response?.data?.message ??
           err.message ??
-          "Impossible de supprimer l'utilisateur.",
+          t("common:messages.error"),
       });
     } finally {
       setIsSubmitting(false);
@@ -230,15 +233,15 @@ export function UsersPage() {
   const handleRestore = async (user: UserListItemDto) => {
     try {
       await restoreUser(user.id);
-      toast.success("Compte restauré", {
-        description: `${user.first_name} ${user.last_name} a été restauré.`,
+      toast.success(t("userRestored"), {
+        description: `${user.first_name} ${user.last_name}`,
       });
     } catch (err: any) {
-      toast.error("Erreur", {
+      toast.error(t("common:messages.error"), {
         description:
           err.response?.data?.message ??
           err.message ??
-          "Impossible de restaurer le compte.",
+          t("common:messages.error"),
       });
     }
   };
@@ -255,8 +258,7 @@ export function UsersPage() {
     <div className="flex items-center gap-2">
       {pagination.total > 0 && (
         <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100">
-          Total : {pagination.total} utilisateur
-          {pagination.total > 1 ? "s" : ""}
+          {t("common:common.total")} : {pagination.total}
         </span>
       )}
       {isAdmin && (
@@ -266,17 +268,17 @@ export function UsersPage() {
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-orange-200
                      bg-orange-50 text-orange-700 text-sm font-medium
                      hover:bg-orange-100 hover:border-orange-300 transition-colors"
-          title="Envoyer une notification aux membres non-conformes"
+          title={t("notifyUsers")}
         >
           <BellAlertIcon className="h-4 w-4" />
-          <span className="hidden sm:inline">Notifier</span>
+          <span className="hidden sm:inline">{t("notifyUsers")}</span>
         </button>
       )}
       <button
         type="button"
         onClick={refetch}
         disabled={isLoading}
-        title="Rafraîchir la liste"
+        title={t("common:buttons.refresh")}
         className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200
                    text-gray-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200
                    transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
@@ -305,7 +307,7 @@ export function UsersPage() {
     },
     {
       key: "name",
-      label: "Nom",
+      label: t("firstName"),
       render: (_: any, row: UserListItemDto) => (
         <div>
           <div className="text-sm font-medium text-gray-900">
@@ -317,14 +319,14 @@ export function UsersPage() {
     },
     {
       key: "email",
-      label: "Email",
+      label: t("common:common.email"),
       render: (_: any, row: UserListItemDto) => (
         <div className="text-sm text-gray-700 flex items-center">
           <span className="truncate max-w-[220px]">{row.email}</span>
           {row.email_verified && (
             <CheckIcon
               className="h-3.5 w-3.5 text-green-500 inline-block ml-1"
-              aria-label="Email vérifié"
+              aria-label={t("emailVerified")}
             />
           )}
         </div>
@@ -332,28 +334,28 @@ export function UsersPage() {
     },
     {
       key: "role",
-      label: "Rôle",
+      label: t("role"),
       render: (_: any, row: UserListItemDto) => (
         <UserRoleBadge role={row.role_app} />
       ),
     },
     {
       key: "status",
-      label: "Statut",
+      label: t("status"),
       render: (_: any, row: UserListItemDto) => (
         <UserStatusBadge statusId={row.status_id} />
       ),
     },
     {
       key: "actions",
-      label: "Actions",
+      label: t("common:common.actions"),
       render: (_: any, row: UserListItemDto) => (
         <div className="flex items-center justify-end gap-1">
           {/* Modifier le rôle */}
           <button
             type="button"
             onClick={() => setModal({ type: "editRole", user: row })}
-            title="Modifier le rôle"
+            title={t("changeRole")}
             className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50
                        transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
@@ -364,7 +366,7 @@ export function UsersPage() {
           <button
             type="button"
             onClick={() => setModal({ type: "editStatus", user: row })}
-            title="Modifier le statut"
+            title={t("changeStatus")}
             className="p-1.5 rounded-lg text-gray-500 hover:text-indigo-600 hover:bg-indigo-50
                        transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
@@ -377,8 +379,12 @@ export function UsersPage() {
               type="button"
               onClick={() => setModal({ type: "sendEmail", user: row })}
               className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-              title={`Envoyer un message à ${row.first_name} ${row.last_name}`}
-              aria-label={`Envoyer un message à ${row.first_name} ${row.last_name}`}
+              title={t("sendMessageTo", {
+                name: `${row.first_name} ${row.last_name}`,
+              })}
+              aria-label={t("sendMessageTo", {
+                name: `${row.first_name} ${row.last_name}`,
+              })}
             >
               <EnvelopeIcon className="h-4 w-4" />
             </button>
@@ -389,7 +395,7 @@ export function UsersPage() {
             <button
               type="button"
               onClick={() => setModal({ type: "delete", user: row })}
-              title="Supprimer l'utilisateur"
+              title={t("deleteUser")}
               className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50
                          transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
             >
@@ -402,7 +408,7 @@ export function UsersPage() {
             <button
               type="button"
               onClick={() => handleRestore(row)}
-              title="Restaurer le compte"
+              title={t("restoreUser")}
               className="p-1.5 rounded-lg text-gray-500 hover:text-green-600 hover:bg-green-50
                          transition-colors focus:outline-none focus:ring-2 focus:ring-green-400"
             >
@@ -426,8 +432,8 @@ export function UsersPage() {
       {/* ── En-tête ── */}
       <PageHeader
         icon={<UsersIcon className="h-8 w-8 text-blue-600" />}
-        title="Gestion des utilisateurs"
-        description="Administration des comptes membres du club"
+        title={t("title")}
+        description={t("description")}
         actions={headerActions}
       />
 
@@ -438,7 +444,7 @@ export function UsersPage() {
           <div className="flex-1 min-w-0">
             <Input
               type="search"
-              placeholder="Rechercher par nom, email, identifiant…"
+              placeholder={t("searchPlaceholder")}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               leftIcon={
@@ -455,10 +461,10 @@ export function UsersPage() {
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        transition-colors min-w-[140px]"
           >
-            <option value="">Tous les rôles</option>
-            <option value="admin">Admin</option>
-            <option value="professor">Professeur</option>
-            <option value="member">Membre</option>
+            <option value="">{t("allRoles")}</option>
+            <option value="admin">{t("roles.admin")}</option>
+            <option value="professor">{t("roles.professor")}</option>
+            <option value="member">{t("roles.member")}</option>
           </select>
 
           {/* Filtre statut */}
@@ -469,12 +475,12 @@ export function UsersPage() {
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        transition-colors min-w-[150px]"
           >
-            <option value="">Tous les statuts</option>
-            <option value="1">Actif</option>
-            <option value="2">Inactif</option>
-            <option value="3">Suspendu</option>
-            <option value="4">En attente</option>
-            <option value="5">Archivé</option>
+            <option value="">{t("allStatuses")}</option>
+            <option value="1">{t("statuses.active")}</option>
+            <option value="2">{t("statuses.inactive")}</option>
+            <option value="3">{t("statuses.suspended")}</option>
+            <option value="4">{t("statuses.pending")}</option>
+            <option value="5">{t("statuses.archived")}</option>
           </select>
         </div>
       </div>
@@ -485,7 +491,7 @@ export function UsersPage() {
         data={users}
         rowKey="id"
         loading={isLoading}
-        emptyMessage="Aucun utilisateur trouvé"
+        emptyMessage={t("noUsers")}
       />
 
       {/* Bouton pour effacer les filtres si aucun résultat */}
@@ -503,7 +509,7 @@ export function UsersPage() {
               }}
               className="text-sm text-blue-600 hover:underline"
             >
-              Effacer les filtres
+              {t("common:buttons.reset")}
             </button>
           </div>
         )}
@@ -525,14 +531,14 @@ export function UsersPage() {
       {/* Modal : Modifier le rôle */}
       <Modal isOpen={modal.type === "editRole"} onClose={closeModal} size="sm">
         <Modal.Header
-          title="Modifier le rôle"
+          title={t("modal.editRole.title")}
           showCloseButton
           onClose={closeModal}
         />
         <Modal.Body>
           <SelectField
             id="role-select"
-            label="Rôle applicatif"
+            label={t("modal.editRole.label")}
             options={roleOptions}
             value={selectedRole}
             onChange={(value) => setSelectedRole(String(value))}
@@ -545,11 +551,11 @@ export function UsersPage() {
             onClick={closeModal}
             disabled={isSubmitting}
           >
-            Annuler
+            {t("modal.editRole.cancel")}
           </Button>
           <SubmitButton
             isLoading={isSubmitting}
-            loadingText="Enregistrement…"
+            loadingText={t("modal.editRole.saving")}
             onClick={handleRoleSubmit}
             type="button"
             disabled={
@@ -558,7 +564,7 @@ export function UsersPage() {
                 selectedRole === modal.user.role_app)
             }
           >
-            Confirmer
+            {t("modal.editRole.confirm")}
           </SubmitButton>
         </Modal.Footer>
       </Modal>
@@ -570,14 +576,14 @@ export function UsersPage() {
         size="sm"
       >
         <Modal.Header
-          title="Modifier le statut"
+          title={t("modal.editStatus.title")}
           showCloseButton
           onClose={closeModal}
         />
         <Modal.Body>
           <SelectField
             id="status-select"
-            label="Statut du compte"
+            label={t("modal.editStatus.label")}
             options={statusOptions}
             value={selectedStatusId}
             onChange={(value) => setSelectedStatusId(Number(value))}
@@ -590,11 +596,11 @@ export function UsersPage() {
             onClick={closeModal}
             disabled={isSubmitting}
           >
-            Annuler
+            {t("modal.editStatus.cancel")}
           </Button>
           <SubmitButton
             isLoading={isSubmitting}
-            loadingText="Enregistrement…"
+            loadingText={t("modal.editStatus.saving")}
             onClick={handleStatusSubmit}
             type="button"
             disabled={
@@ -603,7 +609,7 @@ export function UsersPage() {
                 selectedStatusId === modal.user.status_id)
             }
           >
-            Confirmer
+            {t("modal.editStatus.confirm")}
           </SubmitButton>
         </Modal.Footer>
       </Modal>
@@ -611,7 +617,7 @@ export function UsersPage() {
       {/* Modal : Supprimer l'utilisateur */}
       <Modal isOpen={modal.type === "delete"} onClose={closeModal} size="md">
         <Modal.Header
-          title="Supprimer l'utilisateur"
+          title={t("modal.delete.title")}
           showCloseButton
           onClose={closeModal}
         />
@@ -622,7 +628,7 @@ export function UsersPage() {
               <ExclamationTriangleIcon className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-red-700 leading-relaxed">
                 <p>
-                  Vous êtes sur le point de supprimer le compte de{" "}
+                  {t("deleteWarningTitle")}{" "}
                   <span className="font-semibold">
                     {modal.type === "delete" &&
                       `${modal.user.first_name} ${modal.user.last_name}`}
@@ -631,8 +637,10 @@ export function UsersPage() {
                 </p>
                 <p className="mt-1">
                   Cette action est{" "}
-                  <span className="font-semibold">irréversible</span>.
-                  L'utilisateur n'aura plus accès à son compte.
+                  <span className="font-semibold">
+                    {t("deleteWarningIrreversible")}
+                  </span>
+                  . {t("deleteWarningNoAccess")}
                 </p>
               </div>
             </div>
@@ -641,10 +649,10 @@ export function UsersPage() {
           {/* Champ raison */}
           <div>
             <label
-              htmlFor="delete-reason"
-              className="block text-sm font-medium text-gray-700 mb-1.5"
+              htmlFor="deleteReason"
+              className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Raison de la suppression <span className="text-red-500">*</span>
+              {t("deleteReason")} *
             </label>
             <textarea
               id="delete-reason"
@@ -653,7 +661,7 @@ export function UsersPage() {
               onChange={(e) => setDeleteReason(e.target.value)}
               onBlur={() => setDeleteReasonTouched(true)}
               disabled={isSubmitting}
-              placeholder="Décrivez la raison de cette suppression (min. 5 caractères)…"
+              placeholder={t("deleteReasonPlaceholder")}
               className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm resize-none
                           placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors
                           disabled:bg-gray-50 disabled:cursor-not-allowed
@@ -665,12 +673,14 @@ export function UsersPage() {
             />
             {showDeleteError && (
               <p className="mt-1.5 text-xs text-red-600">
-                La raison doit contenir au moins 5 caractères.
+                {t("deleteReasonError")}
               </p>
             )}
             {!showDeleteError && (
               <p className="mt-1.5 text-xs text-gray-400">
-                {trimmedDeleteReason.length} / 5 caractères minimum
+                {t("deleteReasonMinChars", {
+                  count: trimmedDeleteReason.length,
+                })}
               </p>
             )}
           </div>
@@ -681,17 +691,17 @@ export function UsersPage() {
             onClick={closeModal}
             disabled={isSubmitting}
           >
-            Annuler
+            {t("modal.delete.cancel")}
           </Button>
           <SubmitButton
             isLoading={isSubmitting}
-            loadingText="Suppression…"
+            loadingText={t("modal.delete.deleting")}
             onClick={handleDeleteSubmit}
             type="button"
             variant="danger"
             disabled={isSubmitting}
           >
-            Supprimer
+            {t("modal.delete.confirm")}
           </SubmitButton>
         </Modal.Footer>
       </Modal>

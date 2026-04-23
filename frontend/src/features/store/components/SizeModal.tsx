@@ -6,6 +6,7 @@
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Modal } from "@/shared/components/Modal/Modal";
 import { cn, BUTTON } from "@/shared/styles/designTokens";
 import type { Size } from "../api/storeApi";
@@ -67,6 +68,7 @@ export const SizeModal: React.FC<SizeModalProps> = ({
   size,
   onSubmit,
 }) => {
+  const { t } = useTranslation("store");
   const isEditMode = !!size;
 
   const {
@@ -111,11 +113,13 @@ export const SizeModal: React.FC<SizeModalProps> = ({
       closeOnEscape={!isSubmitting}
     >
       <Modal.Header
-        title={isEditMode ? "Modifier la taille" : "Nouvelle taille"}
+        title={
+          isEditMode ? t("sizeModal.title.edit") : t("sizeModal.title.create")
+        }
         subtitle={
           isEditMode
-            ? "Modifiez les informations de la taille existante."
-            : "Créez une nouvelle taille pour vos articles."
+            ? t("sizeModal.subtitle.edit")
+            : t("sizeModal.subtitle.create")
         }
         onClose={isSubmitting ? undefined : onClose}
       />
@@ -132,25 +136,26 @@ export const SizeModal: React.FC<SizeModalProps> = ({
               htmlFor="size-nom"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Nom de la taille <span className="text-red-500">*</span>
+              {t("sizeModal.fields.name.label")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="size-nom"
               type="text"
-              placeholder="Ex : XS, S, M, L, XL…"
+              placeholder={t("sizeModal.fields.name.placeholder")}
               disabled={isSubmitting}
               className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.nom ? "border-red-400" : "border-gray-300"
               }`}
               {...register("nom", {
-                required: "Le nom de la taille est requis.",
+                required: t("sizeModal.fields.name.required"),
                 minLength: {
                   value: 1,
-                  message: "Le nom doit comporter au moins 1 caractère.",
+                  message: t("sizeModal.fields.name.minLength"),
                 },
                 maxLength: {
                   value: 50,
-                  message: "Le nom ne peut pas dépasser 50 caractères.",
+                  message: t("sizeModal.fields.name.maxLength"),
                 },
               })}
             />
@@ -165,9 +170,9 @@ export const SizeModal: React.FC<SizeModalProps> = ({
               htmlFor="size-ordre"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Ordre d&apos;affichage
+              {t("sizeModal.fields.order.label")}
               <span className="ml-1 text-xs text-gray-400 font-normal">
-                (optionnel)
+                {t("sizeModal.fields.order.optional")}
               </span>
             </label>
             <input
@@ -175,7 +180,7 @@ export const SizeModal: React.FC<SizeModalProps> = ({
               type="number"
               min="0"
               step="1"
-              placeholder="0"
+              placeholder={t("sizeModal.fields.order.placeholder")}
               disabled={isSubmitting}
               className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.ordre ? "border-red-400" : "border-gray-300"
@@ -183,7 +188,7 @@ export const SizeModal: React.FC<SizeModalProps> = ({
               {...register("ordre", {
                 min: {
                   value: 0,
-                  message: "L'ordre doit être supérieur ou égal à 0.",
+                  message: t("sizeModal.fields.order.min"),
                 },
                 valueAsNumber: true,
               })}
@@ -204,7 +209,7 @@ export const SizeModal: React.FC<SizeModalProps> = ({
           disabled={isSubmitting}
           className={cn(BUTTON.base, BUTTON.variant.secondary, BUTTON.size.md)}
         >
-          Annuler
+          {t("sizeModal.actions.cancel")}
         </button>
         <button
           type="submit"
@@ -218,10 +223,10 @@ export const SizeModal: React.FC<SizeModalProps> = ({
             </span>
           )}
           {isSubmitting
-            ? "Enregistrement…"
+            ? t("sizeModal.actions.saving")
             : isEditMode
-              ? "Mettre à jour"
-              : "Créer la taille"}
+              ? t("sizeModal.actions.update")
+              : t("sizeModal.actions.create")}
         </button>
       </Modal.Footer>
     </Modal>

@@ -1,6 +1,7 @@
 {
   "title": "Paramètres",
   "subtitle": "Configurez votre application",
+  "loading": "Chargement des paramètres...",
   "tabs": {
     "clubInfo": "Informations du club",
     "schedule": "Horaires",
@@ -67,16 +68,20 @@
     "tiktokPlaceholder": "https://tiktok.com/@votrepage"
   },
   "finance": {
-    "title": "Finances",
-    "description": "Configurez les informations financières et bancaires",
+    "title": "Finance & Légal",
+    "description": "Informations bancières et légales",
     "iban": "IBAN",
-    "ibanPlaceholder": "FR76 1234 5678 9012 3456 7890 123",
+    "ibanPlaceholder": "FR76 XXXX XXXX XXXX XXXX XXXX XXX",
     "bic": "BIC/SWIFT",
     "bicPlaceholder": "ABCDEFGH",
     "bankName": "Nom de la banque",
     "accountHolder": "Titulaire du compte",
     "tva": "Numéro TVA",
+    "vatNumber": "Numéro de TVA",
+    "legalInfo": "Mentions légales",
+    "legalPlaceholder": "Siret, RCS, etc.",
     "tvaPlaceholder": "FR12345678901",
+    "vatPlaceholder": "FR12345678901",
     "currency": "Devise",
     "currencySymbol": "Symbole de la devise",
     "taxRate": "Taux de TVA",
@@ -125,8 +130,12 @@
   },
   "localization": {
     "title": "Localisation",
-    "description": "Configurez la langue et les formats régionaux",
+    "description": "Langue, format de date et fuseau horaire",
     "language": "Langue",
+    "appLanguage": "Langue de l'application",
+    "dateFormatLabel": "Format de date",
+    "timeFormatLabel": "Format d'heure",
+    "timezoneLabel": "Fuseau horaire",
     "languages": {
       "fr": "Français",
       "en": "English"
@@ -176,7 +185,8 @@
     "uploadSuccess": "Image chargée avec succès",
     "uploadError": "Erreur lors du chargement de l'image",
     "invalidFormat": "Format invalide",
-    "unsavedChanges": "Vous avez des modifications non enregistrées"
+    "unsavedChanges": "Vous avez des modifications non enregistrées",
+    "languageChanged": "Langue modifiée avec succès"
   },
   "actions": {
     "save": "Enregistrer les modifications",

@@ -12,6 +12,7 @@
  */
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   useCourseAnalytics,
   useInvalidateStatistics,
@@ -37,6 +38,7 @@ import { Button } from "../../../shared/components/Button/Button";
  * ```
  */
 export const CoursesStatsPage: React.FC = () => {
+  const { t } = useTranslation("statistics");
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const { data, isLoading, error, refetch } = useCourseAnalytics();
@@ -71,7 +73,7 @@ export const CoursesStatsPage: React.FC = () => {
             onClick={handleBackToDashboard}
             className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
           >
-            Tableau de bord
+            {t("storeStats.breadcrumb.dashboard")}
           </button>
         </li>
         <li aria-current="page">
@@ -92,7 +94,7 @@ export const CoursesStatsPage: React.FC = () => {
               />
             </svg>
             <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
-              Statistiques des Cours
+              {t("pages.courseStats")}
             </span>
           </div>
         </li>
@@ -122,8 +124,8 @@ export const CoursesStatsPage: React.FC = () => {
       {/* Page Header with Breadcrumb */}
       <PageHeader
         breadcrumb={breadcrumb}
-        title="Statistiques des Cours"
-        description="Vue détaillée des statistiques de fréquentation et performance des cours"
+        title={t("pages.courseStats")}
+        description={t("courses.title")}
         actions={
           <Button
             variant="ghost"
@@ -132,7 +134,7 @@ export const CoursesStatsPage: React.FC = () => {
             iconPosition="left"
             onClick={handleBackToDashboard}
           >
-            Retour au tableau de bord
+            {t("storeStats.backToDashboard")}
           </Button>
         }
       />

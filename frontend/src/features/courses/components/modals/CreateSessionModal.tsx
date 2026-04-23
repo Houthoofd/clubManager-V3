@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Modal } from "../../../../shared/components/Modal/Modal";
 import { Input } from "../../../../shared/components/Input/Input";
 import { Button } from "../../../../shared/components/Button/Button";
@@ -24,6 +25,7 @@ export function CreateSessionModal({
   onClose,
   onSubmit,
 }: CreateSessionModalProps) {
+  const { t } = useTranslation("courses");
   const [form, setForm] = useState({
     date_cours: "",
     type_cours: "",
@@ -53,7 +55,7 @@ export function CreateSessionModal({
       !form.heure_debut ||
       !form.heure_fin
     ) {
-      toast.error("Veuillez remplir tous les champs obligatoires.");
+      toast.error(t("messages.error.requiredFields"));
       return;
     }
     setSaving(true);
@@ -67,10 +69,10 @@ export function CreateSessionModal({
           ? Number(form.cours_recurrent_id)
           : undefined,
       });
-      toast.success("Séance créée avec succès");
+      toast.success(t("messages.success.sessionCreated"));
       onClose();
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? "Une erreur est survenue.");
+      toast.error(error.response?.data?.message ?? t("messages.error.generic"));
     } finally {
       setSaving(false);
     }
@@ -78,7 +80,7 @@ export function CreateSessionModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
-      <Modal.Header title="Nouvelle séance" />
+      <Modal.Header title={t("modals.createSession")} />
       <Modal.Body>
         <form
           id="create-session-form"
@@ -86,7 +88,7 @@ export function CreateSessionModal({
           className="space-y-4"
         >
           <Input
-            label="Date"
+            label={t("fields.date")}
             id="date_cours"
             type="date"
             value={form.date_cours}
@@ -97,20 +99,20 @@ export function CreateSessionModal({
           />
 
           <Input
-            label="Type de cours"
+            label={t("fields.courseType")}
             id="type_cours"
             type="text"
             value={form.type_cours}
             onChange={(e) =>
               setForm((f) => ({ ...f, type_cours: e.target.value }))
             }
-            placeholder="Ex. Judo, Karaté…"
+            placeholder={t("placeholders.courseType")}
             required
           />
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Heure début"
+              label={t("fields.startTime")}
               id="heure_debut"
               type="time"
               value={form.heure_debut}
@@ -120,7 +122,7 @@ export function CreateSessionModal({
               required
             />
             <Input
-              label="Heure fin"
+              label={t("fields.endTime")}
               id="heure_fin"
               type="time"
               value={form.heure_fin}
@@ -133,14 +135,14 @@ export function CreateSessionModal({
 
           {planning.length > 0 && (
             <Input.Select
-              label="Cours récurrent lié (optionnel)"
+              label={t("fields.linkedRecurrentCourse")}
               id="cours_recurrent_id"
               value={form.cours_recurrent_id}
               onChange={(e) =>
                 setForm((f) => ({ ...f, cours_recurrent_id: e.target.value }))
               }
             >
-              <option value="">— Aucun —</option>
+              <option value="">{t("placeholders.none")}</option>
               {planning.map((c) => (
                 <option key={c.id} value={String(c.id)}>
                   {c.type_cours} — {c.jour_semaine_nom}
@@ -152,7 +154,7 @@ export function CreateSessionModal({
       </Modal.Body>
       <Modal.Footer align="right">
         <Button variant="outline" onClick={onClose} disabled={saving}>
-          Annuler
+          {t("buttons.cancel")}
         </Button>
         <SubmitButton
           type="button"
@@ -167,9 +169,9 @@ export function CreateSessionModal({
             }
           }}
           isLoading={saving}
-          loadingText="Création…"
+          loadingText={t("loadingText.creating")}
         >
-          Créer
+          {t("buttons.create")}
         </SubmitButton>
       </Modal.Footer>
     </Modal>

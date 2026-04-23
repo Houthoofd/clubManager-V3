@@ -10,6 +10,7 @@
 
 import { useState, useEffect } from "react";
 import { LanguageIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../../../shared/components/Button";
 import { SectionHeader } from "../SectionHeader";
 import { SelectField as SharedSelectField } from "../../../../shared/components/Forms/SelectField";
@@ -42,6 +43,7 @@ export function LocalizationSection({
   isSaving,
 }: LocalizationSectionProps) {
   // Hook i18n pour changement de langue avec sync backend
+  const { t } = useTranslation("settings");
   const {
     language: currentLanguage,
     changeLanguage,
@@ -66,7 +68,7 @@ export function LocalizationSection({
     setIsChangingLanguage(true);
     try {
       await changeLanguage(newLang);
-      toast.success("Langue modifiée avec succès");
+      toast.success(t("messages.languageChanged"));
     } catch (error: any) {
       toast.error(error.message || "Erreur lors du changement de langue");
       // Restaurer l'ancienne valeur en cas d'erreur
@@ -85,15 +87,15 @@ export function LocalizationSection({
         icon={<LanguageIcon className="h-5 w-5" />}
         iconBg="bg-red-100"
         iconColor="text-red-600"
-        title="Localisation"
-        description="Langue, format de date et fuseau horaire"
+        title={t("localization.title")}
+        description={t("localization.description")}
       />
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           <SharedSelectField
             id="app_language"
-            label="Langue de l'application"
+            label={t("localization.appLanguage")}
             value={localisationForm.app_language}
             onChange={(val) => handleLanguageChange(val.toString())}
             options={availableLanguages.map((lang) => ({
@@ -110,7 +112,7 @@ export function LocalizationSection({
 
         <SharedSelectField
           id="date_format"
-          label="Format de date"
+          label={t("localization.dateFormatLabel")}
           value={localisationForm.date_format}
           onChange={(val) =>
             setLocalisationForm({
@@ -127,7 +129,7 @@ export function LocalizationSection({
 
         <SharedSelectField
           id="time_format"
-          label="Format d'heure"
+          label={t("localization.timeFormatLabel")}
           value={localisationForm.time_format}
           onChange={(val) =>
             setLocalisationForm({
@@ -143,7 +145,7 @@ export function LocalizationSection({
 
         <SharedSelectField
           id="timezone"
-          label="Fuseau horaire"
+          label={t("localization.timezoneLabel")}
           value={localisationForm.timezone}
           onChange={(val) =>
             setLocalisationForm({
@@ -181,7 +183,7 @@ export function LocalizationSection({
           loading={isSaving}
           variant="primary"
         >
-          Sauvegarder
+          {t("actions.save")}
         </Button>
       </div>
     </div>

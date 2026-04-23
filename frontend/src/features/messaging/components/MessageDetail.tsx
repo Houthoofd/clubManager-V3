@@ -3,6 +3,7 @@
  * Panneau de détail d'un message sélectionné
  */
 
+import { useTranslation } from "react-i18next";
 import type { MessageWithDetails } from "../api/messagingApi";
 import {
   ArrowLeftIcon,
@@ -47,10 +48,10 @@ export const MessageDetail: React.FC<MessageDetailProps> = ({
   onDelete,
   onBack,
 }) => {
+  const { t } = useTranslation("messages");
+
   const handleDelete = () => {
-    const confirmed = window.confirm(
-      "Êtes-vous sûr de vouloir supprimer ce message ? Cette action est irréversible.",
-    );
+    const confirmed = window.confirm(t("detail.deleteConfirm"));
     if (confirmed) {
       onDelete();
     }
@@ -66,7 +67,7 @@ export const MessageDetail: React.FC<MessageDetailProps> = ({
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition-colors"
         >
           <ArrowLeftIcon style={{ fontSize: "16px" }} />
-          <span>Retour</span>
+          <span>{t("actions.back")}</span>
         </button>
 
         {/* Bouton supprimer */}
@@ -75,7 +76,7 @@ export const MessageDetail: React.FC<MessageDetailProps> = ({
           className="flex items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
         >
           <TrashIcon className="w-4 h-4" />
-          <span>Supprimer</span>
+          <span>{t("actions.delete")}</span>
         </button>
       </div>
 
@@ -83,14 +84,14 @@ export const MessageDetail: React.FC<MessageDetailProps> = ({
       <div className="px-6 py-5 border-b border-gray-100 flex-shrink-0">
         {/* Sujet */}
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
-          {message.sujet ?? "(Pas de sujet)"}
+          {message.sujet ?? t("detail.noSubject")}
         </h2>
 
         {/* Métadonnées */}
         <dl className="space-y-2 text-sm">
           <div className="flex gap-2">
             <dt className="w-14 text-gray-500 font-medium flex-shrink-0">
-              De :
+              {t("detail.from")}
             </dt>
             <dd className="text-gray-900">
               {message.expediteur_nom}
@@ -104,14 +105,14 @@ export const MessageDetail: React.FC<MessageDetailProps> = ({
 
           <div className="flex gap-2">
             <dt className="w-14 text-gray-500 font-medium flex-shrink-0">
-              À :
+              {t("detail.to")}
             </dt>
             <dd className="text-gray-900">{message.destinataire_nom}</dd>
           </div>
 
           <div className="flex gap-2">
             <dt className="w-14 text-gray-500 font-medium flex-shrink-0">
-              Date :
+              {t("detail.date")}
             </dt>
             <dd className="text-gray-600">
               {formatFullDate(message.created_at)}
@@ -126,7 +127,7 @@ export const MessageDetail: React.FC<MessageDetailProps> = ({
                   className="inline-block align-middle"
                   style={{ fontSize: "12px" }}
                 />
-                Envoyé par email
+                {t("detail.sentByEmail")}
               </span>
             )}
             {message.broadcast_id !== null && (
@@ -135,7 +136,7 @@ export const MessageDetail: React.FC<MessageDetailProps> = ({
                   className="inline-block align-middle"
                   style={{ fontSize: "12px" }}
                 />
-                Message groupé
+                {t("detail.broadcast")}
               </span>
             )}
           </div>

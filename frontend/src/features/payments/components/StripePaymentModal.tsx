@@ -5,6 +5,7 @@
  */
 
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Elements,
   PaymentElement,
@@ -47,6 +48,7 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
   onSuccess,
   onClose,
 }) => {
+  const { t } = useTranslation("payments");
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
@@ -73,16 +75,14 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
       });
 
       if (error) {
-        setErrorMessage(
-          error.message ?? "Une erreur est survenue lors du paiement.",
-        );
+        setErrorMessage(error.message ?? t("modal.stripe.errorProcessing"));
         setIsLoading(false);
       } else {
         // Paiement confirmé sans redirection
         onSuccess();
       }
     } catch (err: any) {
-      setErrorMessage(err?.message ?? "Une erreur inattendue est survenue.");
+      setErrorMessage(err?.message ?? t("modal.stripe.errorProcessing"));
       setIsLoading(false);
     }
   };
@@ -128,7 +128,7 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
               />
             </svg>
-            Chargement du formulaire de paiement…
+            {t("modal.stripe.loadingForm")}
           </div>
         )}
       </div>
@@ -168,7 +168,7 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
             d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
           />
         </svg>
-        Paiement sécurisé par Stripe — vos données sont chiffrées
+        {t("modal.stripe.secureMessage")}
       </div>
 
       {/* ── Actions (dans Modal.Footer) ── */}
@@ -179,7 +179,7 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
           onClick={onClose}
           disabled={isLoading}
         >
-          Annuler
+          {t("modal.recordPayment.cancel")}
         </Button>
         <Button
           type="submit"
@@ -187,7 +187,7 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
           loading={isLoading}
           disabled={!stripe || !elements || isLoading || !isReady}
         >
-          Payer {amountFormatted}
+          {t("modal.stripe.payButton")} {amountFormatted}
         </Button>
       </div>
     </form>
@@ -200,11 +200,13 @@ const StripeKeyMissingModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
 }> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation("payments");
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
       <Modal.Header
-        title="Configuration Stripe manquante"
-        subtitle="Paiement par carte indisponible"
+        title={t("modal.stripe.missingKeyTitle")}
+        subtitle={t("modal.stripe.missingKeySubtitle")}
         showCloseButton
         onClose={onClose}
       />
@@ -230,30 +232,22 @@ const StripeKeyMissingModal: React.FC<{
           </div>
           <div>
             <p className="text-sm font-medium text-gray-900">
-              Variable d'environnement requise
+              {t("modal.stripe.missingKeyRequired")}
             </p>
           </div>
         </div>
 
         <p className="text-sm text-gray-600 mb-2">
-          La variable d'environnement{" "}
-          <code className="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-red-700">
-            VITE_STRIPE_PUBLIC_KEY
-          </code>{" "}
-          n'est pas définie.
+          {t("modal.stripe.missingKeyMessage")}
         </p>
         <p className="text-sm text-gray-500">
-          Ajoutez cette clé dans votre fichier{" "}
-          <code className="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">
-            .env
-          </code>{" "}
-          pour activer les paiements par carte bancaire.
+          {t("modal.stripe.missingKeyInstruction")}
         </p>
       </Modal.Body>
 
       <Modal.Footer align="right">
         <Button type="button" variant="outline" onClick={onClose}>
-          Fermer
+          {t("modal.stripe.close")}
         </Button>
       </Modal.Footer>
     </Modal>
@@ -278,6 +272,8 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
   clientSecret,
   amount,
 }) => {
+  const { t } = useTranslation("payments");
+
   const handleSuccess = useCallback(() => {
     onSuccess();
     onClose();
@@ -337,10 +333,10 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-900">
-                Paiement sécurisé
+                {t("modal.stripe.securePayment")}
               </h2>
               <p className="text-sm text-gray-500">
-                Montant :{" "}
+                {t("modal.stripe.amount")}{" "}
                 <span className="font-medium text-gray-800">
                   {amountFormatted}
                 </span>
@@ -352,7 +348,7 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
             onClick={onClose}
             className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100
                        transition-colors"
-            aria-label="Fermer"
+            aria-label={t("modal.stripe.close")}
           >
             <svg
               className="h-5 w-5"
@@ -398,6 +394,7 @@ const StripeCheckoutFormActions: React.FC<{
   amount: number;
   onClose: () => void;
 }> = ({ amount, onClose }) => {
+  const { t } = useTranslation("payments");
   const stripe = useStripe();
   const elements = useElements();
 
@@ -409,7 +406,7 @@ const StripeCheckoutFormActions: React.FC<{
   return (
     <>
       <Button type="button" variant="outline" onClick={onClose}>
-        Annuler
+        {t("modal.recordPayment.cancel")}
       </Button>
       <Button
         type="submit"
@@ -417,7 +414,7 @@ const StripeCheckoutFormActions: React.FC<{
         variant="primary"
         disabled={!stripe || !elements}
       >
-        Payer {amountFormatted}
+        {t("modal.stripe.payButton")} {amountFormatted}
       </Button>
     </>
   );

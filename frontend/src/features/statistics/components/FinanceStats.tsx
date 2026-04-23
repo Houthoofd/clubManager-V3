@@ -6,6 +6,7 @@
  */
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { StatCard } from "./StatCard";
 import {
   formatCurrency,
@@ -304,6 +305,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
   error = null,
   isCompact = false,
 }) => {
+  const { t } = useTranslation("statistics");
   const [showLatePaymentsAlert, setShowLatePaymentsAlert] =
     React.useState(true);
 
@@ -367,7 +369,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Revenus"
+          title={t("cards.totalRevenue")}
           value={data?.overview.total_revenus || 0}
           valueFormat="currency"
           icon={DollarSignIcon}
@@ -377,7 +379,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
         />
 
         <StatCard
-          title="Paiements Valides"
+          title={t("cards.validPayments")}
           value={data?.overview.total_paiements_valides || 0}
           valueFormat="number"
           icon={CheckCircleIcon}
@@ -392,7 +394,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
         />
 
         <StatCard
-          title="Paiements En Attente"
+          title={t("cards.pendingPayments")}
           value={data?.overview.total_paiements_en_attente || 0}
           valueFormat="number"
           icon={ClockIcon}
@@ -411,7 +413,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
         />
 
         <StatCard
-          title="Paiements Échoués"
+          title={t("finance.failedPayments")}
           value={data?.overview.total_paiements_echoues || 0}
           valueFormat="number"
           icon={TimesCircleIcon}
@@ -428,7 +430,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
       {/* Secondary KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <StatCard
-          title="Échéances en Retard"
+          title={t("finance.lateInstallments")}
           value={data?.overview.nombre_echeances_retard || 0}
           valueFormat="number"
           icon={WarningIcon}
@@ -442,12 +444,12 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
           description={
             data && data.overview.montant_echeances_retard > 0
               ? `${formatCurrency(data.overview.montant_echeances_retard)} à recouvrer`
-              : "Aucun retard"
+              : t("finance.noLateInstallments")
           }
         />
 
         <StatCard
-          title="Taux de Paiement"
+          title={t("cards.paymentRate")}
           value={data?.overview.taux_paiement || 0}
           valueFormat="percentage"
           icon={CheckCircleIcon}

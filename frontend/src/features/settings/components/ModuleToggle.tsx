@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface ModuleToggleProps {
   label: string;
   moduleKey: string;
@@ -13,6 +15,8 @@ export function ModuleToggle({
   disabled = false,
   onChange,
 }: ModuleToggleProps) {
+  const { t } = useTranslation("common");
+
   return (
     <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
       <div>
@@ -21,7 +25,9 @@ export function ModuleToggle({
         >
           {label}
         </p>
-        {disabled && <p className="text-xs text-gray-400">Toujours actif</p>}
+        {disabled && (
+          <p className="text-xs text-gray-400">{t("status.alwaysActive")}</p>
+        )}
       </div>
       <button
         type="button"

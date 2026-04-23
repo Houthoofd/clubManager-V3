@@ -17,6 +17,7 @@
  * - LoadingSpinner et EmptyState pour le feedback
  */
 
+import { useTranslation } from "react-i18next";
 import { Badge } from "../../../../shared/components/Badge/Badge";
 import { AlertBanner } from "../../../../shared/components/Feedback/AlertBanner";
 import { LoadingSpinner } from "../../../../shared/components/Layout/LoadingSpinner";
@@ -27,9 +28,14 @@ import { useOrders, useUpdateOrderStatus } from "../../hooks/useStore";
 import { useStoreUI } from "../../stores/storeStore";
 import { OrderDetailModal } from "../";
 import { OrderStatusBadge } from "../OrderStatusBadge";
-import { getErrorMessage, formatCurrency, formatDateTime } from "../../../../shared/utils";
+import {
+  getErrorMessage,
+  formatCurrency,
+  formatDateTime,
+} from "../../../../shared/utils";
 
 export function OrdersTab() {
+  const { t } = useTranslation("store");
   const store = useStoreUI();
   const ordersQuery = useOrders({
     page: store.orderPage,
@@ -52,18 +58,25 @@ export function OrdersTab() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
           <h2 className="text-base font-semibold text-gray-900">
-            Suivi des commandes
+            {t("orders.title")}
           </h2>
           <Badge variant="info">
-            {ordersQuery.data?.pagination.total ?? 0} commande
-            {(ordersQuery.data?.pagination.total ?? 0) > 1 ? "s" : ""}
+            {ordersQuery.data?.pagination.total ?? 0}{" "}
+            {(ordersQuery.data?.pagination.total ?? 0) > 1
+              ? t("orders.count.orders")
+              : t("orders.count.order")}
           </Badge>
           {enAttenteCount > 0 && (
-            <Badge variant="orange">{enAttenteCount} en attente</Badge>
+            <Badge variant="orange">
+              {enAttenteCount} {t("orders.count.pending")}
+            </Badge>
           )}
           {annuleeCount > 0 && (
             <Badge variant="danger">
-              {annuleeCount} annulée{annuleeCount > 1 ? "s" : ""}
+              {annuleeCount}{" "}
+              {annuleeCount > 1
+                ? t("orders.count.cancelledPlural")
+                : t("orders.count.cancelled")}
             </Badge>
           )}
         </div>
@@ -74,13 +87,13 @@ export function OrdersTab() {
         <SelectField
           id="order-status-filter"
           label=""
-          placeholder="Tous les statuts"
+          placeholder={t("orders.filters.allStatuses")}
           options={[
-            { value: "en_attente", label: "En attente" },
-            { value: "payee", label: "Payée" },
-            { value: "expediee", label: "Expédiée" },
-            { value: "livree", label: "Livrée" },
-            { value: "annulee", label: "Annulée" },
+            { value: "en_attente", label: t("orders.filters.pending") },
+            { value: "payee", label: t("orders.filters.paid") },
+            { value: "expediee", label: t("orders.filters.shipped") },
+            { value: "livree", label: t("orders.filters.delivered") },
+            { value: "annulee", label: t("orders.filters.cancelled") },
           ]}
           value={store.orderStatusFilter}
           onChange={(value) => store.setOrderStatusFilter(String(value))}
@@ -97,14 +110,14 @@ export function OrdersTab() {
           />
         )}
 
-        {ordersQuery.isLoading && <LoadingSpinner text="Chargement..." />}
+        {ordersQuery.isLoading && <LoadingSpinner text={t("common.loading")} />}
 
         {!ordersQuery.isLoading &&
           !ordersQuery.isError &&
           !ordersQuery.data?.items.length && (
             <EmptyState
-              title="Aucune commande trouvée"
-              description="Les commandes passées apparaîtront ici."
+              title={t("orders.empty.title")}
+              description={t("orders.empty.description")}
               variant="dashed"
             />
           )}
@@ -117,22 +130,22 @@ export function OrdersTab() {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Commande
+                        {t("orders.table.order")}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Membre
+                        {t("orders.table.member")}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Date
+                        {t("orders.table.date")}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Total
+                        {t("orders.table.total")}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Statut
+                        {t("orders.table.status")}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Actions
+                        {t("orders.table.actions")}
                       </th>
                     </tr>
                   </thead>
@@ -148,7 +161,7 @@ export function OrdersTab() {
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {order.user_first_name || order.user_last_name
                             ? `${order.user_first_name ?? ""} ${order.user_last_name ?? ""}`.trim()
-                            : (order.user_email ?? "Utilisateur inconnu")}
+                            : (order.user_email ?? t("orders.unknownUser"))}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {formatDateTime(order.date_commande)}
@@ -167,7 +180,7 @@ export function OrdersTab() {
                               }
                               className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
                             >
-                              Détails
+                              {t("orders.actions.details")}
                             </button>
                             {order.statut === "en_attente" && (
                               <>
@@ -182,7 +195,7 @@ export function OrdersTab() {
                                   }}
                                   className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-green-700"
                                 >
-                                  Confirmer
+                                  {t("orders.actions.confirm")}
                                 </button>
                                 <button
                                   onClick={async () => {
@@ -195,7 +208,7 @@ export function OrdersTab() {
                                   }}
                                   className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-red-700"
                                 >
-                                  Annuler
+                                  {t("orders.actions.cancel")}
                                 </button>
                               </>
                             )}
@@ -209,7 +222,7 @@ export function OrdersTab() {
                                 }}
                                 className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
                               >
-                                Expédier
+                                {t("orders.actions.ship")}
                               </button>
                             )}
                             {order.statut === "expediee" && (
@@ -222,7 +235,7 @@ export function OrdersTab() {
                                 }}
                                 className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-green-700"
                               >
-                                Marquer livrée
+                                {t("orders.actions.markDelivered")}
                               </button>
                             )}
                           </div>

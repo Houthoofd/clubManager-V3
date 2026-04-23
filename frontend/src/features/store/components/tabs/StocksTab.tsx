@@ -15,6 +15,7 @@
  * - StockBadge pour l'état des stocks
  */
 
+import { useTranslation } from "react-i18next";
 import { Badge } from "../../../../shared/components/Badge/Badge";
 import { AlertBanner } from "../../../../shared/components/Feedback/AlertBanner";
 import { LoadingSpinner } from "../../../../shared/components/Layout/LoadingSpinner";
@@ -25,6 +26,7 @@ import { StockBadge, StockAdjustModal } from "../";
 import { getErrorMessage } from "../../../../shared/utils";
 
 export function StocksTab() {
+  const { t } = useTranslation("store");
   const store = useStoreUI();
   const stocksQuery = useStocks();
   const lowStocksQuery = useLowStocks();
@@ -42,26 +44,36 @@ export function StocksTab() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
           <h2 className="text-base font-semibold text-gray-900">
-            Gestion des stocks
+            {t("stocks.title")}
           </h2>
           <Badge variant="info">
-            {stocksQuery.data?.length ?? 0} ligne
-            {(stocksQuery.data?.length ?? 0) > 1 ? "s" : ""}
+            {stocksQuery.data?.length ?? 0}{" "}
+            {(stocksQuery.data?.length ?? 0) > 1
+              ? t("stocks.count.lines")
+              : t("stocks.count.line")}
           </Badge>
           {lowStocksQuery.data && lowStocksQuery.data.length > 0 && (
             <Badge variant="orange">
-              {lowStocksQuery.data.length} stock
-              {lowStocksQuery.data.length > 1 ? "s" : ""} bas
+              {lowStocksQuery.data.length}{" "}
+              {lowStocksQuery.data.length > 1
+                ? t("stocks.count.lowStocks")
+                : t("stocks.count.lowStock")}
             </Badge>
           )}
           {ruptureCount > 0 && (
             <Badge variant="danger">
-              {ruptureCount} rupture{ruptureCount > 1 ? "s" : ""}
+              {ruptureCount}{" "}
+              {ruptureCount > 1
+                ? t("stocks.count.outOfStocks")
+                : t("stocks.count.outOfStock")}
             </Badge>
           )}
           {articlesCount > 0 && (
             <Badge variant="purple">
-              {articlesCount} article{articlesCount > 1 ? "s" : ""}
+              {articlesCount}{" "}
+              {articlesCount > 1
+                ? t("stocks.count.articles")
+                : t("stocks.count.article")}
             </Badge>
           )}
         </div>
@@ -72,7 +84,7 @@ export function StocksTab() {
         <div className="p-4 border-b border-gray-50">
           <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
             <h3 className="text-sm font-semibold text-orange-900">
-              ⚠️ Alertes stock faible
+              {t("stocks.alerts.title")}
             </h3>
             <div className="mt-3 flex flex-wrap gap-2">
               {lowStocksQuery.data.map((stock) => (
@@ -108,15 +120,15 @@ export function StocksTab() {
         )}
 
         {(stocksQuery.isLoading || lowStocksQuery.isLoading) && (
-          <LoadingSpinner text="Chargement..." />
+          <LoadingSpinner text={t("common.loading")} />
         )}
 
         {!stocksQuery.isLoading &&
           !stocksQuery.isError &&
           !stocksQuery.data?.length && (
             <EmptyState
-              title="Aucun stock configuré"
-              description="Les niveaux de stock apparaîtront ici dès qu'ils seront disponibles."
+              title={t("stocks.empty.title")}
+              description={t("stocks.empty.description")}
               variant="dashed"
             />
           )}
@@ -128,22 +140,22 @@ export function StocksTab() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Article
+                      {t("stocks.table.article")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Taille
+                      {t("stocks.table.size")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Quantité
+                      {t("stocks.table.quantity")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Minimum
+                      {t("stocks.table.minimum")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Statut
+                      {t("stocks.table.status")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Actions
+                      {t("stocks.table.actions")}
                     </th>
                   </tr>
                 </thead>
@@ -176,7 +188,7 @@ export function StocksTab() {
                           onClick={() => store.openStockAdjustModal(stock)}
                           className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
                         >
-                          Ajuster
+                          {t("stocks.actions.adjust")}
                         </button>
                       </td>
                     </tr>

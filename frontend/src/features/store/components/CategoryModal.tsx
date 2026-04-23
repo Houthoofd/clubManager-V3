@@ -6,6 +6,7 @@
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Modal, Button } from "../../../shared/components";
 import type { Category } from "../api/storeApi";
 
@@ -39,6 +40,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
   category,
   onSubmit,
 }) => {
+  const { t } = useTranslation("store");
   const isEditMode = !!category;
 
   const {
@@ -86,11 +88,15 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
       closeOnEscape={!isSubmitting}
     >
       <Modal.Header
-        title={isEditMode ? "Modifier la catégorie" : "Nouvelle catégorie"}
+        title={
+          isEditMode
+            ? t("categoryModal.title.edit")
+            : t("categoryModal.title.create")
+        }
         subtitle={
           isEditMode
-            ? "Modifiez les informations de la catégorie existante."
-            : "Créez une nouvelle catégorie pour organiser vos articles."
+            ? t("categoryModal.subtitle.edit")
+            : t("categoryModal.subtitle.create")
         }
         onClose={isSubmitting ? undefined : onClose}
       />
@@ -107,25 +113,26 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               htmlFor="category-nom"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Nom de la catégorie <span className="text-red-500">*</span>
+              {t("categoryModal.fields.name.label")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="category-nom"
               type="text"
-              placeholder="Ex : Vêtements, Équipements, Accessoires…"
+              placeholder={t("categoryModal.fields.name.placeholder")}
               disabled={isSubmitting}
               className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.nom ? "border-red-400" : "border-gray-300"
               }`}
               {...register("nom", {
-                required: "Le nom de la catégorie est requis.",
+                required: t("categoryModal.fields.name.required"),
                 minLength: {
                   value: 2,
-                  message: "Le nom doit comporter au moins 2 caractères.",
+                  message: t("categoryModal.fields.name.minLength"),
                 },
                 maxLength: {
                   value: 100,
-                  message: "Le nom ne peut pas dépasser 100 caractères.",
+                  message: t("categoryModal.fields.name.maxLength"),
                 },
               })}
             />
@@ -140,15 +147,15 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               htmlFor="category-description"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Description
+              {t("categoryModal.fields.description.label")}
               <span className="ml-1 text-xs text-gray-400 font-normal">
-                (optionnel)
+                {t("categoryModal.fields.description.optional")}
               </span>
             </label>
             <textarea
               id="category-description"
               rows={3}
-              placeholder="Décrivez le type d'articles dans cette catégorie…"
+              placeholder={t("categoryModal.fields.description.placeholder")}
               disabled={isSubmitting}
               className="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors resize-y"
               {...register("description")}
@@ -161,9 +168,9 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               htmlFor="category-ordre"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Ordre d'affichage
+              {t("categoryModal.fields.order.label")}
               <span className="ml-1 text-xs text-gray-400 font-normal">
-                (optionnel)
+                {t("categoryModal.fields.order.optional")}
               </span>
             </label>
             <input
@@ -171,7 +178,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               type="number"
               min="0"
               step="1"
-              placeholder="0"
+              placeholder={t("categoryModal.fields.order.placeholder")}
               disabled={isSubmitting}
               className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.ordre ? "border-red-400" : "border-gray-300"
@@ -179,7 +186,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               {...register("ordre", {
                 min: {
                   value: 0,
-                  message: "L'ordre doit être supérieur ou égal à 0.",
+                  message: t("categoryModal.fields.order.min"),
                 },
                 valueAsNumber: true,
               })}
@@ -195,7 +202,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
 
       <Modal.Footer align="right">
         <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-          Annuler
+          {t("categoryModal.actions.cancel")}
         </Button>
         <Button
           type="submit"
@@ -204,7 +211,9 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
           loading={isSubmitting}
           disabled={isSubmitting}
         >
-          {isEditMode ? "Mettre à jour" : "Créer la catégorie"}
+          {isEditMode
+            ? t("categoryModal.actions.update")
+            : t("categoryModal.actions.create")}
         </Button>
       </Modal.Footer>
     </Modal>

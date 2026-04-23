@@ -6,6 +6,7 @@
  */
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { StatCard } from "./StatCard";
 import { formatNumber, formatPercentage } from "../utils/formatting";
 
@@ -189,9 +190,15 @@ interface DistributionChartProps {
     extra?: string;
   }>;
   isLoading?: boolean;
+  noDataText?: string;
 }
 
-function DistributionChart({ title, data, isLoading }: DistributionChartProps) {
+function DistributionChart({
+  title,
+  data,
+  isLoading,
+  noDataText = "Aucune donnée disponible",
+}: DistributionChartProps) {
   const maxValue = Math.max(...data.map((d) => d.value), 1);
 
   if (isLoading) {
@@ -216,7 +223,7 @@ function DistributionChart({ title, data, isLoading }: DistributionChartProps) {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
         <div className="flex flex-col items-center justify-center py-8">
           <ExclamationTriangleIcon className="h-12 w-12 text-gray-400 mb-2" />
-          <p className="text-sm text-gray-600">Aucune donnée disponible</p>
+          <p className="text-sm text-gray-600">{noDataText}</p>
         </div>
       </div>
     );
@@ -271,6 +278,8 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
   error = null,
   isCompact = false,
 }) => {
+  const { t } = useTranslation("statistics");
+
   // Error state
   if (error) {
     return (
@@ -335,18 +344,18 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
-          title="Total Cours Récurrents"
+          title={t("courses.totalCourses")}
           value={data?.overview.total_cours || 0}
           valueFormat="number"
           icon={CalendarIcon}
           variant="info"
           isLoading={isLoading}
           isCompact={isCompact}
-          description={`${data?.overview.cours_actifs || 0} cours actifs`}
+          description={`${data?.overview.cours_actifs || 0} ${t("courses.activeCourses")}`}
         />
 
         <StatCard
-          title="Séances Totales"
+          title={t("courses.totalSessions")}
           value={data?.overview.total_seances || 0}
           valueFormat="number"
           icon={AcademicCapIcon}
@@ -356,7 +365,7 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
         />
 
         <StatCard
-          title="Total Inscriptions"
+          title={t("courses.totalEnrollments")}
           value={data?.overview.total_inscriptions || 0}
           valueFormat="number"
           icon={UserGroupIcon}
@@ -366,7 +375,7 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
         />
 
         <StatCard
-          title="Taux de Présence Moyen"
+          title={t("courses.averageAttendanceRate")}
           value={data?.overview.taux_presence_moyen || 0}
           valueFormat="percentage"
           icon={CheckCircleIcon}
@@ -382,7 +391,7 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
         />
 
         <StatCard
-          title="Taux de Remplissage"
+          title={t("courses.fillRate")}
           value={data?.overview.taux_remplissage_moyen || 0}
           valueFormat="percentage"
           icon={ChartBarIcon}
@@ -393,22 +402,24 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
           }
           isLoading={isLoading}
           isCompact={isCompact}
-          description="Capacité moyenne des cours"
+          description={t("courses.fillRateDescription")}
         />
       </div>
 
       {/* Distribution Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <DistributionChart
-          title="Répartition par Type de Cours"
+          title={t("courses.distributionByType")}
           data={typeDistribution}
           isLoading={isLoading}
+          noDataText={t("empty.noData")}
         />
 
         <DistributionChart
-          title="Top 5 Professeurs"
+          title={t("courses.topProfessors")}
           data={professorDistribution}
           isLoading={isLoading}
+          noDataText={t("empty.noData")}
         />
       </div>
 
@@ -416,7 +427,7 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
       {!isLoading && data && data.popular_courses.length > 0 && (
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Cours les Plus Populaires
+            {t("courses.popularCourses")}
           </h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">

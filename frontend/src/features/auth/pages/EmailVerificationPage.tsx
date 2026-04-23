@@ -10,14 +10,7 @@
  * - LoadingSpinner : Spinner de chargement réutilisable
  * - SubmitButton : Bouton de soumission avec état loading
  *
- * CHANGEMENTS PAR RAPPORT À L'ANCIENNE VERSION :
- * - Remplacé le layout custom par AuthPageContainer (~50 lignes économisées)
- * - Remplacé les spinners custom par LoadingSpinner (~30 lignes)
- * - Remplacé les états success/error par AlertBanner (~80 lignes)
- * - Remplacé les boutons custom par SubmitButton (~20 lignes)
- * - Code plus DRY et maintenable
- *
- * TOTAL : ~180 lignes de code UI économisées ✨
+ * INTERNATIONALISÉ - Utilise react-i18next pour tous les textes
  */
 
 import { useState, useEffect, useRef } from "react";
@@ -25,6 +18,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { EnvelopeIcon } from "@patternfly/react-icons";
 import { verifyEmail, resendVerificationEmail } from "@/shared/api/authApi";
 import {
@@ -45,6 +39,7 @@ type VerificationState = "loading" | "success" | "error";
  * EmailVerificationPage Component
  */
 export const EmailVerificationPage = () => {
+  const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [verificationState, setVerificationState] =
@@ -73,7 +68,7 @@ export const EmailVerificationPage = () => {
 
     if (!token) {
       setVerificationState("error");
-      setErrorMessage("Aucun token de vérification fourni.");
+      setErrorMessage(t("emailVerification.noTokenError"));
       return;
     }
 
@@ -84,8 +79,8 @@ export const EmailVerificationPage = () => {
       try {
         await verifyEmail({ token });
         setVerificationState("success");
-        toast.success("Email vérifié !", {
-          description: "Votre adresse email a été vérifiée avec succès.",
+        toast.success(t("emailVerification.success"), {
+          description: t("emailVerification.successDescription"),
         });
       } catch (error: any) {
         // Ne pas écraser un succès précédent (StrictMode double-call)
@@ -96,14 +91,14 @@ export const EmailVerificationPage = () => {
         const message =
           error.response?.data?.message ||
           error.message ||
-          "Le token de vérification est invalide ou a expiré.";
+          t("emailVerification.tokenExpiredError");
         setErrorMessage(message);
-        toast.error("Erreur de vérification", { description: message });
+        toast.error(t("emailVerification.error"), { description: message });
       }
     };
 
     verify();
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   /**
    * Compte à rebours avant redirection automatique après succès
@@ -114,8 +109,7 @@ export const EmailVerificationPage = () => {
     if (countdown === 0) {
       navigate("/login", {
         state: {
-          message:
-            "Email vérifié avec succès ! Vous pouvez maintenant vous connecter.",
+          message: t("emailVerification.successLoginMessage"),
         },
       });
       return;
@@ -126,7 +120,7 @@ export const EmailVerificationPage = () => {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [verificationState, countdown, navigate]);
+  }, [verificationState, countdown, navigate, t]);
 
   /**
    * Renvoie l'email de vérification
@@ -134,17 +128,16 @@ export const EmailVerificationPage = () => {
   const onResend = async (data: ResendVerificationEmailInput) => {
     try {
       await resendVerificationEmail(data);
-      toast.success("Email envoyé !", {
-        description:
-          "Un nouvel email de vérification a été envoyé à votre adresse.",
+      toast.success(t("emailVerification.resendSuccess"), {
+        description: t("emailVerification.resendSuccessDescription"),
       });
       setShowResendForm(false);
     } catch (error: any) {
-      toast.error("Erreur d'envoi", {
+      toast.error(t("emailVerification.resendError"), {
         description:
           error.response?.data?.message ||
           error.message ||
-          "Impossible d'envoyer l'email de vérification.",
+          t("emailVerification.resendErrorDescription"),
       });
     }
   };
@@ -155,13 +148,13 @@ export const EmailVerificationPage = () => {
   const getTitle = () => {
     switch (verificationState) {
       case "loading":
-        return "Vérification en cours...";
+        return t("emailVerification.verifying");
       case "success":
-        return "Email vérifié !";
+        return t("emailVerification.successTitle");
       case "error":
-        return "Erreur de vérification";
+        return t("emailVerification.error");
       default:
-        return "Vérification d'email";
+        return t("emailVerification.title");
     }
   };
 
@@ -171,11 +164,11 @@ export const EmailVerificationPage = () => {
   const getSubtitle = () => {
     switch (verificationState) {
       case "loading":
-        return "Merci de patienter pendant la vérification de votre adresse email.";
+        return t("emailVerification.verifyingDescription");
       case "success":
-        return "Votre compte est maintenant activé";
+        return t("emailVerification.accountActivated");
       case "error":
-        return "Le lien de vérification n'est pas valide";
+        return t("emailVerification.invalidLinkDescription");
       default:
         return "";
     }
@@ -188,16 +181,19 @@ export const EmailVerificationPage = () => {
       showLogo
       footer={
         <p className="text-center text-xs text-gray-500">
-          Besoin d'aide ?{" "}
+          {t("emailVerification.needHelp")}{" "}
           <Link to="/support" className="underline hover:text-gray-700">
-            Contactez le support
+            {t("emailVerification.contactSupport")}
           </Link>
         </p>
       }
     >
       {/* ── ÉTAT LOADING ── */}
       {verificationState === "loading" && (
-        <LoadingSpinner size="lg" text="Vérification de votre email..." />
+        <LoadingSpinner
+          size="lg"
+          text={t("emailVerification.verifyingEmail")}
+        />
       )}
 
       {/* ── ÉTAT SUCCESS ── */}
@@ -205,14 +201,14 @@ export const EmailVerificationPage = () => {
         <div className="space-y-6">
           <AlertBanner
             variant="success"
-            title="Succès"
-            message="Votre adresse email a été vérifiée avec succès. Vous pouvez maintenant vous connecter avec votre identifiant."
+            title={t("emailVerification.successAlertTitle")}
+            message={t("emailVerification.successAlertMessage")}
           />
 
           {/* Countdown avec barre de progression */}
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-3">
-              Redirection automatique dans{" "}
+              {t("emailVerification.redirectingIn")}{" "}
               <span className="font-semibold text-blue-600">{countdown}s</span>
             </p>
             <div className="w-full bg-gray-200 rounded-full h-1.5">
@@ -230,14 +226,13 @@ export const EmailVerificationPage = () => {
             onClick={() =>
               navigate("/login", {
                 state: {
-                  message:
-                    "Email vérifié ! Vous pouvez maintenant vous connecter.",
+                  message: t("emailVerification.successLoginMessage"),
                 },
               })
             }
             type="button"
           >
-            Se connecter maintenant
+            {t("emailVerification.loginNow")}
           </SubmitButton>
         </div>
       )}
@@ -247,11 +242,8 @@ export const EmailVerificationPage = () => {
         <div className="space-y-6">
           <AlertBanner
             variant="danger"
-            title="Lien invalide ou expiré"
-            message={
-              errorMessage ||
-              "Ce lien de vérification est invalide ou a expiré. Vous pouvez demander un nouvel email de vérification ci-dessous."
-            }
+            title={t("emailVerification.invalidLinkTitle")}
+            message={errorMessage || t("emailVerification.invalidLinkMessage")}
           />
 
           {/* Formulaire de renvoi OU boutons d'action */}
@@ -263,7 +255,7 @@ export const EmailVerificationPage = () => {
                 onClick={() => setShowResendForm(true)}
                 type="button"
               >
-                Renvoyer l'email de vérification
+                {t("emailVerification.resend")}
               </SubmitButton>
 
               <Button
@@ -271,7 +263,7 @@ export const EmailVerificationPage = () => {
                 fullWidth
                 onClick={() => navigate("/login")}
               >
-                Retour à la connexion
+                {t("emailVerification.backToLogin")}
               </Button>
             </div>
           ) : (
@@ -282,7 +274,7 @@ export const EmailVerificationPage = () => {
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-700 mb-2 text-left"
                 >
-                  Adresse email
+                  {t("emailVerification.emailLabel")}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -298,7 +290,7 @@ export const EmailVerificationPage = () => {
                         ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                         : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                     } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors`}
-                    placeholder="exemple@email.com"
+                    placeholder={t("emailVerification.emailPlaceholder")}
                   />
                 </div>
                 {errors.email && (
@@ -312,10 +304,10 @@ export const EmailVerificationPage = () => {
               <div className="space-y-3">
                 <SubmitButton
                   isLoading={isSubmitting}
-                  loadingText="Envoi en cours..."
+                  loadingText={t("emailVerification.sending")}
                   fullWidth
                 >
-                  Renvoyer l'email
+                  {t("emailVerification.resendEmail")}
                 </SubmitButton>
 
                 <Button
@@ -325,7 +317,7 @@ export const EmailVerificationPage = () => {
                   onClick={() => setShowResendForm(false)}
                   disabled={isSubmitting}
                 >
-                  Annuler
+                  {t("emailVerification.cancel")}
                 </Button>
               </div>
             </form>

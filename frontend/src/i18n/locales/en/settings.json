@@ -1,6 +1,7 @@
 {
   "title": "Settings",
   "subtitle": "Configure your application",
+  "loading": "Loading settings...",
   "tabs": {
     "clubInfo": "Club Information",
     "schedule": "Schedule",
@@ -67,16 +68,20 @@
     "tiktokPlaceholder": "https://tiktok.com/@yourpage"
   },
   "finance": {
-    "title": "Finance",
-    "description": "Configure financial and banking information",
+    "title": "Finance & Legal",
+    "description": "Financial and legal information",
     "iban": "IBAN",
-    "ibanPlaceholder": "GB29 NWBK 6016 1331 9268 19",
+    "ibanPlaceholder": "GB29 XXXX XXXX XXXX XXXX XX",
     "bic": "BIC/SWIFT",
     "bicPlaceholder": "ABCDEFGH",
     "bankName": "Bank name",
     "accountHolder": "Account holder",
     "tva": "VAT number",
+    "vatNumber": "VAT number",
+    "legalInfo": "Legal information",
+    "legalPlaceholder": "Company reg., VAT, etc.",
     "tvaPlaceholder": "GB123456789",
+    "vatPlaceholder": "GB123456789",
     "currency": "Currency",
     "currencySymbol": "Currency symbol",
     "taxRate": "Tax rate",
@@ -125,8 +130,12 @@
   },
   "localization": {
     "title": "Localization",
-    "description": "Configure language and regional formats",
+    "description": "Language, date format and timezone",
     "language": "Language",
+    "appLanguage": "Application language",
+    "dateFormatLabel": "Date format",
+    "timeFormatLabel": "Time format",
+    "timezoneLabel": "Time zone",
     "languages": {
       "fr": "Français",
       "en": "English"
@@ -176,7 +185,8 @@
     "uploadSuccess": "Image uploaded successfully",
     "uploadError": "Error uploading image",
     "invalidFormat": "Invalid format",
-    "unsavedChanges": "You have unsaved changes"
+    "unsavedChanges": "You have unsaved changes",
+    "languageChanged": "Language changed successfully"
   },
   "actions": {
     "save": "Save changes",

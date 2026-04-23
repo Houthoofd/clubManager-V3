@@ -3,6 +3,7 @@
  * Affiche l'historique des paiements avec filtres et actions
  */
 
+import { useTranslation } from "react-i18next";
 import { CheckIcon, CreditCardIcon } from "@heroicons/react/24/outline";
 import { DataTable } from "../../../../shared/components/Table/DataTable";
 import { SearchBar } from "../../../../shared/components/Forms/SearchBar";
@@ -76,24 +77,29 @@ export function PaymentsTab({
   setStripeSetup,
   isAdmin,
 }: PaymentsTabProps) {
+  const { t } = useTranslation("payments");
+
   return (
     <div>
       {/* En-tête de l'onglet */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
           <h2 className="text-base font-semibold text-gray-900">
-            Historique des paiements
+            {t("tabs.paymentsHistory")}
           </h2>
           {totalValidThisMonth > 0 && (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
               <CheckIcon className="h-3.5 w-3.5" />
-              {formatCurrency(totalValidThisMonth)} validés ce mois
+              {formatCurrency(totalValidThisMonth)}{" "}
+              {t("tabs.validatedThisMonth")}
             </span>
           )}
           {paymentsPagination.total > 0 && (
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-              {paymentsPagination.total} paiement
-              {paymentsPagination.total > 1 ? "s" : ""}
+              {paymentsPagination.total}{" "}
+              {paymentsPagination.total > 1
+                ? t("tabs.paymentPlural")
+                : t("tabs.paymentSingular")}
             </span>
           )}
         </div>
@@ -117,7 +123,7 @@ export function PaymentsTab({
                          rounded-lg transition-colors"
             >
               <CreditCardIcon className="h-4 w-4" />
-              Payer par carte
+              {t("tabs.payByCard")}
             </button>
             <button
               type="button"
@@ -139,7 +145,7 @@ export function PaymentsTab({
                   d="M12 4.5v15m7.5-7.5h-15"
                 />
               </svg>
-              Enregistrer un paiement
+              {t("actions.recordPayment")}
             </button>
           </div>
         )}
@@ -153,7 +159,7 @@ export function PaymentsTab({
             <SearchBar
               value={paymentSearch}
               onChange={setPaymentSearch}
-              placeholder="Rechercher par nom de membre…"
+              placeholder={t("tabs.searchByMemberName")}
               size="md"
               showClear
             />
@@ -167,11 +173,11 @@ export function PaymentsTab({
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        transition-colors min-w-[150px]"
           >
-            <option value="">Tous les statuts</option>
-            <option value="en_attente">En attente</option>
-            <option value="valide">Validé</option>
-            <option value="echoue">Échoué</option>
-            <option value="rembourse">Remboursé</option>
+            <option value="">{t("tabs.allStatuses")}</option>
+            <option value="en_attente">{t("status.pending")}</option>
+            <option value="valide">{t("status.paid")}</option>
+            <option value="echoue">{t("status.failed")}</option>
+            <option value="rembourse">{t("status.refunded")}</option>
           </select>
 
           {/* Filtre méthode */}
@@ -182,11 +188,11 @@ export function PaymentsTab({
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        transition-colors min-w-[160px]"
           >
-            <option value="">Toutes les méthodes</option>
-            <option value="stripe">Stripe</option>
-            <option value="especes">Espèces</option>
-            <option value="virement">Virement</option>
-            <option value="autre">Autre</option>
+            <option value="">{t("tabs.allMethods")}</option>
+            <option value="stripe">{t("methods.stripe")}</option>
+            <option value="especes">{t("methods.cash")}</option>
+            <option value="virement">{t("methods.transfer")}</option>
+            <option value="autre">{t("methods.other")}</option>
           </select>
 
           {/* DateRangePicker pour les dates */}
@@ -211,7 +217,7 @@ export function PaymentsTab({
               className="px-3 py-3 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100
                          border border-gray-300 rounded-lg transition-colors"
             >
-              Réinitialiser
+              {t("tabs.reset")}
             </button>
           )}
         </div>
@@ -222,8 +228,8 @@ export function PaymentsTab({
         <LoadingSpinner />
       ) : filteredPayments.length === 0 ? (
         <EmptyState
-          title="Aucun paiement trouvé"
-          description="Il n'y a aucun paiement correspondant à vos critères de recherche."
+          title={t("messages.noPayments")}
+          description={t("messages.errorLoadingPayments")}
         />
       ) : (
         <>
@@ -232,7 +238,7 @@ export function PaymentsTab({
             data={filteredPayments}
             rowKey="id"
             loading={paymentsLoading}
-            emptyMessage="Aucun paiement trouvé."
+            emptyMessage={t("messages.noPayments")}
           />
           <PaginationBar
             currentPage={paymentsPagination.page}

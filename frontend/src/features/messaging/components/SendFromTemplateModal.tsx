@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { previewTemplate, sendFromTemplate } from "../api/templatesApi";
 import type { Template, PreviewResult } from "../api/templatesApi";
 import {
@@ -54,6 +55,9 @@ export const SendFromTemplateModal = ({
   onClose,
   onSent,
 }: SendFromTemplateModalProps) => {
+  const { t } = useTranslation("messages");
+
+  // ─── STATE ────────────────────────────────────────────────────────────────
   // Calcul des variables manuelles (celles non auto)
   const manualVarNames = template.variables.filter(
     (v) => !AUTO_VAR_NAMES.has(v),
@@ -285,7 +289,9 @@ export const SendFromTemplateModal = ({
                       onChange={() => setRecipientType("role")}
                       className="text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">Par rôle</span>
+                    <span className="text-sm text-gray-700">
+                      {t("sendFromTemplate.byRole")}
+                    </span>
                   </label>
                 </div>
 
@@ -305,7 +311,9 @@ export const SendFromTemplateModal = ({
                         });
                       }
                     }}
-                    placeholder="ID utilisateur (numérique)"
+                    placeholder={t(
+                      "sendFromTemplate.recipientUserIdPlaceholder",
+                    )}
                     error={errors.destinataire}
                   />
                 )}
@@ -343,7 +351,7 @@ export const SendFromTemplateModal = ({
               {/* ── Envoi par email ── */}
               <InputCheckbox
                 id="envoye-par-email"
-                label="Envoyer aussi par email"
+                label={t("sendFromTemplate.sendAlsoByEmail")}
                 checked={envoyeParEmail}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setEnvoyeParEmail(e.target.checked)
@@ -391,7 +399,7 @@ export const SendFromTemplateModal = ({
       {step === "preview" && preview && (
         <>
           <Modal.Header
-            title="Aperçu du message"
+            title={t("sendFromTemplate.previewTitle")}
             showCloseButton
             onClose={onClose}
           />

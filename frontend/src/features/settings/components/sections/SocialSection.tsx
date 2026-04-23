@@ -1,8 +1,11 @@
 /**
  * SocialSection - Section des réseaux sociaux
  * Extrait de SettingsPage.tsx (Phase 2 refactorisation)
+ *
+ * INTERNATIONALISÉ - Utilise react-i18next pour tous les textes
  */
 
+import { useTranslation } from "react-i18next";
 import { GlobeAltIcon } from "@heroicons/react/24/outline";
 import { FormField } from "../../../../shared/components/Forms/FormField";
 import { Input } from "../../../../shared/components/Input";
@@ -33,20 +36,22 @@ export function SocialSection({
   handleSaveSocial,
   isSaving,
 }: SocialSectionProps) {
+  const { t } = useTranslation("settings");
+
   return (
     <div className="bg-white rounded-lg shadow p-6 space-y-6">
       <SectionHeader
         icon={<GlobeAltIcon className="h-5 w-5" />}
         iconBg="bg-purple-100"
         iconColor="text-purple-600"
-        title="Réseaux sociaux"
-        description="Liez vos réseaux sociaux"
+        title={t("social.title")}
+        description={t("social.description")}
       />
 
       <div className="space-y-5">
         <FormField
           id="social_facebook"
-          label="Facebook"
+          label={t("social.facebook")}
           icon={<FacebookIcon className="text-blue-600" />}
         >
           <Input
@@ -59,13 +64,13 @@ export function SocialSection({
                 social_facebook: e.target.value,
               })
             }
-            placeholder="https://facebook.com/votre-club"
+            placeholder={t("social.facebookPlaceholder")}
           />
         </FormField>
 
         <FormField
           id="social_instagram"
-          label="Instagram"
+          label={t("social.instagram")}
           icon={<InstagramIcon className="text-pink-600" />}
         >
           <Input
@@ -78,13 +83,13 @@ export function SocialSection({
                 social_instagram: e.target.value,
               })
             }
-            placeholder="https://instagram.com/votre-club"
+            placeholder={t("social.instagramPlaceholder")}
           />
         </FormField>
 
         <FormField
           id="social_twitter"
-          label="X (Twitter)"
+          label={t("social.twitter")}
           icon={<TwitterXIcon className="text-gray-900" />}
         >
           <Input
@@ -97,18 +102,14 @@ export function SocialSection({
                 social_twitter: e.target.value,
               })
             }
-            placeholder="https://x.com/votre-club"
+            placeholder={t("social.twitterPlaceholder")}
           />
         </FormField>
       </div>
 
       <div className="flex justify-end pt-4 border-t border-gray-100">
-        <Button
-          onClick={handleSaveSocial}
-          loading={isSaving}
-          variant="primary"
-        >
-          Sauvegarder
+        <Button onClick={handleSaveSocial} loading={isSaving} variant="primary">
+          {t("actions.save")}
         </Button>
       </div>
     </div>

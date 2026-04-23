@@ -16,6 +16,7 @@
  * - LoadingSpinner et EmptyState pour le feedback
  */
 
+import { useTranslation } from "react-i18next";
 import { Badge } from "../../../../shared/components/Badge/Badge";
 import { AlertBanner } from "../../../../shared/components/Feedback/AlertBanner";
 import { LoadingSpinner } from "../../../../shared/components/Layout/LoadingSpinner";
@@ -34,6 +35,7 @@ import { QuickOrderModal, CartModal } from "../";
 import { getErrorMessage, formatCurrency } from "../../../../shared/utils";
 
 export function BoutiqueTab() {
+  const { t } = useTranslation("store");
   const store = useStoreUI();
   const categoriesQuery = useCategories();
   const sizesQuery = useSizes();
@@ -59,11 +61,13 @@ export function BoutiqueTab() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
           <h2 className="text-base font-semibold text-gray-900">
-            Articles disponibles
+            {t("boutique.title")}
           </h2>
           <Badge variant="info">
-            {articlesQuery.data?.pagination.total ?? 0} article
-            {(articlesQuery.data?.pagination.total ?? 0) > 1 ? "s" : ""}
+            {articlesQuery.data?.pagination.total ?? 0}{" "}
+            {(articlesQuery.data?.pagination.total ?? 0) > 1
+              ? t("boutique.count.articles")
+              : t("boutique.count.article")}
           </Badge>
           {cartCount > 0 && (
             <Badge
@@ -84,7 +88,10 @@ export function BoutiqueTab() {
                 </svg>
               }
             >
-              {cartCount} article{cartCount > 1 ? "s" : ""} au panier
+              {cartCount}{" "}
+              {cartCount > 1
+                ? t("boutique.count.inCartPlural")
+                : t("boutique.count.inCart")}
             </Badge>
           )}
         </div>
@@ -106,7 +113,7 @@ export function BoutiqueTab() {
                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
               />
             </svg>
-            Voir le panier
+            {t("boutique.viewCart")}
           </button>
         )}
       </div>
@@ -134,7 +141,7 @@ export function BoutiqueTab() {
             <input
               value={store.articleSearch}
               onChange={(event) => store.setArticleSearch(event.target.value)}
-              placeholder="Rechercher un article…"
+              placeholder={t("boutique.filters.search")}
               className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
           </div>
@@ -143,7 +150,7 @@ export function BoutiqueTab() {
           <SelectField
             id="boutique-category-filter"
             label=""
-            placeholder="Toutes les catégories"
+            placeholder={t("boutique.filters.allCategories")}
             options={
               categoriesQuery.data?.map((cat) => ({
                 value: cat.id,
@@ -174,14 +181,16 @@ export function BoutiqueTab() {
           />
         )}
 
-        {articlesQuery.isLoading && <LoadingSpinner text="Chargement..." />}
+        {articlesQuery.isLoading && (
+          <LoadingSpinner text={t("common.loading")} />
+        )}
 
         {!articlesQuery.isLoading &&
           !articlesQuery.isError &&
           !articlesQuery.data?.items.length && (
             <EmptyState
-              title="Aucun article disponible"
-              description="Les articles seront bientôt disponibles à l'achat."
+              title={t("boutique.empty.title")}
+              description={t("boutique.empty.description")}
               variant="dashed"
             />
           )}
@@ -207,12 +216,12 @@ export function BoutiqueTab() {
                       {article.nom}
                     </h3>
                     <p className="mt-1 text-sm text-gray-500">
-                      {article.categorie_nom ?? "Sans catégorie"}
+                      {article.categorie_nom ?? t("boutique.card.noCategory")}
                     </p>
                   </div>
 
                   <p className="mt-3 line-clamp-2 text-sm text-gray-600">
-                    {article.description || "Aucune description disponible."}
+                    {article.description || t("boutique.card.noDescription")}
                   </p>
 
                   <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
@@ -223,7 +232,7 @@ export function BoutiqueTab() {
                       onClick={() => store.openQuickOrderModal(article as any)}
                       className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
                     >
-                      Commander
+                      {t("boutique.card.order")}
                     </button>
                   </div>
                 </article>

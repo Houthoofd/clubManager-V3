@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { UsersIcon, PlusCircleIcon } from "@patternfly/react-icons";
 import { useFamily } from "../hooks/useFamily";
@@ -26,6 +27,7 @@ import { Button } from "../../../shared/components/Button/Button";
  * modal et le retrait via une confirmation.
  */
 export function FamilyPage() {
+  const { t } = useTranslation("families");
   const {
     family,
     isLoading,
@@ -52,10 +54,10 @@ export function FamilyPage() {
   // ── Nettoyage de l'erreur si elle change ─────────────────────────────────
   useEffect(() => {
     if (error) {
-      toast.error("Erreur famille", { description: error });
+      toast.error(t("messages.error.familyError"), { description: error });
       clearError();
     }
-  }, [error, clearError]);
+  }, [error, clearError, t]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
@@ -65,13 +67,13 @@ export function FamilyPage() {
     setRemovingUserId(null);
 
     if (result.success) {
-      toast.success("Membre retiré", {
-        description: "Le membre a été retiré de la famille.",
+      toast.success(t("messages.success.memberRemoved"), {
+        description: t("messages.success.memberRemovedDescription"),
       });
       await fetchMyFamily();
     } else {
-      toast.error("Erreur lors du retrait", {
-        description: result.error ?? "Une erreur est survenue.",
+      toast.error(t("messages.error.removeError"), {
+        description: result.error ?? t("messages.error.genericError"),
       });
     }
   };
@@ -96,10 +98,13 @@ export function FamilyPage() {
         icon={
           <UsersIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
         }
-        title={family?.nom ? family.nom : "Ma famille"}
+        title={family?.nom ? family.nom : t("page.title")}
         description={
           hasFamily
-            ? `${user?.userId ? `${user.userId} — ` : ""}${memberCount} membre${memberCount > 1 ? "s" : ""}`
+            ? t("page.description", {
+                userId: user?.userId || "",
+                count: memberCount,
+              })
             : undefined
         }
         actions={
@@ -109,7 +114,7 @@ export function FamilyPage() {
             icon={<PlusCircleIcon className="h-4 w-4" />}
             onClick={() => setIsModalOpen(true)}
           >
-            Ajouter un membre
+            {t("actions.addMember")}
           </Button>
         }
       />
@@ -117,18 +122,16 @@ export function FamilyPage() {
       {/* ── États ── */}
 
       {/* Chargement avec composant réutilisable */}
-      {isLoading && (
-        <LoadingSpinner size="lg" text="Chargement de la famille…" />
-      )}
+      {isLoading && <LoadingSpinner size="lg" text={t("page.loading")} />}
 
       {/* État vide avec composant réutilisable */}
       {!isLoading && !hasFamily && (
         <EmptyState
           icon={<UsersIcon className="h-16 w-16" />}
-          title="Aucun membre de famille"
-          description="Commencez par ajouter votre premier membre."
+          title={t("messages.empty.title")}
+          description={t("messages.empty.description")}
           action={{
-            label: "Ajouter un membre",
+            label: t("messages.empty.action"),
             onClick: () => setIsModalOpen(true),
           }}
         />

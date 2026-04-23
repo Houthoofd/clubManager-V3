@@ -3,6 +3,7 @@
  * Composant d'un élément dans la liste des messages
  */
 
+import { useTranslation } from "react-i18next";
 import type { MessageWithDetails } from "../api/messagingApi";
 import { EnvelopeIcon } from "@patternfly/react-icons";
 
@@ -26,14 +27,14 @@ const truncate = (str: string, maxLength: number): string => {
 };
 
 /**
- * Formate une date ISO en "il y a X" (relatif)
+ * Calcule les différences temporelles pour le formatage relatif
  */
-export const formatRelativeDate = (dateStr: string): string => {
+export const getRelativeDateValues = (dateStr: string) => {
   const now = Date.now();
   const date = new Date(dateStr).getTime();
   const diffMs = now - date;
 
-  if (isNaN(date)) return "";
+  if (isNaN(date)) return null;
 
   const diffSecs = Math.floor(diffMs / 1000);
   const diffMins = Math.floor(diffSecs / 60);
@@ -42,13 +43,14 @@ export const formatRelativeDate = (dateStr: string): string => {
   const diffWeeks = Math.floor(diffDays / 7);
   const diffMonths = Math.floor(diffDays / 30);
 
-  if (diffSecs < 60) return "à l'instant";
-  if (diffMins < 60) return `il y a ${diffMins} min`;
-  if (diffHours < 24) return `il y a ${diffHours}h`;
-  if (diffDays < 7) return `il y a ${diffDays}j`;
-  if (diffWeeks < 5) return `il y a ${diffWeeks} sem.`;
-  if (diffMonths < 12) return `il y a ${diffMonths} mois`;
-  return `il y a ${Math.floor(diffMonths / 12)} an(s)`;
+  return {
+    diffSecs,
+    diffMins,
+    diffHours,
+    diffDays,
+    diffWeeks,
+    diffMonths,
+  };
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -59,12 +61,35 @@ export const MessageListItem = ({
   isInbox,
   onClick,
 }: MessageListItemProps) => {
+  const { t } = useTranslation("messages");
   const isUnread = isInbox && !message.lu;
   const displayName = isInbox
     ? message.expediteur_nom
     : message.destinataire_nom;
   const preview = message.sujet ? message.sujet : truncate(message.contenu, 60);
-  const relativeDate = formatRelativeDate(message.created_at);
+
+  // Format relative date with i18n
+  const values = getRelativeDateValues(message.created_at);
+  let relativeDate = "";
+  if (values) {
+    if (values.diffSecs < 60) {
+      relativeDate = t("relative.now");
+    } else if (values.diffMins < 60) {
+      relativeDate = t("relative.minutesAgo", { count: values.diffMins });
+    } else if (values.diffHours < 24) {
+      relativeDate = t("relative.hoursAgo", { count: values.diffHours });
+    } else if (values.diffDays < 7) {
+      relativeDate = t("relative.daysAgo", { count: values.diffDays });
+    } else if (values.diffWeeks < 5) {
+      relativeDate = t("relative.weeksAgo", { count: values.diffWeeks });
+    } else if (values.diffMonths < 12) {
+      relativeDate = t("relative.monthsAgo", { count: values.diffMonths });
+    } else {
+      relativeDate = t("relative.yearsAgo", {
+        count: Math.floor(values.diffMonths / 12),
+      });
+    }
+  }
 
   return (
     <button
@@ -101,7 +126,7 @@ export const MessageListItem = ({
         {message.envoye_par_email && (
           <span
             className="flex-shrink-0 text-blue-400"
-            title="Envoyé par email"
+            title={t("badges.email")}
           >
             <EnvelopeIcon
               className="inline-block align-middle"
@@ -113,7 +138,7 @@ export const MessageListItem = ({
         {/* Badge groupé */}
         {message.broadcast_id !== null && (
           <span className="flex-shrink-0 text-xs bg-purple-100 text-purple-700 rounded-full px-1.5 py-0.5 leading-none">
-            Groupé
+            {t("badges.grouped")}
           </span>
         )}
 

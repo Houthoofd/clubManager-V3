@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { createTemplate, updateTemplate } from "../api/templatesApi";
 import type { Template, TemplateType } from "../api/templatesApi";
 import {
@@ -79,6 +80,7 @@ export const TemplateEditorModal = ({
   onClose,
   onSaved,
 }: TemplateEditorModalProps) => {
+  const { t } = useTranslation("messages");
   const isEditing = Boolean(template);
 
   // ── Form state ──────────────────────────────────────────────────────────────
@@ -152,7 +154,7 @@ export const TemplateEditorModal = ({
           contenu: contenu.trim(),
           actif,
         });
-        toast.success("Template mis à jour.");
+        toast.success(t("success.templateUpdated"));
       } else {
         await createTemplate({
           type_id: typeId as number,
@@ -160,7 +162,7 @@ export const TemplateEditorModal = ({
           contenu: contenu.trim(),
           actif,
         });
-        toast.success("Template créé avec succès.");
+        toast.success(t("success.templateCreated"));
       }
       onSaved();
       onClose();
@@ -184,7 +186,9 @@ export const TemplateEditorModal = ({
     >
       <Modal.Header
         title={
-          isEditing ? `Modifier « ${template!.titre} »` : "Nouveau template"
+          isEditing
+            ? `Modifier « ${template!.titre} »`
+            : t("templateEditor.title")
         }
         showCloseButton
         onClose={onClose}
@@ -238,7 +242,7 @@ export const TemplateEditorModal = ({
                   });
                 }
               }}
-              placeholder="Ex : Email de bienvenue"
+              placeholder={t("templateEditor.examplePlaceholder")}
               maxLength={200}
               error={errors.titre}
             />
