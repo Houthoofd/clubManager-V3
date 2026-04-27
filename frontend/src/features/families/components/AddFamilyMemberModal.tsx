@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useRolesFamilial } from "../../../shared/hooks/useReferences";
 import { InfoCircleIcon } from "@patternfly/react-icons";
 import { useFamily } from "../hooks/useFamily";
 import type { AddFamilyMemberDto } from "@clubmanager/types";
@@ -24,7 +25,7 @@ type AddMemberFormData = {
   last_name: string;
   date_of_birth: string;
   genre_id: string;
-  role: "enfant" | "conjoint" | "autre";
+  role: string;
 };
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -62,8 +63,9 @@ export function AddFamilyMemberModal({
   onClose,
   onSuccess,
 }: AddFamilyMemberModalProps) {
-  const { t } = useTranslation("families");
+  const { t, i18n } = useTranslation("families");
   const { addMember } = useFamily();
+  const rolesFamilial = useRolesFamilial();
 
   // Create schema with translation
   const addMemberSchema = z.object({
@@ -77,7 +79,7 @@ export function AddFamilyMemberModal({
       .max(100),
     date_of_birth: z.string().min(1, t("validation.required")),
     genre_id: z.string().min(1, t("validation.required")),
-    role: z.enum(["enfant", "conjoint", "autre"]),
+    role: z.string().min(1, t("validation.required")),
   });
 
   const {
@@ -93,7 +95,10 @@ export function AddFamilyMemberModal({
       last_name: "",
       date_of_birth: "",
       genre_id: "",
-      role: "enfant",
+      role:
+        rolesFamilial.length > 0
+          ? (rolesFamilial[0]?.code ?? "enfant")
+          : "enfant",
     },
   });
 
@@ -108,7 +113,7 @@ export function AddFamilyMemberModal({
       last_name: data.last_name,
       date_of_birth: data.date_of_birth,
       genre_id: Number(data.genre_id),
-      role: data.role,
+      role: data.role as import("@clubmanager/types").FamilyMemberRole,
     };
 
     const result = await addMember(dto);
@@ -228,9 +233,21 @@ export function AddFamilyMemberModal({
               error={errors.role?.message}
             >
               <select id="role" className={FORM.select} {...register("role")}>
-                <option value="enfant">{t("roles.enfant")}</option>
-                <option value="conjoint">{t("roles.conjoint")}</option>
-                <option value="autre">{t("roles.autre")}</option>
+                {rolesFamilial.length > 0 ? (
+                  rolesFamilial.map((r) => (
+                    <option key={r.code} value={r.code}>
+                      {i18n.language === "en" && r.nom_en ? r.nom_en : r.nom}
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="parent">{t("roles.parent")}</option>
+                    <option value="enfant">{t("roles.enfant")}</option>
+                    <option value="conjoint">{t("roles.conjoint")}</option>
+                    <option value="tuteur">{t("roles.tuteur")}</option>
+                    <option value="autre">{t("roles.autre")}</option>
+                  </>
+                )}
               </select>
             </FormField>
           </div>

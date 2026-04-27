@@ -18,6 +18,7 @@ import {
   useStatutsPaiement,
   findByCode,
   getActivesSorted,
+  type StatutPaiement,
   isTransitionAllowed,
   getAvailableTransitions,
 } from "./useReferences";
@@ -492,9 +493,9 @@ interface PaymentStatsProps {
 }
 
 export function PaymentStats({ payments }: PaymentStatsProps) {
-  const { data: statuts } = useStatutsPaiement();
+  const statuts = useStatutsPaiement();
 
-  const stats = (statuts ?? []).map((statut) => {
+  const stats = statuts.map((statut) => {
     const paymentsForStatut = payments.filter(
       (p) => p.statut_code === statut.code,
     );
@@ -509,16 +510,26 @@ export function PaymentStats({ payments }: PaymentStatsProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {stats?.map(({ statut, count, total }) => (
-        <div key={statut.code} className="p-4 border rounded-lg">
-          <DynamicOrderStatusBadge statutCode={statut.code} />
-          <p className="mt-2 text-2xl font-bold">{count}</p>
-          <p className="text-sm text-gray-600">
-            {total.toFixed(2)} €{" "}
-            {statut.compte_dans_revenus && "(comptabilisé)"}
-          </p>
-        </div>
-      ))}
+      {stats.map(
+        ({
+          statut,
+          count,
+          total,
+        }: {
+          statut: StatutPaiement;
+          count: number;
+          total: number;
+        }) => (
+          <div key={statut.code} className="p-4 border rounded-lg">
+            <DynamicOrderStatusBadge statutCode={statut.code} />
+            <p className="mt-2 text-2xl font-bold">{count}</p>
+            <p className="text-sm text-gray-600">
+              {total.toFixed(2)} €{" "}
+              {statut.compte_dans_revenus && "(comptabilisé)"}
+            </p>
+          </div>
+        ),
+      )}
     </div>
   );
 }

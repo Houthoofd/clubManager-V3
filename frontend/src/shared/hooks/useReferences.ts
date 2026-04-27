@@ -57,6 +57,7 @@ export interface TypeCours extends BaseReference {
 }
 
 export interface StatutPaiement extends BaseReference {
+  nom_en?: string;
   compte_dans_revenus: boolean;
   est_final: boolean;
 }
@@ -71,6 +72,7 @@ export interface StatutUtilisateur extends BaseReference {
 }
 
 export interface RoleFamilial extends BaseReference {
+  nom_en?: string;
   couleur_avatar?: string;
   couleur_badge?: string;
 }
@@ -83,7 +85,31 @@ export interface Genre {
   id: number;
   code: string;
   nom: string;
+  nom_en?: string;
   ordre: number;
+  actif: boolean;
+}
+
+export interface StatutEcheance {
+  id: number;
+  code: string;
+  nom: string;
+  nom_en?: string;
+  couleur: string;
+  ordre: number;
+  est_final: boolean;
+  actif: boolean;
+}
+
+export interface RoleUtilisateur {
+  id: number;
+  code: string;
+  nom: string;
+  nom_en?: string;
+  couleur: string;
+  niveau_acces: number;
+  ordre: number;
+  actif: boolean;
 }
 
 export interface JourSemaine {
@@ -105,6 +131,10 @@ export interface ReferencesData {
   statuts_presence: StatutPresence[];
   genres: Genre[];
   jours_semaine?: JourSemaine[];
+  // Nouvelles références
+  statuts_echeance?: StatutEcheance[];
+  roles_utilisateur?: RoleUtilisateur[];
+  roles_familial?: RoleFamilial[];
 }
 
 export interface TransitionStatutCommande {
@@ -232,10 +262,6 @@ export function useTypesCoursByCode(code?: string): TypeCours | undefined {
   return types.find((t) => t.code === code);
 }
 
-export function useStatutsPaiement() {
-  return useReferenceType("statuts_paiement");
-}
-
 export function useRoles() {
   return useReferenceType("roles");
 }
@@ -252,13 +278,67 @@ export function useStatutsPresence() {
   return useReferenceType("statuts_presence");
 }
 
-export function useGenres() {
-  return useReferenceType("genres");
-}
-
 export function useJoursSemaine() {
   return useReferenceType("jours_semaine");
 }
+
+// ── Statuts de paiement ──────────────────────────────────────────────────────
+export const useStatutsPaiement = (): StatutPaiement[] => {
+  const { data } = useReferences();
+  return data?.statuts_paiement ?? [];
+};
+export const useStatutPaiementByCode = (
+  code?: string,
+): StatutPaiement | undefined => {
+  const list = useStatutsPaiement();
+  return list.find((s) => s.code === code);
+};
+
+// ── Statuts d'échéance ───────────────────────────────────────────────────────
+export const useStatutsEcheance = (): StatutEcheance[] => {
+  const { data } = useReferences();
+  return data?.statuts_echeance ?? [];
+};
+export const useStatutEcheanceByCode = (
+  code?: string,
+): StatutEcheance | undefined => {
+  const list = useStatutsEcheance();
+  return list.find((s) => s.code === code);
+};
+
+// ── Rôles utilisateur ────────────────────────────────────────────────────────
+export const useRolesUtilisateur = (): RoleUtilisateur[] => {
+  const { data } = useReferences();
+  return data?.roles_utilisateur ?? [];
+};
+export const useRoleUtilisateurByCode = (
+  code?: string,
+): RoleUtilisateur | undefined => {
+  const list = useRolesUtilisateur();
+  return list.find((r) => r.code === code);
+};
+
+// ── Rôles familiaux ──────────────────────────────────────────────────────────
+export const useRolesFamilial = (): RoleFamilial[] => {
+  const { data } = useReferences();
+  return data?.roles_familial ?? [];
+};
+export const useRoleFamilialByCode = (
+  code?: string,
+): RoleFamilial | undefined => {
+  const list = useRolesFamilial();
+  return list.find((r) => r.code === code);
+};
+
+// ── Genres ───────────────────────────────────────────────────────────────────
+export const useGenres = (): Genre[] => {
+  const { data } = useReferences();
+  return data?.genres ?? [];
+};
+export const useGenreByCode = (code?: string): Genre | undefined => {
+  const list = useGenres();
+  return list.find((g) => g.code === code);
+};
 
 /**
  * Hook pour les transitions de statut de commande

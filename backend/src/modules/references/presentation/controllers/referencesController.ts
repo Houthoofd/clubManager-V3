@@ -2,6 +2,7 @@
  * ReferencesController
  * Controller pour les données de référence de l'application
  * Données publiques avec cache côté client (Cache-Control: public, max-age=3600)
+ * Phase 2 : statuts_paiement, statuts_echeance, roles_utilisateur, roles_familial, genres
  */
 
 import type { Request, Response } from "express";
@@ -88,6 +89,101 @@ export class ReferencesController {
       });
     } catch (error: unknown) {
       console.error("[ReferencesController.getTypesCours]", error);
+      const msg = error instanceof Error ? error.message : "Erreur interne";
+      res.status(500).json({ success: false, message: msg });
+    }
+  }
+
+  /**
+   * GET /api/references/statuts-paiement
+   * Retourne uniquement les statuts de paiement actifs
+   */
+  async getStatutsPaiement(_req: Request, res: Response): Promise<void> {
+    try {
+      const data = await uc.getStatutsPaiement();
+      res.set("Cache-Control", "public, max-age=3600");
+      res.json({
+        success: true,
+        data,
+      });
+    } catch (error: unknown) {
+      console.error("[ReferencesController.getStatutsPaiement]", error);
+      const msg = error instanceof Error ? error.message : "Erreur interne";
+      res.status(500).json({ success: false, message: msg });
+    }
+  }
+
+  /**
+   * GET /api/references/statuts-echeance
+   * Retourne uniquement les statuts d'échéance actifs
+   */
+  async getStatutsEcheance(_req: Request, res: Response): Promise<void> {
+    try {
+      const data = await uc.getStatutsEcheance();
+      res.set("Cache-Control", "public, max-age=3600");
+      res.json({
+        success: true,
+        data,
+      });
+    } catch (error: unknown) {
+      console.error("[ReferencesController.getStatutsEcheance]", error);
+      const msg = error instanceof Error ? error.message : "Erreur interne";
+      res.status(500).json({ success: false, message: msg });
+    }
+  }
+
+  /**
+   * GET /api/references/roles-utilisateur
+   * Retourne uniquement les rôles utilisateur actifs
+   */
+  async getRolesUtilisateur(_req: Request, res: Response): Promise<void> {
+    try {
+      const data = await uc.getRolesUtilisateur();
+      res.set("Cache-Control", "public, max-age=3600");
+      res.json({
+        success: true,
+        data,
+      });
+    } catch (error: unknown) {
+      console.error("[ReferencesController.getRolesUtilisateur]", error);
+      const msg = error instanceof Error ? error.message : "Erreur interne";
+      res.status(500).json({ success: false, message: msg });
+    }
+  }
+
+  /**
+   * GET /api/references/roles-familial
+   * Retourne uniquement les rôles familiaux actifs
+   */
+  async getRolesFamilial(_req: Request, res: Response): Promise<void> {
+    try {
+      const data = await uc.getRolesFamilial();
+      res.set("Cache-Control", "public, max-age=3600");
+      res.json({
+        success: true,
+        data,
+      });
+    } catch (error: unknown) {
+      console.error("[ReferencesController.getRolesFamilial]", error);
+      const msg = error instanceof Error ? error.message : "Erreur interne";
+      res.status(500).json({ success: false, message: msg });
+    }
+  }
+
+  /**
+   * GET /api/references/genres
+   * Retourne uniquement les genres actifs
+   */
+  async getGenres(_req: Request, res: Response): Promise<void> {
+    try {
+      const data = await uc.getGenres();
+      res.set("Cache-Control", "public, max-age=3600");
+      res.json({
+        success: true,
+        data,
+      });
+    } catch (error: unknown) {
+      console.error("[ReferencesController.getGenres]", error);
       const msg = error instanceof Error ? error.message : "Erreur interne";
       res.status(500).json({ success: false, message: msg });
     }

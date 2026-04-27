@@ -21,7 +21,12 @@
  */
 
 import { ReactNode, HTMLAttributes } from "react";
+import { useTranslation } from "react-i18next";
 import { cn, BADGE } from "../../styles/designTokens";
+import {
+  useStatutPaiementByCode,
+  useStatutEcheanceByCode,
+} from "../../hooks/useReferences";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -304,22 +309,42 @@ export function PaymentStatusBadge({
   children,
   ...props
 }: PaymentStatusBadgeProps) {
-  const statusConfig = {
-    en_attente: {
-      variant: "warning" as const,
-      label: children || "En attente",
-    },
-    paye: { variant: "success" as const, label: children || "Payé" },
-    valide: { variant: "success" as const, label: children || "Validé" },
-    partiel: { variant: "info" as const, label: children || "Partiel" },
-    echoue: { variant: "danger" as const, label: children || "Échoué" },
-    rembourse: { variant: "purple" as const, label: children || "Remboursé" },
-    annule: { variant: "danger" as const, label: children || "Annulé" },
-  }[status];
+  const { i18n } = useTranslation("payments");
+  const statutInfo = useStatutPaiementByCode(status);
+
+  // Couleurs par défaut (fallback si la référence DB n'a pas de couleur)
+  const fallbackConfig: Record<
+    string,
+    { variant: BadgeProps["variant"]; label: string }
+  > = {
+    en_attente: { variant: "warning", label: "En attente" },
+    paye: { variant: "success", label: "Payé" },
+    valide: { variant: "success", label: "Validé" },
+    partiel: { variant: "info", label: "Partiel" },
+    echoue: { variant: "danger", label: "Échoué" },
+    rembourse: { variant: "purple", label: "Remboursé" },
+    annule: { variant: "danger", label: "Annulé" },
+  };
+
+  const fallback = fallbackConfig[status] ?? {
+    variant: "neutral" as const,
+    label: status,
+  };
+
+  const label = children
+    ? children
+    : statutInfo
+      ? i18n.language === "en" && statutInfo.nom_en
+        ? statutInfo.nom_en
+        : statutInfo.nom
+      : fallback.label;
+
+  const variant =
+    (statutInfo?.couleur as BadgeProps["variant"]) ?? fallback.variant;
 
   return (
-    <Badge variant={statusConfig.variant} {...props}>
-      {statusConfig.label}
+    <Badge variant={variant} {...props}>
+      {label}
     </Badge>
   );
 }
@@ -556,35 +581,36 @@ export function ScheduleStatusBadge({
   className = "",
   ...props
 }: ScheduleStatusBadgeProps) {
-  const statusConfigMap: Record<
+  const { i18n } = useTranslation("payments");
+  const statutInfo = useStatutEcheanceByCode(status);
+
+  // Couleurs par défaut (fallback si la référence DB n'est pas disponible)
+  const fallbackConfigMap: Record<
     string,
-    {
-      variant: BadgeProps["variant"];
-      label: string;
-    }
+    { variant: BadgeProps["variant"]; label: string }
   > = {
-    en_attente: {
-      variant: "orange",
-      label: children?.toString() || "En attente",
-    },
-    paye: {
-      variant: "success",
-      label: children?.toString() || "Payé",
-    },
-    en_retard: {
-      variant: "danger",
-      label: children?.toString() || "En retard",
-    },
-    annule: {
-      variant: "neutral",
-      label: children?.toString() || "Annulé",
-    },
+    en_attente: { variant: "orange", label: "En attente" },
+    paye: { variant: "success", label: "Payé" },
+    en_retard: { variant: "danger", label: "En retard" },
+    annule: { variant: "neutral", label: "Annulé" },
   };
 
-  const statusConfig = statusConfigMap[status] || {
+  const fallback = fallbackConfigMap[status] ?? {
     variant: "neutral" as const,
-    label: children?.toString() || status || "Inconnu",
+    label: status || "Inconnu",
   };
+
+  const dynamicLabel = statutInfo
+    ? i18n.language === "en" && statutInfo.nom_en
+      ? statutInfo.nom_en
+      : statutInfo.nom
+    : fallback.label;
+
+  const label = children?.toString() || dynamicLabel;
+  const variant =
+    (statutInfo?.couleur as BadgeProps["variant"]) ?? fallback.variant;
+
+  const statusConfig = { variant, label };
 
   const isOverdue = status === "en_retard";
   const icon = isOverdue ? <ExclamationTriangleIcon /> : undefined;

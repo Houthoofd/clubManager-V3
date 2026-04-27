@@ -13,6 +13,7 @@ import { LoadingSpinner } from "../../../../shared/components/Layout/LoadingSpin
 import { EmptyState } from "../../../../shared/components/Layout/EmptyState";
 import { PaginationBar } from "../../../../shared/components/Navigation/PaginationBar";
 import { Badge } from "../../../../shared/components";
+import { useStatutsEcheance } from "../../../../shared/hooks/useReferences";
 import type { Column } from "../../../../shared/components/Table/DataTable";
 
 interface SchedulesFilters {
@@ -66,7 +67,8 @@ export function SchedulesTab({
   markingScheduleId,
   isAdmin,
 }: SchedulesTabProps) {
-  const { t } = useTranslation("payments");
+  const { t, i18n } = useTranslation("payments");
+  const statutsEcheance = useStatutsEcheance();
 
   return (
     <div>
@@ -120,10 +122,20 @@ export function SchedulesTab({
                        transition-colors min-w-[180px]"
           >
             <option value="">{t("tabs.allStatuses")}</option>
-            <option value="en_attente">{t("status.pending")}</option>
-            <option value="paye">{t("status.paid")}</option>
-            <option value="en_retard">{t("status.overdue")}</option>
-            <option value="annule">{t("status.cancelled")}</option>
+            {statutsEcheance.length > 0 ? (
+              statutsEcheance.map((s) => (
+                <option key={s.code} value={s.code}>
+                  {i18n.language === "en" && s.nom_en ? s.nom_en : s.nom}
+                </option>
+              ))
+            ) : (
+              <>
+                <option value="en_attente">{t("status.pending")}</option>
+                <option value="paye">{t("status.paid")}</option>
+                <option value="en_retard">{t("status.overdue")}</option>
+                <option value="annule">{t("status.cancelled")}</option>
+              </>
+            )}
           </select>
           {schedulesFilters.statut && (
             <button

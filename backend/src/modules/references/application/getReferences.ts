@@ -10,6 +10,11 @@ import type {
   MethodePaiement,
   StatutCommande,
   TypeCours,
+  StatutPaiement,
+  StatutEcheance,
+  RoleUtilisateur,
+  RoleFamilial,
+  Genre,
 } from "../domain/types.js";
 
 export class GetReferencesUseCase {
@@ -59,6 +64,66 @@ export class GetReferencesUseCase {
       return await this.repo.getTypesCours();
     } catch (error) {
       console.error("[GetReferencesUseCase.getTypesCours]", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère uniquement les statuts de paiement actifs
+   */
+  async getStatutsPaiement(): Promise<StatutPaiement[]> {
+    try {
+      return await this.repo.getStatutsPaiement();
+    } catch (error) {
+      console.error("[GetReferencesUseCase.getStatutsPaiement]", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère uniquement les statuts d'échéance actifs
+   */
+  async getStatutsEcheance(): Promise<StatutEcheance[]> {
+    try {
+      return await this.repo.getStatutsEcheance();
+    } catch (error) {
+      console.error("[GetReferencesUseCase.getStatutsEcheance]", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère uniquement les rôles utilisateur actifs
+   */
+  async getRolesUtilisateur(): Promise<RoleUtilisateur[]> {
+    try {
+      return await this.repo.getRolesUtilisateur();
+    } catch (error) {
+      console.error("[GetReferencesUseCase.getRolesUtilisateur]", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère uniquement les rôles familiaux actifs
+   */
+  async getRolesFamilial(): Promise<RoleFamilial[]> {
+    try {
+      return await this.repo.getRolesFamilial();
+    } catch (error) {
+      console.error("[GetReferencesUseCase.getRolesFamilial]", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère uniquement les genres actifs
+   */
+  async getGenres(): Promise<Genre[]> {
+    try {
+      return await this.repo.getGenres();
+    } catch (error) {
+      console.error("[GetReferencesUseCase.getGenres]", error);
       throw error;
     }
   }

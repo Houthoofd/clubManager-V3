@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 import { useAuth } from "../../../shared/hooks/useAuth";
+import { useGenres } from "../../../shared/hooks/useReferences";
 import type { RegisterDto } from "@clubmanager/types";
 
 import { AuthPageContainer } from "../../../shared/components/Auth";
@@ -82,9 +83,10 @@ const getMinBirthDate = (): string => {
 // ─── COMPOSANT ───────────────────────────────────────────────────────────────
 
 export const RegisterPage = () => {
-  const { t } = useTranslation("auth");
+  const { t, i18n } = useTranslation("auth");
   const navigate = useNavigate();
   const { register: registerUser, isLoading } = useAuth();
+  const genres = useGenres();
 
   // ─── VALIDATION SCHEMA (dynamique avec traductions) ───────────────────────
 
@@ -180,11 +182,17 @@ export const RegisterPage = () => {
 
   // ─── OPTIONS SELECT ──────────────────────────────────────────────────────────
 
-  const GENRE_OPTIONS = [
-    { value: "1", label: t("register.genderMale") },
-    { value: "2", label: t("register.genderFemale") },
-    { value: "3", label: t("register.genderOther") },
-  ];
+  const GENRE_OPTIONS =
+    genres.length > 0
+      ? genres.map((g) => ({
+          value: String(g.id),
+          label: i18n.language === "en" && g.nom_en ? g.nom_en : g.nom,
+        }))
+      : [
+          { value: "1", label: t("register.genderMale") },
+          { value: "2", label: t("register.genderFemale") },
+          { value: "3", label: t("register.genderOther") },
+        ];
 
   // React Hook Form avec Zod validation
   const {

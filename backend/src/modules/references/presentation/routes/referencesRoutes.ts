@@ -36,4 +36,27 @@ router.get("/types-cours", (req, res) =>
   referencesCtrl.getTypesCours(req, res),
 );
 
+// GET /statuts-paiement — Statuts de paiement actifs
+router.get("/statuts-paiement", (req, res) =>
+  referencesCtrl.getStatutsPaiement(req, res),
+);
+
+// GET /statuts-echeance — Statuts d'échéance actifs
+router.get("/statuts-echeance", (req, res) =>
+  referencesCtrl.getStatutsEcheance(req, res),
+);
+
+// GET /roles-utilisateur — Rôles utilisateur actifs
+router.get("/roles-utilisateur", (req, res) =>
+  referencesCtrl.getRolesUtilisateur(req, res),
+);
+
+// GET /roles-familial — Rôles familiaux actifs
+router.get("/roles-familial", (req, res) =>
+  referencesCtrl.getRolesFamilial(req, res),
+);
+
+// GET /genres — Genres actifs
+router.get("/genres", (req, res) => referencesCtrl.getGenres(req, res));
+
 export default router;
