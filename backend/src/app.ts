@@ -27,6 +27,7 @@ import paymentRoutes from "./modules/payments/presentation/routes/paymentRoutes.
 import courseRoutes from "./modules/courses/presentation/routes/courseRoutes.js";
 import statisticsRoutes from "./modules/statistics/presentation/routes/statistics.routes.js";
 import storeRoutes from "./modules/store/presentation/routes/storeRoutes.js";
+import referencesRoutes from "./modules/references/presentation/routes/referencesRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -114,6 +115,7 @@ const createApp = (): Express => {
   app.use("/api/courses", courseRoutes);
   app.use("/api/statistics", statisticsRoutes);
   app.use("/api/store", storeRoutes);
+  app.use("/api/references", referencesRoutes);
 
   // ==================== ERROR HANDLING ====================
 

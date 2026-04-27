@@ -11,6 +11,11 @@ import { Modal } from "@/shared/components/Modal/Modal";
 import { BUTTON, cn } from "@/shared/styles/designTokens";
 import type { OrderWithItems } from "../api/storeApi";
 import { OrderStatusBadge } from "./OrderStatusBadge";
+import {
+  useStatutsCommande,
+  useTransitionsStatutCommande,
+  getAvailableTransitions,
+} from "../../../shared/hooks/useReferences";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -50,6 +55,36 @@ function SpinnerIcon() {
   );
 }
 
+/**
+ * Mappe la couleur d'un statut DB vers les classes Tailwind du bouton.
+ * Fallback sur primary si la couleur n'est pas reconnue.
+ */
+function getTransitionBtnClass(couleur?: string): string {
+  switch (couleur) {
+    case "success":
+    case "green":
+      return "text-white bg-green-600 hover:bg-green-700 focus:ring-green-500 shadow-sm";
+    case "danger":
+    case "red":
+      return "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500 shadow-sm";
+    case "warning":
+    case "orange":
+    case "yellow":
+      return "text-white bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400 shadow-sm";
+    case "purple":
+    case "violet":
+      return "text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 shadow-sm";
+    case "info":
+    case "blue":
+      return "text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 shadow-sm";
+    case "neutral":
+    case "gray":
+      return "text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400 shadow-sm";
+    default:
+      return "text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 shadow-sm";
+  }
+}
+
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat("fr-FR", {
@@ -78,6 +113,10 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   const { t } = useTranslation("store");
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // ── Références DB pour les transitions dynamiques ─────────────────────────
+  const statutsQuery = useStatutsCommande();
+  const transitionsQuery = useTransitionsStatutCommande();
+
   // ── Gestion du changement de statut ───────────────────────────────────────
   const handleStatusChange = async (newStatus: string) => {
     if (!onUpdateStatus) return;
@@ -105,7 +144,18 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
     0,
   );
 
-  // Vérifier si on peut afficher certains boutons selon le statut
+  // ── Transitions dynamiques depuis la DB ───────────────────────────────────
+  const currentStatut = statutsQuery.find((s) => s.code === order.statut);
+  const dynamicTransitions =
+    currentStatut && statutsQuery.length > 0 && transitionsQuery.data
+      ? getAvailableTransitions(
+          transitionsQuery.data,
+          statutsQuery,
+          currentStatut.id,
+        )
+      : null;
+
+  // ── Fallback hardcodé si les refs ne sont pas encore chargées ─────────────
   const canMarkAsPaid = order.statut === "en_attente";
   const canMarkAsShipped = order.statut === "payee";
   const canMarkAsDelivered = order.statut === "expediee";
@@ -274,81 +324,107 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                 {t("orderDetailModal.admin.title")}
               </h3>
               <div className="flex flex-wrap gap-2">
-                {canMarkAsPaid && (
-                  <button
-                    type="button"
-                    onClick={() => handleStatusChange("payee")}
-                    disabled={isUpdating}
-                    className={cn(
-                      BUTTON.base,
-                      BUTTON.variant.primary,
-                      BUTTON.size.md,
+                {/* ── Boutons dynamiques depuis la DB ── */}
+                {dynamicTransitions && dynamicTransitions.length > 0 ? (
+                  dynamicTransitions.map((targetStatut) => (
+                    <button
+                      key={targetStatut.code}
+                      type="button"
+                      onClick={() => handleStatusChange(targetStatut.code)}
+                      disabled={isUpdating}
+                      className={cn(
+                        BUTTON.base,
+                        getTransitionBtnClass(targetStatut.couleur),
+                        BUTTON.size.md,
+                      )}
+                    >
+                      {isUpdating && (
+                        <span className="mr-2">
+                          <SpinnerIcon />
+                        </span>
+                      )}
+                      {targetStatut.nom}
+                    </button>
+                  ))
+                ) : (
+                  /* ── Fallback hardcodé si refs pas chargées ── */ <>
+                    {canMarkAsPaid && (
+                      <button
+                        type="button"
+                        onClick={() => handleStatusChange("payee")}
+                        disabled={isUpdating}
+                        className={cn(
+                          BUTTON.base,
+                          BUTTON.variant.primary,
+                          BUTTON.size.md,
+                        )}
+                      >
+                        {isUpdating && (
+                          <span className="mr-2">
+                            <SpinnerIcon />
+                          </span>
+                        )}
+                        {t("orderDetailModal.admin.markAsPaid")}
+                      </button>
                     )}
-                  >
-                    {isUpdating && (
-                      <span className="mr-2">
-                        <SpinnerIcon />
-                      </span>
+                    {canMarkAsShipped && (
+                      <button
+                        type="button"
+                        onClick={() => handleStatusChange("expediee")}
+                        disabled={isUpdating}
+                        className={cn(
+                          BUTTON.base,
+                          "text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 shadow-sm",
+                          BUTTON.size.md,
+                        )}
+                      >
+                        {isUpdating && (
+                          <span className="mr-2">
+                            <SpinnerIcon />
+                          </span>
+                        )}
+                        {t("orderDetailModal.admin.markAsShipped")}
+                      </button>
                     )}
-                    {t("orderDetailModal.admin.markAsPaid")}
-                  </button>
-                )}
-                {canMarkAsShipped && (
-                  <button
-                    type="button"
-                    onClick={() => handleStatusChange("expediee")}
-                    disabled={isUpdating}
-                    className={cn(
-                      BUTTON.base,
-                      "text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 shadow-sm",
-                      BUTTON.size.md,
+                    {canMarkAsDelivered && (
+                      <button
+                        type="button"
+                        onClick={() => handleStatusChange("livree")}
+                        disabled={isUpdating}
+                        className={cn(
+                          BUTTON.base,
+                          BUTTON.variant.success,
+                          BUTTON.size.md,
+                        )}
+                      >
+                        {isUpdating && (
+                          <span className="mr-2">
+                            <SpinnerIcon />
+                          </span>
+                        )}
+                        {t("orderDetailModal.admin.markAsDelivered")}
+                      </button>
                     )}
-                  >
-                    {isUpdating && (
-                      <span className="mr-2">
-                        <SpinnerIcon />
-                      </span>
+                    {canCancel && (
+                      <button
+                        type="button"
+                        onClick={() => handleStatusChange("annulee")}
+                        disabled={isUpdating}
+                        className={cn(
+                          BUTTON.base,
+                          BUTTON.variant.danger,
+                          BUTTON.size.md,
+                        )}
+                      >
+                        {isUpdating && (
+                          <span className="mr-2">
+                            <SpinnerIcon />
+                          </span>
+                        )}
+                        {t("orderDetailModal.admin.cancelOrder")}
+                      </button>
                     )}
-                    {t("orderDetailModal.admin.markAsShipped")}
-                  </button>
-                )}
-                {canMarkAsDelivered && (
-                  <button
-                    type="button"
-                    onClick={() => handleStatusChange("livree")}
-                    disabled={isUpdating}
-                    className={cn(
-                      BUTTON.base,
-                      BUTTON.variant.success,
-                      BUTTON.size.md,
-                    )}
-                  >
-                    {isUpdating && (
-                      <span className="mr-2">
-                        <SpinnerIcon />
-                      </span>
-                    )}
-                    {t("orderDetailModal.admin.markAsDelivered")}
-                  </button>
-                )}
-                {canCancel && (
-                  <button
-                    type="button"
-                    onClick={() => handleStatusChange("annulee")}
-                    disabled={isUpdating}
-                    className={cn(
-                      BUTTON.base,
-                      BUTTON.variant.danger,
-                      BUTTON.size.md,
-                    )}
-                  >
-                    {isUpdating && (
-                      <span className="mr-2">
-                        <SpinnerIcon />
-                      </span>
-                    )}
-                    {t("orderDetailModal.admin.cancelOrder")}
-                  </button>
+                  </>
                 )}
               </div>
             </div>

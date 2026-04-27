@@ -18,6 +18,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useTypesCours } from "../../../shared/hooks/useReferences";
+import type { TypeCours } from "../../../shared/hooks/useReferences";
 import {
   CalendarIcon,
   PencilIcon,
@@ -97,7 +99,8 @@ function formatTime(timeStr: string): string {
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
 export default function CoursesPage() {
-  const { t } = useTranslation("courses");
+  const { t, i18n } = useTranslation("courses");
+  const typesCours: TypeCours[] = useTypesCours();
   const { user } = useAuth();
   const isAdmin = user?.role_app === "admin";
 
@@ -138,6 +141,7 @@ export default function CoursesPage() {
   // ─────────────────────────────────────────────────────────────────
 
   const uniqueTypes = [...new Set(sessions.map((s) => s.type_cours))].sort();
+  const filterTypes = typesCours.length > 0 ? typesCours : null;
 
   const handleConfirmDelete = async () => {
     if (modal.type !== "deleteCourseRecurrent") return;
@@ -390,11 +394,19 @@ export default function CoursesPage() {
                 containerClassName="w-64"
               >
                 <option value="">{t("filters.allTypes")}</option>
-                {uniqueTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
+                {filterTypes
+                  ? filterTypes.map((type) => (
+                      <option key={type.code} value={type.code}>
+                        {i18n.language === "en" && type.nom_en
+                          ? type.nom_en
+                          : type.nom}
+                      </option>
+                    ))
+                  : uniqueTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
               </Input.Select>
             </div>
 

@@ -5,29 +5,34 @@
  * pour remplacer les valeurs hardcodées par des données dynamiques de la DB.
  */
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React from "react";
+import { useForm } from "react-hook-form";
 import {
   useReferences,
   useMethodesPaiement,
   useStatutsCommande,
   useTypesCours,
+  useTransitionsStatutCommande,
+  useRolesFamiliaux,
+  useRoles,
+  useStatutsPaiement,
   findByCode,
   getActivesSorted,
   isTransitionAllowed,
   getAvailableTransitions,
-} from './useReferences';
-import { Badge } from '../components/Badge/Badge';
+} from "./useReferences";
+import { Badge } from "../components/Badge/Badge";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // EXEMPLE 1 : Select simple avec méthodes de paiement
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function PaymentMethodSelect() {
-  const { data: methodes, isLoading, error } = useMethodesPaiement();
+  const methodes = useMethodesPaiement();
+  const { isLoading, isError } = useReferences();
 
   if (isLoading) return <div>Chargement...</div>;
-  if (error) return <div>Erreur de chargement</div>;
+  if (isError) return <div>Erreur de chargement</div>;
 
   // Filtrer uniquement les méthodes actives et les trier
   const methodesActives = getActivesSorted(methodes);
@@ -91,7 +96,7 @@ interface OrderStatusBadgeProps {
 }
 
 export function DynamicOrderStatusBadge({ statutCode }: OrderStatusBadgeProps) {
-  const { data: statuts } = useStatutsCommande();
+  const statuts = useStatutsCommande();
 
   const statut = findByCode(statuts, statutCode);
 
@@ -122,20 +127,29 @@ interface OrderFilterProps {
   onStatutChange: (statut: string) => void;
 }
 
-export function OrderFilter({ orders, selectedStatut, onStatutChange }: OrderFilterProps) {
-  const { data: statuts } = useStatutsCommande();
+export function OrderFilter({
+  orders,
+  selectedStatut,
+  onStatutChange,
+}: OrderFilterProps) {
+  const statuts = useStatutsCommande();
 
   // Compter les commandes par statut
-  const counts = statuts?.reduce((acc, statut) => {
-    acc[statut.code] = orders.filter((o) => o.statut_code === statut.code).length;
-    return acc;
-  }, {} as Record<string, number>);
+  const counts = statuts.reduce(
+    (acc, statut) => {
+      acc[statut.code] = orders.filter(
+        (o) => o.statut_code === statut.code,
+      ).length;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   return (
     <div className="flex gap-2">
       <button
-        onClick={() => onStatutChange('')}
-        className={selectedStatut === '' ? 'active' : ''}
+        onClick={() => onStatutChange("")}
+        className={selectedStatut === "" ? "active" : ""}
       >
         Tous ({orders.length})
       </button>
@@ -144,7 +158,7 @@ export function OrderFilter({ orders, selectedStatut, onStatutChange }: OrderFil
         <button
           key={statut.code}
           onClick={() => onStatutChange(statut.code)}
-          className={selectedStatut === statut.code ? 'active' : ''}
+          className={selectedStatut === statut.code ? "active" : ""}
         >
           {statut.nom} ({counts?.[statut.code] || 0})
         </button>
@@ -167,8 +181,12 @@ interface OrderActionsProps {
   onChangeStatut: (newStatutId: number) => void;
 }
 
-export function OrderActions({ order, userRole, onChangeStatut }: OrderActionsProps) {
-  const { data: statuts } = useStatutsCommande();
+export function OrderActions({
+  order,
+  userRole,
+  onChangeStatut,
+}: OrderActionsProps) {
+  const statuts = useStatutsCommande();
   const { data: transitions } = useTransitionsStatutCommande();
 
   // Récupérer les statuts de destination possibles
@@ -176,7 +194,7 @@ export function OrderActions({ order, userRole, onChangeStatut }: OrderActionsPr
     transitions,
     statuts,
     order.statut_id,
-    userRole
+    userRole,
   );
 
   if (availableStatuts.length === 0) {
@@ -205,24 +223,29 @@ export function OrderActions({ order, userRole, onChangeStatut }: OrderActionsPr
 export function useCanChangeOrderStatus(
   currentStatutId: number,
   targetStatutId: number,
-  userRole: string
+  userRole: string,
 ) {
   const { data: transitions } = useTransitionsStatutCommande();
 
-  return isTransitionAllowed(transitions, currentStatutId, targetStatutId, userRole);
+  return isTransitionAllowed(
+    transitions,
+    currentStatutId,
+    targetStatutId,
+    userRole,
+  );
 }
 
 // Utilisation
 export function OrderDetailActions() {
-  const order = { id: 1, statut_id: 1, statut_code: 'en_attente' };
-  const userRole = 'admin';
+  const order = { id: 1, statut_id: 1, statut_code: "en_attente" };
+  const userRole = "admin";
 
   const canMarkAsPaid = useCanChangeOrderStatus(order.statut_id, 3, userRole); // 3 = payee
 
   return (
     <div>
       {canMarkAsPaid && (
-        <button onClick={() => console.log('Marquer comme payée')}>
+        <button onClick={() => console.log("Marquer comme payée")}>
           Marquer comme payée
         </button>
       )}
@@ -248,7 +271,7 @@ export function CourseForm() {
   if (isLoading) return <div>Chargement...</div>;
 
   const onSubmit = (data: CourseFormData) => {
-    console.log('Données du formulaire:', data);
+    console.log("Données du formulaire:", data);
   };
 
   return (
@@ -260,14 +283,18 @@ export function CourseForm() {
         </label>
         <select
           id="type_cours_id"
-          {...register('type_cours_id', { required: true, valueAsNumber: true })}
+          {...register("type_cours_id", {
+            required: true,
+            valueAsNumber: true,
+          })}
           className="mt-1 block w-full rounded-md border-gray-300"
         >
           <option value="">Sélectionner un type</option>
           {getActivesSorted(refs?.types_cours).map((type) => (
             <option key={type.id} value={type.id}>
               {type.nom}
-              {type.duree_defaut_minutes && ` (${type.duree_defaut_minutes} min)`}
+              {type.duree_defaut_minutes &&
+                ` (${type.duree_defaut_minutes} min)`}
             </option>
           ))}
         </select>
@@ -280,7 +307,7 @@ export function CourseForm() {
         </label>
         <select
           id="jour_semaine"
-          {...register('jour_semaine', { required: true, valueAsNumber: true })}
+          {...register("jour_semaine", { required: true, valueAsNumber: true })}
           className="mt-1 block w-full rounded-md border-gray-300"
         >
           {refs?.jours_semaine?.map((jour) => (
@@ -300,7 +327,7 @@ export function CourseForm() {
           <input
             type="time"
             id="heure_debut"
-            {...register('heure_debut', { required: true })}
+            {...register("heure_debut", { required: true })}
             className="mt-1 block w-full rounded-md border-gray-300"
           />
         </div>
@@ -311,7 +338,7 @@ export function CourseForm() {
           <input
             type="time"
             id="heure_fin"
-            {...register('heure_fin', { required: true })}
+            {...register("heure_fin", { required: true })}
             className="mt-1 block w-full rounded-md border-gray-300"
           />
         </div>
@@ -333,7 +360,10 @@ interface FamilyRoleRadioProps {
   onChange: (role: string) => void;
 }
 
-export function FamilyRoleRadio({ selectedRole, onChange }: FamilyRoleRadioProps) {
+export function FamilyRoleRadio({
+  selectedRole,
+  onChange,
+}: FamilyRoleRadioProps) {
   const { data: roles } = useRolesFamiliaux();
 
   return (
@@ -342,7 +372,7 @@ export function FamilyRoleRadio({ selectedRole, onChange }: FamilyRoleRadioProps
         Rôle dans la famille
       </label>
       <div className="space-y-2">
-        {getActivesSorted(roles).map((role) => (
+        {getActivesSorted(roles ?? []).map((role) => (
           <label
             key={role.code}
             className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
@@ -356,10 +386,14 @@ export function FamilyRoleRadio({ selectedRole, onChange }: FamilyRoleRadioProps
               className="h-4 w-4 text-blue-600"
             />
             <div className="flex items-center gap-2">
-              <span className={`inline-block h-3 w-3 rounded-full ${role.couleur_avatar}`} />
+              <span
+                className={`inline-block h-3 w-3 rounded-full ${role.couleur_avatar}`}
+              />
               <span className="font-medium">{role.nom}</span>
               {role.description && (
-                <span className="text-sm text-gray-500">— {role.description}</span>
+                <span className="text-sm text-gray-500">
+                  — {role.description}
+                </span>
               )}
             </div>
           </label>
@@ -374,13 +408,14 @@ export function FamilyRoleRadio({ selectedRole, onChange }: FamilyRoleRadioProps
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function CourseTypeSelectWithSearch() {
-  const { data: typesCours, isLoading } = useTypesCours();
-  const [search, setSearch] = React.useState('');
+  const typesCours = useTypesCours();
+  const { isLoading } = useReferences();
+  const [search, setSearch] = React.useState("");
 
   if (isLoading) return <div>Chargement...</div>;
 
   const filtered = getActivesSorted(typesCours).filter((type) =>
-    type.nom.toLowerCase().includes(search.toLowerCase())
+    type.nom.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -422,8 +457,8 @@ interface UserActionsProps {
 export function UserActions({ user, currentUserRole }: UserActionsProps) {
   const { data: roles } = useRoles();
 
-  const userRole = findByCode(roles, user.role_code);
-  const currentRole = findByCode(roles, currentUserRole);
+  const userRole = findByCode(roles ?? [], user.role_code);
+  const currentRole = findByCode(roles ?? [], currentUserRole);
 
   // Vérifier si l'utilisateur actuel a un niveau d'accès supérieur
   const canModify =
@@ -434,7 +469,9 @@ export function UserActions({ user, currentUserRole }: UserActionsProps) {
       {canModify ? (
         <button className="btn btn-primary">Modifier l'utilisateur</button>
       ) : (
-        <p className="text-gray-500">Vous n'avez pas les permissions nécessaires</p>
+        <p className="text-gray-500">
+          Vous n'avez pas les permissions nécessaires
+        </p>
       )}
     </div>
   );
@@ -457,8 +494,10 @@ interface PaymentStatsProps {
 export function PaymentStats({ payments }: PaymentStatsProps) {
   const { data: statuts } = useStatutsPaiement();
 
-  const stats = statuts?.map((statut) => {
-    const paymentsForStatut = payments.filter((p) => p.statut_code === statut.code);
+  const stats = (statuts ?? []).map((statut) => {
+    const paymentsForStatut = payments.filter(
+      (p) => p.statut_code === statut.code,
+    );
     const total = paymentsForStatut.reduce((sum, p) => sum + p.montant, 0);
 
     return {
@@ -475,7 +514,8 @@ export function PaymentStats({ payments }: PaymentStatsProps) {
           <DynamicOrderStatusBadge statutCode={statut.code} />
           <p className="mt-2 text-2xl font-bold">{count}</p>
           <p className="text-sm text-gray-600">
-            {total.toFixed(2)} € {statut.compte_dans_revenus && '(comptabilisé)'}
+            {total.toFixed(2)} €{" "}
+            {statut.compte_dans_revenus && "(comptabilisé)"}
           </p>
         </div>
       ))}
@@ -492,7 +532,7 @@ export function PaymentStats({ payments }: PaymentStatsProps) {
  * et ajoute de la logique métier
  */
 export function useOrderWorkflow(currentStatutCode: string) {
-  const { data: statuts } = useStatutsCommande();
+  const statuts = useStatutsCommande();
   const { data: transitions } = useTransitionsStatutCommande();
 
   const currentStatut = findByCode(statuts, currentStatutCode);
@@ -512,7 +552,7 @@ export function useOrderWorkflow(currentStatutCode: string) {
 
 // Utilisation
 export function OrderWorkflowExample() {
-  const order = { id: 1, statut_code: 'payee' };
+  const order = { id: 1, statut_code: "payee" };
   const { canModify, canCancel, isFinal } = useOrderWorkflow(order.statut_code);
 
   return (
@@ -532,8 +572,10 @@ interface PaymentMethodBadgeProps {
   methodeCode: string;
 }
 
-export function DynamicPaymentMethodBadge({ methodeCode }: PaymentMethodBadgeProps) {
-  const { data: methodes } = useMethodesPaiement();
+export function DynamicPaymentMethodBadge({
+  methodeCode,
+}: PaymentMethodBadgeProps) {
+  const methodes = useMethodesPaiement();
 
   const methode = findByCode(methodes, methodeCode);
 
@@ -543,11 +585,7 @@ export function DynamicPaymentMethodBadge({ methodeCode }: PaymentMethodBadgePro
 
   // L'icône devrait être chargée dynamiquement selon le nom
   // Pour l'exemple, on utilise juste le variant de couleur
-  return (
-    <Badge variant={methode.couleur as any}>
-      {methode.nom}
-    </Badge>
-  );
+  return <Badge variant={methode.couleur as any}>{methode.nom}</Badge>;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

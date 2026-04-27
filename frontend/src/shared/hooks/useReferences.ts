@@ -20,8 +20,8 @@
  * ```
  */
 
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { api } from '../api/client';
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import apiClient from "../api/apiClient";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -39,15 +39,18 @@ export interface BaseReference {
 
 export interface MethodePaiement extends BaseReference {
   icone?: string; // Nom du composant icône (CreditCardIcon, BanknotesIcon, etc.)
+  nom_en?: string; // Nom en anglais pour le support multilingue
 }
 
 export interface StatutCommande extends BaseReference {
+  nom_en?: string;
   est_final: boolean;
   peut_modifier: boolean;
   peut_annuler: boolean;
 }
 
 export interface TypeCours extends BaseReference {
+  nom_en?: string;
   duree_defaut_minutes?: number;
   capacite_max?: number;
   niveau?: string;
@@ -115,20 +118,26 @@ export interface TransitionStatutCommande {
 // ─── API CALL ────────────────────────────────────────────────────────────────
 
 async function fetchReferences(): Promise<ReferencesData> {
-  const response = await api.get<ReferencesData>('/api/references');
-  return response.data;
+  const response = await apiClient.get<{ data: ReferencesData }>(
+    "/api/references",
+  );
+  return response.data.data;
 }
 
 async function fetchReferenceType<T extends keyof ReferencesData>(
-  type: T
+  type: T,
 ): Promise<ReferencesData[T]> {
-  const response = await api.get<ReferencesData[T]>(`/api/references/${type}`);
+  const response = await apiClient.get<ReferencesData[T]>(
+    `/api/references/${type}`,
+  );
   return response.data;
 }
 
-async function fetchTransitionsStatutCommande(): Promise<TransitionStatutCommande[]> {
-  const response = await api.get<TransitionStatutCommande[]>(
-    '/api/references/transitions_statut_commande'
+async function fetchTransitionsStatutCommande(): Promise<
+  TransitionStatutCommande[]
+> {
+  const response = await apiClient.get<TransitionStatutCommande[]>(
+    "/api/references/transitions_statut_commande",
   );
   return response.data;
 }
@@ -140,11 +149,11 @@ async function fetchTransitionsStatutCommande(): Promise<TransitionStatutCommand
  * Cache les données pendant 1 heure
  */
 export function useReferences(): UseQueryResult<ReferencesData> {
-  return useQuery({
-    queryKey: ['references'],
+  return useQuery<ReferencesData>({
+    queryKey: ["references"],
     queryFn: fetchReferences,
     staleTime: 1000 * 60 * 60, // 1 heure
-    cacheTime: 1000 * 60 * 60 * 2, // 2 heures
+    gcTime: 1000 * 60 * 60 * 2, // 2 heures
     refetchOnWindowFocus: false,
     retry: 2,
   });
@@ -155,69 +164,113 @@ export function useReferences(): UseQueryResult<ReferencesData> {
  * Utile si vous n'avez besoin que d'un seul type
  */
 export function useReferenceType<T extends keyof ReferencesData>(
-  type: T
+  type: T,
 ): UseQueryResult<ReferencesData[T]> {
-  return useQuery({
-    queryKey: ['references', type],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return useQuery<ReferencesData[T]>({
+    queryKey: ["references", type],
     queryFn: () => fetchReferenceType(type),
     staleTime: 1000 * 60 * 60,
-    cacheTime: 1000 * 60 * 60 * 2,
+    gcTime: 1000 * 60 * 60 * 2,
     refetchOnWindowFocus: false,
     retry: 2,
-  });
+  }) as UseQueryResult<ReferencesData[T]>;
 }
 
 // ─── HOOKS SPÉCIFIQUES PAR TYPE ─────────────────────────────────────────────
 
-export function useMethodesPaiement() {
-  return useReferenceType('methodes_paiement');
+/**
+ * Retourne la liste des méthodes de paiement ([] si pas encore chargé)
+ */
+export function useMethodesPaiement(): MethodePaiement[] {
+  const { data } = useReferences();
+  return data?.methodes_paiement ?? [];
 }
 
-export function useStatutsCommande() {
-  return useReferenceType('statuts_commande');
+/**
+ * Retourne la liste des statuts de commande ([] si pas encore chargé)
+ */
+export function useStatutsCommande(): StatutCommande[] {
+  const { data } = useReferences();
+  return data?.statuts_commande ?? [];
 }
 
-export function useTypesCours() {
-  return useReferenceType('types_cours');
+/**
+ * Hook pour récupérer un statut de commande par son code
+ * Retourne undefined si les refs ne sont pas encore chargées ou si le code n'existe pas
+ */
+export function useStatutCommandeByCode(
+  code?: string,
+): StatutCommande | undefined {
+  const statuts = useStatutsCommande();
+  return statuts.find((s) => s.code === code);
+}
+
+/**
+ * Retourne la liste des types de cours ([] si pas encore chargé)
+ */
+export function useTypesCours(): TypeCours[] {
+  const { data } = useReferences();
+  return data?.types_cours ?? [];
+}
+
+/**
+ * Hook pour récupérer une méthode de paiement par son code
+ */
+export function useMethodePaiementByCode(
+  code?: string,
+): MethodePaiement | undefined {
+  const methodes = useMethodesPaiement();
+  return methodes.find((m) => m.code === code);
+}
+
+/**
+ * Hook pour récupérer un type de cours par son code
+ */
+export function useTypesCoursByCode(code?: string): TypeCours | undefined {
+  const types = useTypesCours();
+  return types.find((t) => t.code === code);
 }
 
 export function useStatutsPaiement() {
-  return useReferenceType('statuts_paiement');
+  return useReferenceType("statuts_paiement");
 }
 
 export function useRoles() {
-  return useReferenceType('roles');
+  return useReferenceType("roles");
 }
 
 export function useStatutsUtilisateur() {
-  return useReferenceType('statuts_utilisateur');
+  return useReferenceType("statuts_utilisateur");
 }
 
 export function useRolesFamiliaux() {
-  return useReferenceType('roles_familiaux');
+  return useReferenceType("roles_familiaux");
 }
 
 export function useStatutsPresence() {
-  return useReferenceType('statuts_presence');
+  return useReferenceType("statuts_presence");
 }
 
 export function useGenres() {
-  return useReferenceType('genres');
+  return useReferenceType("genres");
 }
 
 export function useJoursSemaine() {
-  return useReferenceType('jours_semaine');
+  return useReferenceType("jours_semaine");
 }
 
 /**
  * Hook pour les transitions de statut de commande
  */
-export function useTransitionsStatutCommande(): UseQueryResult<TransitionStatutCommande[]> {
-  return useQuery({
-    queryKey: ['references', 'transitions_statut_commande'],
+export function useTransitionsStatutCommande(): UseQueryResult<
+  TransitionStatutCommande[]
+> {
+  return useQuery<TransitionStatutCommande[]>({
+    queryKey: ["references", "transitions_statut_commande"],
     queryFn: fetchTransitionsStatutCommande,
     staleTime: 1000 * 60 * 60,
-    cacheTime: 1000 * 60 * 60 * 2,
+    gcTime: 1000 * 60 * 60 * 2,
     refetchOnWindowFocus: false,
   });
 }
@@ -229,7 +282,7 @@ export function useTransitionsStatutCommande(): UseQueryResult<TransitionStatutC
  */
 export function findByCode<T extends BaseReference>(
   items: T[] | undefined,
-  code: string
+  code: string,
 ): T | undefined {
   return items?.find((item) => item.code === code);
 }
@@ -237,21 +290,27 @@ export function findByCode<T extends BaseReference>(
 /**
  * Filtre les références actives
  */
-export function getActives<T extends BaseReference>(items: T[] | undefined): T[] {
+export function getActives<T extends BaseReference>(
+  items: T[] | undefined,
+): T[] {
   return items?.filter((item) => item.actif) || [];
 }
 
 /**
  * Trie les références par ordre
  */
-export function sortByOrdre<T extends BaseReference>(items: T[] | undefined): T[] {
+export function sortByOrdre<T extends BaseReference>(
+  items: T[] | undefined,
+): T[] {
   return [...(items || [])].sort((a, b) => a.ordre - b.ordre);
 }
 
 /**
  * Récupère les références actives triées par ordre
  */
-export function getActivesSorted<T extends BaseReference>(items: T[] | undefined): T[] {
+export function getActivesSorted<T extends BaseReference>(
+  items: T[] | undefined,
+): T[] {
   return sortByOrdre(getActives(items));
 }
 
@@ -262,14 +321,14 @@ export function isTransitionAllowed(
   transitions: TransitionStatutCommande[] | undefined,
   statutDepartId: number,
   statutArriveeId: number,
-  userRole?: string
+  userRole?: string,
 ): boolean {
   if (!transitions) return false;
 
   const transition = transitions.find(
     (t) =>
       t.statut_depart_id === statutDepartId &&
-      t.statut_arrivee_id === statutArriveeId
+      t.statut_arrivee_id === statutArriveeId,
   );
 
   if (!transition) return false;
@@ -278,7 +337,7 @@ export function isTransitionAllowed(
   if (!transition.role_requis) return true;
 
   // Sinon, vérifier que l'utilisateur a le bon rôle
-  return userRole === transition.role_requis || userRole === 'admin';
+  return userRole === transition.role_requis || userRole === "admin";
 }
 
 /**
@@ -288,7 +347,7 @@ export function getAvailableTransitions(
   transitions: TransitionStatutCommande[] | undefined,
   statuts: StatutCommande[] | undefined,
   currentStatutId: number,
-  userRole?: string
+  userRole?: string,
 ): StatutCommande[] {
   if (!transitions || !statuts) return [];
 
@@ -296,7 +355,7 @@ export function getAvailableTransitions(
     .filter((t) => {
       if (t.statut_depart_id !== currentStatutId) return false;
       if (!t.role_requis) return true;
-      return userRole === t.role_requis || userRole === 'admin';
+      return userRole === t.role_requis || userRole === "admin";
     })
     .map((t) => t.statut_arrivee_id);
 
@@ -311,11 +370,11 @@ export function getAvailableTransitions(
 export function getJourSemaineLabel(
   jours: JourSemaine[] | undefined,
   jourId: number,
-  format: 'court' | 'complet' = 'complet'
+  format: "court" | "complet" = "complet",
 ): string {
   const jour = jours?.find((j) => j.id === jourId);
-  if (!jour) return '';
-  return format === 'court' ? jour.nom_court : jour.nom_complet;
+  if (!jour) return "";
+  return format === "court" ? jour.nom_court : jour.nom_complet;
 }
 
 // ─── EXPORTS ─────────────────────────────────────────────────────────────────
