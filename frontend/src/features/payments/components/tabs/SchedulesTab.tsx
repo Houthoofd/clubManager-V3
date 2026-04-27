@@ -189,7 +189,7 @@ export function SchedulesTab({
                                      transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {markingScheduleId === s.id ? (
-                            "…"
+                            t("tabs.marking")
                           ) : (
                             <>
                               <CheckIcon className="h-3.5 w-3.5" />

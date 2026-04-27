@@ -43,9 +43,9 @@ export const MessageDetail: React.FC<MessageDetailProps> = ({
       });
       const hours = String(date.getHours()).padStart(2, "0");
       const minutes = String(date.getMinutes()).padStart(2, "0");
-      return i18n.language === "en"
-        ? `${dateFormatted} at ${hours}:${minutes}`
-        : `${dateFormatted} à ${hours}h${minutes}`;
+      const connector = t("detail.timeConnector");
+      const separator = t("detail.hourSeparator");
+      return `${dateFormatted} ${connector} ${hours}${separator}${minutes}`;
     } catch {
       return dateStr;
     }

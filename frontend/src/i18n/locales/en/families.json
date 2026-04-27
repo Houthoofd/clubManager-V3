@@ -12,8 +12,8 @@
     "dateOfBirth": "Date of birth",
     "genre": "Gender",
     "role": "Role",
-    "age": "Age",
-    "grade": "Grade",
+    "age": "Age:",
+    "grade": "Grade:",
     "userId": "User ID"
   },
   "roles": {

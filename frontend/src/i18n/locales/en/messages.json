@@ -78,7 +78,9 @@
     "date": "Date:",
     "sentByEmail": "Sent by email",
     "broadcast": "Broadcast message",
-    "deleteConfirm": "Are you sure you want to delete this message? This action is irreversible."
+    "deleteConfirm": "Are you sure you want to delete this message? This action is irreversible.",
+    "timeConnector": "at",
+    "hourSeparator": ":"
   },
   "compose": {
     "title": "New Message",

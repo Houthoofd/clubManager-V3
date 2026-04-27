@@ -102,7 +102,8 @@
     "noDataDescription": "Les statistiques des membres ne sont pas disponibles pour le moment.",
     "ofTotal": "du total",
     "growthRateLabel": "taux de croissance",
-    "currentMonth": "Sur le mois en cours"
+    "currentMonth": "Sur le mois en cours",
+    "ageSuffix": "ans"
   },
   "courses": {
     "title": "Statistiques Cours",
@@ -173,7 +174,8 @@
       "dueDate": "Date d'échéance",
       "delay": "Retard",
       "daysLate_one": "{{count}} jour",
-      "daysLate_other": "{{count}} jours"
+      "daysLate_other": "{{count}} jours",
+      "userId": "ID :"
     }
   },
   "store": {

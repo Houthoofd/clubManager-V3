@@ -334,7 +334,9 @@
       "unitPrice": "Prix unitaire",
       "subtotal": "Sous-total",
       "total": "Total",
-      "unknown": "Article inconnu"
+      "unknown": "Article inconnu",
+      "altFallback": "Article",
+      "unknownSize": "—"
     },
     "admin": {
       "title": "Actions administrateur",

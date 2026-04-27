@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { Modal } from "@/shared/components/Modal/Modal";
 import { BUTTON, cn } from "@/shared/styles/designTokens";
 import type { ArticleWithImages, Size, Stock } from "../api/storeApi";
+import { formatCurrency } from "../../statistics/utils/formatting";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -191,7 +192,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
             <p className="text-sm text-gray-600 mb-3">{article.description}</p>
           )}
           <p className="text-2xl font-bold text-blue-600">
-            {article.prix.toFixed(2)} €
+            {formatCurrency(article.prix)}
           </p>
         </div>
 
@@ -313,7 +314,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
                 {t("quickOrderModal.total")}
               </span>
               <span className="text-2xl font-bold text-blue-600">
-                {total.toFixed(2)} €
+                {formatCurrency(total)}
               </span>
             </div>
           </div>

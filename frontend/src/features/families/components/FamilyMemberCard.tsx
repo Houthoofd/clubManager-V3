@@ -193,7 +193,7 @@ export function FamilyMemberCard({
       <dl className="text-sm text-gray-600 space-y-1">
         <div className="flex gap-2">
           <dt className="font-medium text-gray-500 flex-shrink-0">
-            {t("fields.age")} :
+            {t("fields.age")}
           </dt>
           <dd>
             {age} {t("age.year", { count: age })}
@@ -203,7 +203,7 @@ export function FamilyMemberCard({
         {member.grade?.nom && (
           <div className="flex gap-2">
             <dt className="font-medium text-gray-500 flex-shrink-0">
-              {t("fields.grade")} :
+              {t("fields.grade")}
             </dt>
             <dd>{member.grade.nom}</dd>
           </div>

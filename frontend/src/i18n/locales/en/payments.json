@@ -40,7 +40,8 @@
     "yes": "Yes",
     "no": "No",
     "perMonth": "month",
-    "months": "months"
+    "months": "months",
+    "marking": "…"
   },
   "fields": {
     "amount": "Amount",

@@ -474,7 +474,7 @@ export function PaymentsPage() {
                 type="number"
                 min="0.5"
                 step="0.01"
-                placeholder="0,00"
+                placeholder={t("common:placeholders.amount")}
                 required
                 value={stripeSetup.montant}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

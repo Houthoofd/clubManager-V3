@@ -7,6 +7,7 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { formatCurrency } from "../../statistics/utils/formatting";
 import { Modal } from "@/shared/components/Modal/Modal";
 import { BUTTON, cn } from "@/shared/styles/designTokens";
 import type { OrderWithItems } from "../api/storeApi";
@@ -225,7 +226,10 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                           {item.article_image_url && (
                             <img
                               src={item.article_image_url}
-                              alt={item.article_nom || "Article"}
+                              alt={
+                                item.article_nom ||
+                                t("orderDetailModal.items.altFallback")
+                              }
                               className="h-10 w-10 rounded object-cover mr-3"
                             />
                           )}
@@ -236,16 +240,17 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                         </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                        {item.taille_nom || "—"}
+                        {item.taille_nom ||
+                          t("orderDetailModal.items.unknownSize")}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
                         {item.quantite}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
-                        {item.prix.toFixed(2)} €
+                        {formatCurrency(item.prix)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
-                        {(item.prix * item.quantite).toFixed(2)} €
+                        {formatCurrency(item.prix * item.quantite)}
                       </td>
                     </tr>
                   ))}
@@ -259,7 +264,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                       {t("orderDetailModal.items.total")}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-right text-lg font-bold text-blue-600">
-                      {total.toFixed(2)} €
+                      {formatCurrency(total)}
                     </td>
                   </tr>
                 </tfoot>

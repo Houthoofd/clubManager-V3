@@ -116,7 +116,7 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
   return (
     <nav
       className="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6"
-      aria-label="Pagination"
+      aria-label={t("pagination.ariaLabel")}
     >
       {/* Mobile view */}
       <div className="flex flex-1 justify-between sm:hidden">
@@ -172,7 +172,7 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
         <div className={showResultsCount ? "" : "flex-1 flex justify-center"}>
           <nav
             className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-            aria-label="Pagination"
+            aria-label={t("pagination.ariaLabel")}
           >
             {/* Bouton Précédent */}
             <button

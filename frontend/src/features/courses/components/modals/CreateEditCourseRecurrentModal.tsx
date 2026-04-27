@@ -287,7 +287,7 @@ export function CreateEditCourseRecurrentModal({
                     </span>
                     {prof.specialite && (
                       <span className="text-xs text-gray-400">
-                        — {prof.specialite}
+                        {t("labels.specialitySeparator")} {prof.specialite}
                       </span>
                     )}
                   </label>

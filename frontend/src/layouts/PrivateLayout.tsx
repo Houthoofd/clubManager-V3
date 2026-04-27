@@ -315,7 +315,7 @@ const PrivateLayout: React.FC = () => {
               {getByKey(INFORMATION_KEYS.CLUB_LOGO_URL)?.valeur ? (
                 <img
                   src={getByKey(INFORMATION_KEYS.CLUB_LOGO_URL)!.valeur}
-                  alt="Logo"
+                  alt={t("layout.logoAlt")}
                   className="h-8 w-auto object-contain flex-shrink-0"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";

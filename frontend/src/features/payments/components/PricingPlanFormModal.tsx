@@ -166,7 +166,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
                 type="number"
                 step="0.01"
                 min="0.01"
-                placeholder="0,00"
+                placeholder={t("common:placeholders.amount")}
                 disabled={isSubmitting}
                 className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                             placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500

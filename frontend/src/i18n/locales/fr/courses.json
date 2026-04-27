@@ -93,7 +93,8 @@
     "actions": "Actions",
     "fullName": "Nom complet",
     "email": "Email",
-    "phone": "Téléphone"
+    "phone": "Téléphone",
+    "rowNumber": "#"
   },
   "status": {
     "yes": "Oui",
@@ -104,7 +105,8 @@
     "professor": "Prof :",
     "total": "Total :",
     "present": "Présents :",
-    "absent": "Absents :"
+    "absent": "Absents :",
+    "specialitySeparator": "—"
   },
   "modals": {
     "createRecurrentCourse": "Nouveau cours récurrent",

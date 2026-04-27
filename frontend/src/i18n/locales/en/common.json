@@ -49,7 +49,8 @@
   "layout": {
     "clubManager": "ClubManager",
     "defaultAppName": "ClubManager",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "logoAlt": "Logo"
   },
   "modules": {
     "title": "Navigation modules",
@@ -86,7 +87,11 @@
     "showing": "Showing",
     "to": "to",
     "of": "of",
-    "results": "results"
+    "results": "results",
+    "ariaLabel": "Pagination"
+  },
+  "placeholders": {
+    "amount": "0.00"
   },
   "status": {
     "active": "Active",

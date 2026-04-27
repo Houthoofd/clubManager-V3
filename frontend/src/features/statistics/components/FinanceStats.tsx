@@ -607,7 +607,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
                           {payment.utilisateur_prenom} {payment.utilisateur_nom}
                         </div>
                         <div className="text-xs text-gray-600">
-                          ID: {payment.utilisateur_id}
+                          {t("finance.table.userId")} {payment.utilisateur_id}
                         </div>
                       </div>
 

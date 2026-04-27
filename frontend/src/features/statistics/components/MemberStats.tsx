@@ -328,7 +328,7 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
 
   const ageDistribution =
     data?.by_age_group.map((item) => ({
-      label: `${item.groupe_age} ans`,
+      label: `${item.groupe_age} ${t("members.ageSuffix")}`,
       value: item.count,
       percentage: item.pourcentage,
     })) || [];

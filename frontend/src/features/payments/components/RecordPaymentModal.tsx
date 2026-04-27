@@ -156,7 +156,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               type="number"
               step="0.01"
               min="0.01"
-              placeholder="0,00"
+              placeholder={t("common:placeholders.amount")}
               required
               disabled={isSubmitting}
               error={errors.montant?.message}
