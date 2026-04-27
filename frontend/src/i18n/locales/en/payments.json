@@ -39,7 +39,8 @@
     "confirm": "Confirm?",
     "yes": "Yes",
     "no": "No",
-    "perMonth": "month"
+    "perMonth": "month",
+    "months": "months"
   },
   "fields": {
     "amount": "Amount",

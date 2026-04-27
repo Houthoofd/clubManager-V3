@@ -314,7 +314,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
       setStep("compose");
     } else if (step === "compose") {
       if (!contenu.trim()) {
-        setContenuError("Le contenu du message est obligatoire.");
+        setContenuError(t("notify.messageRequired"));
         return;
       }
       setStep("confirm");

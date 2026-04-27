@@ -136,10 +136,10 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
 
   const groupedTemplates = useMemo(
     () =>
-      templates.reduce<Record<string, Template[]>>((acc, t) => {
-        const key = t.type_nom ?? "Sans catégorie";
+      templates.reduce<Record<string, Template[]>>((acc, tpl) => {
+        const key = tpl.type_nom ?? t("sendMessage.uncategorized");
         if (!acc[key]) acc[key] = [];
-        acc[key].push(t);
+        acc[key].push(tpl);
         return acc;
       }, {}),
     [templates],

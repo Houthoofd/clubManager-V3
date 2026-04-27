@@ -166,6 +166,10 @@
     "actions": {
       "adjust": "Ajuster"
     },
+    "fallback": {
+      "article": "Article #{{id}}",
+      "size": "Taille #{{id}}"
+    },
     "badge": {
       "outOfStock": "Rupture",
       "lowStock": "Stock bas",
@@ -211,7 +215,11 @@
     },
     "actions": {
       "edit": "Modifier",
-      "delete": "Supprimer"
+      "delete": "Supprimer",
+      "editCategory": "Modifier la catégorie",
+      "deleteCategory": "Supprimer la catégorie",
+      "editSize": "Modifier la taille",
+      "deleteSize": "Supprimer la taille"
     }
   },
   "articleModal": {

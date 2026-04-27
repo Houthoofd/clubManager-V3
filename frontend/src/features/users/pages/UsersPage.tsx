@@ -636,11 +636,7 @@ export function UsersPage() {
                   .
                 </p>
                 <p className="mt-1">
-                  Cette action est{" "}
-                  <span className="font-semibold">
-                    {t("deleteWarningIrreversible")}
-                  </span>
-                  . {t("deleteWarningNoAccess")}
+                  {t("modal.delete.warningBody")} {t("deleteWarningNoAccess")}
                 </p>
               </div>
             </div>

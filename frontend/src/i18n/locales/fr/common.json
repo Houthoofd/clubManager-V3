@@ -36,7 +36,9 @@
     "profile": "Profil",
     "logout": "Déconnexion",
     "login": "Connexion",
-    "register": "Inscription"
+    "register": "Inscription",
+    "toggleSidebar": "Ouvrir/fermer le menu",
+    "notifications": "Notifications"
   },
   "footer": {
     "allRightsReserved": "Tous droits réservés",
@@ -46,6 +48,7 @@
   },
   "layout": {
     "clubManager": "ClubManager",
+    "defaultAppName": "ClubManager",
     "notifications": "Notifications"
   },
   "modules": {

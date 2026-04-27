@@ -244,45 +244,48 @@ const CategoryRow = ({
   onDeleteTemplate,
   onToggleTemplate,
   deletingIds,
-}: CategoryRowProps) => (
-  <section className="space-y-3">
-    {/* Category header */}
-    <div className="flex items-center gap-3">
-      <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wider">
-        {type.nom}
-      </h3>
-      {type.description && (
-        <span
-          className="text-xs text-gray-400 truncate max-w-xs"
-          title={type.description}
-        >
-          — {type.description}
+}: CategoryRowProps) => {
+  const { t } = useTranslation("messages");
+  return (
+    <section className="space-y-3">
+      {/* Category header */}
+      <div className="flex items-center gap-3">
+        <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wider">
+          {type.nom}
+        </h3>
+        {type.description && (
+          <span
+            className="text-xs text-gray-400 truncate max-w-xs"
+            title={type.description}
+          >
+            — {type.description}
+          </span>
+        )}
+        <div className="flex-1 h-px bg-gray-200" />
+        <span className="text-xs text-gray-400 flex-shrink-0">
+          {t("templates.count", { count: templates.length })}
         </span>
-      )}
-      <div className="flex-1 h-px bg-gray-200" />
-      <span className="text-xs text-gray-400 flex-shrink-0">
-        {templates.length} template{templates.length !== 1 ? "s" : ""}
-      </span>
-    </div>
+      </div>
 
-    {/* Cards grid */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-      {templates.map((t) => (
-        <TemplateCard
-          key={t.id}
-          template={t}
-          onEdit={() => onEditTemplate(t)}
-          onSend={() => onSendTemplate(t)}
-          onDelete={() => onDeleteTemplate(t.id)}
-          onToggle={() => onToggleTemplate(t.id, !t.actif)}
-          isDeleting={deletingIds.has(t.id)}
-        />
-      ))}
-      {/* Add new card */}
-      <EmptyCategory onNew={onNewTemplate} />
-    </div>
-  </section>
-);
+      {/* Cards grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {templates.map((t) => (
+          <TemplateCard
+            key={t.id}
+            template={t}
+            onEdit={() => onEditTemplate(t)}
+            onSend={() => onSendTemplate(t)}
+            onDelete={() => onDeleteTemplate(t.id)}
+            onToggle={() => onToggleTemplate(t.id, !t.actif)}
+            isDeleting={deletingIds.has(t.id)}
+          />
+        ))}
+        {/* Add new card */}
+        <EmptyCategory onNew={onNewTemplate} />
+      </div>
+    </section>
+  );
+};
 
 // ─── Category Management Panel ────────────────────────────────────────────────
 
@@ -322,13 +325,13 @@ const CategoryPanel = ({
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
             <FolderOpenIcon style={{ fontSize: "16px" }} />
-            Gérer les catégories
+            {t("templates.manageCategories")}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-            aria-label="Fermer"
+            aria-label={t("actions.close")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -351,7 +354,7 @@ const CategoryPanel = ({
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
           {types.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-8">
-              Aucune catégorie pour l'instant.
+              {t("templates.noCategories")}
             </p>
           ) : (
             types.map((type) => (
@@ -382,12 +385,11 @@ const CategoryPanel = ({
                           : "bg-gray-100 text-gray-500",
                       ].join(" ")}
                     >
-                      {type.actif ? "Active" : "Inactive"}
+                      {type.actif ? t("badges.active") : t("badges.inactive")}
                     </span>
                     {type.templates_count !== undefined && (
                       <span className="text-xs text-gray-400">
-                        {type.templates_count} template
-                        {type.templates_count !== 1 ? "s" : ""}
+                        {t("templates.count", { count: type.templates_count })}
                       </span>
                     )}
                   </div>
@@ -447,7 +449,7 @@ const CategoryPanel = ({
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
           >
             <PlusCircleIcon style={{ fontSize: "16px" }} />
-            Nouvelle catégorie
+            {t("actions.newCategory")}
           </button>
         </div>
       </aside>
@@ -547,12 +549,9 @@ export const TemplatesTab = () => {
 
   const handleDeleteTemplate = async (id: number) => {
     const template = templates.find((t) => t.id === id);
-    const name = template?.titre ?? "ce template";
+    const name = template?.titre ?? t("templates.thisTemplate");
 
-    if (
-      !window.confirm(`Supprimer « ${name} » ? Cette action est irréversible.`)
-    )
-      return;
+    if (!window.confirm(t("templates.confirmDelete", { name }))) return;
 
     setDeletingTemplateIds((prev) => new Set(prev).add(id));
     try {
@@ -596,14 +595,9 @@ export const TemplatesTab = () => {
 
   const handleDeleteType = async (id: number) => {
     const type = types.find((t) => t.id === id);
-    const name = type?.nom ?? "cette catégorie";
+    const name = type?.nom ?? t("templates.thisCategory");
 
-    if (
-      !window.confirm(
-        `Supprimer la catégorie « ${name} » ?\n\nAttention : tous les templates de cette catégorie seront également supprimés.`,
-      )
-    )
-      return;
+    if (!window.confirm(t("templates.confirmDeleteType", { name }))) return;
 
     setDeletingTypeIds((prev) => new Set(prev).add(id));
     try {
@@ -616,7 +610,7 @@ export const TemplatesTab = () => {
       const msg =
         err?.response?.data?.message ??
         err?.message ??
-        "Erreur lors de la suppression.";
+        t("errors.deleteFailed");
       toast.error(msg);
     } finally {
       setDeletingTypeIds((prev) => {
@@ -689,8 +683,10 @@ export const TemplatesTab = () => {
           {/* Stats */}
           {!isLoading && (
             <span className="text-xs text-gray-400">
-              {activeTemplates}/{totalTemplates} actif
-              {activeTemplates !== 1 ? "s" : ""}
+              {t("templates.activeCount", {
+                active: activeTemplates,
+                total: totalTemplates,
+              })}
             </span>
           )}
 
@@ -701,7 +697,7 @@ export const TemplatesTab = () => {
             className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-gray-200 hover:border-blue-200"
           >
             <FolderOpenIcon style={{ fontSize: "16px" }} />
-            Gérer les catégories
+            {t("templates.manageCategories")}
           </button>
         </div>
       </div>
@@ -718,7 +714,7 @@ export const TemplatesTab = () => {
             }}
             className="text-xs text-red-600 underline hover:no-underline ml-3 flex-shrink-0"
           >
-            Réessayer
+            {t("actions.retry")}
           </button>
         </div>
       )}
@@ -746,11 +742,10 @@ export const TemplatesTab = () => {
               <PficonTemplateIcon />
             </div>
             <p className="text-base font-medium text-gray-500 mb-2">
-              Aucune catégorie de templates
+              {t("templates.emptyCategoriesTitle")}
             </p>
             <p className="text-sm text-center max-w-sm mb-6">
-              Commencez par créer une catégorie (ex : «&nbsp;Bienvenue&nbsp;»,
-              «&nbsp;Cours annulé&nbsp;»…) puis ajoutez vos templates.
+              {t("templates.emptyCategoriesDescription")}
             </p>
             <button
               type="button"
@@ -762,7 +757,7 @@ export const TemplatesTab = () => {
               className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
             >
               <FolderOpenIcon style={{ fontSize: "16px" }} />
-              Créer une première catégorie
+              {t("templates.createFirstCategory")}
             </button>
           </div>
         ) : filteredTypes.length === 0 ? (
@@ -772,7 +767,7 @@ export const TemplatesTab = () => {
               <SearchIcon />
             </div>
             <p className="text-sm font-medium text-gray-500">
-              Aucun résultat pour ce filtre.
+              {t("templates.noFilterResults")}
             </p>
           </div>
         ) : (

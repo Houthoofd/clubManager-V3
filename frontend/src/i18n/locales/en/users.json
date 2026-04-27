@@ -61,7 +61,8 @@
       "title": "Delete user",
       "cancel": "Cancel",
       "confirm": "Delete",
-      "deleting": "Deleting…"
+      "deleting": "Deleting…",
+      "warningBody": "This action is irreversible."
     }
   },
   "notify": {
@@ -142,6 +143,7 @@
     "cancel": "Cancel",
     "send": "Send",
     "sending": "Sending...",
-    "messageSent": "Message sent to {{name}}"
+    "messageSent": "Message sent to {{name}}",
+    "uncategorized": "No category"
   }
 }

@@ -97,7 +97,12 @@
     "distributionByGrade": "Répartition par Grade",
     "distributionByGender": "Répartition par Genre",
     "membershipTypes": "Types d'adhésion",
-    "retention": "Taux de rétention"
+    "retention": "Taux de rétention",
+    "loadingError": "Une erreur est survenue lors du chargement des statistiques des membres.",
+    "noDataDescription": "Les statistiques des membres ne sont pas disponibles pour le moment.",
+    "ofTotal": "du total",
+    "growthRateLabel": "taux de croissance",
+    "currentMonth": "Sur le mois en cours"
   },
   "courses": {
     "title": "Statistiques Cours",
@@ -115,7 +120,18 @@
     "distributionByType": "Répartition par Type de Cours",
     "topProfessors": "Top 5 Professeurs",
     "popularCourses": "Cours les Plus Populaires",
-    "attendanceTrend": "Tendance de fréquentation"
+    "attendanceTrend": "Tendance de fréquentation",
+    "loadingError": "Une erreur est survenue lors du chargement des statistiques des cours.",
+    "noDataDescription": "Les statistiques des cours ne sont pas disponibles pour le moment.",
+    "attendanceShort": "présence",
+    "studentsShort_one": "{{count}} élève",
+    "studentsShort_other": "{{count}} élèves",
+    "table": {
+      "name": "Cours",
+      "schedule": "Horaire",
+      "enrolled": "Inscrits",
+      "attendanceRate": "Taux Présence"
+    }
   },
   "finance": {
     "title": "Statistiques Financières",
@@ -129,7 +145,36 @@
     "paymentRate": "Taux de paiement",
     "revenueBySource": "Revenus par source",
     "paymentMethods": "Méthodes de paiement",
-    "monthlyRevenue": "Revenus mensuels"
+    "monthlyRevenue": "Revenus mensuels",
+    "severity": {
+      "critical": "Critique",
+      "urgent": "Urgent",
+      "late": "En retard"
+    },
+    "loadingError": "Une erreur est survenue lors du chargement des statistiques financières.",
+    "noDataDescription": "Les statistiques financières ne sont pas disponibles pour le moment.",
+    "latePaymentsAlertTitle_one": "{{count}} paiement en retard",
+    "latePaymentsAlertTitle_other": "{{count}} paiements en retard",
+    "latePaymentsTotalAmount": "Montant total en retard :",
+    "latePaymentsHint": "Consultez la liste des paiements en retard ci-dessous pour effectuer le suivi.",
+    "successRate": "de taux de succès",
+    "amountPending": "en attente",
+    "toRecover": "à recouvrer",
+    "paymentRateDescription": "Paiements valides / Total",
+    "revenueByMethod": "Revenus par Méthode de Paiement",
+    "noPaymentMethodData": "Aucune donnée de méthode de paiement disponible",
+    "revenueByPlan": "Revenus par Plan d'Abonnement",
+    "noSubscriptionPlanData": "Aucune donnée de plan d'abonnement disponible",
+    "latePaymentsTitle": "Paiements en Retard",
+    "lateCount_one": "{{count}} en retard",
+    "lateCount_other": "{{count}} en retard",
+    "table": {
+      "amount": "Montant",
+      "dueDate": "Date d'échéance",
+      "delay": "Retard",
+      "daysLate_one": "{{count}} jour",
+      "daysLate_other": "{{count}} jours"
+    }
   },
   "store": {
     "title": "Statistiques Magasin",

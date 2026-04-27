@@ -4,6 +4,7 @@
  */
 
 import { useTranslation } from "react-i18next";
+import React from "react";
 import type { MessageWithDetails } from "../api/messagingApi";
 import {
   ArrowLeftIcon,
@@ -22,25 +23,6 @@ interface MessageDetailProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/**
- * Formate une date ISO en "15 janvier 2025 à 14h30"
- */
-function formatFullDate(dateStr: string): string {
-  try {
-    const date = new Date(dateStr);
-    const dateFormatted = date.toLocaleDateString("fr-FR", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    return `${dateFormatted} à ${hours}h${minutes}`;
-  } catch {
-    return dateStr;
-  }
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export const MessageDetail: React.FC<MessageDetailProps> = ({
@@ -48,7 +30,26 @@ export const MessageDetail: React.FC<MessageDetailProps> = ({
   onDelete,
   onBack,
 }) => {
-  const { t } = useTranslation("messages");
+  const { t, i18n } = useTranslation("messages");
+
+  const formatFullDate = (dateStr: string): string => {
+    try {
+      const date = new Date(dateStr);
+      const locale = i18n.language === "en" ? "en-GB" : "fr-FR";
+      const dateFormatted = date.toLocaleDateString(locale, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      return i18n.language === "en"
+        ? `${dateFormatted} at ${hours}:${minutes}`
+        : `${dateFormatted} à ${hours}h${minutes}`;
+    } catch {
+      return dateStr;
+    }
+  };
 
   const handleDelete = () => {
     const confirmed = window.confirm(t("detail.deleteConfirm"));

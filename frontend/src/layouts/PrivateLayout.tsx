@@ -328,14 +328,14 @@ const PrivateLayout: React.FC = () => {
               >
                 {getByKey(INFORMATION_KEYS.NAVBAR_NAME)?.valeur ||
                   getByKey(INFORMATION_KEYS.CLUB_NAME)?.valeur ||
-                  "ClubManager"}
+                  t("layout.defaultAppName")}
               </h1>
             </Link>
           )}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            aria-label="Toggle sidebar"
+            aria-label={t("navigation.toggleSidebar")}
           >
             {isSidebarOpen ? (
               <ChevronLeftIcon className="h-5 w-5" />
@@ -420,7 +420,7 @@ const PrivateLayout: React.FC = () => {
           <div className="flex items-center">
             <h2 className="text-xl font-semibold text-gray-800">
               {visibleMenuItems.find((item) => isActive(item.path))?.name ||
-                "Dashboard"}
+                t("navigation.dashboard")}
             </h2>
           </div>
 
@@ -428,7 +428,7 @@ const PrivateLayout: React.FC = () => {
             {/* Notifications */}
             <button
               className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              aria-label="Notifications"
+              aria-label={t("navigation.notifications")}
             >
               <BellIcon className="h-5 w-5 text-gray-600" />
               <span

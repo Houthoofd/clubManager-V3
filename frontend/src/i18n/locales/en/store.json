@@ -166,6 +166,10 @@
     "actions": {
       "adjust": "Adjust"
     },
+    "fallback": {
+      "article": "Article #{{id}}",
+      "size": "Size #{{id}}"
+    },
     "badge": {
       "outOfStock": "Out of stock",
       "lowStock": "Low stock",
@@ -211,7 +215,11 @@
     },
     "actions": {
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "editCategory": "Edit category",
+      "deleteCategory": "Delete category",
+      "editSize": "Edit size",
+      "deleteSize": "Delete size"
     }
   },
   "articleModal": {

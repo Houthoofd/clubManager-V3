@@ -166,10 +166,14 @@ export function StocksTab() {
                       className="hover:bg-gray-50 transition-colors"
                     >
                       <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                        {stock.article_nom ?? `Article #${stock.article_id}`}
+                        {stock.article_nom ??
+                          t("stocks.fallback.article", {
+                            id: stock.article_id,
+                          })}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
-                        {stock.taille_nom ?? `Taille #${stock.taille_id}`}
+                        {stock.taille_nom ??
+                          t("stocks.fallback.size", { id: stock.taille_id })}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
                         {stock.quantite}

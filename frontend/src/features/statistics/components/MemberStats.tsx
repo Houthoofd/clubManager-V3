@@ -189,8 +189,10 @@ function DistributionChart({
   title,
   data,
   isLoading,
-  noDataText = "Aucune donnée disponible",
+  noDataText,
 }: DistributionChartProps) {
+  const { t } = useTranslation("statistics");
+  const resolvedNoDataText = noDataText ?? t("empty.noData");
   const maxValue = Math.max(...data.map((d) => d.value), 1);
 
   if (isLoading) {
@@ -215,7 +217,7 @@ function DistributionChart({
         <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
         <div className="flex flex-col items-center justify-center py-8">
           <ExclamationTriangleIcon className="h-12 w-12 text-gray-400 mb-2" />
-          <p className="text-sm text-gray-600">{noDataText}</p>
+          <p className="text-sm text-gray-600">{resolvedNoDataText}</p>
         </div>
       </div>
     );
@@ -278,12 +280,9 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
           <ExclamationTriangleIcon className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
           <div>
             <h3 className="text-lg font-semibold text-red-900 mb-1">
-              Erreur de chargement
+              {t("errors.loadingError")}
             </h3>
-            <p className="text-sm text-red-700">
-              Une erreur est survenue lors du chargement des statistiques des
-              membres.
-            </p>
+            <p className="text-sm text-red-700">{t("members.loadingError")}</p>
             {error.message && (
               <p className="text-sm text-red-600 mt-2 font-mono">
                 {error.message}
@@ -302,10 +301,10 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
         <div className="flex flex-col items-center justify-center">
           <UsersIcon className="h-16 w-16 text-gray-400 mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            Aucune donnée disponible
+            {t("empty.noData")}
           </h3>
           <p className="text-sm text-gray-600">
-            Les statistiques des membres ne sont pas disponibles pour le moment.
+            {t("members.noDataDescription")}
           </p>
         </div>
       </div>
@@ -362,7 +361,7 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
                   (data.overview.membres_actifs / data.overview.total_membres) *
                     100,
                   1,
-                )} du total`
+                )} ${t("members.ofTotal")}`
               : undefined
           }
         />
@@ -387,7 +386,7 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
                     data.overview.total_membres) *
                     100,
                   1,
-                )} du total`
+                )} ${t("members.ofTotal")}`
               : undefined
           }
         />
@@ -397,7 +396,7 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
           value={data?.overview.nouveaux_membres_mois || 0}
           valueFormat="number"
           trend={data?.overview.taux_croissance}
-          trendLabel="taux de croissance"
+          trendLabel={t("members.growthRateLabel")}
           icon={UserPlusIcon}
           variant={
             data && data.overview.taux_croissance > 0 ? "success" : "default"
@@ -431,7 +430,7 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
           }
           isLoading={isLoading}
           isCompact={isCompact}
-          description="Sur le mois en cours"
+          description={t("members.currentMonth")}
         />
       </div>
 

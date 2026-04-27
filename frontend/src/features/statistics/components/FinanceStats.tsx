@@ -96,13 +96,23 @@ const PLAN_COLORS = [
  */
 const getLateSeverity = (
   daysLate: number,
+  t: (key: string) => string,
 ): { label: string; color: string } => {
   if (daysLate >= 60) {
-    return { label: "Critique", color: "bg-red-100 text-red-800" };
+    return {
+      label: t("finance.severity.critical"),
+      color: "bg-red-100 text-red-800",
+    };
   } else if (daysLate >= 30) {
-    return { label: "Urgent", color: "bg-orange-100 text-orange-800" };
+    return {
+      label: t("finance.severity.urgent"),
+      color: "bg-orange-100 text-orange-800",
+    };
   } else {
-    return { label: "En retard", color: "bg-purple-100 text-purple-800" };
+    return {
+      label: t("finance.severity.late"),
+      color: "bg-purple-100 text-purple-800",
+    };
   }
 };
 
@@ -315,11 +325,10 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
       <div className="flex flex-col items-center justify-center py-12">
         <WarningIcon className="h-16 w-16 text-red-500 mb-4" />
         <h2 className="text-xl font-semibold text-gray-900 mb-2">
-          Erreur de chargement
+          {t("errors.loadingError")}
         </h2>
         <p className="text-sm text-gray-600 text-center">
-          Une erreur est survenue lors du chargement des statistiques
-          financières.
+          {t("finance.loadingError")}
           <br />
           {error.message}
         </p>
@@ -333,10 +342,10 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
       <div className="flex flex-col items-center justify-center py-12">
         <DollarSignIcon className="h-16 w-16 text-gray-400 mb-4" />
         <h2 className="text-xl font-semibold text-gray-900 mb-2">
-          Aucune donnée disponible
+          {t("empty.noData")}
         </h2>
         <p className="text-sm text-gray-600">
-          Les statistiques financières ne sont pas disponibles pour le moment.
+          {t("finance.noDataDescription")}
         </p>
       </div>
     );
@@ -350,19 +359,18 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
       {hasLatePayments && showLatePaymentsAlert && (
         <Alert
           variant="warning"
-          title={`${data.late_payments.length} paiement(s) en retard`}
+          title={t("finance.latePaymentsAlertTitle", {
+            count: data.late_payments.length,
+          })}
           onClose={() => setShowLatePaymentsAlert(false)}
         >
           <p>
-            Montant total en retard:{" "}
+            {t("finance.latePaymentsTotalAmount")}{" "}
             <strong>
               {formatCurrency(data.overview.montant_echeances_retard)}
             </strong>
           </p>
-          <p className="mt-2">
-            Consultez la liste des paiements en retard ci-dessous pour effectuer
-            le suivi.
-          </p>
+          <p className="mt-2">{t("finance.latePaymentsHint")}</p>
         </Alert>
       )}
 
@@ -388,7 +396,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
           isCompact={isCompact}
           description={
             data
-              ? `${formatPercentage(data.overview.taux_paiement, 1)} de taux de succès`
+              ? `${formatPercentage(data.overview.taux_paiement, 1)} ${t("finance.successRate")}`
               : undefined
           }
         />
@@ -407,7 +415,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
           isCompact={isCompact}
           description={
             data
-              ? `${formatCurrency(data.overview.montant_en_attente)} en attente`
+              ? `${formatCurrency(data.overview.montant_en_attente)} ${t("finance.amountPending")}`
               : undefined
           }
         />
@@ -443,7 +451,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
           isCompact={isCompact}
           description={
             data && data.overview.montant_echeances_retard > 0
-              ? `${formatCurrency(data.overview.montant_echeances_retard)} à recouvrer`
+              ? `${formatCurrency(data.overview.montant_echeances_retard)} ${t("finance.toRecover")}`
               : t("finance.noLateInstallments")
           }
         />
@@ -462,7 +470,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
           }
           isLoading={isLoading}
           isCompact={isCompact}
-          description="Paiements valides / Total"
+          description={t("finance.paymentRateDescription")}
         />
       </div>
 
@@ -471,7 +479,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
         {/* Payment Method Distribution */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Revenus par Méthode de Paiement
+            {t("finance.revenueByMethod")}
           </h3>
           {isLoading ? (
             <div className="space-y-4">
@@ -507,7 +515,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
             </div>
           ) : (
             <p className="text-sm text-gray-600 text-center py-8">
-              Aucune donnée de méthode de paiement disponible
+              {t("finance.noPaymentMethodData")}
             </p>
           )}
         </div>
@@ -515,7 +523,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
         {/* Subscription Plan Distribution */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Revenus par Plan d'Abonnement
+            {t("finance.revenueByPlan")}
           </h3>
           {isLoading ? (
             <div className="space-y-4">
@@ -551,7 +559,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
             </div>
           ) : (
             <p className="text-sm text-gray-600 text-center py-8">
-              Aucune donnée de plan d'abonnement disponible
+              {t("finance.noSubscriptionPlanData")}
             </p>
           )}
         </div>
@@ -562,11 +570,11 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
-              Paiements en Retard
+              {t("finance.latePaymentsTitle")}
             </h3>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
               <WarningIcon className="h-4 w-4 mr-1" />
-              {data.late_payments.length} en retard
+              {t("finance.lateCount", { count: data.late_payments.length })}
             </span>
           </div>
 
@@ -579,7 +587,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
           ) : (
             <div className="space-y-3">
               {data.late_payments.map((payment) => {
-                const severity = getLateSeverity(payment.jours_retard);
+                const severity = getLateSeverity(payment.jours_retard, t);
                 return (
                   <div
                     key={payment.echeance_id}
@@ -605,7 +613,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
 
                       <div>
                         <div className="text-xs text-gray-600 mb-1">
-                          Montant
+                          {t("finance.table.amount")}
                         </div>
                         <div className="font-semibold text-gray-900">
                           {formatCurrency(payment.montant)}
@@ -614,7 +622,7 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
 
                       <div>
                         <div className="text-xs text-gray-600 mb-1">
-                          Date d'échéance
+                          {t("finance.table.dueDate")}
                         </div>
                         <div className="font-semibold text-gray-900">
                           {formatDate(payment.date_echeance)}
@@ -625,10 +633,13 @@ export const FinanceStats: React.FC<FinanceStatsProps> = ({
                       </div>
 
                       <div>
-                        <div className="text-xs text-gray-600 mb-1">Retard</div>
+                        <div className="text-xs text-gray-600 mb-1">
+                          {t("finance.table.delay")}
+                        </div>
                         <div className="font-semibold text-red-600">
-                          {payment.jours_retard} jour
-                          {payment.jours_retard > 1 ? "s" : ""}
+                          {t("finance.table.daysLate", {
+                            count: payment.jours_retard,
+                          })}
                         </div>
                       </div>
                     </div>

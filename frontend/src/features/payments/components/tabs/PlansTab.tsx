@@ -156,7 +156,7 @@ export function PlansTab({
                       {formatCurrency(plan.prix)}
                     </span>
                     <span className="text-sm text-gray-500">
-                      / {plan.duree_mois} mois
+                      / {plan.duree_mois} {t("tabs.months")}
                     </span>
                   </div>
 

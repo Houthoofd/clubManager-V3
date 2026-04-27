@@ -60,10 +60,10 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
 
   const groupedPickerTemplates = useMemo(
     () =>
-      pickerTemplates.reduce<Record<string, Template[]>>((acc, t) => {
-        const key = t.type_nom ?? "Sans catégorie";
+      pickerTemplates.reduce<Record<string, Template[]>>((acc, tpl) => {
+        const key = tpl.type_nom ?? t("compose.noCategory");
         if (!acc[key]) acc[key] = [];
-        acc[key].push(t);
+        acc[key].push(tpl);
         return acc;
       }, {}),
     [pickerTemplates],
@@ -387,7 +387,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
           <FormField
             id="sujet"
             label={t("compose.subject")}
-            helpText="Optionnel"
+            helpText={t("compose.optional")}
           >
             <Input
               id="sujet"
@@ -458,7 +458,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
           onClick={onClose}
           disabled={isSending}
         >
-          Annuler
+          {t("actions.cancel")}
         </Button>
 
         <Button

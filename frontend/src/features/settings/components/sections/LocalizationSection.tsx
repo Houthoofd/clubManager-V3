@@ -70,7 +70,7 @@ export function LocalizationSection({
       await changeLanguage(newLang);
       toast.success(t("messages.languageChanged"));
     } catch (error: any) {
-      toast.error(error.message || "Erreur lors du changement de langue");
+      toast.error(error.message || t("messages.languageChangeError"));
       // Restaurer l'ancienne valeur en cas d'erreur
       setLocalisationForm({
         ...localisationForm,
@@ -105,8 +105,7 @@ export function LocalizationSection({
             disabled={isChangingLanguage}
           />
           <p className="mt-2 text-sm text-gray-500">
-            Le changement de langue est appliqué immédiatement et sauvegardé
-            dans votre profil.
+            {t("localization.languageChangeInfo")}
           </p>
         </div>
 
@@ -121,9 +120,18 @@ export function LocalizationSection({
             })
           }
           options={[
-            { value: "DD/MM/YYYY", label: "JJ/MM/AAAA" },
-            { value: "MM/DD/YYYY", label: "MM/JJ/AAAA" },
-            { value: "YYYY-MM-DD", label: "AAAA-MM-JJ" },
+            {
+              value: "DD/MM/YYYY",
+              label: t("localization.dateFormats.ddmmyyyy"),
+            },
+            {
+              value: "MM/DD/YYYY",
+              label: t("localization.dateFormats.mmddyyyy"),
+            },
+            {
+              value: "YYYY-MM-DD",
+              label: t("localization.dateFormats.yyyymmdd"),
+            },
           ]}
         />
 
@@ -138,8 +146,8 @@ export function LocalizationSection({
             })
           }
           options={[
-            { value: "24h", label: "24 heures" },
-            { value: "12h", label: "12 heures (AM/PM)" },
+            { value: "24h", label: t("localization.timeFormats.h24") },
+            { value: "12h", label: t("localization.timeFormats.h12") },
           ]}
         />
 
@@ -154,24 +162,33 @@ export function LocalizationSection({
             })
           }
           options={[
-            { value: "Europe/Paris", label: "Europe/Paris (GMT+1)" },
-            { value: "Europe/London", label: "Europe/London (GMT+0)" },
+            {
+              value: "Europe/Paris",
+              label: t("localization.timezones.europeParis"),
+            },
+            {
+              value: "Europe/London",
+              label: t("localization.timezones.europeLondon"),
+            },
             {
               value: "America/New_York",
-              label: "America/New_York (GMT-5)",
+              label: t("localization.timezones.americaNewYork"),
             },
             {
               value: "America/Los_Angeles",
-              label: "America/Los_Angeles (GMT-8)",
+              label: t("localization.timezones.americaLosAngeles"),
             },
-            { value: "Asia/Tokyo", label: "Asia/Tokyo (GMT+9)" },
+            {
+              value: "Asia/Tokyo",
+              label: t("localization.timezones.asiaTokyo"),
+            },
             {
               value: "Australia/Sydney",
-              label: "Australia/Sydney (GMT+10)",
+              label: t("localization.timezones.australiaSydney"),
             },
             {
               value: "Pacific/Auckland",
-              label: "Pacific/Auckland (GMT+12)",
+              label: t("localization.timezones.pacificAuckland"),
             },
           ]}
         />

@@ -150,7 +150,26 @@
     "monday": "Lundi",
     "numberFormat": "Format des nombres",
     "decimalSeparator": "Séparateur décimal",
-    "thousandSeparator": "Séparateur de milliers"
+    "thousandSeparator": "Séparateur de milliers",
+    "languageChangeInfo": "Le changement de langue est appliqué immédiatement et sauvegardé dans votre profil.",
+    "dateFormats": {
+      "ddmmyyyy": "JJ/MM/AAAA",
+      "mmddyyyy": "MM/JJ/AAAA",
+      "yyyymmdd": "AAAA-MM-JJ"
+    },
+    "timeFormats": {
+      "h24": "24 heures",
+      "h12": "12 heures (AM/PM)"
+    },
+    "timezones": {
+      "europeParis": "Europe/Paris (GMT+1)",
+      "europeLondon": "Europe/London (GMT+0)",
+      "americaNewYork": "America/New_York (GMT-5)",
+      "americaLosAngeles": "America/Los_Angeles (GMT-8)",
+      "asiaTokyo": "Asia/Tokyo (GMT+9)",
+      "australiaSydney": "Australia/Sydney (GMT+10)",
+      "pacificAuckland": "Pacific/Auckland (GMT+12)"
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -186,7 +205,8 @@
     "uploadError": "Erreur lors du chargement de l'image",
     "invalidFormat": "Format invalide",
     "unsavedChanges": "Vous avez des modifications non enregistrées",
-    "languageChanged": "Langue modifiée avec succès"
+    "languageChanged": "Langue modifiée avec succès",
+    "languageChangeError": "Erreur lors du changement de langue"
   },
   "actions": {
     "save": "Enregistrer les modifications",

@@ -156,16 +156,20 @@ export function ConfigurationTab() {
                             {/* MIGRATION : IconButton pour éditer */}
                             <IconButton
                               icon={<PencilIcon className="h-4 w-4" />}
-                              ariaLabel="Modifier la catégorie"
+                              ariaLabel={t(
+                                "configuration.actions.editCategory",
+                              )}
                               variant="ghost"
                               size="sm"
                               onClick={() => store.openCategoryModal(category)}
-                              tooltip="Modifier"
+                              tooltip={t("configuration.actions.edit")}
                             />
                             {/* MIGRATION : IconButton pour supprimer */}
                             <IconButton
                               icon={<TrashIcon className="h-4 w-4" />}
-                              ariaLabel="Supprimer la catégorie"
+                              ariaLabel={t(
+                                "configuration.actions.deleteCategory",
+                              )}
                               variant="danger"
                               size="sm"
                               onClick={() =>
@@ -175,7 +179,7 @@ export function ConfigurationTab() {
                                   categoryNom: category.nom,
                                 })
                               }
-                              tooltip="Supprimer"
+                              tooltip={t("configuration.actions.delete")}
                             />
                           </div>
                         </td>
@@ -270,16 +274,16 @@ export function ConfigurationTab() {
                             {/* MIGRATION : IconButton pour éditer */}
                             <IconButton
                               icon={<PencilIcon className="h-4 w-4" />}
-                              ariaLabel="Modifier la taille"
+                              ariaLabel={t("configuration.actions.editSize")}
                               variant="ghost"
                               size="sm"
                               onClick={() => store.openSizeModal(size)}
-                              tooltip="Modifier"
+                              tooltip={t("configuration.actions.edit")}
                             />
                             {/* MIGRATION : IconButton pour supprimer */}
                             <IconButton
                               icon={<TrashIcon className="h-4 w-4" />}
-                              ariaLabel="Supprimer la taille"
+                              ariaLabel={t("configuration.actions.deleteSize")}
                               variant="danger"
                               size="sm"
                               onClick={() =>
@@ -289,7 +293,7 @@ export function ConfigurationTab() {
                                   sizeNom: size.nom,
                                 })
                               }
-                              tooltip="Supprimer"
+                              tooltip={t("configuration.actions.delete")}
                             />
                           </div>
                         </td>

@@ -197,8 +197,10 @@ function DistributionChart({
   title,
   data,
   isLoading,
-  noDataText = "Aucune donnée disponible",
+  noDataText,
 }: DistributionChartProps) {
+  const { t } = useTranslation("statistics");
+  const resolvedNoDataText = noDataText ?? t("empty.noData");
   const maxValue = Math.max(...data.map((d) => d.value), 1);
 
   if (isLoading) {
@@ -223,7 +225,7 @@ function DistributionChart({
         <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
         <div className="flex flex-col items-center justify-center py-8">
           <ExclamationTriangleIcon className="h-12 w-12 text-gray-400 mb-2" />
-          <p className="text-sm text-gray-600">{noDataText}</p>
+          <p className="text-sm text-gray-600">{resolvedNoDataText}</p>
         </div>
       </div>
     );
@@ -288,12 +290,9 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
           <ExclamationTriangleIcon className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
           <div>
             <h3 className="text-lg font-semibold text-red-900 mb-1">
-              Erreur de chargement
+              {t("errors.loadingError")}
             </h3>
-            <p className="text-sm text-red-700">
-              Une erreur est survenue lors du chargement des statistiques des
-              cours.
-            </p>
+            <p className="text-sm text-red-700">{t("courses.loadingError")}</p>
             {error.message && (
               <p className="text-sm text-red-600 mt-2 font-mono">
                 {error.message}
@@ -312,10 +311,10 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
         <div className="flex flex-col items-center justify-center">
           <CalendarIcon className="h-16 w-16 text-gray-400 mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            Aucune donnée disponible
+            {t("empty.noData")}
           </h3>
           <p className="text-sm text-gray-600">
-            Les statistiques des cours ne sont pas disponibles pour le moment.
+            {t("courses.noDataDescription")}
           </p>
         </div>
       </div>
@@ -328,7 +327,7 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
       label: item.type_nom,
       value: item.count,
       percentage: item.pourcentage,
-      extra: `${formatPercentage(item.taux_presence, 0)} présence`,
+      extra: `${formatPercentage(item.taux_presence, 0)} ${t("courses.attendanceShort")}`,
     })) || [];
 
   const professorDistribution =
@@ -336,7 +335,7 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
       label: item.professeur_nom,
       value: item.nombre_cours,
       percentage: 0,
-      extra: `${item.total_inscrits} élèves`,
+      extra: t("courses.studentsShort", { count: item.total_inscrits }),
     })) || [];
 
   return (
@@ -434,16 +433,16 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cours
+                    {t("courses.table.name")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Horaire
+                    {t("courses.table.schedule")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Inscrits
+                    {t("courses.table.enrolled")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Taux Présence
+                    {t("courses.table.attendanceRate")}
                   </th>
                 </tr>
               </thead>

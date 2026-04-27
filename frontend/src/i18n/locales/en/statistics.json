@@ -97,7 +97,12 @@
     "distributionByGrade": "Distribution by Grade",
     "distributionByGender": "Distribution by Gender",
     "membershipTypes": "Membership types",
-    "retention": "Retention rate"
+    "retention": "Retention rate",
+    "loadingError": "An error occurred while loading member statistics.",
+    "noDataDescription": "Member statistics are not available at the moment.",
+    "ofTotal": "of total",
+    "growthRateLabel": "growth rate",
+    "currentMonth": "Over the current month"
   },
   "courses": {
     "title": "Course Statistics",
@@ -115,7 +120,18 @@
     "distributionByType": "Distribution by Course Type",
     "topProfessors": "Top 5 Professors",
     "popularCourses": "Most Popular Courses",
-    "attendanceTrend": "Attendance trend"
+    "attendanceTrend": "Attendance trend",
+    "loadingError": "An error occurred while loading course statistics.",
+    "noDataDescription": "Course statistics are not available at the moment.",
+    "attendanceShort": "attendance",
+    "studentsShort_one": "{{count}} student",
+    "studentsShort_other": "{{count}} students",
+    "table": {
+      "name": "Course",
+      "schedule": "Schedule",
+      "enrolled": "Enrolled",
+      "attendanceRate": "Attendance Rate"
+    }
   },
   "finance": {
     "title": "Finance Statistics",
@@ -129,7 +145,36 @@
     "paymentRate": "Payment rate",
     "revenueBySource": "Revenue by source",
     "paymentMethods": "Payment methods",
-    "monthlyRevenue": "Monthly revenue"
+    "monthlyRevenue": "Monthly revenue",
+    "severity": {
+      "critical": "Critical",
+      "urgent": "Urgent",
+      "late": "Late"
+    },
+    "loadingError": "An error occurred while loading financial statistics.",
+    "noDataDescription": "Financial statistics are not available at the moment.",
+    "latePaymentsAlertTitle_one": "{{count}} late payment",
+    "latePaymentsAlertTitle_other": "{{count}} late payments",
+    "latePaymentsTotalAmount": "Total overdue amount:",
+    "latePaymentsHint": "Check the list of late payments below to follow up.",
+    "successRate": "success rate",
+    "amountPending": "pending",
+    "toRecover": "to recover",
+    "paymentRateDescription": "Valid payments / Total",
+    "revenueByMethod": "Revenue by Payment Method",
+    "noPaymentMethodData": "No payment method data available",
+    "revenueByPlan": "Revenue by Subscription Plan",
+    "noSubscriptionPlanData": "No subscription plan data available",
+    "latePaymentsTitle": "Late Payments",
+    "lateCount_one": "{{count}} late",
+    "lateCount_other": "{{count}} late",
+    "table": {
+      "amount": "Amount",
+      "dueDate": "Due Date",
+      "delay": "Delay",
+      "daysLate_one": "{{count}} day",
+      "daysLate_other": "{{count}} days"
+    }
   },
   "store": {
     "title": "Store Statistics",

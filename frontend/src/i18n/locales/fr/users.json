@@ -61,7 +61,8 @@
       "title": "Supprimer l'utilisateur",
       "cancel": "Annuler",
       "confirm": "Supprimer",
-      "deleting": "Suppression…"
+      "deleting": "Suppression…",
+      "warningBody": "Cette action est irréversible."
     }
   },
   "notify": {
@@ -142,6 +143,7 @@
     "cancel": "Annuler",
     "send": "Envoyer",
     "sending": "Envoi en cours...",
-    "messageSent": "Message envoyé à {{name}}"
+    "messageSent": "Message envoyé à {{name}}",
+    "uncategorized": "Sans catégorie"
   }
 }
