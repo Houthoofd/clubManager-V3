@@ -32,13 +32,14 @@ import { EmailVerificationPage } from "./features/auth/pages/EmailVerificationPa
 import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 import { FamilyPage } from "./features/families/pages";
-import { UsersPage } from "./features/users/pages";
+import { UsersPage, ProfilePage } from "./features/users/pages";
 import { MessagesPage } from "./features/messaging/pages";
 import { SettingsPage } from "./features/settings/pages";
 import { PaymentsPage } from "./features/payments/pages";
 import { CoursesPage } from "./features/courses/pages";
 import { StorePage } from "./features/store/pages";
 import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
+import { NotificationsPage } from "./features/notifications/pages";
 
 // Dashboard (placeholder)
 const DashboardPage = () => (
@@ -48,12 +49,6 @@ const DashboardPage = () => (
       Bienvenue sur ClubManager V3 - Votre application de gestion de club
       sportif.
     </p>
-  </div>
-);
-
-const ProfilePage = () => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
   </div>
 );
 
@@ -211,6 +206,7 @@ function App() {
             />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/family" element={<FamilyPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route
               path="/settings"
               element={
