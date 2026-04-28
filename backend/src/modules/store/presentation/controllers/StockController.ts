@@ -227,4 +227,48 @@ export class StockController {
       res.status(500).json({ success: false, message: msg });
     }
   }
+
+  /**
+   * GET /api/store/stocks/movements
+   * Retourne l'historique paginé des mouvements de stock
+   * Query params optionnels: article_id, type_mouvement, limit, page
+   */
+  async getMovements(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const article_id = req.query.article_id
+        ? Number(req.query.article_id)
+        : undefined;
+      const type_mouvement = req.query.type_mouvement as string | undefined;
+      const limit = req.query.limit
+        ? Math.min(Number(req.query.limit), 200)
+        : 50;
+      const page = req.query.page ? Number(req.query.page) : 1;
+      const offset = (page - 1) * limit;
+
+      const result = await repo.findMovements({
+        article_id,
+        type_mouvement,
+        limit,
+        offset,
+      });
+
+      res.json({
+        success: true,
+        message: "Mouvements de stock récupérés",
+        data: {
+          movements: result.movements,
+          pagination: {
+            total: result.total,
+            page,
+            limit,
+            totalPages: Math.ceil(result.total / limit),
+          },
+        },
+      });
+    } catch (error: unknown) {
+      console.error("[StockController.getMovements]", error);
+      const msg = error instanceof Error ? error.message : "Erreur interne";
+      res.status(500).json({ success: false, message: msg });
+    }
+  }
 }

@@ -42,13 +42,37 @@ export interface IStockRepository {
   findAll(articleId?: number): Promise<StockRow[]>;
   findById(id: number): Promise<StockRow | null>;
   findByArticleId(articleId: number): Promise<StockRow[]>;
-  findByArticleAndSize(articleId: number, tailleId: number): Promise<StockRow | null>;
+  findByArticleAndSize(
+    articleId: number,
+    tailleId: number,
+  ): Promise<StockRow | null>;
   findLowStock(): Promise<StockRow[]>;
-  upsert(articleId: number, tailleId: number, quantite: number, quantiteMinimum?: number): Promise<number>;
+  upsert(
+    articleId: number,
+    tailleId: number,
+    quantite: number,
+    quantiteMinimum?: number,
+  ): Promise<number>;
   update(id: number, data: UpdateStockInput): Promise<void>;
-  adjustQuantity(id: number, delta: number, motif: string, userId: number | null, commandeId?: number | null): Promise<void>;
-  decreaseForOrder(items: { article_id: number; taille_id: number; quantite: number }[], commandeId: number, userId: number): Promise<void>;
+  adjustQuantity(
+    id: number,
+    delta: number,
+    motif: string,
+    userId: number | null,
+    commandeId?: number | null,
+  ): Promise<void>;
+  decreaseForOrder(
+    items: { article_id: number; taille_id: number; quantite: number }[],
+    commandeId: number,
+    userId: number,
+  ): Promise<void>;
   restoreForCancellation(commandeId: number, userId: number): Promise<void>;
+  findMovements(options?: {
+    article_id?: number;
+    type_mouvement?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ movements: any[]; total: number }>;
 }
 
 // ==================== DB ROW INTERFACES ====================
@@ -156,7 +180,10 @@ export class MySQLStockRepository implements IStockRepository {
   /**
    * Récupère un stock par article_id et taille_id
    */
-  async findByArticleAndSize(articleId: number, tailleId: number): Promise<StockRow | null> {
+  async findByArticleAndSize(
+    articleId: number,
+    tailleId: number,
+  ): Promise<StockRow | null> {
     const [rows] = await pool.query<StockDbRow[]>(
       `${BASE_SELECT} WHERE s.article_id = ? AND s.taille_id = ? LIMIT 1`,
       [articleId, tailleId],
@@ -401,7 +428,10 @@ export class MySQLStockRepository implements IStockRepository {
    * Restaure les stocks pour une commande annulée (transaction)
    * Enregistre des mouvements de type "annulation"
    */
-  async restoreForCancellation(commandeId: number, userId: number): Promise<void> {
+  async restoreForCancellation(
+    commandeId: number,
+    userId: number,
+  ): Promise<void> {
     const conn = await pool.getConnection();
 
     try {
@@ -427,7 +457,13 @@ export class MySQLStockRepository implements IStockRepository {
           await conn.query(
             `INSERT INTO stocks (article_id, taille_id, quantite, stock_physique, stock_disponible)
              VALUES (?, ?, ?, ?, ?)`,
-            [item.article_id, item.taille_id, item.quantite, item.quantite, item.quantite],
+            [
+              item.article_id,
+              item.taille_id,
+              item.quantite,
+              item.quantite,
+              item.quantite,
+            ],
           );
 
           // Récupérer le nom de la taille pour le mouvement
@@ -494,6 +530,69 @@ export class MySQLStockRepository implements IStockRepository {
     } finally {
       conn.release();
     }
+  }
+
+  /**
+   * Récupère l'historique des mouvements de stock
+   * Optionnellement filtré par article_id et/ou type_mouvement
+   */
+  async findMovements(options?: {
+    article_id?: number;
+    type_mouvement?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ movements: any[]; total: number }> {
+    const {
+      article_id,
+      type_mouvement,
+      limit = 50,
+      offset = 0,
+    } = options ?? {};
+
+    const conditions: string[] = [];
+    const params: (string | number)[] = [];
+
+    if (article_id) {
+      conditions.push("ms.article_id = ?");
+      params.push(article_id);
+    }
+    if (type_mouvement) {
+      conditions.push("ms.type_mouvement = ?");
+      params.push(type_mouvement);
+    }
+
+    const where =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    const [countRows] = await pool.query<any[]>(
+      `SELECT COUNT(*) AS total FROM mouvements_stock ms ${where}`,
+      params,
+    );
+    const total = (countRows[0] as any)?.total ?? 0;
+
+    const [rows] = await pool.query<any[]>(
+      `SELECT
+         ms.id, ms.article_id, ms.taille, ms.type_mouvement,
+         ms.quantite_avant, ms.quantite_apres, ms.quantite_mouvement,
+         ms.commande_id, ms.motif, ms.created_at,
+         a.nom AS article_nom,
+         CONCAT(u.first_name, ' ', u.last_name) AS effectue_par
+       FROM mouvements_stock ms
+       JOIN articles a ON a.id = ms.article_id
+       LEFT JOIN utilisateurs u ON u.id = ms.user_id
+       ${where}
+       ORDER BY ms.created_at DESC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset],
+    );
+
+    return {
+      movements: rows.map((r) => ({
+        ...r,
+        created_at: new Date(r.created_at).toISOString(),
+      })),
+      total,
+    };
   }
 
   // ==================== HELPER METHODS ====================

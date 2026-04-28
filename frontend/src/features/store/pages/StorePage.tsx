@@ -33,6 +33,7 @@ import { OrdersTab } from "../components/tabs/OrdersTab";
 import { MyOrdersTab } from "../components/tabs/MyOrdersTab";
 import { StocksTab } from "../components/tabs/StocksTab";
 import { ConfigurationTab } from "../components/tabs/ConfigurationTab";
+import { MovementsTab } from "../components/tabs/MovementsTab";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COMPOSANT PRINCIPAL : STOREPAGE
@@ -70,6 +71,7 @@ export function StorePage() {
         { id: "catalogue", label: t("tabs.catalogue") },
         { id: "commandes", label: t("tabs.orders") },
         { id: "stocks", label: t("tabs.stocks") },
+        { id: "mouvements", label: t("tabs.movements", "Mouvements") },
         { id: "configuration", label: t("tabs.configuration") },
       ]
     : [
@@ -103,6 +105,7 @@ export function StorePage() {
         {activeTab === "catalogue" && <CatalogueTab />}
         {activeTab === "commandes" && <OrdersTab />}
         {activeTab === "stocks" && <StocksTab />}
+        {activeTab === "mouvements" && <MovementsTab />}
         {activeTab === "configuration" && <ConfigurationTab />}
         {activeTab === "boutique" && <BoutiqueTab />}
         {activeTab === "mes_commandes" && <MyOrdersTab />}
