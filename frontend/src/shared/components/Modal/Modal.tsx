@@ -25,8 +25,8 @@
  * @see Modal.examples.tsx pour des exemples d'utilisation
  */
 
-import { useEffect, useRef, type ReactNode } from 'react';
-import { SHADOWS } from '../../styles/designTokens';
+import { useEffect, useRef, type ReactNode } from "react";
+import { MODAL, SHADOWS } from "../../styles/designTokens";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -40,7 +40,7 @@ import { SHADOWS } from '../../styles/designTokens';
  * - 3xl: 1024px (dashboards, prévisualisations)
  * - 4xl: 1280px (plein écran, éditeurs)
  */
-export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
+export type ModalSize = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
 export interface ModalProps {
   /** Contrôle la visibilité de la modal */
@@ -89,7 +89,7 @@ export interface ModalFooterProps {
   /** Contenu du footer (généralement des boutons) */
   children: ReactNode;
   /** Alignement des actions */
-  align?: 'left' | 'center' | 'right' | 'between';
+  align?: "left" | "center" | "right" | "between";
   /** Classes CSS additionnelles */
   className?: string;
   /** Padding personnalisé (défaut: px-6 py-4) */
@@ -99,20 +99,23 @@ export interface ModalFooterProps {
 // ─── CONSTANTES ──────────────────────────────────────────────────────────────
 
 const SIZE_CLASSES: Record<ModalSize, string> = {
-  sm: 'max-w-sm',      // 384px
-  md: 'max-w-md',      // 512px
-  lg: 'max-w-lg',      // 640px
-  xl: 'max-w-xl',      // 768px
-  '2xl': 'max-w-2xl',  // 896px
-  '3xl': 'max-w-3xl',  // 1024px
-  '4xl': 'max-w-4xl',  // 1280px
+  sm: MODAL.size.sm,
+  md: MODAL.size.md,
+  lg: MODAL.size.lg,
+  xl: MODAL.size.xl,
+  "2xl": MODAL.size["2xl"],
+  "3xl": MODAL.size["3xl"],
+  "4xl": MODAL.size["4xl"],
 };
 
-const FOOTER_ALIGN_CLASSES: Record<NonNullable<ModalFooterProps['align']>, string> = {
-  left: 'justify-start',
-  center: 'justify-center',
-  right: 'justify-end',
-  between: 'justify-between',
+const FOOTER_ALIGN_CLASSES: Record<
+  NonNullable<ModalFooterProps["align"]>,
+  string
+> = {
+  left: "justify-start",
+  center: "justify-center",
+  right: "justify-end",
+  between: "justify-between",
 };
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -149,12 +152,12 @@ function generateModalId(): string {
 export function Modal({
   isOpen,
   onClose,
-  size = 'md',
+  size = "md",
   closeOnOverlayClick = true,
   closeOnEscape = true,
   ariaLabelledBy,
   children,
-  className = '',
+  className = "",
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const titleIdRef = useRef(ariaLabelledBy || generateModalId());
@@ -162,20 +165,21 @@ export function Modal({
   // ── Bloquer le scroll du body ─────────────────────────────────────────────
   useEffect(() => {
     if (isOpen) {
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = 'hidden';
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = "hidden";
       // Compenser la disparition de la scrollbar pour éviter le "jump"
       if (scrollbarWidth > 0) {
         document.body.style.paddingRight = `${scrollbarWidth}px`;
       }
     } else {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     }
 
     return () => {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     };
   }, [isOpen]);
 
@@ -184,13 +188,13 @@ export function Modal({
     if (!isOpen || !closeOnEscape) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onClose();
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, closeOnEscape, onClose]);
 
   // ── Focus trap (focus sur la modal à l'ouverture) ─────────────────────────
@@ -198,12 +202,12 @@ export function Modal({
     if (isOpen && modalRef.current) {
       // Cherche le premier élément focusable
       const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
 
       if (focusableElements.length > 0) {
         // Focus sur le premier élément (souvent le bouton X ou le premier input)
-        focusableElements[0].focus();
+        focusableElements[0]?.focus();
       }
     }
   }, [isOpen]);
@@ -219,7 +223,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className={`${MODAL.overlay} ${MODAL.animation.overlay.enter}`}
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleIdRef.current}
@@ -228,10 +232,10 @@ export function Modal({
       <div
         ref={modalRef}
         className={`
-          bg-white rounded-2xl w-full mx-4 max-h-[90vh] flex flex-col
+          bg-white rounded-2xl mx-4 max-h-[90vh] flex flex-col
           ${SIZE_CLASSES[size]}
           ${SHADOWS.xl}
-          animate-in zoom-in-95 slide-in-from-bottom-4 duration-200
+          ${MODAL.animation.content.enter}
           ${className}
         `}
         onClick={(e) => e.stopPropagation()}
@@ -263,50 +267,44 @@ Modal.Header = function ModalHeader({
   showCloseButton = true,
   onClose,
   id,
-  className = '',
+  className = "",
 }: ModalHeaderProps) {
   return (
-    <div className={`px-6 pt-6 pb-4 border-b border-gray-100 ${className}`}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          <h2
-            id={id}
-            className="text-xl font-semibold text-gray-900 leading-tight"
-          >
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="mt-1.5 text-sm text-gray-500 leading-relaxed">
-              {subtitle}
-            </p>
-          )}
-        </div>
-
-        {showCloseButton && onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100
-                       active:bg-gray-200 transition-colors flex-shrink-0"
-            aria-label="Fermer la modal"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+    <div className={`${MODAL.header} ${className}`}>
+      <div className="flex-1 min-w-0">
+        <h2 id={id} className={`${MODAL.headerTitle} leading-tight`}>
+          {title}
+        </h2>
+        {subtitle && (
+          <p className={`${MODAL.headerSubtitle} leading-relaxed`}>
+            {subtitle}
+          </p>
         )}
       </div>
+
+      {showCloseButton && onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          className={`${MODAL.headerClose} active:bg-gray-200 flex-shrink-0`}
+          aria-label="Fermer la modal"
+        >
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      )}
     </div>
   );
 };
@@ -326,11 +324,13 @@ Modal.Header = function ModalHeader({
  */
 Modal.Body = function ModalBody({
   children,
-  className = '',
-  padding = 'px-6 py-5',
+  className = "",
+  padding = "px-6 py-5",
 }: ModalBodyProps) {
+  const paddingClass = padding || MODAL.body;
+
   return (
-    <div className={`overflow-y-auto flex-1 ${padding} ${className}`}>
+    <div className={`overflow-y-auto flex-1 ${paddingClass} ${className}`}>
       {children}
     </div>
   );
@@ -349,16 +349,19 @@ Modal.Body = function ModalBody({
  */
 Modal.Footer = function ModalFooter({
   children,
-  align = 'right',
-  className = '',
-  padding = 'px-6 py-4',
+  align = "right",
+  className = "",
+  padding = "px-6 py-4",
 }: ModalFooterProps) {
+  const paddingClass = padding || "px-6 py-4";
+  const alignClass = align !== "right" ? FOOTER_ALIGN_CLASSES[align] : "";
+
   return (
     <div
       className={`
-        border-t border-gray-100 ${padding}
+        border-t border-gray-100 ${paddingClass}
         flex items-center gap-3 flex-shrink-0
-        ${FOOTER_ALIGN_CLASSES[align]}
+        ${align === "right" ? "justify-end" : alignClass}
         ${className}
       `}
     >
@@ -368,5 +371,3 @@ Modal.Footer = function ModalFooter({
 };
 
 // ─── TYPES EXPORTS ───────────────────────────────────────────────────────────
-
-export type { ModalHeaderProps, ModalBodyProps, ModalFooterProps };

@@ -5,6 +5,7 @@
  */
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal, Button } from "../../../shared/components";
 import type { CartItem } from "../stores/storeStore";
 
@@ -53,6 +54,7 @@ export const CartModal: React.FC<CartModalProps> = ({
   onClearCart,
   onCheckout,
 }) => {
+  const { t } = useTranslation("store");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ── Calcul du total ───────────────────────────────────────────────────────
@@ -77,7 +79,7 @@ export const CartModal: React.FC<CartModalProps> = ({
 
   // ── Handler pour vider le panier ──────────────────────────────────────────
   const handleClearCart = () => {
-    if (window.confirm("Voulez-vous vraiment vider le panier ?")) {
+    if (window.confirm(t("cartModal.actions.confirmClear"))) {
       onClearCart();
     }
   };
@@ -99,11 +101,13 @@ export const CartModal: React.FC<CartModalProps> = ({
       closeOnEscape={!isSubmitting}
     >
       <Modal.Header
-        title="Panier"
+        title={t("cartModal.title")}
         subtitle={
           cartItems.length === 0
-            ? "Votre panier est vide"
-            : `${totalItems} article${totalItems > 1 ? "s" : ""}`
+            ? t("cartModal.subtitle.empty")
+            : totalItems > 1
+              ? t("cartModal.subtitle.countPlural", { count: totalItems })
+              : t("cartModal.subtitle.count", { count: totalItems })
         }
         showCloseButton
         onClose={handleClose}
@@ -126,10 +130,10 @@ export const CartModal: React.FC<CartModalProps> = ({
               />
             </svg>
             <p className="mt-4 text-sm font-medium text-gray-900">
-              Panier vide
+              {t("cartModal.empty.title")}
             </p>
             <p className="mt-1 text-sm text-gray-500">
-              Ajoutez des articles pour commencer vos achats.
+              {t("cartModal.empty.description")}
             </p>
           </div>
         ) : (
@@ -172,7 +176,7 @@ export const CartModal: React.FC<CartModalProps> = ({
                     {item.article_nom}
                   </h3>
                   <p className="mt-0.5 text-xs text-gray-500">
-                    Taille : {item.taille_nom}
+                    {t("cartModal.item.size")} {item.taille_nom}
                   </p>
                   <p className="mt-1 text-sm font-medium text-gray-700">
                     {formatCurrency(item.prix)}
@@ -193,7 +197,7 @@ export const CartModal: React.FC<CartModalProps> = ({
                       className="h-7 w-7 rounded-lg border border-gray-300 bg-white text-gray-600
                                hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed
                                flex items-center justify-center"
-                      aria-label="Diminuer la quantité"
+                      aria-label={t("cartModal.item.decreaseQuantity")}
                     >
                       <svg
                         className="h-3 w-3"
@@ -227,7 +231,7 @@ export const CartModal: React.FC<CartModalProps> = ({
                       className="h-7 w-7 rounded-lg border border-gray-300 bg-white text-gray-600
                                hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed
                                flex items-center justify-center"
-                      aria-label="Augmenter la quantité"
+                      aria-label={t("cartModal.item.increaseQuantity")}
                     >
                       <svg
                         className="h-3 w-3"
@@ -253,7 +257,7 @@ export const CartModal: React.FC<CartModalProps> = ({
                       className="ml-auto text-xs text-red-600 hover:text-red-700 font-medium
                                disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      Retirer
+                      {t("cartModal.item.remove")}
                     </button>
                   </div>
                 </div>
@@ -276,7 +280,7 @@ export const CartModal: React.FC<CartModalProps> = ({
             {/* Total */}
             <div className="flex items-center gap-3">
               <span className="text-base font-semibold text-gray-900">
-                Total
+                {t("cartModal.total")}
               </span>
               <span className="text-2xl font-bold text-gray-900">
                 {formatCurrency(total)}
@@ -290,7 +294,7 @@ export const CartModal: React.FC<CartModalProps> = ({
                 onClick={handleClearCart}
                 disabled={isSubmitting}
               >
-                Vider le panier
+                {t("cartModal.actions.clear")}
               </Button>
 
               <Button
@@ -298,13 +302,13 @@ export const CartModal: React.FC<CartModalProps> = ({
                 onClick={handleCheckout}
                 loading={isSubmitting}
               >
-                Passer commande
+                {t("cartModal.actions.checkout")}
               </Button>
             </div>
           </>
         ) : (
           <Button variant="outline" onClick={onClose} fullWidth>
-            Fermer
+            {t("cartModal.actions.close")}
           </Button>
         )}
       </Modal.Footer>

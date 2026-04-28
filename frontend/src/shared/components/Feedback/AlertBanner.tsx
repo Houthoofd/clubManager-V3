@@ -34,8 +34,8 @@
  * ```
  */
 
-import { ReactNode } from 'react';
-import { cn, ALERT } from '../../styles/designTokens';
+import { ReactNode } from "react";
+import { cn, ALERT } from "../../styles/designTokens";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -45,9 +45,10 @@ export interface AlertBannerProps {
    * - success: Vert avec icône de validation
    * - warning: Orange avec icône d'avertissement
    * - danger: Rouge avec icône d'erreur
+   * - error: Alias de 'danger' (rétrocompatibilité avec ErrorBanner)
    * - info: Bleu avec icône d'information
    */
-  variant: 'success' | 'warning' | 'danger' | 'info';
+  variant: "success" | "warning" | "danger" | "error" | "info";
 
   /**
    * Titre de l'alerte (optionnel, affiché en gras)
@@ -90,7 +91,7 @@ interface IconProps {
 /**
  * Icône de succès (cercle avec checkmark)
  */
-function CheckCircleIcon({ className = '' }: IconProps) {
+function CheckCircleIcon({ className = "" }: IconProps) {
   return (
     <svg
       className={className}
@@ -111,7 +112,7 @@ function CheckCircleIcon({ className = '' }: IconProps) {
 /**
  * Icône d'avertissement (triangle avec point d'exclamation)
  */
-function ExclamationTriangleIcon({ className = '' }: IconProps) {
+function ExclamationTriangleIcon({ className = "" }: IconProps) {
   return (
     <svg
       className={className}
@@ -132,7 +133,7 @@ function ExclamationTriangleIcon({ className = '' }: IconProps) {
 /**
  * Icône d'erreur (cercle avec X)
  */
-function XCircleIcon({ className = '' }: IconProps) {
+function XCircleIcon({ className = "" }: IconProps) {
   return (
     <svg
       className={className}
@@ -153,7 +154,7 @@ function XCircleIcon({ className = '' }: IconProps) {
 /**
  * Icône d'information (cercle avec i)
  */
-function InformationCircleIcon({ className = '' }: IconProps) {
+function InformationCircleIcon({ className = "" }: IconProps) {
   return (
     <svg
       className={className}
@@ -174,7 +175,7 @@ function InformationCircleIcon({ className = '' }: IconProps) {
 /**
  * Icône de fermeture (X)
  */
-function XMarkIcon({ className = '' }: IconProps) {
+function XMarkIcon({ className = "" }: IconProps) {
   return (
     <svg
       className={className}
@@ -183,9 +184,7 @@ function XMarkIcon({ className = '' }: IconProps) {
       fill="currentColor"
       aria-hidden="true"
     >
-      <path
-        d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
-      />
+      <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
     </svg>
   );
 }
@@ -208,14 +207,17 @@ export function AlertBanner({
   icon,
   dismissible = false,
   onDismiss,
-  className = '',
+  className = "",
 }: AlertBannerProps) {
+  // Normaliser 'error' vers 'danger' pour rétrocompatibilité
+  const normalizedVariant = variant === "error" ? "danger" : variant;
+
   // Icône par défaut selon le variant
-  const DefaultIcon = VARIANT_ICONS[variant];
+  const DefaultIcon = VARIANT_ICONS[normalizedVariant];
 
   return (
     <div
-      className={cn(ALERT.base, ALERT.variant[variant], className)}
+      className={cn(ALERT.base, ALERT.variant[normalizedVariant], className)}
       role="alert"
     >
       <div className="flex">

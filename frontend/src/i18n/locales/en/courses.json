@@ -1,0 +1,158 @@
+{
+  "page": {
+    "title": "Course Management",
+    "description": "Manage recurring schedule, individual sessions, and professors."
+  },
+  "tabs": {
+    "planning": "Recurring Schedule",
+    "sessions": "Sessions",
+    "professors": "Professors"
+  },
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "buttons": {
+    "newRecurrentCourse": "New Recurring Course",
+    "generateSessions": "Generate Sessions",
+    "newSession": "New Session",
+    "newProfessor": "New Professor",
+    "edit": "Edit",
+    "delete": "Delete",
+    "modify": "Modify",
+    "create": "Create",
+    "cancel": "Cancel",
+    "close": "Close",
+    "generate": "Generate",
+    "save": "Save",
+    "attendance": "Attendance",
+    "saveAttendance": "Save Attendance"
+  },
+  "loading": {
+    "planning": "Loading schedule...",
+    "sessions": "Loading sessions...",
+    "professors": "Loading professors..."
+  },
+  "empty": {
+    "noRecurrentCourses": "No recurring courses",
+    "noRecurrentCoursesDescription": "Create your first recurring course to organize your weekly schedule.",
+    "noRecurrentCoursesAction": "Create a course",
+    "noSessions": "No sessions",
+    "noSessionsDescription": "Create a manual session or generate them from the recurring schedule.",
+    "noSessionsAction": "Create a session",
+    "noProfessors": "No professors",
+    "noProfessorsDescription": "Add professors to assign them to courses.",
+    "noProfessorsAction": "Add a professor",
+    "noCourse": "No courses",
+    "noSessionsFound": "No sessions found",
+    "noProfessorsFound": "No professors found",
+    "noData": "No data available.",
+    "noInscriptions": "No enrollments for this session."
+  },
+  "fields": {
+    "courseType": "Course type",
+    "dayOfWeek": "Day of week",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "active": "Active course",
+    "professors": "Assigned professors",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "specialty": "Specialty",
+    "professorActive": "Active professor",
+    "date": "Date",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "recurrentCourse": "Recurring course",
+    "linkedRecurrentCourse": "Linked recurring course (optional)",
+    "fullName": "Full name",
+    "grade": "Grade",
+    "present": "Present"
+  },
+  "placeholders": {
+    "courseType": "E.g. Judo, Karate, Aikido…",
+    "email": "prof@example.com",
+    "phone": "+33 6 12 34 56 78",
+    "specialty": "E.g. Judo, Black belt 3rd dan…",
+    "selectCourse": "— Select a course —",
+    "none": "— None —"
+  },
+  "columns": {
+    "date": "Date",
+    "type": "Type",
+    "schedule": "Schedule",
+    "linkedPlanning": "Linked to schedule",
+    "status": "Status",
+    "actions": "Actions",
+    "fullName": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "rowNumber": "#"
+  },
+  "status": {
+    "yes": "Yes",
+    "cancelled": "Cancelled",
+    "scheduled": "Scheduled"
+  },
+  "labels": {
+    "professor": "Prof:",
+    "total": "Total:",
+    "present": "Present:",
+    "absent": "Absent:",
+    "specialitySeparator": "—"
+  },
+  "modals": {
+    "createRecurrentCourse": "New Recurring Course",
+    "editRecurrentCourse": "Edit Recurring Course",
+    "deleteRecurrentCourse": "Delete Recurring Course",
+    "createProfessor": "New Professor",
+    "editProfessor": "Edit Professor",
+    "generateSessions": "Generate Sessions from Schedule",
+    "createSession": "New Session",
+    "attendanceSheet": "Attendance Sheet"
+  },
+  "messages": {
+    "success": {
+      "recurrentCourseCreated": "Recurring course created successfully",
+      "recurrentCourseUpdated": "Recurring course updated successfully",
+      "recurrentCourseDeleted": "Recurring course deleted successfully",
+      "professorCreated": "Professor created successfully",
+      "professorUpdated": "Professor updated successfully",
+      "sessionCreated": "Session created successfully",
+      "sessionsGenerated": "{{count}} session(s) generated successfully",
+      "attendanceSaved": "Attendance saved"
+    },
+    "error": {
+      "generic": "An error occurred.",
+      "requiredFields": "Please fill in all required fields.",
+      "endTimeAfterStart": "End time must be after start time.",
+      "timeConflict": "Time slot already occupied by \"{{courseType}}\" ({{startTime}}–{{endTime}}).",
+      "firstLastNameRequired": "First name and last name are required.",
+      "allFieldsRequired": "Please fill in all fields.",
+      "savingAttendance": "Error saving attendance."
+    },
+    "confirm": {
+      "deleteRecurrentCourse": "Are you sure you want to delete \"{{courseType}}\" ({{day}} {{startTime}}-{{endTime}})?"
+    },
+    "warning": {
+      "timeConflict": "This time slot overlaps with <strong>{{courseType}}</strong> ({{startTime}}–{{endTime}}) on {{day}}."
+    }
+  },
+  "filters": {
+    "filterByType": "Filter by type",
+    "allTypes": "All types"
+  },
+  "loadingText": {
+    "saving": "Saving…",
+    "generating": "Generating…",
+    "creating": "Creating…",
+    "savingAttendance": "Saving…"
+  }
+}

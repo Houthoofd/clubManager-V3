@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   TachometerAltIcon,
   GraduationCapIcon,
@@ -162,7 +163,8 @@ function ArrowRightOnRectangleIcon({
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export const PrivateLayout: React.FC = () => {
+const PrivateLayout: React.FC = () => {
+  const { t } = useTranslation("common");
   const { user, logout, getFullName, getInitials } = useAuth();
   const unreadCount = useUnreadCount();
   const navigate = useNavigate();
@@ -208,50 +210,50 @@ export const PrivateLayout: React.FC = () => {
 
   const menuItems = [
     {
-      name: "Dashboard",
+      name: t("navigation.dashboard"),
       path: "/dashboard",
       icon: <TachometerAltIcon />,
     },
     {
-      name: "Courses",
+      name: t("navigation.courses"),
       path: "/courses",
       icon: <GraduationCapIcon />,
     },
     {
-      name: "Users",
+      name: t("navigation.users"),
       path: "/users",
       icon: <UserIcon />,
       roles: [UserRole.ADMIN, UserRole.PROFESSOR],
     },
     {
-      name: "Ma famille",
+      name: t("navigation.family"),
       path: "/family",
       icon: <UsersIcon />,
     },
     {
-      name: "Payments",
+      name: t("navigation.payments"),
       path: "/payments",
       icon: <CreditCardIcon />,
       roles: [UserRole.ADMIN, UserRole.MEMBER],
     },
     {
-      name: "Store",
+      name: t("navigation.store"),
       path: "/store",
       icon: <ShoppingCartIcon />,
     },
     {
-      name: "Messages",
+      name: t("navigation.messages"),
       path: "/messages",
       icon: <EnvelopeIcon />,
     },
     {
-      name: "Statistics",
+      name: t("navigation.statistics"),
       path: "/statistics/dashboard",
       icon: <ChartBarIcon />,
       roles: [UserRole.ADMIN, UserRole.PROFESSOR],
     },
     {
-      name: "Settings",
+      name: t("navigation.settings"),
       path: "/settings",
       icon: <CogIcon />,
       roles: [UserRole.ADMIN],
@@ -313,7 +315,7 @@ export const PrivateLayout: React.FC = () => {
               {getByKey(INFORMATION_KEYS.CLUB_LOGO_URL)?.valeur ? (
                 <img
                   src={getByKey(INFORMATION_KEYS.CLUB_LOGO_URL)!.valeur}
-                  alt="Logo"
+                  alt={t("layout.logoAlt")}
                   className="h-8 w-auto object-contain flex-shrink-0"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
@@ -326,14 +328,14 @@ export const PrivateLayout: React.FC = () => {
               >
                 {getByKey(INFORMATION_KEYS.NAVBAR_NAME)?.valeur ||
                   getByKey(INFORMATION_KEYS.CLUB_NAME)?.valeur ||
-                  "ClubManager"}
+                  t("layout.defaultAppName")}
               </h1>
             </Link>
           )}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            aria-label="Toggle sidebar"
+            aria-label={t("navigation.toggleSidebar")}
           >
             {isSidebarOpen ? (
               <ChevronLeftIcon className="h-5 w-5" />
@@ -418,7 +420,7 @@ export const PrivateLayout: React.FC = () => {
           <div className="flex items-center">
             <h2 className="text-xl font-semibold text-gray-800">
               {visibleMenuItems.find((item) => isActive(item.path))?.name ||
-                "Dashboard"}
+                t("navigation.dashboard")}
             </h2>
           </div>
 
@@ -426,7 +428,7 @@ export const PrivateLayout: React.FC = () => {
             {/* Notifications */}
             <button
               className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              aria-label="Notifications"
+              aria-label={t("navigation.notifications")}
             >
               <BellIcon className="h-5 w-5 text-gray-600" />
               <span
@@ -462,7 +464,7 @@ export const PrivateLayout: React.FC = () => {
                     onClick={() => setIsUserMenuOpen(false)}
                   >
                     <UserCircleIcon className="h-4 w-4 mr-2" />
-                    Profil
+                    {t("navigation.profile")}
                   </Link>
                   <Link
                     to="/settings"
@@ -470,7 +472,7 @@ export const PrivateLayout: React.FC = () => {
                     onClick={() => setIsUserMenuOpen(false)}
                   >
                     <SmallCogIcon className="h-4 w-4 mr-2" />
-                    Paramètres
+                    {t("navigation.settings")}
                   </Link>
                   <hr className="my-1 border-gray-200" />
                   <button
@@ -481,7 +483,7 @@ export const PrivateLayout: React.FC = () => {
                     className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
                   >
                     <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
-                    Déconnexion
+                    {t("navigation.logout")}
                   </button>
                 </div>
               )}
@@ -506,4 +508,5 @@ export const PrivateLayout: React.FC = () => {
   );
 };
 
+export { PrivateLayout };
 export default PrivateLayout;

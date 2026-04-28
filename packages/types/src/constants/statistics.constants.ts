@@ -115,6 +115,15 @@ export const INFORMATION_KEYS = {
   THEME_SIDEBAR_TEXT: "theme_sidebar_text", // sidebar inactive text color, default "#374151"
   CLUB_LOGO_URL: "club_logo_url", // URL of the club logo image
   NAVBAR_NAME: "navbar_name", // Short name shown in sidebar header
+  // Modules (individual toggles)
+  MODULE_DASHBOARD: "module_dashboard",
+  MODULE_COURSES: "module_courses",
+  MODULE_USERS: "module_users",
+  MODULE_FAMILIES: "module_families",
+  MODULE_PAYMENTS: "module_payments",
+  MODULE_STORE: "module_store",
+  MODULE_MESSAGES: "module_messages",
+  MODULE_STATISTICS: "module_statistics",
   ACTIVE_MODULES: "active_modules", // comma-separated: "dashboard,courses,users,families,payments,store,messages,statistics"
   // Localisation
   APP_LANGUAGE: "app_language", // "fr" | "en"

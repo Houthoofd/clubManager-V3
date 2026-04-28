@@ -7,6 +7,7 @@
 
 import { UserRole } from "@clubmanager/types";
 import { Badge } from "../../../shared/components";
+import { useTranslation } from "react-i18next";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,6 +33,8 @@ interface UserRoleBadgeProps {
  * ```
  */
 export const UserRoleBadge: React.FC<UserRoleBadgeProps> = ({ role }) => {
+  const { t } = useTranslation("users");
+
   // Mapping des valeurs UserRole vers les valeurs de Badge.Role
   const normalizedRole = role?.toLowerCase();
 
@@ -50,5 +53,5 @@ export const UserRoleBadge: React.FC<UserRoleBadgeProps> = ({ role }) => {
   }
 
   // Fallback pour les rôles inconnus
-  return <Badge variant="neutral">Inconnu</Badge>;
+  return <Badge variant="neutral">{t("badges.unknown")}</Badge>;
 };

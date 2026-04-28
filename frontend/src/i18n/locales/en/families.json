@@ -1,0 +1,103 @@
+{
+  "page": {
+    "title": "My Family",
+    "titleWithName": "{{familyName}}",
+    "description": "{{userId}} — {{count}} member",
+    "description_plural": "{{userId}} — {{count}} members",
+    "loading": "Loading family…"
+  },
+  "fields": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "dateOfBirth": "Date of birth",
+    "genre": "Gender",
+    "role": "Role",
+    "age": "Age:",
+    "grade": "Grade:",
+    "userId": "User ID"
+  },
+  "roles": {
+    "parent": "Parent",
+    "tuteur": "Guardian",
+    "enfant": "Child",
+    "conjoint": "Spouse",
+    "autre": "Other"
+  },
+  "genres": {
+    "select": "Select…",
+    "homme": "Male",
+    "femme": "Female",
+    "autre": "Other / Unspecified"
+  },
+  "badges": {
+    "minor": "Minor",
+    "legalGuardian": "Legal Guardian",
+    "responsible": "Responsible"
+  },
+  "actions": {
+    "addMember": "Add a member",
+    "editMember": "Edit",
+    "removeMember": "Remove",
+    "cancel": "Cancel",
+    "save": "Save",
+    "confirm": "Confirm"
+  },
+  "modal": {
+    "addTitle": "Add a family member",
+    "editTitle": "Edit member",
+    "addButton": "Add member",
+    "infoTitle": "No account required —",
+    "infoDescription": "No email or password required. A unique identifier (userId) will be generated automatically."
+  },
+  "placeholders": {
+    "firstName": "Marie",
+    "lastName": "Smith"
+  },
+  "messages": {
+    "success": {
+      "memberAdded": "Member added!",
+      "memberAddedDescription": "{{firstName}} {{lastName}} has been added to the family.",
+      "memberRemoved": "Member removed",
+      "memberRemovedDescription": "The member has been removed from the family.",
+      "memberUpdated": "Member updated",
+      "memberUpdatedDescription": "The information has been updated."
+    },
+    "error": {
+      "familyError": "Family error",
+      "loadError": "Error while loading",
+      "addError": "Error while adding",
+      "removeError": "Error while removing",
+      "updateError": "Error while updating",
+      "genericError": "An error occurred."
+    },
+    "empty": {
+      "title": "No family members",
+      "description": "Start by adding your first member.",
+      "action": "Add a member"
+    },
+    "confirm": {
+      "removeTitle": "Remove a member",
+      "removeMessage": "Are you sure you want to remove {{firstName}} {{lastName}} from the family?"
+    }
+  },
+  "validation": {
+    "required": "Required",
+    "minLength": "At least {{count}} characters",
+    "maxLength": "Maximum {{count}} characters",
+    "invalidDate": "Invalid date",
+    "invalidEmail": "Invalid email"
+  },
+  "states": {
+    "loading": "Loading…",
+    "removing": "Removing…",
+    "saving": "Saving…",
+    "processing": "Processing…"
+  },
+  "age": {
+    "year": "year",
+    "year_plural": "years"
+  },
+  "aria": {
+    "removeMember": "Remove {{firstName}} {{lastName}} from the family"
+  }
+}

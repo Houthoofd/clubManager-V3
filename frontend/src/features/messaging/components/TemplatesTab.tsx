@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useTemplateStore } from "../stores/templateStore";
 import { deleteTemplateType } from "../api/templatesApi";
 import type { Template, TemplateType } from "../api/templatesApi";
@@ -43,17 +44,20 @@ const CardSkeleton = () => (
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
-const EmptyCategory = ({ onNew }: { onNew: () => void }) => (
-  <button
-    onClick={onNew}
-    className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center text-gray-400 hover:border-blue-300 hover:text-blue-500 transition-colors w-full group"
-  >
-    <span className="text-2xl block mb-1 group-hover:scale-110 transition-transform">
-      +
-    </span>
-    <span className="text-sm font-medium">Nouveau template</span>
-  </button>
-);
+const EmptyCategory = ({ onNew }: { onNew: () => void }) => {
+  const { t } = useTranslation("messages");
+  return (
+    <button
+      onClick={onNew}
+      className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center text-gray-400 hover:border-blue-300 hover:text-blue-500 transition-colors w-full group"
+    >
+      <span className="text-2xl block mb-1 group-hover:scale-110 transition-transform">
+        +
+      </span>
+      <span className="text-sm font-medium">{t("actions.newTemplate")}</span>
+    </button>
+  );
+};
 
 // ─── Template Card ────────────────────────────────────────────────────────────
 
@@ -74,6 +78,7 @@ const TemplateCard = ({
   onToggle,
   isDeleting,
 }: TemplateCardProps) => {
+  const { t } = useTranslation("messages");
   const preview =
     template.contenu.length > 60
       ? template.contenu.slice(0, 60).trimEnd() + "…"
@@ -99,7 +104,9 @@ const TemplateCard = ({
 
       {/* Aperçu contenu */}
       <p className="text-xs text-gray-500 leading-relaxed font-mono line-clamp-2">
-        {preview || <span className="italic text-gray-300">Contenu vide</span>}
+        {preview || (
+          <span className="italic text-gray-300">{t("templates.preview")}</span>
+        )}
       </p>
 
       {/* Variables */}
@@ -128,7 +135,7 @@ const TemplateCard = ({
           type="button"
           onClick={onToggle}
           title={
-            template.actif ? "Cliquer pour désactiver" : "Cliquer pour activer"
+            template.actif ? t("actions.deactivate") : t("actions.activate")
           }
           className={[
             "flex items-center gap-1 text-xs font-medium rounded-full px-2.5 py-1 transition-colors cursor-pointer",
@@ -148,7 +155,7 @@ const TemplateCard = ({
               style={{ fontSize: "10px" }}
             />
           )}
-          {template.actif ? "Actif" : "Inactif"}
+          {template.actif ? t("badges.active") : t("badges.inactive")}
         </button>
 
         {/* Actions */}
@@ -157,7 +164,7 @@ const TemplateCard = ({
           <button
             type="button"
             onClick={onEdit}
-            title="Modifier ce template"
+            title={t("templateEditor.editTooltip")}
             className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
           >
             <PencilAltIcon style={{ fontSize: "14px" }} />
@@ -169,7 +176,7 @@ const TemplateCard = ({
             onClick={onSend}
             disabled={!template.actif}
             title={
-              template.actif ? "Envoyer depuis ce template" : "Template inactif"
+              template.actif ? t("actions.useTemplate") : t("badges.inactive")
             }
             className="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
@@ -181,7 +188,7 @@ const TemplateCard = ({
             type="button"
             onClick={onDelete}
             disabled={isDeleting}
-            title="Supprimer ce template"
+            title={t("templateEditor.deleteTooltip")}
             className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {isDeleting ? (
@@ -237,45 +244,48 @@ const CategoryRow = ({
   onDeleteTemplate,
   onToggleTemplate,
   deletingIds,
-}: CategoryRowProps) => (
-  <section className="space-y-3">
-    {/* Category header */}
-    <div className="flex items-center gap-3">
-      <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wider">
-        {type.nom}
-      </h3>
-      {type.description && (
-        <span
-          className="text-xs text-gray-400 truncate max-w-xs"
-          title={type.description}
-        >
-          — {type.description}
+}: CategoryRowProps) => {
+  const { t } = useTranslation("messages");
+  return (
+    <section className="space-y-3">
+      {/* Category header */}
+      <div className="flex items-center gap-3">
+        <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wider">
+          {type.nom}
+        </h3>
+        {type.description && (
+          <span
+            className="text-xs text-gray-400 truncate max-w-xs"
+            title={type.description}
+          >
+            — {type.description}
+          </span>
+        )}
+        <div className="flex-1 h-px bg-gray-200" />
+        <span className="text-xs text-gray-400 flex-shrink-0">
+          {t("templates.count", { count: templates.length })}
         </span>
-      )}
-      <div className="flex-1 h-px bg-gray-200" />
-      <span className="text-xs text-gray-400 flex-shrink-0">
-        {templates.length} template{templates.length !== 1 ? "s" : ""}
-      </span>
-    </div>
+      </div>
 
-    {/* Cards grid */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-      {templates.map((t) => (
-        <TemplateCard
-          key={t.id}
-          template={t}
-          onEdit={() => onEditTemplate(t)}
-          onSend={() => onSendTemplate(t)}
-          onDelete={() => onDeleteTemplate(t.id)}
-          onToggle={() => onToggleTemplate(t.id, !t.actif)}
-          isDeleting={deletingIds.has(t.id)}
-        />
-      ))}
-      {/* Add new card */}
-      <EmptyCategory onNew={onNewTemplate} />
-    </div>
-  </section>
-);
+      {/* Cards grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {templates.map((t) => (
+          <TemplateCard
+            key={t.id}
+            template={t}
+            onEdit={() => onEditTemplate(t)}
+            onSend={() => onSendTemplate(t)}
+            onDelete={() => onDeleteTemplate(t.id)}
+            onToggle={() => onToggleTemplate(t.id, !t.actif)}
+            isDeleting={deletingIds.has(t.id)}
+          />
+        ))}
+        {/* Add new card */}
+        <EmptyCategory onNew={onNewTemplate} />
+      </div>
+    </section>
+  );
+};
 
 // ─── Category Management Panel ────────────────────────────────────────────────
 
@@ -298,6 +308,7 @@ const CategoryPanel = ({
   onDeleteType,
   deletingTypeIds,
 }: CategoryPanelProps) => {
+  const { t } = useTranslation("messages");
   if (!isOpen) return null;
 
   return (
@@ -314,13 +325,13 @@ const CategoryPanel = ({
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
             <FolderOpenIcon style={{ fontSize: "16px" }} />
-            Gérer les catégories
+            {t("templates.manageCategories")}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-            aria-label="Fermer"
+            aria-label={t("actions.close")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -343,7 +354,7 @@ const CategoryPanel = ({
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
           {types.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-8">
-              Aucune catégorie pour l'instant.
+              {t("templates.noCategories")}
             </p>
           ) : (
             types.map((type) => (
@@ -374,12 +385,11 @@ const CategoryPanel = ({
                           : "bg-gray-100 text-gray-500",
                       ].join(" ")}
                     >
-                      {type.actif ? "Active" : "Inactive"}
+                      {type.actif ? t("badges.active") : t("badges.inactive")}
                     </span>
                     {type.templates_count !== undefined && (
                       <span className="text-xs text-gray-400">
-                        {type.templates_count} template
-                        {type.templates_count !== 1 ? "s" : ""}
+                        {t("templates.count", { count: type.templates_count })}
                       </span>
                     )}
                   </div>
@@ -388,7 +398,7 @@ const CategoryPanel = ({
                   <button
                     type="button"
                     onClick={() => onEditType(type)}
-                    title="Modifier"
+                    title={t("actions.edit")}
                     className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                   >
                     <PencilAltIcon style={{ fontSize: "12px" }} />
@@ -397,7 +407,7 @@ const CategoryPanel = ({
                     type="button"
                     onClick={() => onDeleteType(type.id)}
                     disabled={deletingTypeIds.has(type.id)}
-                    title="Supprimer"
+                    title={t("actions.delete")}
                     className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {deletingTypeIds.has(type.id) ? (
@@ -436,10 +446,10 @@ const CategoryPanel = ({
           <button
             type="button"
             onClick={onNewType}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
           >
             <PlusCircleIcon style={{ fontSize: "16px" }} />
-            Nouvelle catégorie
+            {t("actions.newCategory")}
           </button>
         </div>
       </aside>
@@ -450,6 +460,7 @@ const CategoryPanel = ({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export const TemplatesTab = () => {
+  const { t } = useTranslation("messages");
   const {
     types,
     templates,
@@ -538,17 +549,14 @@ export const TemplatesTab = () => {
 
   const handleDeleteTemplate = async (id: number) => {
     const template = templates.find((t) => t.id === id);
-    const name = template?.titre ?? "ce template";
+    const name = template?.titre ?? t("templates.thisTemplate");
 
-    if (
-      !window.confirm(`Supprimer « ${name} » ? Cette action est irréversible.`)
-    )
-      return;
+    if (!window.confirm(t("templates.confirmDelete", { name }))) return;
 
     setDeletingTemplateIds((prev) => new Set(prev).add(id));
     try {
       await deleteTemplate(id);
-      toast.success("Template supprimé.");
+      toast.success(t("success.templateDeleted"));
     } catch {
       // Error already toasted in store
     } finally {
@@ -563,7 +571,11 @@ export const TemplatesTab = () => {
   const handleToggleTemplate = async (id: number, actif: boolean) => {
     try {
       await toggleTemplate(id, actif);
-      toast.success(actif ? "Template activé." : "Template désactivé.");
+      toast.success(
+        actif
+          ? t("success.templateActivated")
+          : t("success.templateDeactivated"),
+      );
     } catch {
       // Error already toasted in store
     }
@@ -583,14 +595,9 @@ export const TemplatesTab = () => {
 
   const handleDeleteType = async (id: number) => {
     const type = types.find((t) => t.id === id);
-    const name = type?.nom ?? "cette catégorie";
+    const name = type?.nom ?? t("templates.thisCategory");
 
-    if (
-      !window.confirm(
-        `Supprimer la catégorie « ${name} » ?\n\nAttention : tous les templates de cette catégorie seront également supprimés.`,
-      )
-    )
-      return;
+    if (!window.confirm(t("templates.confirmDeleteType", { name }))) return;
 
     setDeletingTypeIds((prev) => new Set(prev).add(id));
     try {
@@ -598,12 +605,12 @@ export const TemplatesTab = () => {
       // Also refresh local store state
       await fetchTypes();
       await fetchTemplates();
-      toast.success("Catégorie supprimée.");
+      toast.success(t("success.categoryDeleted"));
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ??
         err?.message ??
-        "Erreur lors de la suppression.";
+        t("errors.deleteFailed");
       toast.error(msg);
     } finally {
       setDeletingTypeIds((prev) => {
@@ -641,7 +648,7 @@ export const TemplatesTab = () => {
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
           >
             <span>+</span>
-            Nouveau template
+            {t("actions.newTemplate")}
           </button>
 
           {/* Filter by type */}
@@ -650,7 +657,7 @@ export const TemplatesTab = () => {
               htmlFor="filter-type"
               className="text-sm text-gray-600 flex-shrink-0"
             >
-              Filtrer :
+              {t("templates.filterByType")} :
             </label>
             <select
               id="filter-type"
@@ -662,7 +669,7 @@ export const TemplatesTab = () => {
               }
               className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
             >
-              <option value="all">Toutes les catégories</option>
+              <option value="all">{t("templates.allCategories")}</option>
               {types.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.nom}
@@ -676,8 +683,10 @@ export const TemplatesTab = () => {
           {/* Stats */}
           {!isLoading && (
             <span className="text-xs text-gray-400">
-              {activeTemplates}/{totalTemplates} actif
-              {activeTemplates !== 1 ? "s" : ""}
+              {t("templates.activeCount", {
+                active: activeTemplates,
+                total: totalTemplates,
+              })}
             </span>
           )}
 
@@ -685,10 +694,10 @@ export const TemplatesTab = () => {
           <button
             type="button"
             onClick={() => setIsCategoryPanelOpen(true)}
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-gray-200 hover:border-blue-200"
+            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-gray-200 hover:border-blue-200"
           >
             <FolderOpenIcon style={{ fontSize: "16px" }} />
-            Gérer les catégories
+            {t("templates.manageCategories")}
           </button>
         </div>
       </div>
@@ -705,7 +714,7 @@ export const TemplatesTab = () => {
             }}
             className="text-xs text-red-600 underline hover:no-underline ml-3 flex-shrink-0"
           >
-            Réessayer
+            {t("actions.retry")}
           </button>
         </div>
       )}
@@ -733,11 +742,10 @@ export const TemplatesTab = () => {
               <PficonTemplateIcon />
             </div>
             <p className="text-base font-medium text-gray-500 mb-2">
-              Aucune catégorie de templates
+              {t("templates.emptyCategoriesTitle")}
             </p>
             <p className="text-sm text-center max-w-sm mb-6">
-              Commencez par créer une catégorie (ex : «&nbsp;Bienvenue&nbsp;»,
-              «&nbsp;Cours annulé&nbsp;»…) puis ajoutez vos templates.
+              {t("templates.emptyCategoriesDescription")}
             </p>
             <button
               type="button"
@@ -746,10 +754,10 @@ export const TemplatesTab = () => {
                 // Small delay to let panel open before triggering new type
                 setTimeout(() => handleNewType(), 100);
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
             >
               <FolderOpenIcon style={{ fontSize: "16px" }} />
-              Créer une première catégorie
+              {t("templates.createFirstCategory")}
             </button>
           </div>
         ) : filteredTypes.length === 0 ? (
@@ -759,7 +767,7 @@ export const TemplatesTab = () => {
               <SearchIcon />
             </div>
             <p className="text-sm font-medium text-gray-500">
-              Aucun résultat pour ce filtre.
+              {t("templates.noFilterResults")}
             </p>
           </div>
         ) : (

@@ -2,164 +2,45 @@
  * UsersPage
  * Page principale de gestion des utilisateurs.
  * Accessible aux admins et professeurs.
+ *
+ * ✅ Migré vers le design system partagé :
+ * - Modal, SelectField, SubmitButton
+ * - Code plus propre et maintenable
  */
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import {
+  UsersIcon,
+  PencilIcon,
+  TagIcon,
+  TrashIcon,
+  ArrowPathIcon,
+  MagnifyingGlassIcon,
+  CheckIcon,
+  EnvelopeIcon,
+  BellAlertIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
+
 import { useUsers } from "../hooks/useUsers";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { UserRoleBadge } from "../components/UserRoleBadge";
 import { UserStatusBadge } from "../components/UserStatusBadge";
-import { EditUserRoleModal } from "../components/EditUserRoleModal";
-import { EditUserStatusModal } from "../components/EditUserStatusModal";
-import { DeleteUserModal } from "../components/DeleteUserModal";
 import { SendToUserModal } from "../components/SendToUserModal";
 import { NotifyUsersModal } from "../components/NotifyUsersModal";
 import { UserRole } from "@clubmanager/types";
 import type { UserListItemDto } from "@clubmanager/types";
 
-// ─── Icônes inline ────────────────────────────────────────────────────────────
-
-function PencilIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-      />
-    </svg>
-  );
-}
-
-function TagIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6 6h.008v.008H6V6Z"
-      />
-    </svg>
-  );
-}
-
-function TrashIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-      />
-    </svg>
-  );
-}
-
-function RestoreIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
-      />
-    </svg>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg
-      className="h-4 w-4 text-gray-400"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-      />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg
-      className="h-3.5 w-3.5 text-green-500 inline-block ml-1"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={2}
-      stroke="currentColor"
-      aria-label="Email vérifié"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="m4.5 12.75 6 6 9-13.5"
-      />
-    </svg>
-  );
-}
-
-function EnvelopeIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-    </svg>
-  );
-}
-
-function BellAlertIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
-    </svg>
-  );
-}
+import { PageHeader } from "@/shared/components/Layout/PageHeader";
+import { DataTable } from "@/shared/components/Table/DataTable";
+import { PaginationBar } from "@/shared/components/Navigation/PaginationBar";
+import { Input } from "@/shared/components/Input";
+import { Modal } from "@/shared/components/Modal/Modal";
+import { SelectField } from "@/shared/components/Forms/SelectField";
+import { SubmitButton } from "@/shared/components/Button/SubmitButton";
+import { Button } from "@/shared/components/Button/Button";
 
 // ─── Types état modal ─────────────────────────────────────────────────────────
 
@@ -171,32 +52,7 @@ type ModalState =
   | { type: "sendEmail"; user: UserListItemDto }
   | { type: "notifyBulk" };
 
-// ─── Helpers pagination ───────────────────────────────────────────────────────
-
-/**
- * Génère le tableau de pages à afficher (max 5 visibles + ellipses).
- * Ex: [1, '...', 4, 5, 6, '...', 12]
- */
-function buildPageRange(current: number, total: number): (number | "...")[] {
-  if (total <= 7) {
-    return Array.from({ length: total }, (_, i) => i + 1);
-  }
-
-  const pages: (number | "...")[] = [1];
-
-  if (current > 3) pages.push("...");
-
-  const start = Math.max(2, current - 1);
-  const end = Math.min(total - 1, current + 1);
-
-  for (let i = start; i <= end; i++) pages.push(i);
-
-  if (current < total - 2) pages.push("...");
-
-  pages.push(total);
-
-  return pages;
-}
+// ─── Configuration des options ────────────────────────────────────────────────
 
 // ─── Composant ────────────────────────────────────────────────────────────────
 
@@ -206,12 +62,28 @@ function buildPageRange(current: number, total: number): (number | "...")[] {
  * Fonctionnalités :
  * - Liste paginée avec filtres (recherche, rôle, statut)
  * - Debounce 300 ms sur la recherche textuelle
- * - Modification du rôle et du statut via modals
+ * - Modification du rôle et du statut via modals partagées
  * - Suppression avec raison (admin uniquement)
  * - Restauration d'un compte archivé (admin uniquement)
  * - Notifications sonner sur succès / erreur
  */
 export function UsersPage() {
+  const { t } = useTranslation("users");
+
+  // ── Options dynamiques avec i18n ──
+  const roleOptions = [
+    { value: UserRole.ADMIN, label: t("roles.admin") },
+    { value: UserRole.PROFESSOR, label: t("roles.professor") },
+    { value: UserRole.MEMBER, label: t("roles.member") },
+  ];
+
+  const statusOptions = [
+    { value: 1, label: t("statuses.active") },
+    { value: 2, label: t("statuses.inactive") },
+    { value: 3, label: t("statuses.suspended") },
+    { value: 4, label: t("statuses.pending") },
+    { value: 5, label: t("statuses.archived") },
+  ];
   const {
     users,
     pagination,
@@ -238,10 +110,17 @@ export function UsersPage() {
   // ── État des modals ───────────────────────────────────────────────────────
   const [modal, setModal] = useState<ModalState>({ type: "none" });
 
+  // ── État des formulaires ──────────────────────────────────────────────────
+  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [selectedStatusId, setSelectedStatusId] = useState<number>(1);
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteReasonTouched, setDeleteReasonTouched] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // ── Propagation de l'erreur du store vers le toast ────────────────────────
   useEffect(() => {
     if (error) {
-      toast.error("Erreur de chargement", { description: error });
+      toast.error(t("common:messages.error"), { description: error });
       clearError();
     }
   }, [error, clearError]);
@@ -264,166 +143,313 @@ export function UsersPage() {
     setSearchInput(filters.search);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Initialisation des états lors de l'ouverture d'une modal ──────────────
+  useEffect(() => {
+    if (modal.type === "editRole") {
+      setSelectedRole(modal.user.role_app ?? "member");
+      setIsSubmitting(false);
+    } else if (modal.type === "editStatus") {
+      setSelectedStatusId(modal.user.status_id);
+      setIsSubmitting(false);
+    } else if (modal.type === "delete") {
+      setDeleteReason("");
+      setDeleteReasonTouched(false);
+      setIsSubmitting(false);
+    }
+  }, [modal]);
+
   // ── Handlers modals ───────────────────────────────────────────────────────
 
-  const handleRoleConfirm = async (role: string) => {
+  const handleRoleSubmit = async () => {
     if (modal.type !== "editRole") return;
+
+    setIsSubmitting(true);
     try {
-      await updateUserRole(modal.user.id, role);
-      toast.success("Rôle mis à jour", {
-        description: `Le rôle de ${modal.user.first_name} ${modal.user.last_name} a été modifié.`,
+      await updateUserRole(modal.user.id, selectedRole);
+      toast.success(t("roleUpdated"), {
+        description: `${modal.user.first_name} ${modal.user.last_name}`,
       });
+      closeModal();
     } catch (err: any) {
-      toast.error("Erreur", {
+      toast.error(t("common:messages.error"), {
         description:
           err.response?.data?.message ??
           err.message ??
-          "Impossible de modifier le rôle.",
+          t("common:messages.error"),
       });
-      throw err; // Re-throw pour garder la modal ouverte
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleStatusConfirm = async (statusId: number) => {
+  const handleStatusSubmit = async () => {
     if (modal.type !== "editStatus") return;
+
+    setIsSubmitting(true);
     try {
-      await updateUserStatus(modal.user.id, statusId);
-      toast.success("Statut mis à jour", {
-        description: `Le statut de ${modal.user.first_name} ${modal.user.last_name} a été modifié.`,
+      await updateUserStatus(modal.user.id, selectedStatusId);
+      toast.success(t("statusUpdated"), {
+        description: `${modal.user.first_name} ${modal.user.last_name}`,
       });
+      closeModal();
     } catch (err: any) {
-      toast.error("Erreur", {
+      toast.error(t("common:messages.error"), {
         description:
           err.response?.data?.message ??
           err.message ??
-          "Impossible de modifier le statut.",
+          t("common:messages.error"),
       });
-      throw err;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteConfirm = async (reason: string) => {
+  const handleDeleteSubmit = async () => {
     if (modal.type !== "delete") return;
+
+    setDeleteReasonTouched(true);
+    const trimmedReason = deleteReason.trim();
+    if (trimmedReason.length < 5) return;
+
+    setIsSubmitting(true);
     try {
-      await deleteUser(modal.user.id, reason);
-      toast.success("Utilisateur supprimé", {
-        description: `${modal.user.first_name} ${modal.user.last_name} a été supprimé.`,
+      await deleteUser(modal.user.id, trimmedReason);
+      toast.success(t("userDeleted"), {
+        description: `${modal.user.first_name} ${modal.user.last_name}`,
       });
+      closeModal();
     } catch (err: any) {
-      toast.error("Erreur", {
+      toast.error(t("common:messages.error"), {
         description:
           err.response?.data?.message ??
           err.message ??
-          "Impossible de supprimer l'utilisateur.",
+          t("common:messages.error"),
       });
-      throw err;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleRestore = async (user: UserListItemDto) => {
     try {
       await restoreUser(user.id);
-      toast.success("Compte restauré", {
-        description: `${user.first_name} ${user.last_name} a été restauré.`,
+      toast.success(t("userRestored"), {
+        description: `${user.first_name} ${user.last_name}`,
       });
     } catch (err: any) {
-      toast.error("Erreur", {
+      toast.error(t("common:messages.error"), {
         description:
           err.response?.data?.message ??
           err.message ??
-          "Impossible de restaurer le compte.",
+          t("common:messages.error"),
       });
     }
   };
 
   const closeModal = () => setModal({ type: "none" });
 
-  // ── Pagination ────────────────────────────────────────────────────────────
-
-  const pageRange = buildPageRange(pagination.page, pagination.totalPages);
-
   // ── Numéro de ligne absolu ────────────────────────────────────────────────
 
   const rowOffset = (pagination.page - 1) * pagination.limit;
+
+  // ── Actions du header ─────────────────────────────────────────────────────
+
+  const headerActions = (
+    <div className="flex items-center gap-2">
+      {pagination.total > 0 && (
+        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100">
+          {t("common:common.total")} : {pagination.total}
+        </span>
+      )}
+      {isAdmin && (
+        <button
+          type="button"
+          onClick={() => setModal({ type: "notifyBulk" })}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-orange-200
+                     bg-orange-50 text-orange-700 text-sm font-medium
+                     hover:bg-orange-100 hover:border-orange-300 transition-colors"
+          title={t("notifyUsers")}
+        >
+          <BellAlertIcon className="h-4 w-4" />
+          <span className="hidden sm:inline">{t("notifyUsers")}</span>
+        </button>
+      )}
+      <button
+        type="button"
+        onClick={refetch}
+        disabled={isLoading}
+        title={t("common:buttons.refresh")}
+        className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200
+                   text-gray-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200
+                   transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        <ArrowPathIcon
+          className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+        />
+      </button>
+    </div>
+  );
+
+  // ── Colonnes de la table ──────────────────────────────────────────────────
+
+  const columns = [
+    {
+      key: "#",
+      label: "#",
+      render: (_: any, row: UserListItemDto) => {
+        const index = users.findIndex((u) => u.id === row.id);
+        return (
+          <span className="text-sm text-gray-400 tabular-nums">
+            {rowOffset + index + 1}
+          </span>
+        );
+      },
+    },
+    {
+      key: "name",
+      label: t("firstName"),
+      render: (_: any, row: UserListItemDto) => (
+        <div>
+          <div className="text-sm font-medium text-gray-900">
+            {row.first_name} {row.last_name}
+          </div>
+          <div className="text-xs text-gray-400 mt-0.5">{row.userId}</div>
+        </div>
+      ),
+    },
+    {
+      key: "email",
+      label: t("common:common.email"),
+      render: (_: any, row: UserListItemDto) => (
+        <div className="text-sm text-gray-700 flex items-center">
+          <span className="truncate max-w-[220px]">{row.email}</span>
+          {row.email_verified && (
+            <CheckIcon
+              className="h-3.5 w-3.5 text-green-500 inline-block ml-1"
+              aria-label={t("emailVerified")}
+            />
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "role",
+      label: t("role"),
+      render: (_: any, row: UserListItemDto) => (
+        <UserRoleBadge role={row.role_app} />
+      ),
+    },
+    {
+      key: "status",
+      label: t("status"),
+      render: (_: any, row: UserListItemDto) => (
+        <UserStatusBadge statusId={row.status_id} />
+      ),
+    },
+    {
+      key: "actions",
+      label: t("common:common.actions"),
+      render: (_: any, row: UserListItemDto) => (
+        <div className="flex items-center justify-end gap-1">
+          {/* Modifier le rôle */}
+          <button
+            type="button"
+            onClick={() => setModal({ type: "editRole", user: row })}
+            title={t("changeRole")}
+            className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50
+                       transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <TagIcon className="h-4 w-4" />
+          </button>
+
+          {/* Modifier le statut */}
+          <button
+            type="button"
+            onClick={() => setModal({ type: "editStatus", user: row })}
+            title={t("changeStatus")}
+            className="p-1.5 rounded-lg text-gray-500 hover:text-indigo-600 hover:bg-indigo-50
+                       transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          >
+            <PencilIcon className="h-4 w-4" />
+          </button>
+
+          {/* Envoyer un message — visible aux admins et professeurs */}
+          {row.status_id !== 5 && (
+            <button
+              type="button"
+              onClick={() => setModal({ type: "sendEmail", user: row })}
+              className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+              title={t("sendMessageTo", {
+                name: `${row.first_name} ${row.last_name}`,
+              })}
+              aria-label={t("sendMessageTo", {
+                name: `${row.first_name} ${row.last_name}`,
+              })}
+            >
+              <EnvelopeIcon className="h-4 w-4" />
+            </button>
+          )}
+
+          {/* Supprimer (admin uniquement) */}
+          {isAdmin && row.status_id !== 5 && (
+            <button
+              type="button"
+              onClick={() => setModal({ type: "delete", user: row })}
+              title={t("deleteUser")}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50
+                         transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
+            >
+              <TrashIcon className="h-4 w-4" />
+            </button>
+          )}
+
+          {/* Restaurer (admin, compte archivé uniquement) */}
+          {isAdmin && row.status_id === 5 && (
+            <button
+              type="button"
+              onClick={() => handleRestore(row)}
+              title={t("restoreUser")}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-green-600 hover:bg-green-50
+                         transition-colors focus:outline-none focus:ring-2 focus:ring-green-400"
+            >
+              <ArrowPathIcon className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  // ── Validation du formulaire de suppression ───────────────────────────────
+  const trimmedDeleteReason = deleteReason.trim();
+  const isDeleteReasonValid = trimmedDeleteReason.length >= 5;
+  const showDeleteError = deleteReasonTouched && !isDeleteReasonValid;
 
   // ── Rendu ─────────────────────────────────────────────────────────────────
 
   return (
     <div className="space-y-6">
       {/* ── En-tête ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Gestion des utilisateurs
-          </h1>
-          <p className="mt-0.5 text-sm text-gray-500">
-            Administration des comptes membres du club
-          </p>
-        </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          {pagination.total > 0 && (
-            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100">
-              Total : {pagination.total} utilisateur
-              {pagination.total > 1 ? "s" : ""}
-            </span>
-          )}
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={() => setModal({ type: "notifyBulk" })}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-orange-200
-                         bg-orange-50 text-orange-700 text-sm font-medium
-                         hover:bg-orange-100 hover:border-orange-300 transition-colors"
-              title="Envoyer une notification aux membres non-conformes"
-            >
-              <BellAlertIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">Notifier</span>
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={refetch}
-            disabled={isLoading}
-            title="Rafraîchir la liste"
-            className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200
-                       text-gray-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200
-                       transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <svg
-              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        icon={<UsersIcon className="h-8 w-8 text-blue-600" />}
+        title={t("title")}
+        description={t("description")}
+        actions={headerActions}
+      />
 
       {/* ── Barre de filtres ── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Recherche */}
-          <div className="relative flex-1 min-w-0">
-            <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-              <SearchIcon />
-            </span>
-            <input
+          <div className="flex-1 min-w-0">
+            <Input
               type="search"
+              placeholder={t("searchPlaceholder")}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Rechercher par nom, email, identifiant…"
-              className="block w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm
-                         placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
-                         focus:border-blue-500 transition-colors"
+              leftIcon={
+                <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
+              }
             />
           </div>
 
@@ -431,411 +457,259 @@ export function UsersPage() {
           <select
             value={filters.role_app}
             onChange={(e) => setFilter("role_app", e.target.value)}
-            className="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white
+            className="px-3 py-3 border border-gray-300 rounded-lg text-sm bg-white
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        transition-colors min-w-[140px]"
           >
-            <option value="">Tous les rôles</option>
-            <option value="admin">Admin</option>
-            <option value="professor">Professeur</option>
-            <option value="member">Membre</option>
+            <option value="">{t("allRoles")}</option>
+            <option value="admin">{t("roles.admin")}</option>
+            <option value="professor">{t("roles.professor")}</option>
+            <option value="member">{t("roles.member")}</option>
           </select>
 
           {/* Filtre statut */}
           <select
             value={filters.status_id}
             onChange={(e) => setFilter("status_id", e.target.value)}
-            className="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white
+            className="px-3 py-3 border border-gray-300 rounded-lg text-sm bg-white
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                        transition-colors min-w-[150px]"
           >
-            <option value="">Tous les statuts</option>
-            <option value="1">Actif</option>
-            <option value="2">Inactif</option>
-            <option value="3">Suspendu</option>
-            <option value="4">En attente</option>
-            <option value="5">Archivé</option>
+            <option value="">{t("allStatuses")}</option>
+            <option value="1">{t("statuses.active")}</option>
+            <option value="2">{t("statuses.inactive")}</option>
+            <option value="3">{t("statuses.suspended")}</option>
+            <option value="4">{t("statuses.pending")}</option>
+            <option value="5">{t("statuses.archived")}</option>
           </select>
         </div>
       </div>
 
       {/* ── Table ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        {/* État de chargement */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-20 gap-3">
-            <svg
-              className="animate-spin h-6 w-6 text-blue-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
+      <DataTable
+        columns={columns}
+        data={users}
+        rowKey="id"
+        loading={isLoading}
+        emptyMessage={t("noUsers")}
+      />
+
+      {/* Bouton pour effacer les filtres si aucun résultat */}
+      {!isLoading &&
+        users.length === 0 &&
+        (filters.search || filters.role_app || filters.status_id) && (
+          <div className="flex justify-center -mt-4 pb-4">
+            <button
+              type="button"
+              onClick={() => {
+                setSearchInput("");
+                setFilter("search", "");
+                setFilter("role_app", "");
+                setFilter("status_id", "");
+              }}
+              className="text-sm text-blue-600 hover:underline"
             >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
-            </svg>
-            <span className="text-sm text-gray-500">
-              Chargement des utilisateurs…
-            </span>
+              {t("common:buttons.reset")}
+            </button>
           </div>
         )}
-
-        {/* État vide */}
-        {!isLoading && users.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <svg
-              className="h-12 w-12 text-gray-300"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"
-              />
-            </svg>
-            <p className="text-sm text-gray-500">Aucun utilisateur trouvé.</p>
-            {(filters.search || filters.role_app || filters.status_id) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchInput("");
-                  setFilter("search", "");
-                  setFilter("role_app", "");
-                  setFilter("status_id", "");
-                }}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                Effacer les filtres
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Table */}
-        {!isLoading && users.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th
-                    scope="col"
-                    className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-10"
-                  >
-                    #
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                  >
-                    Nom
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                  >
-                    Email
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                  >
-                    Rôle
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                  >
-                    Statut
-                  </th>
-                  <th
-                    scope="col"
-                    className="py-3 pl-3 pr-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-28"
-                  >
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-gray-50 bg-white">
-                {users.map((user, index) => (
-                  <tr
-                    key={user.id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    {/* # */}
-                    <td className="py-3.5 pl-4 pr-3 text-sm text-gray-400 tabular-nums">
-                      {rowOffset + index + 1}
-                    </td>
-
-                    {/* Nom */}
-                    <td className="px-4 py-3.5">
-                      <div className="text-sm font-medium text-gray-900">
-                        {user.first_name} {user.last_name}
-                      </div>
-                      <div className="text-xs text-gray-400 mt-0.5">
-                        {user.userId}
-                      </div>
-                    </td>
-
-                    {/* Email */}
-                    <td className="px-4 py-3.5">
-                      <div className="text-sm text-gray-700 flex items-center">
-                        <span className="truncate max-w-[220px]">
-                          {user.email}
-                        </span>
-                        {user.email_verified && <CheckIcon />}
-                      </div>
-                    </td>
-
-                    {/* Rôle */}
-                    <td className="px-4 py-3.5">
-                      <UserRoleBadge role={user.role_app} />
-                    </td>
-
-                    {/* Statut */}
-                    <td className="px-4 py-3.5">
-                      <UserStatusBadge statusId={user.status_id} />
-                    </td>
-
-                    {/* Actions */}
-                    <td className="py-3.5 pl-3 pr-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        {/* Modifier le rôle */}
-                        <button
-                          type="button"
-                          onClick={() => setModal({ type: "editRole", user })}
-                          title="Modifier le rôle"
-                          className="p-1.5 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50
-                                     transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        >
-                          <TagIcon />
-                        </button>
-
-                        {/* Modifier le statut */}
-                        <button
-                          type="button"
-                          onClick={() => setModal({ type: "editStatus", user })}
-                          title="Modifier le statut"
-                          className="p-1.5 rounded-md text-gray-500 hover:text-indigo-600 hover:bg-indigo-50
-                                     transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                        >
-                          <PencilIcon />
-                        </button>
-
-                        {/* Envoyer un message — visible aux admins et professeurs */}
-                        {user.status_id !== 5 && (
-                          <button
-                            type="button"
-                            onClick={() => setModal({ type: "sendEmail", user })}
-                            className="p-1.5 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                            title={`Envoyer un message à ${user.first_name} ${user.last_name}`}
-                            aria-label={`Envoyer un message à ${user.first_name} ${user.last_name}`}
-                          >
-                            <EnvelopeIcon className="h-4 w-4" />
-                          </button>
-                        )}
-
-                        {/* Supprimer (admin uniquement) */}
-                        {isAdmin && user.status_id !== 5 && (
-                          <button
-                            type="button"
-                            onClick={() => setModal({ type: "delete", user })}
-                            title="Supprimer l'utilisateur"
-                            className="p-1.5 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50
-                                       transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
-                          >
-                            <TrashIcon />
-                          </button>
-                        )}
-
-                        {/* Restaurer (admin, compte archivé uniquement) */}
-                        {isAdmin && user.status_id === 5 && (
-                          <button
-                            type="button"
-                            onClick={() => handleRestore(user)}
-                            title="Restaurer le compte"
-                            className="p-1.5 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50
-                                       transition-colors focus:outline-none focus:ring-2 focus:ring-green-400"
-                          >
-                            <RestoreIcon />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
 
       {/* ── Pagination ── */}
       {!isLoading && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          {/* Info résultats */}
-          <p className="text-sm text-gray-500">
-            Page{" "}
-            <span className="font-medium text-gray-700">{pagination.page}</span>{" "}
-            sur{" "}
-            <span className="font-medium text-gray-700">
-              {pagination.totalPages}
-            </span>{" "}
-            —{" "}
-            <span className="font-medium text-gray-700">
-              {pagination.total}
-            </span>{" "}
-            résultat{pagination.total > 1 ? "s" : ""}
-          </p>
-
-          {/* Boutons de navigation */}
-          <nav className="flex items-center gap-1" aria-label="Pagination">
-            {/* Précédent */}
-            <button
-              type="button"
-              onClick={() => setPage(pagination.page - 1)}
-              disabled={pagination.page <= 1}
-              className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200
-                         text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors
-                         disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label="Page précédente"
-            >
-              <svg
-                className="h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5 8.25 12l7.5-7.5"
-                />
-              </svg>
-            </button>
-
-            {/* Numéros de pages */}
-            {pageRange.map((page, idx) =>
-              page === "..." ? (
-                <span
-                  key={`ellipsis-${idx}`}
-                  className="flex items-center justify-center w-9 h-9 text-sm text-gray-400"
-                >
-                  …
-                </span>
-              ) : (
-                <button
-                  key={page}
-                  type="button"
-                  onClick={() => setPage(page)}
-                  aria-current={page === pagination.page ? "page" : undefined}
-                  className={`flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium
-                               transition-colors border
-                               ${
-                                 page === pagination.page
-                                   ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                                   : "text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-                               }`}
-                >
-                  {page}
-                </button>
-              ),
-            )}
-
-            {/* Suivant */}
-            <button
-              type="button"
-              onClick={() => setPage(pagination.page + 1)}
-              disabled={pagination.page >= pagination.totalPages}
-              className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200
-                         text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors
-                         disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label="Page suivante"
-            >
-              <svg
-                className="h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                />
-              </svg>
-            </button>
-          </nav>
-        </div>
+        <PaginationBar
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          onPageChange={setPage}
+          showResultsCount
+          total={pagination.total}
+          pageSize={pagination.limit}
+        />
       )}
 
       {/* ── Modals ── */}
 
-      {/* Modifier le rôle */}
-      <EditUserRoleModal
-        userId={modal.type === "editRole" ? modal.user.id : 0}
-        currentRole={
-          modal.type === "editRole"
-            ? (modal.user.role_app ?? "member")
-            : "member"
-        }
-        isOpen={modal.type === "editRole"}
-        onClose={closeModal}
-        onConfirm={handleRoleConfirm}
-      />
+      {/* Modal : Modifier le rôle */}
+      <Modal isOpen={modal.type === "editRole"} onClose={closeModal} size="sm">
+        <Modal.Header
+          title={t("modal.editRole.title")}
+          showCloseButton
+          onClose={closeModal}
+        />
+        <Modal.Body>
+          <SelectField
+            id="role-select"
+            label={t("modal.editRole.label")}
+            options={roleOptions}
+            value={selectedRole}
+            onChange={(value) => setSelectedRole(String(value))}
+            required
+          />
+        </Modal.Body>
+        <Modal.Footer align="right">
+          <Button
+            variant="outline"
+            onClick={closeModal}
+            disabled={isSubmitting}
+          >
+            {t("modal.editRole.cancel")}
+          </Button>
+          <SubmitButton
+            isLoading={isSubmitting}
+            loadingText={t("modal.editRole.saving")}
+            onClick={handleRoleSubmit}
+            type="button"
+            disabled={
+              isSubmitting ||
+              (modal.type === "editRole" &&
+                selectedRole === modal.user.role_app)
+            }
+          >
+            {t("modal.editRole.confirm")}
+          </SubmitButton>
+        </Modal.Footer>
+      </Modal>
 
-      {/* Modifier le statut */}
-      <EditUserStatusModal
-        userId={modal.type === "editStatus" ? modal.user.id : 0}
-        currentStatusId={modal.type === "editStatus" ? modal.user.status_id : 1}
+      {/* Modal : Modifier le statut */}
+      <Modal
         isOpen={modal.type === "editStatus"}
         onClose={closeModal}
-        onConfirm={handleStatusConfirm}
-      />
+        size="sm"
+      >
+        <Modal.Header
+          title={t("modal.editStatus.title")}
+          showCloseButton
+          onClose={closeModal}
+        />
+        <Modal.Body>
+          <SelectField
+            id="status-select"
+            label={t("modal.editStatus.label")}
+            options={statusOptions}
+            value={selectedStatusId}
+            onChange={(value) => setSelectedStatusId(Number(value))}
+            required
+          />
+        </Modal.Body>
+        <Modal.Footer align="right">
+          <Button
+            variant="outline"
+            onClick={closeModal}
+            disabled={isSubmitting}
+          >
+            {t("modal.editStatus.cancel")}
+          </Button>
+          <SubmitButton
+            isLoading={isSubmitting}
+            loadingText={t("modal.editStatus.saving")}
+            onClick={handleStatusSubmit}
+            type="button"
+            disabled={
+              isSubmitting ||
+              (modal.type === "editStatus" &&
+                selectedStatusId === modal.user.status_id)
+            }
+          >
+            {t("modal.editStatus.confirm")}
+          </SubmitButton>
+        </Modal.Footer>
+      </Modal>
 
-      {/* Supprimer */}
-      <DeleteUserModal
-        userId={modal.type === "delete" ? modal.user.id : 0}
-        userName={
-          modal.type === "delete"
-            ? `${modal.user.first_name} ${modal.user.last_name}`
-            : ""
-        }
-        isOpen={modal.type === "delete"}
-        onClose={closeModal}
-        onConfirm={handleDeleteConfirm}
-      />
+      {/* Modal : Supprimer l'utilisateur */}
+      <Modal isOpen={modal.type === "delete"} onClose={closeModal} size="md">
+        <Modal.Header
+          title={t("modal.delete.title")}
+          showCloseButton
+          onClose={closeModal}
+        />
+        <Modal.Body>
+          {/* Avertissement */}
+          <div className="mb-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+            <div className="flex items-start gap-3">
+              <ExclamationTriangleIcon className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-red-700 leading-relaxed">
+                <p>
+                  {t("deleteWarningTitle")}{" "}
+                  <span className="font-semibold">
+                    {modal.type === "delete" &&
+                      `${modal.user.first_name} ${modal.user.last_name}`}
+                  </span>
+                  .
+                </p>
+                <p className="mt-1">
+                  {t("modal.delete.warningBody")} {t("deleteWarningNoAccess")}
+                </p>
+              </div>
+            </div>
+          </div>
 
-      {/* Envoyer un email à un utilisateur */}
+          {/* Champ raison */}
+          <div>
+            <label
+              htmlFor="deleteReason"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              {t("deleteReason")} *
+            </label>
+            <textarea
+              id="delete-reason"
+              rows={3}
+              value={deleteReason}
+              onChange={(e) => setDeleteReason(e.target.value)}
+              onBlur={() => setDeleteReasonTouched(true)}
+              disabled={isSubmitting}
+              placeholder={t("deleteReasonPlaceholder")}
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm resize-none
+                          placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors
+                          disabled:bg-gray-50 disabled:cursor-not-allowed
+                          ${
+                            showDeleteError
+                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                              : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                          }`}
+            />
+            {showDeleteError && (
+              <p className="mt-1.5 text-xs text-red-600">
+                {t("deleteReasonError")}
+              </p>
+            )}
+            {!showDeleteError && (
+              <p className="mt-1.5 text-xs text-gray-400">
+                {t("deleteReasonMinChars", {
+                  count: trimmedDeleteReason.length,
+                })}
+              </p>
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer align="right">
+          <Button
+            variant="outline"
+            onClick={closeModal}
+            disabled={isSubmitting}
+          >
+            {t("modal.delete.cancel")}
+          </Button>
+          <SubmitButton
+            isLoading={isSubmitting}
+            loadingText={t("modal.delete.deleting")}
+            onClick={handleDeleteSubmit}
+            type="button"
+            variant="danger"
+            disabled={isSubmitting}
+          >
+            {t("modal.delete.confirm")}
+          </SubmitButton>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal : Envoyer un email à un utilisateur */}
       <SendToUserModal
         user={modal.type === "sendEmail" ? modal.user : null}
         isOpen={modal.type === "sendEmail"}
         onClose={closeModal}
       />
 
-      {/* Notification en masse */}
+      {/* Modal : Notification en masse */}
       <NotifyUsersModal
         isOpen={modal.type === "notifyBulk"}
         onClose={closeModal}

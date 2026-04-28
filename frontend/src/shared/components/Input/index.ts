@@ -15,8 +15,43 @@ export type {
   InputType,
 } from "./Input";
 
+// Ré-exporter les sous-composants pour TypeScript
+// Permet d'utiliser Input.Select, Input.Textarea, etc. avec le bon typage
+import { Input as InputWithSubComponents } from "./Input";
+
+export const Select = InputWithSubComponents.Select;
+export const Textarea = InputWithSubComponents.Textarea;
+export const Checkbox = InputWithSubComponents.Checkbox;
+export const Radio = InputWithSubComponents.Radio;
+
+/**
+ * @deprecated FormInput is deprecated. Use FormField + Input instead.
+ *
+ * Migration example:
+ * ```tsx
+ * // BEFORE (FormInput):
+ * <FormInput
+ *   label="Email"
+ *   id="email"
+ *   type="email"
+ *   register={register("email")}
+ *   error={errors.email?.message}
+ *   required
+ * />
+ *
+ * // AFTER (FormField + Input):
+ * <FormField id="email" label="Email" required error={errors.email?.message}>
+ *   <Input id="email" type="email" {...register("email")} />
+ * </FormField>
+ * ```
+ *
+ * @see docs/audits/migrations/003-deprecate-forminput.md
+ */
 export { FormInput } from "./FormInput";
 export type { FormInputProps } from "./FormInput";
 
 export { PasswordInput } from "./PasswordInput";
 export type { PasswordInputProps } from "./PasswordInput";
+
+export { PasswordRequirements } from "./PasswordRequirements";
+export type { PasswordRequirementsProps } from "./PasswordRequirements";

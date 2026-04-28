@@ -12,6 +12,8 @@ import {
   useLocation,
 } from "react-router-dom";
 import { Toaster } from "sonner";
+import { I18nextProvider } from "react-i18next";
+import i18n from "./i18n";
 import { useAuthStore } from "./shared/stores/authStore";
 
 // Layouts
@@ -118,7 +120,7 @@ function App() {
   }, [checkAuth]);
 
   return (
-    <>
+    <I18nextProvider i18n={i18n}>
       {/* Toaster pour les notifications */}
       <Toaster position="top-right" richColors closeButton duration={4000} />
 
@@ -239,7 +241,7 @@ function App() {
           />
         </Routes>
       </BrowserRouter>
-    </>
+    </I18nextProvider>
   );
 }
 

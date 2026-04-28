@@ -6,6 +6,8 @@
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { Modal, Button } from "../../../shared/components";
 import type { Category } from "../api/storeApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -23,34 +25,6 @@ export interface CategoryFormData {
   ordre?: number;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function SpinnerIcon() {
-  return (
-    <svg
-      className="animate-spin h-4 w-4 text-white"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-  );
-}
-
 // ─── Composant ────────────────────────────────────────────────────────────────
 
 /**
@@ -58,7 +32,7 @@ function SpinnerIcon() {
  *
  * - Si `category` est fourni  → mode édition (pré-remplit les champs)
  * - Si `category` est absent  → mode création
- * Fermeture sur Escape ou clic overlay (hors chargement).
+ * Fermeture sur Escape ou clic overlay gérée automatiquement par Modal.
  */
 export const CategoryModal: React.FC<CategoryModalProps> = ({
   isOpen,
@@ -66,6 +40,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
   category,
   onSubmit,
 }) => {
+  const { t } = useTranslation("store");
   const isEditMode = !!category;
 
   const {
@@ -92,24 +67,6 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
     }
   }, [isOpen, category, reset]);
 
-  // ── Fermeture sur Escape ──────────────────────────────────────────────────
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !isSubmitting) onClose();
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, isSubmitting, onClose]);
-
-  // ── Bloquer le scroll du body ─────────────────────────────────────────────
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
   // ── Soumission ────────────────────────────────────────────────────────────
   const handleFormSubmit = async (data: CategoryFormData) => {
     const payload: CategoryFormData = {
@@ -121,67 +78,34 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
     onClose();
   };
 
-  if (!isOpen) return null;
-
   // ── Rendu ─────────────────────────────────────────────────────────────────
   return (
-    <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="category-form-title"
-      onClick={() => {
-        if (!isSubmitting) onClose();
-      }}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="md"
+      closeOnOverlayClick={!isSubmitting}
+      closeOnEscape={!isSubmitting}
     >
-      <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* ── En-tête ── */}
-        <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <h2
-              id="category-form-title"
-              className="text-xl font-semibold text-gray-900"
-            >
-              {isEditMode ? "Modifier la catégorie" : "Nouvelle catégorie"}
-            </h2>
-            <button
-              type="button"
-              onClick={() => {
-                if (!isSubmitting) onClose();
-              }}
-              disabled={isSubmitting}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Fermer"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          <p className="mt-1 text-sm text-gray-500">
-            {isEditMode
-              ? "Modifiez les informations de la catégorie existante."
-              : "Créez une nouvelle catégorie pour organiser vos articles."}
-          </p>
-        </div>
+      <Modal.Header
+        title={
+          isEditMode
+            ? t("categoryModal.title.edit")
+            : t("categoryModal.title.create")
+        }
+        subtitle={
+          isEditMode
+            ? t("categoryModal.subtitle.edit")
+            : t("categoryModal.subtitle.create")
+        }
+        onClose={isSubmitting ? undefined : onClose}
+      />
 
-        {/* ── Formulaire ── */}
+      <Modal.Body>
         <form
+          id="category-form"
           onSubmit={handleSubmit(handleFormSubmit)}
-          className="px-6 py-5 space-y-5"
+          className="space-y-5"
         >
           {/* Nom */}
           <div>
@@ -189,25 +113,26 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               htmlFor="category-nom"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Nom de la catégorie <span className="text-red-500">*</span>
+              {t("categoryModal.fields.name.label")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="category-nom"
               type="text"
-              placeholder="Ex : Vêtements, Équipements, Accessoires…"
+              placeholder={t("categoryModal.fields.name.placeholder")}
               disabled={isSubmitting}
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.nom ? "border-red-400" : "border-gray-300"
               }`}
               {...register("nom", {
-                required: "Le nom de la catégorie est requis.",
+                required: t("categoryModal.fields.name.required"),
                 minLength: {
                   value: 2,
-                  message: "Le nom doit comporter au moins 2 caractères.",
+                  message: t("categoryModal.fields.name.minLength"),
                 },
                 maxLength: {
                   value: 100,
-                  message: "Le nom ne peut pas dépasser 100 caractères.",
+                  message: t("categoryModal.fields.name.maxLength"),
                 },
               })}
             />
@@ -222,17 +147,17 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               htmlFor="category-description"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Description
+              {t("categoryModal.fields.description.label")}
               <span className="ml-1 text-xs text-gray-400 font-normal">
-                (optionnel)
+                {t("categoryModal.fields.description.optional")}
               </span>
             </label>
             <textarea
               id="category-description"
               rows={3}
-              placeholder="Décrivez le type d'articles dans cette catégorie…"
+              placeholder={t("categoryModal.fields.description.placeholder")}
               disabled={isSubmitting}
-              className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors resize-none"
+              className="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors resize-y"
               {...register("description")}
             />
           </div>
@@ -243,9 +168,9 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               htmlFor="category-ordre"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Ordre d&apos;affichage
+              {t("categoryModal.fields.order.label")}
               <span className="ml-1 text-xs text-gray-400 font-normal">
-                (optionnel)
+                {t("categoryModal.fields.order.optional")}
               </span>
             </label>
             <input
@@ -253,15 +178,15 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               type="number"
               min="0"
               step="1"
-              placeholder="0"
+              placeholder={t("categoryModal.fields.order.placeholder")}
               disabled={isSubmitting}
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.ordre ? "border-red-400" : "border-gray-300"
               }`}
               {...register("ordre", {
                 min: {
                   value: 0,
-                  message: "L'ordre doit être supérieur ou égal à 0.",
+                  message: t("categoryModal.fields.order.min"),
                 },
                 valueAsNumber: true,
               })}
@@ -272,34 +197,25 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               </p>
             )}
           </div>
-
-          {/* ── Actions ── */}
-          <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
-            <button
-              type="button"
-              onClick={() => {
-                if (!isSubmitting) onClose();
-              }}
-              disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isSubmitting && <SpinnerIcon />}
-              {isSubmitting
-                ? "Enregistrement…"
-                : isEditMode
-                  ? "Mettre à jour"
-                  : "Créer la catégorie"}
-            </button>
-          </div>
         </form>
-      </div>
-    </div>
+      </Modal.Body>
+
+      <Modal.Footer align="right">
+        <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+          {t("categoryModal.actions.cancel")}
+        </Button>
+        <Button
+          type="submit"
+          form="category-form"
+          variant="primary"
+          loading={isSubmitting}
+          disabled={isSubmitting}
+        >
+          {isEditMode
+            ? t("categoryModal.actions.update")
+            : t("categoryModal.actions.create")}
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };

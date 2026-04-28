@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { createTemplate, updateTemplate } from "../api/templatesApi";
 import type { Template, TemplateType } from "../api/templatesApi";
 import {
@@ -79,6 +80,7 @@ export const TemplateEditorModal = ({
   onClose,
   onSaved,
 }: TemplateEditorModalProps) => {
+  const { t } = useTranslation("messages");
   const isEditing = Boolean(template);
 
   // ── Form state ──────────────────────────────────────────────────────────────
@@ -129,11 +131,13 @@ export const TemplateEditorModal = ({
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (typeId === "")
-      newErrors.typeId = "Veuillez sélectionner une catégorie.";
-    if (!titre.trim()) newErrors.titre = "Le titre est obligatoire.";
+      newErrors.typeId = t("templateEditor.validation.categoryRequired");
+    if (!titre.trim())
+      newErrors.titre = t("templateEditor.validation.titleRequired");
     else if (titre.trim().length > 200)
-      newErrors.titre = "Le titre ne doit pas dépasser 200 caractères.";
-    if (!contenu.trim()) newErrors.contenu = "Le contenu est obligatoire.";
+      newErrors.titre = t("templateEditor.validation.titleMaxLength");
+    if (!contenu.trim())
+      newErrors.contenu = t("templateEditor.validation.contentRequired");
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -152,7 +156,7 @@ export const TemplateEditorModal = ({
           contenu: contenu.trim(),
           actif,
         });
-        toast.success("Template mis à jour.");
+        toast.success(t("success.templateUpdated"));
       } else {
         await createTemplate({
           type_id: typeId as number,
@@ -160,15 +164,13 @@ export const TemplateEditorModal = ({
           contenu: contenu.trim(),
           actif,
         });
-        toast.success("Template créé avec succès.");
+        toast.success(t("success.templateCreated"));
       }
       onSaved();
       onClose();
     } catch (err: any) {
       const msg =
-        err?.response?.data?.message ??
-        err?.message ??
-        "Une erreur est survenue.";
+        err?.response?.data?.message ?? err?.message ?? t("errors.generic");
       toast.error(msg);
     } finally {
       setIsSaving(false);
@@ -184,7 +186,9 @@ export const TemplateEditorModal = ({
     >
       <Modal.Header
         title={
-          isEditing ? `Modifier « ${template!.titre} »` : "Nouveau template"
+          isEditing
+            ? t("templateEditor.editTitle", { titre: template!.titre })
+            : t("templateEditor.title")
         }
         showCloseButton
         onClose={onClose}
@@ -200,7 +204,7 @@ export const TemplateEditorModal = ({
             {/* Catégorie */}
             <Input.Select
               id="tpl-type"
-              label="Catégorie"
+              label={t("templateEditor.fields.category")}
               required
               value={typeId}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -214,7 +218,9 @@ export const TemplateEditorModal = ({
               }}
               error={errors.typeId}
             >
-              <option value="">— Choisir une catégorie —</option>
+              <option value="">
+                {t("templateEditor.placeholders.selectCategory")}
+              </option>
               {types.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.nom}
@@ -225,7 +231,7 @@ export const TemplateEditorModal = ({
             {/* Titre */}
             <Input
               id="tpl-titre"
-              label="Titre"
+              label={t("templateEditor.fields.title")}
               type="text"
               required
               value={titre}
@@ -238,7 +244,7 @@ export const TemplateEditorModal = ({
                   });
                 }
               }}
-              placeholder="Ex : Email de bienvenue"
+              placeholder={t("templateEditor.examplePlaceholder")}
               maxLength={200}
               error={errors.titre}
             />
@@ -250,7 +256,7 @@ export const TemplateEditorModal = ({
             <div className="flex flex-col">
               <Input.Textarea
                 id="tpl-contenu"
-                label="Contenu"
+                label={t("templateEditor.fields.content")}
                 required
                 value={contenu}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -262,10 +268,10 @@ export const TemplateEditorModal = ({
                     });
                   }
                 }}
-                placeholder={`Bonjour {{prenom}},\n\nVotre message ici…`}
+                placeholder={t("templateEditor.placeholders.content")}
                 rows={10}
                 error={errors.contenu}
-                helperText="Utilisez {{variable}} pour les variables"
+                helperText={t("templateEditor.helpers.variables")}
                 className="font-mono"
               />
             </div>
@@ -274,10 +280,10 @@ export const TemplateEditorModal = ({
             <div className="flex flex-col">
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="text-sm font-medium text-gray-700">
-                  Aperçu
+                  {t("templateEditor.preview.title")}
                 </span>
                 <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                  Temps réel
+                  {t("templateEditor.preview.realtime")}
                 </span>
               </div>
               <div className="flex-1 border border-gray-200 rounded-lg bg-gray-50 overflow-hidden">
@@ -290,7 +296,7 @@ export const TemplateEditorModal = ({
                       >
                         <EyeIcon />
                       </div>
-                      L'aperçu apparaît ici
+                      {t("templateEditor.preview.empty")}
                     </div>
                   </div>
                 ) : (
@@ -316,13 +322,13 @@ export const TemplateEditorModal = ({
           {detectedVars.length > 0 && (
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
               <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">
-                Variables détectées
+                {t("templateEditor.variables.detected")}
               </p>
               <div className="flex flex-wrap gap-2">
                 {autoVars.map((v) => (
                   <div
                     key={v}
-                    className="flex items-center gap-1.5 bg-white border border-green-200 rounded-lg px-2.5 py-1.5 shadow-sm"
+                    className="flex items-center gap-2 bg-white border border-green-200 rounded-lg px-2.5 py-1.5 shadow-sm"
                   >
                     <CheckCircleIcon
                       className="text-green-600"
@@ -330,14 +336,14 @@ export const TemplateEditorModal = ({
                     />
                     <code className="text-xs font-mono text-gray-700">{`{{${v}}}`}</code>
                     <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
-                      Auto
+                      {t("templateEditor.variables.auto")}
                     </span>
                   </div>
                 ))}
                 {manualVars.map((v) => (
                   <div
                     key={v}
-                    className="flex items-center gap-1.5 bg-white border border-orange-200 rounded-lg px-2.5 py-1.5 shadow-sm"
+                    className="flex items-center gap-2 bg-white border border-orange-200 rounded-lg px-2.5 py-1.5 shadow-sm"
                   >
                     <PencilAltIcon
                       className="text-orange-500"
@@ -345,7 +351,7 @@ export const TemplateEditorModal = ({
                     />
                     <code className="text-xs font-mono text-gray-700">{`{{${v}}}`}</code>
                     <span className="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium">
-                      Manuel
+                      {t("templateEditor.variables.manual")}
                     </span>
                   </div>
                 ))}
@@ -354,30 +360,25 @@ export const TemplateEditorModal = ({
                 <p className="mt-2.5 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
                   <span className="font-medium flex items-center gap-1">
                     <ExclamationTriangleIcon style={{ fontSize: "12px" }} />
-                    Variables manuelles :
+                    {t("templateEditor.variables.manualLabel")}
                   </span>{" "}
-                  Ces variables devront être renseignées manuellement à chaque
-                  envoi.
+                  {t("templateEditor.variables.manualWarning")}
                 </p>
               )}
             </div>
           )}
 
           {detectedVars.length === 0 && contenu.trim() !== "" && (
-            <p className="text-xs text-gray-400 flex items-center gap-1.5">
+            <p className="text-xs text-gray-400 flex items-center gap-2">
               <InfoCircleIcon style={{ fontSize: "12px" }} />
-              Aucune variable détectée. Utilisez{" "}
-              <code className="bg-gray-100 px-1 rounded font-mono">{`{{prenom}}`}</code>
-              ,{" "}
-              <code className="bg-gray-100 px-1 rounded font-mono">{`{{nom}}`}</code>
-              , etc. pour personnaliser le message.
+              {t("templateEditor.variables.noneDetected")}
             </p>
           )}
 
           {/* ── Checkbox actif ── */}
           <Input.Checkbox
             id="tpl-actif"
-            label="Template actif"
+            label={t("templateEditor.fields.active")}
             checked={actif}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setActif(e.target.checked)
@@ -392,7 +393,7 @@ export const TemplateEditorModal = ({
             onClick={onClose}
             disabled={isSaving}
           >
-            Annuler
+            {t("actions.cancel")}
           </Button>
           <Button
             type="submit"
@@ -401,7 +402,7 @@ export const TemplateEditorModal = ({
             loading={isSaving}
             icon={!isSaving ? <SaveIcon className="w-4 h-4" /> : undefined}
           >
-            Enregistrer
+            {t("actions.save")}
           </Button>
         </Modal.Footer>
       </form>

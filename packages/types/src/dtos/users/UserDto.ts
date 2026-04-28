@@ -39,6 +39,7 @@ export interface UpdateUserDto {
   grade_id?: number;
   abonnement_id?: number;
   status_id?: number;
+  langue_preferee?: string; // ISO 639-1: fr, en, nl, de, es
 }
 
 /**
@@ -77,6 +78,7 @@ export interface UserResponseDto {
     nom: string;
   };
   role_app?: string;
+  langue_preferee?: string; // ISO 639-1: fr, en, nl, de, es
 
   date_inscription: string;
   derniere_connexion?: string;
@@ -113,6 +115,7 @@ export interface UserListItemDto {
   active: boolean;
   status_id: number;
   role_app?: string;
+  langue_preferee?: string; // ISO 639-1: fr, en, nl, de, es
   date_inscription: string;
 }
 
@@ -124,6 +127,11 @@ export interface UpdateUserRoleDto {
 /** DTO pour changer le statut d'un utilisateur */
 export interface UpdateUserStatusDto {
   status_id: number;
+}
+
+/** DTO pour changer la langue préférée d'un utilisateur */
+export interface UpdateUserLanguageDto {
+  langue_preferee: string; // ISO 639-1: fr, en, nl, de, es
 }
 
 /** Filtres pour la liste des utilisateurs */

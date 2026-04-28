@@ -6,6 +6,7 @@
  */
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { StatCard } from "./StatCard";
 import { formatNumber, formatPercentage } from "../utils/formatting";
 
@@ -181,9 +182,17 @@ interface DistributionChartProps {
   title: string;
   data: Array<{ label: string; value: number; percentage: number }>;
   isLoading?: boolean;
+  noDataText?: string;
 }
 
-function DistributionChart({ title, data, isLoading }: DistributionChartProps) {
+function DistributionChart({
+  title,
+  data,
+  isLoading,
+  noDataText,
+}: DistributionChartProps) {
+  const { t } = useTranslation("statistics");
+  const resolvedNoDataText = noDataText ?? t("empty.noData");
   const maxValue = Math.max(...data.map((d) => d.value), 1);
 
   if (isLoading) {
@@ -208,7 +217,7 @@ function DistributionChart({ title, data, isLoading }: DistributionChartProps) {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
         <div className="flex flex-col items-center justify-center py-8">
           <ExclamationTriangleIcon className="h-12 w-12 text-gray-400 mb-2" />
-          <p className="text-sm text-gray-600">Aucune donnée disponible</p>
+          <p className="text-sm text-gray-600">{resolvedNoDataText}</p>
         </div>
       </div>
     );
@@ -262,6 +271,7 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
   error = null,
   isCompact = false,
 }) => {
+  const { t } = useTranslation("statistics");
   // Error state
   if (error) {
     return (
@@ -270,12 +280,9 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
           <ExclamationTriangleIcon className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
           <div>
             <h3 className="text-lg font-semibold text-red-900 mb-1">
-              Erreur de chargement
+              {t("errors.loadingError")}
             </h3>
-            <p className="text-sm text-red-700">
-              Une erreur est survenue lors du chargement des statistiques des
-              membres.
-            </p>
+            <p className="text-sm text-red-700">{t("members.loadingError")}</p>
             {error.message && (
               <p className="text-sm text-red-600 mt-2 font-mono">
                 {error.message}
@@ -294,10 +301,10 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
         <div className="flex flex-col items-center justify-center">
           <UsersIcon className="h-16 w-16 text-gray-400 mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            Aucune donnée disponible
+            {t("empty.noData")}
           </h3>
           <p className="text-sm text-gray-600">
-            Les statistiques des membres ne sont pas disponibles pour le moment.
+            {t("members.noDataDescription")}
           </p>
         </div>
       </div>
@@ -321,7 +328,7 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
 
   const ageDistribution =
     data?.by_age_group.map((item) => ({
-      label: `${item.groupe_age} ans`,
+      label: `${item.groupe_age} ${t("members.ageSuffix")}`,
       value: item.count,
       percentage: item.pourcentage,
     })) || [];
@@ -331,7 +338,7 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Membres"
+          title={t("cards.totalMembers")}
           value={data?.overview.total_membres || 0}
           valueFormat="number"
           icon={UsersIcon}
@@ -341,7 +348,7 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
         />
 
         <StatCard
-          title="Membres Actifs"
+          title={t("cards.activeMembers")}
           value={data?.overview.membres_actifs || 0}
           valueFormat="number"
           icon={UserCheckIcon}
@@ -354,13 +361,13 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
                   (data.overview.membres_actifs / data.overview.total_membres) *
                     100,
                   1,
-                )} du total`
+                )} ${t("members.ofTotal")}`
               : undefined
           }
         />
 
         <StatCard
-          title="Membres Inactifs"
+          title={t("cards.inactiveMembers")}
           value={data?.overview.membres_inactifs || 0}
           valueFormat="number"
           icon={UserMinusIcon}
@@ -379,17 +386,17 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
                     data.overview.total_membres) *
                     100,
                   1,
-                )} du total`
+                )} ${t("members.ofTotal")}`
               : undefined
           }
         />
 
         <StatCard
-          title="Nouveaux Membres (Mois)"
+          title={t("cards.newMembersMonth")}
           value={data?.overview.nouveaux_membres_mois || 0}
           valueFormat="number"
           trend={data?.overview.taux_croissance}
-          trendLabel="taux de croissance"
+          trendLabel={t("members.growthRateLabel")}
           icon={UserPlusIcon}
           variant={
             data && data.overview.taux_croissance > 0 ? "success" : "default"
@@ -402,7 +409,7 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
       {/* Secondary KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <StatCard
-          title="Nouveaux Membres (Semaine)"
+          title={t("cards.newMembersWeek")}
           value={data?.overview.nouveaux_membres_semaine || 0}
           valueFormat="number"
           isLoading={isLoading}
@@ -410,7 +417,7 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
         />
 
         <StatCard
-          title="Taux de Croissance"
+          title={t("cards.growthRate")}
           value={data?.overview.taux_croissance || 0}
           valueFormat="percentage"
           icon={TrendingUpIcon}
@@ -423,28 +430,31 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
           }
           isLoading={isLoading}
           isCompact={isCompact}
-          description="Sur le mois en cours"
+          description={t("members.currentMonth")}
         />
       </div>
 
       {/* Distribution Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <DistributionChart
-          title="Répartition par Grade"
+          title={t("members.distributionByGrade")}
           data={gradeDistribution}
           isLoading={isLoading}
+          noDataText={t("empty.noData")}
         />
 
         <DistributionChart
-          title="Répartition par Genre"
+          title={t("members.distributionByGender")}
           data={genderDistribution}
           isLoading={isLoading}
+          noDataText={t("empty.noData")}
         />
 
         <DistributionChart
-          title="Répartition par Âge"
+          title={t("members.distributionByAge")}
           data={ageDistribution}
           isLoading={isLoading}
+          noDataText={t("empty.noData")}
         />
       </div>
     </div>

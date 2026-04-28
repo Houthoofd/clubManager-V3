@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { previewTemplate, sendFromTemplate } from "../api/templatesApi";
 import type { Template, PreviewResult } from "../api/templatesApi";
 import {
@@ -54,6 +55,9 @@ export const SendFromTemplateModal = ({
   onClose,
   onSent,
 }: SendFromTemplateModalProps) => {
+  const { t } = useTranslation("messages");
+
+  // ─── STATE ────────────────────────────────────────────────────────────────
   // Calcul des variables manuelles (celles non auto)
   const manualVarNames = template.variables.filter(
     (v) => !AUTO_VAR_NAMES.has(v),
@@ -96,9 +100,13 @@ export const SendFromTemplateModal = ({
 
     if (recipientType === "user") {
       if (!destinataireId.trim()) {
-        newErrors.destinataire = "L'ID du destinataire est obligatoire.";
+        newErrors.destinataire = t(
+          "sendFromTemplate.validation.recipientRequired",
+        );
       } else if (isNaN(Number(destinataireId)) || Number(destinataireId) <= 0) {
-        newErrors.destinataire = "L'ID doit être un nombre entier positif.";
+        newErrors.destinataire = t(
+          "sendFromTemplate.validation.recipientInvalid",
+        );
       }
     }
 
@@ -119,7 +127,7 @@ export const SendFromTemplateModal = ({
       const msg =
         err?.response?.data?.message ??
         err?.message ??
-        "Erreur lors de la génération de l'aperçu.";
+        t("sendFromTemplate.errors.previewFailed");
       toast.error(msg);
     } finally {
       setIsLoadingPreview(false);
@@ -149,18 +157,14 @@ export const SendFromTemplateModal = ({
       }
 
       const result = await sendFromTemplate(template.id, payload);
-      toast.success(
-        result.count === 1
-          ? "Message envoyé avec succès !"
-          : `${result.count} messages envoyés avec succès !`,
-      );
+      toast.success(t("sendFromTemplate.success", { count: result.count }));
       onSent();
       onClose();
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ??
         err?.message ??
-        "Erreur lors de l'envoi.";
+        t("sendFromTemplate.errors.sendFailed");
       toast.error(msg);
     } finally {
       setIsSending(false);
@@ -181,7 +185,7 @@ export const SendFromTemplateModal = ({
       {step === "compose" && (
         <>
           <Modal.Header
-            title={`Envoyer : « ${template.titre} »`}
+            title={t("sendFromTemplate.title", { titre: template.titre })}
             showCloseButton
             onClose={onClose}
           />
@@ -192,7 +196,7 @@ export const SendFromTemplateModal = ({
               <section>
                 <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                   <PencilAltIcon style={{ fontSize: "16px" }} />
-                  Variables à remplir
+                  {t("sendFromTemplate.sections.variables")}
                 </h3>
 
                 {manualVarNames.length === 0 ? (
@@ -201,7 +205,7 @@ export const SendFromTemplateModal = ({
                       className="text-green-600 flex-shrink-0"
                       style={{ fontSize: "14px" }}
                     />
-                    Aucune variable manuelle pour ce template — prêt à envoyer !
+                    {t("sendFromTemplate.noManualVars")}
                   </p>
                 ) : (
                   <div className="space-y-3">
@@ -225,7 +229,10 @@ export const SendFromTemplateModal = ({
                               [varName]: e.target.value,
                             }))
                           }
-                          placeholder={`Valeur pour ${varName}…`}
+                          placeholder={t(
+                            "sendFromTemplate.placeholders.varValue",
+                            { varName },
+                          )}
                           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
                         />
                       </div>
@@ -238,7 +245,7 @@ export const SendFromTemplateModal = ({
               <section>
                 <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                   <UsersIcon style={{ fontSize: "16px" }} />
-                  Destinataires
+                  {t("sendFromTemplate.sections.recipients")}
                 </h3>
 
                 {/* Type de destinataire */}
@@ -262,7 +269,7 @@ export const SendFromTemplateModal = ({
                       className="text-blue-600 focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">
-                      Un utilisateur
+                      {t("compose.individual")}
                     </span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -274,7 +281,9 @@ export const SendFromTemplateModal = ({
                       onChange={() => setRecipientType("all")}
                       className="text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">Tous</span>
+                    <span className="text-sm text-gray-700">
+                      {t("compose.broadcast")}
+                    </span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -285,7 +294,9 @@ export const SendFromTemplateModal = ({
                       onChange={() => setRecipientType("role")}
                       className="text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">Par rôle</span>
+                    <span className="text-sm text-gray-700">
+                      {t("sendFromTemplate.byRole")}
+                    </span>
                   </label>
                 </div>
 
@@ -305,7 +316,9 @@ export const SendFromTemplateModal = ({
                         });
                       }
                     }}
-                    placeholder="ID utilisateur (numérique)"
+                    placeholder={t(
+                      "sendFromTemplate.recipientUserIdPlaceholder",
+                    )}
                     error={errors.destinataire}
                   />
                 )}
@@ -319,9 +332,9 @@ export const SendFromTemplateModal = ({
                       setRoleCible(e.target.value as RoleCible)
                     }
                     options={[
-                      { value: "member", label: "Membres" },
-                      { value: "professor", label: "Professeurs" },
-                      { value: "admin", label: "Admins" },
+                      { value: "member", label: t("roles.member") },
+                      { value: "professor", label: t("roles.professor") },
+                      { value: "admin", label: t("roles.admin") },
                     ]}
                   />
                 )}
@@ -331,11 +344,13 @@ export const SendFromTemplateModal = ({
                   <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                     <span className="font-medium inline-flex items-center gap-1">
                       <ExclamationTriangleIcon style={{ fontSize: "14px" }} />{" "}
-                      Envoi groupé :
+                      {t("sendFromTemplate.broadcastWarningLabel")}
                     </span>{" "}
                     {recipientType === "all"
-                      ? "Le message sera envoyé à tous les utilisateurs actifs."
-                      : `Le message sera envoyé à tous les utilisateurs ayant le rôle « ${roleCible} ».`}
+                      ? t("sendFromTemplate.broadcastAll")
+                      : t("sendFromTemplate.broadcastRole", {
+                          role: roleCible,
+                        })}
                   </p>
                 )}
               </section>
@@ -343,7 +358,7 @@ export const SendFromTemplateModal = ({
               {/* ── Envoi par email ── */}
               <InputCheckbox
                 id="envoye-par-email"
-                label="Envoyer aussi par email"
+                label={t("sendFromTemplate.sendAlsoByEmail")}
                 checked={envoyeParEmail}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setEnvoyeParEmail(e.target.checked)
@@ -360,7 +375,7 @@ export const SendFromTemplateModal = ({
               loading={isLoadingPreview}
               icon={!isLoadingPreview && <EyeIcon className="w-4 h-4" />}
             >
-              Aperçu
+              {t("sendFromTemplate.buttons.preview")}
             </Button>
 
             <div className="flex items-center gap-3">
@@ -369,7 +384,7 @@ export const SendFromTemplateModal = ({
                 onClick={onClose}
                 disabled={isSending || isLoadingPreview}
               >
-                Annuler
+                {t("actions.cancel")}
               </Button>
               <Button
                 variant="primary"
@@ -378,7 +393,7 @@ export const SendFromTemplateModal = ({
                 loading={isSending}
                 icon={!isSending && <PaperPlaneIcon className="w-4 h-4" />}
               >
-                Envoyer
+                {t("actions.send")}
               </Button>
             </div>
           </Modal.Footer>
@@ -391,7 +406,7 @@ export const SendFromTemplateModal = ({
       {step === "preview" && preview && (
         <>
           <Modal.Header
-            title="Aperçu du message"
+            title={t("sendFromTemplate.previewTitle")}
             showCloseButton
             onClose={onClose}
           />
@@ -402,9 +417,9 @@ export const SendFromTemplateModal = ({
               {preview.titre && (
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                    Titre
+                    {t("sendFromTemplate.preview.titleLabel")}
                   </p>
-                  <p className="text-sm font-medium text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
+                  <p className="text-sm font-medium text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
                     {preview.titre}
                   </p>
                 </div>
@@ -413,7 +428,7 @@ export const SendFromTemplateModal = ({
               {/* Contenu du message */}
               <div>
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                  Contenu
+                  {t("sendFromTemplate.preview.contentLabel")}
                 </p>
                 <div className="text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 whitespace-pre-wrap leading-relaxed min-h-[100px]">
                   {preview.contenu}
@@ -424,17 +439,17 @@ export const SendFromTemplateModal = ({
               {preview.missingVariables.length === 0 ? (
                 <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm">
                   <CheckCircleIcon className="w-4 h-4 flex-shrink-0" />
-                  <span>
-                    Toutes les variables sont renseignées — prêt à envoyer.
-                  </span>
+                  <span>{t("sendFromTemplate.preview.allVarsOk")}</span>
                 </div>
               ) : (
                 <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
                   <p className="text-sm font-medium text-red-700 mb-2 flex items-center gap-1">
                     <ExclamationTriangleIcon style={{ fontSize: "14px" }} />
-                    Variables manquantes ({preview.missingVariables.length}) :
+                    {t("sendFromTemplate.preview.missingVars", {
+                      count: preview.missingVariables.length,
+                    })}
                   </p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {preview.missingVariables.map((v) => (
                       <code
                         key={v}
@@ -445,24 +460,18 @@ export const SendFromTemplateModal = ({
                     ))}
                   </div>
                   <p className="mt-2 text-xs text-red-600">
-                    Revenez à l'étape précédente pour renseigner ces valeurs.
+                    {t("sendFromTemplate.preview.goBackHint")}
                   </p>
                 </div>
               )}
 
               {/* Info destinataire */}
-              <div className="text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-lg px-4 py-2.5 flex items-center gap-2">
+              <div className="text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 flex items-center gap-2">
                 <InfoCircleIcon
                   className="flex-shrink-0"
                   style={{ fontSize: "14px" }}
                 />
-                <span>
-                  Aperçu généré avec l'exemple :{" "}
-                  <span className="font-medium text-gray-600">
-                    Jean Dupont (U-2025-0001)
-                  </span>
-                  . Le contenu réel variera selon le destinataire.
-                </span>
+                <span>{t("sendFromTemplate.preview.exampleNote")}</span>
               </div>
             </div>
           </Modal.Body>
@@ -474,7 +483,7 @@ export const SendFromTemplateModal = ({
               disabled={isSending}
               icon={<ArrowLeftIcon className="w-4 h-4" />}
             >
-              Retour
+              {t("actions.back")}
             </Button>
 
             <Button
@@ -484,7 +493,7 @@ export const SendFromTemplateModal = ({
               loading={isSending}
               icon={!isSending && <CheckCircleIcon className="w-4 h-4" />}
             >
-              Confirmer l'envoi
+              {t("sendFromTemplate.buttons.confirm")}
             </Button>
           </Modal.Footer>
         </>

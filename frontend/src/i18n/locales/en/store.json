@@ -1,0 +1,471 @@
+{
+  "page": {
+    "title": "Store",
+    "description": {
+      "admin": "Club store management",
+      "member": "Browse available items and track your orders"
+    }
+  },
+  "tabs": {
+    "catalogue": "Catalogue",
+    "boutique": "Store",
+    "shop": "Store",
+    "commandes": "Orders",
+    "orders": "Orders",
+    "mes_commandes": "My Orders",
+    "myOrders": "My Orders",
+    "stocks": "Stock",
+    "configuration": "Configuration"
+  },
+  "catalogue": {
+    "title": "Item Catalogue",
+    "newArticle": "New Item",
+    "count": {
+      "article": "item",
+      "articles": "items",
+      "category": "category",
+      "categories": "categories"
+    },
+    "filters": {
+      "search": "Search item…",
+      "allCategories": "All categories",
+      "allStatuses": "All statuses",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "empty": {
+      "title": "No items found",
+      "description": "Adjust filters or add items to the catalogue."
+    },
+    "card": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "noCategory": "No category",
+      "noDescription": "No description available.",
+      "createdOn": "Created on"
+    },
+    "actions": {
+      "edit": "Edit",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "delete": "Delete"
+    },
+    "delete": {
+      "title": "Delete Item",
+      "message": "Are you sure you want to delete the item \"{{name}}\"? This action is irreversible."
+    }
+  },
+  "boutique": {
+    "title": "Available Items",
+    "viewCart": "View Cart",
+    "count": {
+      "article": "item",
+      "articles": "items",
+      "inCart": "item in cart",
+      "inCartPlural": "items in cart"
+    },
+    "filters": {
+      "search": "Search item…",
+      "allCategories": "All categories"
+    },
+    "empty": {
+      "title": "No items available",
+      "description": "Items will be available for purchase soon."
+    },
+    "card": {
+      "noCategory": "No category",
+      "noDescription": "No description available.",
+      "order": "Order"
+    }
+  },
+  "orders": {
+    "title": "Order Management",
+    "count": {
+      "order": "order",
+      "orders": "orders",
+      "pending": "pending",
+      "cancelled": "cancelled",
+      "cancelledPlural": "cancelled"
+    },
+    "filters": {
+      "allStatuses": "All statuses",
+      "pending": "Pending",
+      "paid": "Paid",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "empty": {
+      "title": "No orders found",
+      "description": "Placed orders will appear here."
+    },
+    "table": {
+      "order": "Order",
+      "member": "Member",
+      "date": "Date",
+      "total": "Total",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
+      "details": "Details",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "ship": "Ship",
+      "markDelivered": "Mark as delivered"
+    },
+    "unknownUser": "Unknown user"
+  },
+  "myOrders": {
+    "title": "My Orders",
+    "count": {
+      "order": "order",
+      "orders": "orders",
+      "pending": "pending",
+      "delivered": "delivered",
+      "deliveredPlural": "delivered"
+    },
+    "empty": {
+      "title": "No orders",
+      "description": "You haven't placed any orders yet."
+    },
+    "card": {
+      "orderNumber": "Order #{{number}}",
+      "viewDetails": "View details",
+      "cancel": "Cancel",
+      "confirmCancel": "Are you sure you want to cancel this order?"
+    }
+  },
+  "stocks": {
+    "title": "Stock Management",
+    "count": {
+      "line": "line",
+      "lines": "lines",
+      "lowStock": "low stock",
+      "lowStocks": "low stocks",
+      "outOfStock": "out of stock",
+      "outOfStocks": "out of stocks",
+      "article": "item",
+      "articles": "items"
+    },
+    "alerts": {
+      "title": "⚠️ Low Stock Alerts"
+    },
+    "empty": {
+      "title": "No stock configured",
+      "description": "Stock levels will appear here as soon as they are available."
+    },
+    "table": {
+      "article": "Item",
+      "size": "Size",
+      "quantity": "Quantity",
+      "minimum": "Minimum",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
+      "adjust": "Adjust"
+    },
+    "fallback": {
+      "article": "Article #{{id}}",
+      "size": "Size #{{id}}"
+    },
+    "badge": {
+      "outOfStock": "Out of stock",
+      "lowStock": "Low stock",
+      "inStock": "In stock"
+    }
+  },
+  "configuration": {
+    "title": "Store Configuration",
+    "categories": {
+      "title": "Categories",
+      "new": "New Category",
+      "empty": {
+        "title": "No categories",
+        "description": "Add categories to organize your items."
+      },
+      "table": {
+        "name": "Name",
+        "description": "Description",
+        "order": "Order",
+        "actions": "Actions"
+      },
+      "delete": {
+        "title": "Delete Category",
+        "message": "Are you sure you want to delete the category \"{{name}}\"? This action is irreversible."
+      }
+    },
+    "sizes": {
+      "title": "Sizes",
+      "new": "New Size",
+      "empty": {
+        "title": "No sizes",
+        "description": "Add sizes for your items (e.g., XS, S, M, L, XL)."
+      },
+      "table": {
+        "name": "Name",
+        "order": "Order",
+        "actions": "Actions"
+      },
+      "delete": {
+        "title": "Delete Size",
+        "message": "Are you sure you want to delete the size \"{{name}}\"? This action is irreversible."
+      }
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "editCategory": "Edit category",
+      "deleteCategory": "Delete category",
+      "editSize": "Edit size",
+      "deleteSize": "Delete size"
+    }
+  },
+  "articleModal": {
+    "title": {
+      "create": "New Item",
+      "edit": "Edit Item"
+    },
+    "subtitle": {
+      "create": "Add a new item to the store catalogue.",
+      "edit": "Edit existing item information."
+    },
+    "fields": {
+      "name": {
+        "label": "Item Name",
+        "placeholder": "E.g., T-shirt, Cap, Water bottle…",
+        "required": "Item name is required.",
+        "minLength": "Name must be at least 2 characters.",
+        "maxLength": "Name cannot exceed 100 characters."
+      },
+      "price": {
+        "label": "Price (€)",
+        "placeholder": "0.00",
+        "required": "Price is required.",
+        "min": "Price must be greater than or equal to 0."
+      },
+      "category": {
+        "label": "Category",
+        "optional": "(optional)",
+        "none": "No category"
+      },
+      "description": {
+        "label": "Description",
+        "optional": "(optional)",
+        "placeholder": "Describe the item…"
+      },
+      "active": {
+        "label": "Active item (visible in catalogue)"
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create Item",
+      "update": "Update"
+    }
+  },
+  "cartModal": {
+    "title": "Cart",
+    "subtitle": {
+      "empty": "Your cart is empty",
+      "count": "{{count}} item",
+      "countPlural": "{{count}} items"
+    },
+    "empty": {
+      "title": "Empty Cart",
+      "description": "Add items to start shopping."
+    },
+    "item": {
+      "size": "Size:",
+      "remove": "Remove",
+      "decreaseQuantity": "Decrease quantity",
+      "increaseQuantity": "Increase quantity"
+    },
+    "total": "Total",
+    "actions": {
+      "clear": "Clear cart",
+      "confirmClear": "Do you really want to empty the cart?",
+      "checkout": "Place Order",
+      "close": "Close"
+    }
+  },
+  "quickOrderModal": {
+    "title": "Quick Order",
+    "fields": {
+      "size": {
+        "label": "Size",
+        "placeholder": "-- Select a size --",
+        "required": "Please select a size."
+      },
+      "quantity": {
+        "label": "Quantity",
+        "required": "Quantity is required.",
+        "min": "Quantity must be at least 1.",
+        "max": "Quantity cannot exceed available stock ({{max}})."
+      },
+      "stock": {
+        "available": "Available stock:",
+        "none": "No stock available for this size"
+      }
+    },
+    "total": "Total",
+    "actions": {
+      "cancel": "Cancel",
+      "order": "Order",
+      "ordering": "Placing order…"
+    }
+  },
+  "orderDetailModal": {
+    "title": "Order Details",
+    "status": "Status",
+    "orderDate": "Order Date",
+    "client": {
+      "title": "Client Information",
+      "name": "Name",
+      "email": "Email",
+      "unknown": "Unknown client"
+    },
+    "items": {
+      "title": "Ordered Items",
+      "article": "Item",
+      "size": "Size",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "subtotal": "Subtotal",
+      "total": "Total",
+      "unknown": "Unknown item",
+      "altFallback": "Article",
+      "unknownSize": "—"
+    },
+    "admin": {
+      "title": "Administrator Actions",
+      "markAsPaid": "Mark as paid",
+      "markAsShipped": "Mark as shipped",
+      "markAsDelivered": "Mark as delivered",
+      "cancelOrder": "Cancel order"
+    },
+    "actions": {
+      "close": "Close"
+    }
+  },
+  "categoryModal": {
+    "title": {
+      "create": "New Category",
+      "edit": "Edit Category"
+    },
+    "subtitle": {
+      "create": "Create a new category to organize your items.",
+      "edit": "Edit existing category information."
+    },
+    "fields": {
+      "name": {
+        "label": "Category Name",
+        "placeholder": "E.g., Clothing, Equipment, Accessories…",
+        "required": "Category name is required.",
+        "minLength": "Name must be at least 2 characters.",
+        "maxLength": "Name cannot exceed 100 characters."
+      },
+      "description": {
+        "label": "Description",
+        "optional": "(optional)",
+        "placeholder": "Describe the type of items in this category…"
+      },
+      "order": {
+        "label": "Display Order",
+        "optional": "(optional)",
+        "placeholder": "0",
+        "min": "Order must be greater than or equal to 0."
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create Category",
+      "update": "Update"
+    }
+  },
+  "sizeModal": {
+    "title": {
+      "create": "New Size",
+      "edit": "Edit Size"
+    },
+    "subtitle": {
+      "create": "Create a new size for your items.",
+      "edit": "Edit existing size information."
+    },
+    "fields": {
+      "name": {
+        "label": "Size Name",
+        "placeholder": "E.g., XS, S, M, L, XL…",
+        "required": "Size name is required.",
+        "minLength": "Name must be at least 1 character.",
+        "maxLength": "Name cannot exceed 50 characters."
+      },
+      "order": {
+        "label": "Display Order",
+        "optional": "(optional)",
+        "placeholder": "0",
+        "min": "Order must be greater than or equal to 0."
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create Size",
+      "update": "Update",
+      "saving": "Saving…"
+    }
+  },
+  "stockAdjustModal": {
+    "title": "Adjust Stock",
+    "subtitle": "Add or remove stock for this item.",
+    "info": {
+      "article": "Item:",
+      "size": "Size:",
+      "currentStock": "Current Stock:",
+      "newStock": "New Stock:",
+      "notAvailable": "N/A"
+    },
+    "fields": {
+      "adjustment": {
+        "label": "Adjustment",
+        "placeholder": "E.g., +10, -5",
+        "required": "Adjustment is required.",
+        "notZero": "Adjustment cannot be 0.",
+        "integer": "Adjustment must be an integer.",
+        "helper": "Positive number to add, negative to remove"
+      },
+      "reason": {
+        "label": "Reason",
+        "optional": "(optional)",
+        "placeholder": "E.g., Inventory, Loss, Order received…"
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "adjust": "Adjust Stock",
+      "adjusting": "Saving…"
+    }
+  },
+  "orderStatus": {
+    "en_attente": "Pending",
+    "payee": "Paid",
+    "expediee": "Shipped",
+    "livree": "Delivered",
+    "annulee": "Cancelled",
+    "unknown": "Unknown"
+  },
+  "common": {
+    "loading": "Loading...",
+    "actions": {
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "save": "Save",
+      "delete": "Delete",
+      "edit": "Edit",
+      "close": "Close",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "refresh": "Refresh"
+  }
+}

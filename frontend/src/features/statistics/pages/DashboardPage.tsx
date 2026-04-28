@@ -14,6 +14,7 @@
  */
 
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   useDashboardAnalytics,
   useInvalidateStatistics,
@@ -30,7 +31,7 @@ import { formatCurrency, formatPercentage } from "../utils/formatting";
 // Shared Components
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
-import { ErrorBanner } from "../../../shared/components/Feedback/ErrorBanner";
+
 import { AlertBanner } from "../../../shared/components/Feedback/AlertBanner";
 import { TabGroup, Tab } from "../../../shared/components/Navigation/TabGroup";
 
@@ -146,6 +147,7 @@ type TabId = "overview" | "members" | "courses" | "finance" | "store";
  * @reusable_components PageHeader, ErrorBanner, AlertBanner, TabGroup, LoadingSpinner
  */
 export const DashboardPage: React.FC = () => {
+  const { t } = useTranslation("statistics");
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -169,27 +171,27 @@ export const DashboardPage: React.FC = () => {
   const tabs: Tab[] = [
     {
       id: "overview",
-      label: "Vue d'ensemble",
+      label: t("tabs.overview"),
       icon: <ChartLineIcon className="w-5 h-5" />,
     },
     {
       id: "members",
-      label: "Membres",
+      label: t("tabs.members"),
       icon: <UsersIcon className="w-5 h-5" />,
     },
     {
       id: "courses",
-      label: "Cours",
+      label: t("tabs.courses"),
       icon: <CalendarIcon className="w-5 h-5" />,
     },
     {
       id: "finance",
-      label: "Finances",
+      label: t("tabs.finance"),
       icon: <CurrencyDollarIcon className="w-5 h-5" />,
     },
     {
       id: "store",
-      label: "Magasin",
+      label: t("tabs.store"),
       icon: <ShoppingCartIcon className="w-5 h-5" />,
     },
   ];
@@ -200,16 +202,13 @@ export const DashboardPage: React.FC = () => {
       <div className="space-y-6">
         <PageHeader
           icon={<ChartLineIcon className="h-8 w-8 text-blue-600" />}
-          title="Tableau de Bord - Statistiques"
-          description="Vue d'ensemble des statistiques du club"
+          title={t("page.title")}
+          description={t("page.description")}
         />
-        <ErrorBanner
+        <AlertBanner
           variant="error"
-          title="Erreur de chargement"
-          message={
-            error.message ||
-            "Une erreur est survenue lors du chargement des statistiques du dashboard."
-          }
+          title={t("errors.loadingError")}
+          message={error.message || t("errors.dashboardError")}
         />
       </div>
     );
@@ -220,8 +219,8 @@ export const DashboardPage: React.FC = () => {
       {/* Page Header - Using PageHeader component */}
       <PageHeader
         icon={<ChartLineIcon className="h-8 w-8 text-blue-600" />}
-        title="Tableau de Bord - Statistiques"
-        description="Vue d'ensemble des statistiques et indicateurs de performance"
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       {/* Period Selector Card */}
@@ -253,42 +252,42 @@ export const DashboardPage: React.FC = () => {
               {/* Global KPIs */}
               <div>
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Indicateurs Clés
+                  {t("sections.keyIndicators")}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {isLoading ? (
                     <div className="col-span-full">
-                      <LoadingSpinner text="Chargement des indicateurs..." />
+                      <LoadingSpinner text={t("loading.indicators")} />
                     </div>
                   ) : (
                     <>
                       <StatCard
-                        title="Total Membres"
+                        title={t("kpis.totalMembers")}
                         value={data?.members.overview.total_membres || 0}
                         valueFormat="number"
                         trend={data?.members.overview.taux_croissance}
-                        trendLabel="taux de croissance"
+                        trendLabel={t("kpis.growthRate")}
                         icon={UsersIcon}
                         variant="info"
                       />
                       <StatCard
-                        title="Total Cours"
+                        title={t("kpis.totalCourses")}
                         value={data?.courses.overview.total_cours || 0}
                         valueFormat="number"
                         icon={CalendarIcon}
                         variant="default"
-                        description={`${formatPercentage(data?.courses.overview.taux_presence || 0, 1)} de présence`}
+                        description={`${formatPercentage(data?.courses.overview.taux_presence || 0, 1)} ${t("kpis.attendanceRate")}`}
                       />
                       <StatCard
-                        title="Total Revenus"
+                        title={t("kpis.totalRevenue")}
                         value={data?.finance.overview.total_revenus || 0}
                         valueFormat="currency"
                         icon={CurrencyDollarIcon}
                         variant="success"
-                        description={`${formatPercentage(data?.finance.overview.taux_paiement || 0, 1)} de taux de paiement`}
+                        description={`${formatPercentage(data?.finance.overview.taux_paiement || 0, 1)} ${t("kpis.paymentRate")}`}
                       />
                       <StatCard
-                        title="Commandes Magasin"
+                        title={t("kpis.storeOrders")}
                         value={data?.store.overview.total_commandes || 0}
                         valueFormat="number"
                         icon={ShoppingCartIcon}
@@ -296,7 +295,9 @@ export const DashboardPage: React.FC = () => {
                         description={
                           formatCurrency(
                             data?.store.overview.panier_moyen || 0,
-                          ) + " panier moyen"
+                          ) +
+                          " " +
+                          t("kpis.averageBasket")
                         }
                       />
                     </>
@@ -310,16 +311,23 @@ export const DashboardPage: React.FC = () => {
                   {data.finance.overview.nombre_echeances_retard > 0 && (
                     <AlertBanner
                       variant="warning"
-                      title="Paiements en retard"
-                      message={`${data.finance.overview.nombre_echeances_retard} paiement(s) en retard pour un montant total de ${formatCurrency(data.finance.overview.montant_echeances_retard)}.`}
+                      title={t("alerts.latePayments")}
+                      message={t("alerts.latePaymentsMessage", {
+                        count: data.finance.overview.nombre_echeances_retard,
+                        amount: formatCurrency(
+                          data.finance.overview.montant_echeances_retard,
+                        ),
+                      })}
                     />
                   )}
 
                   {data.store.low_stock.length > 0 && (
                     <AlertBanner
                       variant="warning"
-                      title="Alertes de stock"
-                      message={`${data.store.low_stock.length} article(s) avec stock bas ou en rupture nécessitent un réapprovisionnement.`}
+                      title={t("alerts.lowStock")}
+                      message={t("alerts.lowStockMessage", {
+                        count: data.store.low_stock.length,
+                      })}
                     />
                   )}
                 </div>
@@ -328,19 +336,19 @@ export const DashboardPage: React.FC = () => {
               {/* Trend Charts */}
               <div>
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Tendances
+                  {t("sections.trends")}
                 </h2>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   {isLoading && !data ? (
                     <div className="col-span-full">
-                      <LoadingSpinner text="Chargement des graphiques..." />
+                      <LoadingSpinner text={t("loading.charts")} />
                     </div>
                   ) : (
                     <>
                       {data?.trends.member_growth && (
                         <TrendChart
-                          title="Croissance des Membres"
-                          subtitle="Évolution du nombre de membres"
+                          title={t("charts.memberGrowth")}
+                          subtitle={t("charts.memberGrowthSubtitle")}
                           data={data.trends.member_growth.data}
                           valueFormat="number"
                           showVariation
@@ -355,8 +363,8 @@ export const DashboardPage: React.FC = () => {
 
                       {data?.trends.attendance && (
                         <TrendChart
-                          title="Fréquentation des Cours"
-                          subtitle="Évolution des présences"
+                          title={t("charts.courseAttendance")}
+                          subtitle={t("charts.courseAttendanceSubtitle")}
                           data={data.trends.attendance.data}
                           valueFormat="number"
                           showVariation
@@ -371,8 +379,8 @@ export const DashboardPage: React.FC = () => {
 
                       {data?.trends.revenue && (
                         <TrendChart
-                          title="Évolution des Revenus"
-                          subtitle="Revenus par période"
+                          title={t("charts.revenueEvolution")}
+                          subtitle={t("charts.revenueEvolutionSubtitle")}
                           data={data.trends.revenue.data}
                           valueFormat="currency"
                           showVariation

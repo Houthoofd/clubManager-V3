@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { createTemplateType, updateTemplateType } from "../api/templatesApi";
 import type { TemplateType } from "../api/templatesApi";
 import {
@@ -30,6 +31,7 @@ export const TemplateTypeModal = ({
   onClose,
   onSaved,
 }: TemplateTypeModalProps) => {
+  const { t } = useTranslation("messages");
   const isEditing = Boolean(type);
 
   // ── Form state ─────────────────────────────────────────────────────────────
@@ -63,9 +65,9 @@ export const TemplateTypeModal = ({
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!nom.trim()) {
-      newErrors.nom = "Le nom de la catégorie est obligatoire.";
+      newErrors.nom = t("templateType.validation.nameRequired");
     } else if (nom.trim().length > 100) {
-      newErrors.nom = "Le nom ne doit pas dépasser 100 caractères.";
+      newErrors.nom = t("templateType.validation.nameMaxLength");
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -84,21 +86,19 @@ export const TemplateTypeModal = ({
           description: description.trim() || undefined,
           actif,
         });
-        toast.success("Catégorie mise à jour.");
+        toast.success(t("success.categoryUpdated"));
       } else {
         await createTemplateType({
           nom: nom.trim(),
           description: description.trim() || undefined,
         });
-        toast.success("Catégorie créée avec succès.");
+        toast.success(t("success.categoryCreated"));
       }
       onSaved();
       onClose();
     } catch (err: any) {
       const msg =
-        err?.response?.data?.message ??
-        err?.message ??
-        "Une erreur est survenue.";
+        err?.response?.data?.message ?? err?.message ?? t("errors.generic");
       toast.error(msg);
     } finally {
       setIsSaving(false);
@@ -139,14 +139,16 @@ export const TemplateTypeModal = ({
               ) : (
                 <PlusCircleIcon style={{ fontSize: "16px" }} />
               )}
-              {isEditing ? "Modifier la catégorie" : "Nouvelle catégorie"}
+              {isEditing
+                ? t("templateType.editTitle")
+                : t("templateType.createTitle")}
             </h2>
             <button
               type="button"
               onClick={onClose}
               disabled={isSaving}
               className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Fermer"
+              aria-label={t("actions.close")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -174,7 +176,8 @@ export const TemplateTypeModal = ({
                   htmlFor="type-nom"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Nom <span className="text-red-500">*</span>
+                  {t("templateType.fields.name")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="type-nom"
@@ -189,7 +192,7 @@ export const TemplateTypeModal = ({
                         return n;
                       });
                   }}
-                  placeholder="Ex : Bienvenue, Cours annulé, Rappel…"
+                  placeholder={t("templateType.namePlaceholderAlt")}
                   maxLength={100}
                   autoFocus
                   className={[
@@ -213,14 +216,16 @@ export const TemplateTypeModal = ({
                   htmlFor="type-description"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Description{" "}
-                  <span className="text-gray-400 font-normal">(optionnel)</span>
+                  {t("templateType.fields.description")}{" "}
+                  <span className="text-gray-400 font-normal">
+                    ({t("common.optional")})
+                  </span>
                 </label>
                 <textarea
                   id="type-description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Décrivez l'usage de cette catégorie…"
+                  placeholder={t("templateType.descriptionPlaceholderAlt")}
                   rows={3}
                   maxLength={500}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors resize-none"
@@ -240,7 +245,7 @@ export const TemplateTypeModal = ({
                     className="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
                   />
                   <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                    Catégorie active
+                    {t("templateType.fields.active")}
                   </span>
                 </label>
               )}
@@ -254,7 +259,7 @@ export const TemplateTypeModal = ({
                 disabled={isSaving}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Annuler
+                {t("actions.cancel")}
               </button>
               <button
                 type="submit"
@@ -283,12 +288,12 @@ export const TemplateTypeModal = ({
                         d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                       />
                     </svg>
-                    Enregistrement…
+                    {t("actions.saving")}
                   </>
                 ) : (
                   <>
                     <SaveIcon className="w-4 h-4" />
-                    Enregistrer
+                    {t("actions.save")}
                   </>
                 )}
               </button>

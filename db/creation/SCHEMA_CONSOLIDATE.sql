@@ -183,6 +183,10 @@ CREATE TABLE utilisateurs (
     role_app ENUM('admin', 'member', 'professor') NOT NULL DEFAULT 'member'
                  COMMENT 'Rôle applicatif pour le contrôle d\'accès (RBAC)',
 
+    -- Internationalisation v4.5
+    langue_preferee VARCHAR(5) NOT NULL DEFAULT 'fr'
+                    COMMENT 'Langue préférée utilisateur (ISO 639-1: fr, en, nl, etc.)',
+
     -- Statut compte
     active BOOLEAN NOT NULL DEFAULT TRUE,
     email_verified BOOLEAN NOT NULL DEFAULT FALSE,
@@ -222,6 +226,10 @@ CREATE TABLE utilisateurs (
         FOREIGN KEY (tuteur_id) REFERENCES utilisateurs(id)
         ON DELETE SET NULL ON UPDATE CASCADE,
 
+    -- Constraints
+    CONSTRAINT chk_langue_preferee
+        CHECK (langue_preferee IN ('fr', 'en', 'nl', 'de', 'es')),
+
     -- Indexes stratégiques
     INDEX idx_userId (userId),
     INDEX idx_email (email),
@@ -238,6 +246,7 @@ CREATE TABLE utilisateurs (
     INDEX idx_status_id (status_id),
     INDEX idx_date_inscription   (date_inscription),
     INDEX idx_derniere_connexion (derniere_connexion),
+    INDEX idx_langue_preferee (langue_preferee),
     INDEX idx_tuteur_id          (tuteur_id),
     INDEX idx_est_mineur         (est_mineur),
     INDEX idx_peut_se_connecter  (peut_se_connecter),

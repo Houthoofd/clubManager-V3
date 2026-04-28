@@ -12,6 +12,7 @@
  */
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMessaging } from "../hooks/useMessaging";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { UserRole } from "@clubmanager/types";
@@ -30,7 +31,7 @@ import {
 // Composants réutilisables
 import { TabGroup, Tab } from "../../../shared/components/Navigation/TabGroup";
 import { Button } from "../../../shared/components/Button/Button";
-import { ErrorBanner } from "../../../shared/components/Feedback/ErrorBanner";
+import { AlertBanner } from "../../../shared/components/Feedback/AlertBanner";
 import { PaginationBar } from "../../../shared/components/Navigation/PaginationBar";
 import { EmptyState } from "../../../shared/components/Layout/EmptyState";
 import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
@@ -38,6 +39,7 @@ import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export const MessagesPage = () => {
+  const { t } = useTranslation("messages");
   const {
     inbox,
     inboxPagination,
@@ -114,13 +116,13 @@ export const MessagesPage = () => {
   const tabs: Tab[] = [
     {
       id: "inbox",
-      label: "Boîte de réception",
+      label: t("tabs.inbox"),
       icon: <InboxIcon style={{ fontSize: "18px" }} />,
       badge: unreadCount > 0 ? unreadCount : undefined,
     },
     {
       id: "sent",
-      label: "Messages envoyés",
+      label: t("tabs.sent"),
       icon: <PaperPlaneIcon style={{ fontSize: "18px" }} />,
     },
   ];
@@ -129,7 +131,7 @@ export const MessagesPage = () => {
   if (canSeeTemplates) {
     tabs.push({
       id: "templates",
-      label: "Templates",
+      label: t("tabs.templates"),
       icon: <PficonTemplateIcon style={{ fontSize: "18px" }} />,
     });
   }
@@ -161,7 +163,7 @@ export const MessagesPage = () => {
               icon={<PencilAltIcon style={{ fontSize: "16px" }} />}
               onClick={() => setIsComposeOpen(true)}
             >
-              Nouveau message
+              {t("actions.newMessage")}
             </Button>
           </div>
         </div>
@@ -170,23 +172,19 @@ export const MessagesPage = () => {
         <div className="px-4 pb-2 text-xs text-gray-500">
           {activeTab === "inbox" ? (
             <span>
-              {inboxPagination.total} message
-              {inboxPagination.total !== 1 ? "s" : ""} reçu
-              {inboxPagination.total !== 1 ? "s" : ""}
+              {t("inbox.messageCount", { count: inboxPagination.total })}
               {unreadCount > 0 && (
                 <span className="ml-1 text-blue-600 font-medium">
-                  ({unreadCount} non lu{unreadCount > 1 ? "s" : ""})
+                  ({t("inbox.unreadCount", { count: unreadCount })})
                 </span>
               )}
             </span>
           ) : activeTab === "sent" ? (
             <span>
-              {sentPagination.total} message
-              {sentPagination.total !== 1 ? "s" : ""} envoyé
-              {sentPagination.total !== 1 ? "s" : ""}
+              {t("sent.messageCount", { count: sentPagination.total })}
             </span>
           ) : (
-            <span>Templates de messages réutilisables</span>
+            <span>{t("templates.description")}</span>
           )}
         </div>
       </div>
@@ -218,16 +216,14 @@ export const MessagesPage = () => {
             {/* Titre de l'onglet */}
             <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2 flex-shrink-0">
               <h2 className="text-sm font-semibold text-gray-800">
-                {activeTab === "inbox"
-                  ? "Boîte de réception"
-                  : "Messages envoyés"}
+                {activeTab === "inbox" ? t("inbox.title") : t("sent.title")}
               </h2>
             </div>
 
             {/* Erreur */}
             {error && !isLoading && (
               <div className="p-3 flex-shrink-0">
-                <ErrorBanner variant="error" message={error} />
+                <AlertBanner variant="error" message={error} />
               </div>
             )}
 
@@ -237,7 +233,7 @@ export const MessagesPage = () => {
                 // Spinner de chargement
                 <LoadingSpinner
                   size="md"
-                  text="Chargement des messages..."
+                  text={t("loading.messages")}
                   className="py-16"
                 />
               ) : currentMessages.length === 0 ? (
@@ -251,14 +247,12 @@ export const MessagesPage = () => {
                     )
                   }
                   title={
-                    activeTab === "inbox"
-                      ? "Aucun message reçu"
-                      : "Aucun message envoyé"
+                    activeTab === "inbox" ? t("inbox.empty") : t("sent.empty")
                   }
                   description={
                     activeTab === "inbox"
-                      ? "Vous n'avez reçu aucun message pour le moment."
-                      : "Vous n'avez envoyé aucun message pour le moment."
+                      ? t("inbox.emptyDescription")
+                      : t("sent.emptyDescription")
                   }
                   variant="default"
                   className="border-0 bg-transparent"
@@ -301,7 +295,7 @@ export const MessagesPage = () => {
               // Spinner pendant le chargement du message
               <LoadingSpinner
                 size="lg"
-                text="Chargement du message…"
+                text={t("loading.message")}
                 className="py-24"
               />
             ) : selectedMessage ? (
@@ -314,8 +308,8 @@ export const MessagesPage = () => {
               // Aucun message sélectionné
               <EmptyState
                 icon={<EnvelopeIcon style={{ fontSize: "48px" }} />}
-                title="Sélectionnez un message"
-                description="Cliquez sur un message dans la liste pour le lire."
+                title={t("detail.selectMessage")}
+                description={t("detail.selectMessageDescription")}
                 variant="default"
                 className="border-0 bg-transparent h-full flex flex-col justify-center"
               />

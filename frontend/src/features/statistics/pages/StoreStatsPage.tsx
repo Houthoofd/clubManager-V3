@@ -15,6 +15,7 @@
  */
 
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   useStoreAnalytics,
   useInvalidateStatistics,
@@ -228,6 +229,7 @@ function ArrowLeftIcon({ className = "h-5 w-5" }: { className?: string }) {
  * ```
  */
 export const StoreStatsPage: React.FC = () => {
+  const { t } = useTranslation("statistics");
   const { data, isLoading, error, refetch } = useStoreAnalytics();
   const invalidateStats = useInvalidateStatistics();
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -272,13 +274,13 @@ export const StoreStatsPage: React.FC = () => {
   const getStockStatusLabel = (status: string): string => {
     switch (status) {
       case "critique":
-        return "Stock critique";
+        return t("storeStats.stockAlerts.statusCritical");
       case "bas":
-        return "Stock bas";
+        return t("storeStats.stockAlerts.statusLow");
       case "rupture":
-        return "Rupture de stock";
+        return t("storeStats.stockAlerts.statusOutOfStock");
       default:
-        return "Normal";
+        return t("storeStats.stockAlerts.statusNormal");
     }
   };
 
@@ -293,7 +295,7 @@ export const StoreStatsPage: React.FC = () => {
             onClick={handleBackToDashboard}
             className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
           >
-            Tableau de bord
+            {t("storeStats.breadcrumb.dashboard")}
           </button>
         </li>
         <li aria-current="page">
@@ -314,7 +316,7 @@ export const StoreStatsPage: React.FC = () => {
               />
             </svg>
             <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
-              Statistiques Magasin
+              {t("storeStats.breadcrumb.storeStats")}
             </span>
           </div>
         </li>
@@ -331,10 +333,10 @@ export const StoreStatsPage: React.FC = () => {
         {breadcrumb}
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Statistiques Magasin
+            {t("storeStats.title")}
           </h1>
         </div>
-        <LoadingSpinner size="lg" text="Chargement des statistiques..." />
+        <LoadingSpinner size="lg" text={t("storeStats.loading")} />
       </div>
     );
   }
@@ -348,19 +350,19 @@ export const StoreStatsPage: React.FC = () => {
         {breadcrumb}
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Statistiques Magasin
+            {t("storeStats.title")}
           </h1>
         </div>
         <ErrorBanner
           variant="error"
-          title="Erreur de chargement"
+          title={t("storeStats.errorTitle")}
           message={error.message}
           dismissible
           onDismiss={handleRefresh}
         />
         <div className="flex justify-center">
           <Button variant="primary" onClick={handleRefresh}>
-            Réessayer
+            {t("storeStats.retry")}
           </Button>
         </div>
       </div>
@@ -376,13 +378,13 @@ export const StoreStatsPage: React.FC = () => {
         {breadcrumb}
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Statistiques Magasin
+            {t("storeStats.title")}
           </h1>
         </div>
         <EmptyState
           icon={<ShoppingCartIcon className="h-12 w-12 text-gray-400" />}
-          title="Aucune donnée disponible"
-          description="Les statistiques du magasin ne sont pas encore disponibles."
+          title={t("storeStats.noData")}
+          description={t("storeStats.noDataDescription")}
         />
       </div>
     );
@@ -398,8 +400,8 @@ export const StoreStatsPage: React.FC = () => {
       {/* Page Header */}
       <div className="bg-white rounded-lg shadow p-6">
         <PageHeader
-          title="Statistiques Magasin"
-          description="Vue détaillée des ventes, commandes et analytics du magasin"
+          title={t("storeStats.title")}
+          description={t("storeStats.description")}
           actions={
             <Button
               variant="ghost"
@@ -407,7 +409,7 @@ export const StoreStatsPage: React.FC = () => {
               icon={<ArrowLeftIcon className="h-4 w-4" />}
               iconPosition="left"
             >
-              Retour au tableau de bord
+              {t("storeStats.backToDashboard")}
             </Button>
           }
         />
@@ -420,7 +422,9 @@ export const StoreStatsPage: React.FC = () => {
             onClick={handleRefresh}
             loading={isRefreshing}
           >
-            {isRefreshing ? "Actualisation..." : "Actualiser"}
+            {isRefreshing
+              ? t("storeStats.refreshing")
+              : t("storeStats.refresh")}
           </Button>
         </div>
       </div>
@@ -429,7 +433,7 @@ export const StoreStatsPage: React.FC = () => {
       {low_stock && low_stock.length > 0 && (
         <AlertBanner
           variant="warning"
-          message={`${low_stock.length} article(s) nécessitent votre attention - Des articles ont un stock bas ou sont en rupture de stock.`}
+          message={`${low_stock.length} ${t("storeStats.lowStockAlert")}`}
           icon={<WarningTriangleIcon className="h-5 w-5" />}
         />
       )}
@@ -437,14 +441,14 @@ export const StoreStatsPage: React.FC = () => {
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Commandes"
+          title={t("storeStats.cards.totalOrders")}
           value={formatNumber(overview.total_commandes)}
           icon={ShoppingCartIcon}
           variant="info"
         />
 
         <StatCard
-          title="Commandes Payées"
+          title={t("storeStats.cards.paidOrders")}
           value={formatNumber(overview.commandes_payees)}
           description={formatPercentage(
             (overview.commandes_payees / overview.total_commandes) * 100,
@@ -454,42 +458,42 @@ export const StoreStatsPage: React.FC = () => {
         />
 
         <StatCard
-          title="Revenus Total"
+          title={t("storeStats.cards.totalRevenue")}
           value={formatCurrency(overview.total_revenus)}
           icon={TrendUpIcon}
           variant="info"
         />
 
         <StatCard
-          title="Panier Moyen"
+          title={t("storeStats.cards.averageBasket")}
           value={formatCurrency(overview.panier_moyen)}
           icon={ShoppingCartIcon}
           variant="default"
         />
 
         <StatCard
-          title="En Attente"
+          title={t("storeStats.cards.pending")}
           value={formatNumber(overview.commandes_en_attente)}
           icon={BoxIcon}
           variant="warning"
         />
 
         <StatCard
-          title="Annulées"
+          title={t("storeStats.cards.cancelled")}
           value={formatNumber(overview.commandes_annulees)}
           icon={ExclamationTriangleIcon}
           variant="danger"
         />
 
         <StatCard
-          title="Articles Vendus"
+          title={t("storeStats.cards.itemsSold")}
           value={formatNumber(overview.total_articles_vendus)}
           icon={BoxIcon}
           variant="success"
         />
 
         <StatCard
-          title="Taux de Conversion"
+          title={t("storeStats.cards.conversionRate")}
           value={formatPercentage(overview.taux_conversion)}
           icon={TrendUpIcon}
           variant="info"
@@ -501,10 +505,10 @@ export const StoreStatsPage: React.FC = () => {
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-gray-900">
-              Produits Populaires
+              {t("storeStats.popularProducts.title")}
             </h2>
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-              Top 10
+              {t("storeStats.popularProducts.topLabel")}
             </span>
           </div>
         </div>
@@ -515,16 +519,16 @@ export const StoreStatsPage: React.FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Rang
+                      {t("storeStats.popularProducts.rank")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Produit
+                      {t("storeStats.popularProducts.product")}
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Quantité
+                      {t("storeStats.popularProducts.quantity")}
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Revenus
+                      {t("storeStats.popularProducts.revenue")}
                     </th>
                   </tr>
                 </thead>
@@ -547,10 +551,12 @@ export const StoreStatsPage: React.FC = () => {
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-right">
                           <div className="text-sm text-gray-900">
-                            {formatNumber(product.quantite_vendue)} vendus
+                            {formatNumber(product.quantite_vendue)}{" "}
+                            {t("storeStats.popularProducts.sold")}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {product.nombre_commandes} commandes
+                            {product.nombre_commandes}{" "}
+                            {t("storeStats.popularProducts.orders")}
                           </div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-right">
@@ -567,8 +573,10 @@ export const StoreStatsPage: React.FC = () => {
           ) : (
             <EmptyState
               icon={<BoxIcon className="h-12 w-12 text-gray-400" />}
-              title="Aucun produit vendu"
-              description="Aucune vente n'a été enregistrée pour le moment."
+              title={t("storeStats.popularProducts.noProducts")}
+              description={t(
+                "storeStats.popularProducts.noProductsDescription",
+              )}
             />
           )}
         </div>
@@ -580,7 +588,7 @@ export const StoreStatsPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900">
-              Ventes par Catégorie
+              {t("storeStats.salesByCategory.title")}
             </h2>
           </div>
           <div className="p-6">
@@ -598,7 +606,9 @@ export const StoreStatsPage: React.FC = () => {
                         </div>
                         <div className="text-sm text-gray-500 mt-1">
                           {formatNumber(category.total_articles_vendus)}{" "}
-                          articles • {category.nombre_commandes} commandes
+                          {t("storeStats.salesByCategory.articles")} •{" "}
+                          {category.nombre_commandes}{" "}
+                          {t("storeStats.salesByCategory.orders")}
                         </div>
                       </div>
                       <div className="text-right">
@@ -606,8 +616,8 @@ export const StoreStatsPage: React.FC = () => {
                           {formatCurrency(category.revenus_total)}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {formatPercentage(category.pourcentage_revenus)} du
-                          total
+                          {formatPercentage(category.pourcentage_revenus)}{" "}
+                          {t("storeStats.salesByCategory.ofTotal")}
                         </div>
                       </div>
                     </div>
@@ -617,8 +627,10 @@ export const StoreStatsPage: React.FC = () => {
             ) : (
               <EmptyState
                 icon={<BoxIcon className="h-12 w-12 text-gray-400" />}
-                title="Aucune catégorie"
-                description="Aucune vente par catégorie disponible."
+                title={t("storeStats.salesByCategory.noCategories")}
+                description={t(
+                  "storeStats.salesByCategory.noCategoriesDescription",
+                )}
               />
             )}
           </div>
@@ -628,11 +640,13 @@ export const StoreStatsPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow">
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-900">Alertes Stock</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                {t("storeStats.stockAlerts.title")}
+              </h2>
               {low_stock && low_stock.length > 0 && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
                   <WarningTriangleIcon className="h-4 w-4 mr-1" />
-                  {low_stock.length} alerte(s)
+                  {low_stock.length} {t("storeStats.stockAlerts.alertsCount")}
                 </span>
               )}
             </div>
@@ -653,7 +667,7 @@ export const StoreStatsPage: React.FC = () => {
                             {item.article_nom}
                           </div>
                           <div className="text-sm text-gray-500 mt-1">
-                            Taille: {item.taille}
+                            {t("storeStats.stockAlerts.size")}: {item.taille}
                           </div>
                         </div>
                         <div className="text-right">
@@ -664,7 +678,7 @@ export const StoreStatsPage: React.FC = () => {
                             / {formatNumber(item.quantite_minimum)}
                           </div>
                           <div className="text-xs text-gray-500 mt-1">
-                            disponible / minimum
+                            {t("storeStats.stockAlerts.availableMinimum")}
                           </div>
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors.bg} ${colors.text} mt-2`}
@@ -680,8 +694,8 @@ export const StoreStatsPage: React.FC = () => {
             ) : (
               <EmptyState
                 icon={<BoxIcon className="h-12 w-12 text-gray-400" />}
-                title="Aucune alerte"
-                description="Tous les articles ont un stock suffisant."
+                title={t("storeStats.stockAlerts.noAlerts")}
+                description={t("storeStats.stockAlerts.noAlertsDescription")}
               />
             )}
           </div>

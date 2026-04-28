@@ -1,0 +1,290 @@
+{
+  "tabs": {
+    "inbox": "Boîte de réception",
+    "sent": "Messages envoyés",
+    "templates": "Templates"
+  },
+  "actions": {
+    "newMessage": "Nouveau message",
+    "compose": "Composer",
+    "send": "Envoyer",
+    "sendFrom": "Envoyer depuis",
+    "back": "Retour",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "duplicate": "Dupliquer",
+    "activate": "Activer",
+    "deactivate": "Désactiver",
+    "useTemplate": "Utiliser ce template",
+    "createTemplate": "Créer un template",
+    "newTemplate": "Nouveau template",
+    "newType": "Nouveau type",
+    "selectTemplate": "Sélectionner un template",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "close": "Fermer",
+    "retry": "Réessayer",
+    "newCategory": "Nouvelle catégorie"
+  },
+  "inbox": {
+    "title": "Boîte de réception",
+    "empty": "Aucun message reçu",
+    "emptyDescription": "Vous n'avez reçu aucun message pour le moment.",
+    "messageCount": "{{count}} message reçu",
+    "messageCount_plural": "{{count}} messages reçus",
+    "unreadCount": "{{count}} non lu",
+    "unreadCount_plural": "{{count}} non lus"
+  },
+  "sent": {
+    "title": "Messages envoyés",
+    "empty": "Aucun message envoyé",
+    "emptyDescription": "Vous n'avez envoyé aucun message pour le moment.",
+    "messageCount": "{{count}} message envoyé",
+    "messageCount_plural": "{{count}} messages envoyés"
+  },
+  "templates": {
+    "title": "Templates",
+    "description": "Templates de messages réutilisables",
+    "empty": "Aucun template",
+    "emptyDescription": "Créez votre premier template de message.",
+    "createFirst": "Créer mon premier template",
+    "count_one": "{{count}} template",
+    "count_other": "{{count}} templates",
+    "totalCount": "{{count}} template au total",
+    "totalCount_plural": "{{count}} templates au total",
+    "activeCount": "{{active}}/{{total}} actif(s)",
+    "noCategory": "Sans catégorie",
+    "allCategories": "Toutes les catégories",
+    "filterByType": "Filtrer par type",
+    "preview": "Aperçu",
+    "manageCategories": "Gérer les catégories",
+    "noCategories": "Aucune catégorie pour l'instant.",
+    "thisTemplate": "ce template",
+    "thisCategory": "cette catégorie",
+    "confirmDelete": "Supprimer « {{name}} » ? Cette action est irréversible.",
+    "confirmDeleteType": "Supprimer la catégorie « {{name}} » ?\n\nAttention : tous les templates associés seront également supprimés.",
+    "emptyCategoriesTitle": "Aucune catégorie de templates",
+    "emptyCategoriesDescription": "Commencez par créer une catégorie pour organiser vos templates.",
+    "createFirstCategory": "Créer une première catégorie",
+    "noFilterResults": "Aucun résultat pour ce filtre."
+  },
+  "detail": {
+    "selectMessage": "Sélectionnez un message",
+    "selectMessageDescription": "Cliquez sur un message dans la liste pour le lire.",
+    "noSubject": "(Pas de sujet)",
+    "from": "De :",
+    "to": "À :",
+    "date": "Date :",
+    "sentByEmail": "Envoyé par email",
+    "broadcast": "Message groupé",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce message ? Cette action est irréversible.",
+    "timeConnector": "à",
+    "hourSeparator": "h"
+  },
+  "compose": {
+    "title": "Nouveau message",
+    "editTitle": "Modifier le message",
+    "recipient": "Destinataire",
+    "recipientType": "Type de destinataire",
+    "recipientPlaceholder": "Sélectionnez un destinataire",
+    "individual": "Un utilisateur",
+    "broadcast": "Tous",
+    "targetRole": "Rôle cible",
+    "selectRole": "Sélectionnez un rôle",
+    "subject": "Sujet",
+    "subjectPlaceholder": "Objet du message",
+    "content": "Message",
+    "contentPlaceholder": "Écrivez votre message ici...",
+    "sendByEmail": "Envoyer également par email",
+    "sending": "Envoi en cours...",
+    "sent": "Message envoyé !",
+    "error": "Erreur lors de l'envoi",
+    "noCategory": "Sans catégorie",
+    "optional": "Optionnel"
+  },
+  "templateEditor": {
+    "title": "Nouveau template",
+    "editTitle": "Modifier « {{titre}} »",
+    "name": "Nom du template",
+    "namePlaceholder": "Ex: Message de bienvenue",
+    "examplePlaceholder": "Ex : Email de bienvenue",
+    "category": "Catégorie",
+    "selectCategory": "Sélectionnez une catégorie",
+    "subject": "Sujet",
+    "subjectPlaceholder": "Sujet du message",
+    "content": "Contenu",
+    "contentPlaceholder": "Contenu du template...",
+    "isActive": "Template actif",
+    "saving": "Enregistrement...",
+    "saved": "Template enregistré !",
+    "error": "Erreur lors de l'enregistrement",
+    "editTooltip": "Modifier ce template",
+    "deleteTooltip": "Supprimer ce template",
+    "validation": {
+      "categoryRequired": "Veuillez sélectionner une catégorie.",
+      "titleRequired": "Le titre est obligatoire.",
+      "titleMaxLength": "Le titre ne doit pas dépasser 200 caractères.",
+      "contentRequired": "Le contenu est obligatoire."
+    },
+    "fields": {
+      "category": "Catégorie",
+      "title": "Titre",
+      "content": "Contenu",
+      "active": "Template actif"
+    },
+    "placeholders": {
+      "selectCategory": "— Choisir une catégorie —",
+      "content": "Bonjour {{prenom}},\n\nVotre message ici…"
+    },
+    "helpers": {
+      "variables": "Utilisez {{variable}} pour les variables"
+    },
+    "preview": {
+      "title": "Aperçu",
+      "realtime": "Temps réel",
+      "empty": "L'aperçu apparaît ici"
+    },
+    "variables": {
+      "detected": "Variables détectées",
+      "auto": "Auto",
+      "manual": "Manuel",
+      "manualLabel": "Variables manuelles :",
+      "manualWarning": "Ces variables devront être renseignées manuellement à chaque envoi.",
+      "noneDetected": "Aucune variable détectée. Utilisez {{prenom}}, {{nom}}, etc. pour personnaliser."
+    }
+  },
+  "templateType": {
+    "title": "Nouveau type de template",
+    "createTitle": "Nouvelle catégorie",
+    "editTitle": "Modifier la catégorie",
+    "name": "Nom du type",
+    "namePlaceholder": "Ex: Administratif",
+    "namePlaceholderAlt": "Ex : Bienvenue, Cours annulé, Rappel…",
+    "description": "Description",
+    "descriptionPlaceholder": "Description du type de template",
+    "descriptionPlaceholderAlt": "Décrivez l'usage de cette catégorie…",
+    "color": "Couleur",
+    "saving": "Enregistrement...",
+    "saved": "Type enregistré !",
+    "error": "Erreur lors de l'enregistrement",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce type ?",
+    "deleteWithTemplates": "Ce type contient {{count}} template(s). Ils seront déplacés dans 'Sans catégorie'.",
+    "validation": {
+      "nameRequired": "Le nom de la catégorie est obligatoire.",
+      "nameMaxLength": "Le nom ne doit pas dépasser 100 caractères."
+    },
+    "fields": {
+      "name": "Nom",
+      "description": "Description",
+      "active": "Catégorie active"
+    }
+  },
+  "badges": {
+    "grouped": "Groupé",
+    "email": "Email",
+    "active": "Actif",
+    "inactive": "Inactif"
+  },
+  "sendFromTemplate": {
+    "title": "Envoyer : « {{titre}} »",
+    "previewTitle": "Aperçu du message",
+    "recipientUserId": "ID utilisateur",
+    "recipientUserIdPlaceholder": "ID utilisateur (numérique)",
+    "sendAlsoByEmail": "Envoyer aussi par email",
+    "variables": "Variables",
+    "recipient": "Destinataire",
+    "byRole": "Par rôle",
+    "preview": "Aperçu",
+    "send": "Envoyer",
+    "noManualVars": "Aucune variable manuelle pour ce template — prêt à envoyer !",
+    "broadcastWarningLabel": "Envoi groupé :",
+    "broadcastAll": "Le message sera envoyé à tous les utilisateurs actifs.",
+    "broadcastRole": "Le message sera envoyé à tous les utilisateurs ayant le rôle « {{role}} ».",
+    "success_one": "Message envoyé avec succès !",
+    "success_other": "{{count}} messages envoyés avec succès !",
+    "validation": {
+      "recipientRequired": "L'ID du destinataire est obligatoire.",
+      "recipientInvalid": "L'ID doit être un nombre entier positif."
+    },
+    "errors": {
+      "previewFailed": "Erreur lors de la génération de l'aperçu.",
+      "sendFailed": "Erreur lors de l'envoi."
+    },
+    "sections": {
+      "variables": "Variables à remplir",
+      "recipients": "Destinataires"
+    },
+    "placeholders": {
+      "varValue": "Valeur pour {{varName}}…"
+    },
+    "buttons": {
+      "preview": "Aperçu",
+      "confirm": "Confirmer l'envoi"
+    },
+    "preview": {
+      "titleLabel": "Titre",
+      "contentLabel": "Contenu",
+      "allVarsOk": "Toutes les variables sont renseignées — prêt à envoyer.",
+      "missingVars": "Variables manquantes ({{count}}) :",
+      "goBackHint": "Revenez à l'étape précédente pour renseigner ces valeurs.",
+      "exampleNote": "Aperçu généré avec l'exemple : Jean Dupont (U-2025-0001). Le contenu réel variera selon le destinataire."
+    }
+  },
+  "relative": {
+    "now": "à l'instant",
+    "minutesAgo": "il y a {{count}} min",
+    "hoursAgo": "il y a {{count}}h",
+    "daysAgo": "il y a {{count}}j",
+    "weeksAgo": "il y a {{count}} sem.",
+    "monthsAgo": "il y a {{count}} mois",
+    "yearsAgo": "il y a {{count}} an",
+    "yearsAgo_plural": "il y a {{count}} ans"
+  },
+  "loading": {
+    "messages": "Chargement des messages...",
+    "message": "Chargement du message…",
+    "templates": "Chargement des templates...",
+    "sending": "Envoi en cours..."
+  },
+  "success": {
+    "templateCreated": "Template créé avec succès",
+    "templateUpdated": "Template mis à jour",
+    "templateDeleted": "Template supprimé",
+    "templateActivated": "Template activé",
+    "templateDeactivated": "Template désactivé",
+    "categoryCreated": "Catégorie créée avec succès",
+    "categoryUpdated": "Catégorie mise à jour",
+    "categoryDeleted": "Catégorie supprimée",
+    "messageSent": "Message envoyé",
+    "languageChanged": "Langue modifiée avec succès"
+  },
+  "errors": {
+    "generic": "Une erreur est survenue.",
+    "deleteFailed": "Erreur lors de la suppression.",
+    "loadMessages": "Erreur lors du chargement des messages",
+    "loadMessage": "Erreur lors du chargement du message",
+    "sendMessage": "Erreur lors de l'envoi du message",
+    "deleteMessage": "Erreur lors de la suppression du message",
+    "loadTemplates": "Erreur lors du chargement des templates",
+    "saveTemplate": "Erreur lors de l'enregistrement du template",
+    "deleteTemplate": "Erreur lors de la suppression du template",
+    "recipientRequired": "Veuillez sélectionner un destinataire",
+    "roleRequired": "Veuillez sélectionner un rôle cible",
+    "contentRequired": "Le message ne peut pas être vide",
+    "loadUsers": "Impossible de charger les utilisateurs",
+    "loadModels": "Impossible de charger les modèles",
+    "generatePreview": "Impossible de générer l'aperçu",
+    "sendError": "Une erreur est survenue lors de l'envoi"
+  },
+  "roles": {
+    "admin": "Administrateurs",
+    "professor": "Professeurs",
+    "member": "Membres",
+    "parent": "Parents",
+    "all": "Tous"
+  },
+  "common": {
+    "optional": "optionnel"
+  }
+}

@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { UserRole } from "@clubmanager/types";
@@ -12,7 +13,8 @@ import type { SendMessagePayload } from "../api/messagingApi";
 import { getTemplates } from "../api/templatesApi";
 import type { Template } from "../api/templatesApi";
 import { PaperPlaneIcon, PficonTemplateIcon } from "@patternfly/react-icons";
-import { Modal, Input, Button } from "../../../shared/components";
+import { Modal, Input, Button, FormField } from "../../../shared/components";
+import { FORM } from "../../../shared/styles/designTokens";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,6 +35,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
   onClose,
   onSent,
 }) => {
+  const { t } = useTranslation("messages");
   const { user } = useAuth();
   const sendMessage = useMessagingStore((s) => s.sendMessage);
   const isSending = useMessagingStore((s) => s.isSending);
@@ -57,10 +60,10 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
 
   const groupedPickerTemplates = useMemo(
     () =>
-      pickerTemplates.reduce<Record<string, Template[]>>((acc, t) => {
-        const key = t.type_nom ?? "Sans catégorie";
+      pickerTemplates.reduce<Record<string, Template[]>>((acc, tpl) => {
+        const key = tpl.type_nom ?? t("compose.noCategory");
         if (!acc[key]) acc[key] = [];
-        acc[key].push(t);
+        acc[key].push(tpl);
         return acc;
       }, {}),
     [pickerTemplates],
@@ -89,7 +92,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
       const tpls = await getTemplates(undefined, true);
       setPickerTemplates(tpls);
     } catch {
-      toast.error("Impossible de charger les templates.");
+      toast.error(t("errors.loadTemplates"));
     } finally {
       setIsLoadingTemplates(false);
     }
@@ -117,14 +120,14 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!contenu.trim()) {
-      newErrors.contenu = "Le contenu du message est obligatoire.";
+      newErrors.contenu = t("errors.contentRequired");
     }
 
     if (recipientType === "user") {
       if (!destinataireId.trim()) {
-        newErrors.destinataire = "L'ID du destinataire est obligatoire.";
+        newErrors.destinataire = t("errors.recipientRequired");
       } else if (isNaN(Number(destinataireId)) || Number(destinataireId) <= 0) {
-        newErrors.destinataire = "L'ID doit être un nombre entier positif.";
+        newErrors.destinataire = t("errors.recipientRequired");
       }
     }
 
@@ -157,18 +160,18 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
 
     try {
       await sendMessage(payload);
-      toast.success("Message envoyé avec succès !");
+      toast.success(t("compose.sent"));
       onSent();
       onClose();
     } catch {
       // L'erreur est déjà affichée via le store ou toast
-      toast.error("Une erreur est survenue lors de l'envoi.");
+      toast.error(t("compose.error"));
     }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <Modal.Header title="Nouveau message" onClose={onClose} />
+      <Modal.Header title={t("compose.title")} onClose={onClose} />
 
       <Modal.Body>
         <form
@@ -191,7 +194,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
             >
               <span className="flex items-center gap-2">
                 <PficonTemplateIcon style={{ fontSize: "16px" }} />
-                <span className="font-medium">Utiliser un template</span>
+                <span className="font-medium">{t("actions.useTemplate")}</span>
               </span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -236,11 +239,11 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                         d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                       />
                     </svg>
-                    Chargement des templates…
+                    {t("loading.templates")}
                   </div>
                 ) : pickerTemplates.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-6 px-4">
-                    Aucun template actif disponible.
+                    {t("templates.emptyDescription")}
                   </p>
                 ) : (
                   Object.entries(groupedPickerTemplates).map(
@@ -254,7 +257,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                             key={t.id}
                             type="button"
                             onClick={() => handleSelectTemplate(t)}
-                            className="w-full text-left px-3 py-2.5 hover:bg-blue-50 transition-colors border-b border-gray-50 last:border-0 group"
+                            className="w-full text-left px-3 py-3 hover:bg-blue-50 transition-colors border-b border-gray-50 last:border-0 group"
                           >
                             <p className="text-sm font-medium text-gray-800 group-hover:text-blue-700 truncate">
                               {t.titre}
@@ -276,7 +279,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
           {/* ── Destinataire ── */}
           <fieldset>
             <legend className="block text-sm font-medium text-gray-700 mb-2">
-              Destinataire
+              {t("compose.recipient")}
             </legend>
 
             {/* Type de destinataire */}
@@ -291,7 +294,9 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                   onChange={() => setRecipientType("user")}
                   className="text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">Un utilisateur</span>
+                <span className="text-sm text-gray-700">
+                  {t("compose.individual")}
+                </span>
               </label>
 
               {/* Options broadcast — admin/professor seulement */}
@@ -307,7 +312,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                       className="text-blue-600 focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">
-                      Tous les membres
+                      {t("compose.broadcast")}
                     </span>
                   </label>
 
@@ -320,7 +325,9 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
                       onChange={() => setRecipientType("role")}
                       className="text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">Par rôle</span>
+                    <span className="text-sm text-gray-700">
+                      {t("roles.all")}
+                    </span>
                   </label>
                 </>
               )}
@@ -329,93 +336,117 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
             {/* Champ ID utilisateur */}
             {recipientType === "user" && (
               <div className="mt-3">
-                <Input
+                <FormField
                   id="destinataire-id"
-                  type="number"
-                  label="ID numérique de l'utilisateur"
-                  value={destinataireId}
-                  onChange={(e) => {
-                    setDestinatarioId(e.target.value);
-                    if (errors.destinataire) {
-                      setErrors((prev) => {
-                        const next = { ...prev };
-                        delete next.destinataire;
-                        return next;
-                      });
-                    }
-                  }}
-                  placeholder="Entrez l'ID numérique de l'utilisateur"
-                  error={errors.destinataire}
+                  label={t("compose.recipient")}
                   required
-                />
+                  error={errors.destinataire}
+                >
+                  <Input
+                    id="destinataire-id"
+                    type="number"
+                    value={destinataireId}
+                    onChange={(e) => {
+                      setDestinatarioId(e.target.value);
+                      if (errors.destinataire) {
+                        setErrors((prev) => {
+                          const next = { ...prev };
+                          delete next.destinataire;
+                          return next;
+                        });
+                      }
+                    }}
+                    placeholder={t("compose.recipientPlaceholder")}
+                  />
+                </FormField>
               </div>
             )}
 
             {/* Sélecteur de rôle */}
             {recipientType === "role" && (
               <div className="mt-3">
-                <Input.Select
-                  id="role-cible"
-                  label="Rôle cible"
-                  value={roleCible}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    setRoleCible(e.target.value as RoleCible)
-                  }
-                  options={[
-                    { value: "member", label: "Membres" },
-                    { value: "professor", label: "Professeurs" },
-                    { value: "admin", label: "Admins" },
-                  ]}
-                />
+                <FormField id="role-cible" label={t("compose.targetRole")}>
+                  <select
+                    id="role-cible"
+                    className={FORM.select}
+                    value={roleCible}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      setRoleCible(e.target.value as RoleCible)
+                    }
+                  >
+                    <option value="member">{t("roles.member")}</option>
+                    <option value="professor">{t("roles.professor")}</option>
+                    <option value="admin">{t("roles.admin")}</option>
+                  </select>
+                </FormField>
               </div>
             )}
           </fieldset>
 
           {/* ── Sujet (optionnel) ── */}
-          <Input
+          <FormField
             id="sujet"
-            type="text"
-            label="Sujet"
-            value={sujet}
-            onChange={(e) => setSujet(e.target.value)}
-            placeholder="Objet du message"
-            maxLength={200}
-            helperText="Optionnel"
-          />
+            label={t("compose.subject")}
+            helpText={t("compose.optional")}
+          >
+            <Input
+              id="sujet"
+              type="text"
+              value={sujet}
+              onChange={(e) => setSujet(e.target.value)}
+              placeholder={t("compose.subjectPlaceholder")}
+              maxLength={200}
+            />
+          </FormField>
 
           {/* ── Contenu ── */}
-          <Input.Textarea
+          <FormField
             id="contenu"
-            label="Message"
-            value={contenu}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-              setContenu(e.target.value);
-              if (errors.contenu) {
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.contenu;
-                  return next;
-                });
-              }
-            }}
-            placeholder="Écrivez votre message ici…"
-            rows={6}
-            maxLength={2000}
-            showCharCount
-            error={errors.contenu}
+            label={t("compose.content")}
             required
-          />
+            error={errors.contenu}
+          >
+            <div className="relative">
+              <textarea
+                id="contenu"
+                className={FORM.select}
+                value={contenu}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                  setContenu(e.target.value);
+                  if (errors.contenu) {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.contenu;
+                      return next;
+                    });
+                  }
+                }}
+                placeholder={t("compose.contentPlaceholder")}
+                rows={6}
+                maxLength={2000}
+              />
+              <div className="mt-1 text-right text-xs text-gray-500">
+                {contenu.length} / 2000
+              </div>
+            </div>
+          </FormField>
 
           {/* ── Envoi par email (admin/professor seulement) ── */}
           {canBroadcast && (
-            <Input.Checkbox
-              id="envoye-par-email"
-              label="Envoyer aussi par email"
-              checked={envoyeParEmail}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEnvoyeParEmail(e.target.checked)
-              }
-            />
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                id="envoye-par-email"
+                className={FORM.checkbox}
+                checked={envoyeParEmail}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEnvoyeParEmail(e.target.checked)
+                }
+              />
+              <span className="text-sm text-gray-700">
+                {t("compose.sendByEmail")}
+              </span>
+            </label>
           )}
         </form>
       </Modal.Body>
@@ -427,7 +458,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
           onClick={onClose}
           disabled={isSending}
         >
-          Annuler
+          {t("actions.cancel")}
         </Button>
 
         <Button
@@ -438,7 +469,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
           icon={!isSending ? <PaperPlaneIcon /> : undefined}
           form="compose-message-form"
         >
-          {isSending ? "Envoi en cours…" : "Envoyer"}
+          {isSending ? t("compose.sending") : t("actions.send")}
         </Button>
       </Modal.Footer>
     </Modal>

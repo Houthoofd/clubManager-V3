@@ -52,7 +52,7 @@
  */
 
 import { ReactNode, ButtonHTMLAttributes, forwardRef } from "react";
-import { cn } from "../../styles/designTokens";
+import { cn, BUTTON } from "../../styles/designTokens";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -166,25 +166,7 @@ function LoadingSpinner({ className = "" }: SpinnerProps) {
 
 // ─── VARIANT CLASSES ─────────────────────────────────────────────────────────
 
-const variantClasses = {
-  primary:
-    "text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 shadow-sm",
-  secondary: "text-gray-700 bg-gray-100 hover:bg-gray-200 focus:ring-gray-500",
-  outline:
-    "text-blue-600 border border-blue-600 bg-white hover:bg-blue-50 focus:ring-blue-500",
-  danger: "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500 shadow-sm",
-  success:
-    "text-white bg-green-600 hover:bg-green-700 focus:ring-green-500 shadow-sm",
-  ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
-} as const;
-
-const sizeClasses = {
-  xs: "p-1",
-  sm: "p-1.5",
-  md: "p-2",
-  lg: "p-2.5",
-  xl: "p-3",
-} as const;
+// Les classes de taille d'icône sont conservées pour le spinner de chargement
 
 const iconSizeClasses = {
   xs: "h-3 w-3",
@@ -216,20 +198,17 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     // Déterminer si le bouton doit être désactivé
     const isDisabled = disabled || loading;
 
-    // Classes combinées
+    // Adapter BUTTON.base pour gérer le shape (circle vs square)
+    const baseClasses =
+      shape === "circle"
+        ? BUTTON.base.replace("rounded-lg", "rounded-full")
+        : BUTTON.base;
+
+    // Classes combinées avec tokens BUTTON
     const buttonClasses = cn(
-      // Base
-      "inline-flex items-center justify-center",
-      "font-medium transition-colors",
-      "focus:outline-none focus:ring-2 focus:ring-offset-2",
-      "disabled:opacity-40 disabled:cursor-not-allowed",
-      // Variant
-      variantClasses[variant],
-      // Taille
-      sizeClasses[size],
-      // Forme
-      shape === "circle" ? "rounded-full" : "rounded-lg",
-      // Classes additionnelles
+      baseClasses,
+      BUTTON.variant[variant],
+      BUTTON.icon[size],
       className,
     );
 

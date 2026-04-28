@@ -1,0 +1,77 @@
+{
+  "network": {
+    "connectionError": "Server connection error",
+    "timeout": "Request timed out",
+    "serverError": "Server error",
+    "notFound": "Resource not found",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Access forbidden",
+    "badRequest": "Invalid request",
+    "serviceUnavailable": "Service temporarily unavailable",
+    "networkOffline": "No internet connection",
+    "requestFailed": "Request failed"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalid": "Invalid value",
+    "tooShort": "Value too short",
+    "tooLong": "Value too long",
+    "emailInvalid": "Invalid email address",
+    "passwordWeak": "Password too weak",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "passwordNoUppercase": "Password must contain at least one uppercase letter",
+    "passwordNoLowercase": "Password must contain at least one lowercase letter",
+    "passwordNoNumber": "Password must contain at least one number",
+    "passwordNoSpecial": "Password must contain at least one special character",
+    "phoneInvalid": "Invalid phone number",
+    "urlInvalid": "Invalid URL",
+    "dateInvalid": "Invalid date",
+    "numberInvalid": "Invalid number",
+    "minValue": "Value must be greater than or equal to {{min}}",
+    "maxValue": "Value must be less than or equal to {{max}}",
+    "minLength": "Minimum length is {{min}} characters",
+    "maxLength": "Maximum length is {{max}} characters",
+    "pattern": "Invalid format",
+    "unique": "This value already exists",
+    "mustMatch": "Values do not match",
+    "mustBeTrue": "You must accept this field",
+    "invalidFormat": "Invalid format"
+  },
+  "generic": {
+    "unknownError": "An unknown error occurred",
+    "tryAgain": "Please try again",
+    "contactSupport": "Please contact support",
+    "somethingWentWrong": "Something went wrong",
+    "operationFailed": "Operation failed",
+    "cannotComplete": "Unable to complete operation",
+    "pleaseTryLater": "Please try again later",
+    "errorOccurred": "An error occurred",
+    "unexpectedError": "Unexpected error"
+  },
+  "file": {
+    "uploadFailed": "File upload failed",
+    "fileTooLarge": "File is too large",
+    "invalidFileType": "File type not allowed",
+    "fileNotFound": "File not found",
+    "downloadFailed": "Download failed"
+  },
+  "database": {
+    "queryFailed": "Query failed",
+    "recordNotFound": "Record not found",
+    "duplicateEntry": "Duplicate entry",
+    "foreignKeyConstraint": "Foreign key constraint violated",
+    "saveFailed": "Save failed",
+    "deleteFailed": "Delete failed",
+    "updateFailed": "Update failed"
+  },
+  "auth": {
+    "invalidCredentials": "Invalid credentials",
+    "sessionExpired": "Session expired",
+    "tokenInvalid": "Invalid token",
+    "tokenExpired": "Token expired",
+    "accessDenied": "Access denied",
+    "insufficientPermissions": "Insufficient permissions",
+    "accountLocked": "Account locked",
+    "accountSuspended": "Account suspended"
+  }
+}

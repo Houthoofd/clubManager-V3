@@ -19,6 +19,7 @@
  */
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   useFinancialAnalytics,
   useInvalidateStatistics,
@@ -43,6 +44,7 @@ import { IconButton } from "../../../shared/components/Button/IconButton";
  * ```
  */
 export const FinanceStatsPage: React.FC = () => {
+  const { t } = useTranslation("statistics");
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const { data, isLoading, error, refetch } = useFinancialAnalytics();
@@ -88,8 +90,8 @@ export const FinanceStatsPage: React.FC = () => {
               />
             </svg>
           }
-          title="Statistiques Financières"
-          description="Vue détaillée des revenus, paiements et analytics financiers"
+          title={t("pages.financeStats")}
+          description={t("storeStats.description")}
           breadcrumb={
             <nav className="flex" aria-label="Breadcrumb">
               <ol className="inline-flex items-center space-x-1 md:space-x-3">
@@ -98,7 +100,7 @@ export const FinanceStatsPage: React.FC = () => {
                     onClick={handleBackToDashboard}
                     className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
                   >
-                    Tableau de bord
+                    {t("storeStats.breadcrumb.dashboard")}
                   </button>
                 </li>
                 <li aria-current="page">
@@ -119,7 +121,7 @@ export const FinanceStatsPage: React.FC = () => {
                       />
                     </svg>
                     <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
-                      Statistiques Financières
+                      {t("pages.financeStats")}
                     </span>
                   </div>
                 </li>
@@ -143,8 +145,8 @@ export const FinanceStatsPage: React.FC = () => {
                   />
                 </svg>
               }
-              ariaLabel="Retour au tableau de bord"
-              tooltip="Retour au tableau de bord"
+              ariaLabel={t("storeStats.backToDashboard")}
+              tooltip={t("storeStats.backToDashboard")}
               variant="ghost"
               size="lg"
               onClick={handleBackToDashboard}

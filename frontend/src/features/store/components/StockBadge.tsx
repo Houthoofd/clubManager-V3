@@ -6,6 +6,7 @@
  * pour maintenir la compatibilité avec l'ancienne API.
  */
 
+import { useTranslation } from "react-i18next";
 import { Badge } from "../../../shared/components";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -30,15 +31,17 @@ export const StockBadge: React.FC<StockBadgeProps> = ({
   quantite_minimum,
   className = "",
 }) => {
+  const { t } = useTranslation("store");
+
   // Déterminer le label selon la logique originale
   let label: string;
 
   if (quantite <= 0) {
-    label = "Rupture";
+    label = t("stocks.badge.outOfStock");
   } else if (quantite <= quantite_minimum) {
-    label = "Stock bas";
+    label = t("stocks.badge.lowStock");
   } else {
-    label = "En stock";
+    label = t("stocks.badge.inStock");
   }
 
   return (

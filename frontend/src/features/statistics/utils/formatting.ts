@@ -6,8 +6,8 @@
  * for display in statistics views.
  */
 
-import { format, formatDistance, formatRelative } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { format, formatDistance, formatRelative } from "date-fns";
+import { fr } from "date-fns/locale";
 
 /**
  * Format a number with French locale formatting
@@ -21,7 +21,7 @@ import { fr } from 'date-fns/locale';
  * formatNumber(1234.567, 2) // "1 234,57"
  */
 export const formatNumber = (value: number, decimals: number = 0): string => {
-  return new Intl.NumberFormat('fr-FR', {
+  return new Intl.NumberFormat("fr-FR", {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(value);
@@ -38,15 +38,18 @@ export const formatNumber = (value: number, decimals: number = 0): string => {
  * formatCurrency(1234.56) // "1 234,56 €"
  * formatCurrency(1234.56, false) // "1 234,56"
  */
-export const formatCurrency = (value: number, showSymbol: boolean = true): string => {
+export const formatCurrency = (
+  value: number,
+  showSymbol: boolean = true,
+): string => {
   if (showSymbol) {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "EUR",
     }).format(value);
   }
 
-  return new Intl.NumberFormat('fr-FR', {
+  return new Intl.NumberFormat("fr-FR", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
@@ -68,7 +71,7 @@ export const formatCurrency = (value: number, showSymbol: boolean = true): strin
 export const formatPercentage = (
   value: number,
   decimals: number = 1,
-  showSign: boolean = true
+  showSign: boolean = true,
 ): string => {
   const formatted = formatNumber(value, decimals);
   return showSign ? `${formatted} %` : formatted;
@@ -88,17 +91,19 @@ export const formatPercentage = (
  */
 export const formatVariation = (
   value: number,
-  isPercentage: boolean = true
+  isPercentage: boolean = true,
 ): {
   text: string;
-  direction: 'up' | 'down' | 'neutral';
-  color: 'success' | 'danger' | 'muted';
+  direction: "up" | "down" | "neutral";
+  color: "success" | "danger" | "muted";
 } => {
-  const direction = value > 0 ? 'up' : value < 0 ? 'down' : 'neutral';
-  const color = value > 0 ? 'success' : value < 0 ? 'danger' : 'muted';
+  const direction = value > 0 ? "up" : value < 0 ? "down" : "neutral";
+  const color = value > 0 ? "success" : value < 0 ? "danger" : "muted";
 
-  const sign = value > 0 ? '+' : '';
-  const formatted = isPercentage ? formatPercentage(value) : formatNumber(value, 2);
+  const sign = value > 0 ? "+" : "";
+  const formatted = isPercentage
+    ? formatPercentage(value)
+    : formatNumber(value, 2);
 
   return {
     text: `${sign}${formatted}`,
@@ -118,8 +123,11 @@ export const formatVariation = (
  * formatDate(new Date('2024-01-15')) // "15/01/2024"
  * formatDate(new Date('2024-01-15'), 'dd MMMM yyyy') // "15 janvier 2024"
  */
-export const formatDate = (date: Date | string, formatStr: string = 'dd/MM/yyyy'): string => {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+export const formatDate = (
+  date: Date | string,
+  formatStr: string = "dd/MM/yyyy",
+): string => {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
   return format(dateObj, formatStr, { locale: fr });
 };
 
@@ -134,7 +142,10 @@ export const formatDate = (date: Date | string, formatStr: string = 'dd/MM/yyyy'
  * formatDateRange(new Date('2024-01-01'), new Date('2024-01-31'))
  * // "01/01/2024 - 31/01/2024"
  */
-export const formatDateRange = (startDate: Date | string, endDate: Date | string): string => {
+export const formatDateRange = (
+  startDate: Date | string,
+  endDate: Date | string,
+): string => {
   return `${formatDate(startDate)} - ${formatDate(endDate)}`;
 };
 
@@ -148,7 +159,7 @@ export const formatDateRange = (startDate: Date | string, endDate: Date | string
  * formatRelativeDate(subDays(new Date(), 2)) // "il y a 2 jours"
  */
 export const formatRelativeDate = (date: Date | string): string => {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const dateObj = typeof date === "string" ? new Date(date) : date;
   return formatDistance(dateObj, new Date(), { addSuffix: true, locale: fr });
 };
 
@@ -210,15 +221,15 @@ export const formatDuration = (minutes: number): string => {
  */
 export const getColorByThreshold = (
   value: number,
-  thresholds: { success?: number; warning?: number }
-): 'success' | 'warning' | 'danger' => {
+  thresholds: { success?: number; warning?: number },
+): "success" | "warning" | "danger" => {
   if (thresholds.success && value >= thresholds.success) {
-    return 'success';
+    return "success";
   }
   if (thresholds.warning && value >= thresholds.warning) {
-    return 'warning';
+    return "warning";
   }
-  return 'danger';
+  return "danger";
 };
 
 /**
@@ -247,7 +258,7 @@ export const truncateText = (text: string, maxLength: number): string => {
  * formatTime("09:00") // "09h00"
  */
 export const formatTime = (time: string): string => {
-  const [hours, minutes] = time.split(':');
+  const [hours, minutes] = time.split(":");
   return `${hours}h${minutes}`;
 };
 
@@ -262,8 +273,16 @@ export const formatTime = (time: string): string => {
  * formatDayOfWeek(7) // "Dimanche"
  */
 export const formatDayOfWeek = (dayNumber: number): string => {
-  const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-  return days[dayNumber] || days[0];
+  const days = [
+    "Dimanche",
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+  ];
+  return days[dayNumber] ?? "Lundi";
 };
 
 /**
@@ -273,12 +292,12 @@ export const formatDayOfWeek = (dayNumber: number): string => {
  * @returns Object with label and color
  */
 export const formatStockStatus = (
-  status: 'bas' | 'critique' | 'rupture'
-): { label: string; color: 'warning' | 'danger' } => {
+  status: "bas" | "critique" | "rupture",
+): { label: string; color: "warning" | "danger" } => {
   const statusMap = {
-    bas: { label: 'Stock bas', color: 'warning' as const },
-    critique: { label: 'Stock critique', color: 'danger' as const },
-    rupture: { label: 'Rupture', color: 'danger' as const },
+    bas: { label: "Stock bas", color: "warning" as const },
+    critique: { label: "Stock critique", color: "danger" as const },
+    rupture: { label: "Rupture", color: "danger" as const },
   };
 
   return statusMap[status];
@@ -307,10 +326,10 @@ export const calculateAverage = (values: number[]): number => {
  * formatFileSize(1048576) // "1 Mo"
  */
 export const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 o';
+  if (bytes === 0) return "0 o";
 
   const k = 1024;
-  const sizes = ['o', 'Ko', 'Mo', 'Go', 'To'];
+  const sizes = ["o", "Ko", "Mo", "Go", "To"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;

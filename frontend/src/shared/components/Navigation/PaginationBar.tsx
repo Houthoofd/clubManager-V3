@@ -1,5 +1,6 @@
-import React from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@patternfly/react-icons';
+import React from "react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@patternfly/react-icons";
+import { useTranslation } from "react-i18next";
 
 interface PaginationBarProps {
   /** Page actuelle (1-based) */
@@ -21,12 +22,15 @@ interface PaginationBarProps {
  * Si totalPages <= 7: affiche tous les numéros
  * Sinon: affiche page 1, dernière page, currentPage et 2 pages avant/après avec ellipses
  */
-const generatePageNumbers = (currentPage: number, totalPages: number): (number | 'ellipsis')[] => {
+const generatePageNumbers = (
+  currentPage: number,
+  totalPages: number,
+): (number | "ellipsis")[] => {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
 
-  const pages: (number | 'ellipsis')[] = [];
+  const pages: (number | "ellipsis")[] = [];
   const showLeftEllipsis = currentPage > 4;
   const showRightEllipsis = currentPage < totalPages - 3;
 
@@ -34,7 +38,7 @@ const generatePageNumbers = (currentPage: number, totalPages: number): (number |
   pages.push(1);
 
   if (showLeftEllipsis) {
-    pages.push('ellipsis');
+    pages.push("ellipsis");
   }
 
   // Calculer la plage autour de la page actuelle
@@ -54,7 +58,7 @@ const generatePageNumbers = (currentPage: number, totalPages: number): (number |
   }
 
   if (showRightEllipsis) {
-    pages.push('ellipsis');
+    pages.push("ellipsis");
   }
 
   // Toujours afficher la dernière page (si > 1)
@@ -83,6 +87,8 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
   total = 0,
   pageSize = 10,
 }) => {
+  const { t } = useTranslation("common");
+
   // Calculer les résultats affichés
   const startResult = total > 0 ? (currentPage - 1) * pageSize + 1 : 0;
   const endResult = Math.min(currentPage * pageSize, total);
@@ -110,7 +116,7 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
   return (
     <nav
       className="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6"
-      aria-label="Pagination"
+      aria-label={t("pagination.ariaLabel")}
     >
       {/* Mobile view */}
       <div className="flex flex-1 justify-between sm:hidden">
@@ -121,13 +127,13 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
             relative inline-flex items-center rounded-md px-4 py-2 text-sm font-medium
             ${
               currentPage === 1
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
-                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
             }
           `}
-          aria-label="Page précédente"
+          aria-label={t("pagination.previousPage")}
         >
-          Précédent
+          {t("pagination.previous")}
         </button>
         <button
           onClick={handleNext}
@@ -136,13 +142,13 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
             relative ml-3 inline-flex items-center rounded-md px-4 py-2 text-sm font-medium
             ${
               currentPage === totalPages
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
-                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
             }
           `}
-          aria-label="Page suivante"
+          aria-label={t("pagination.nextPage")}
         >
-          Suivant
+          {t("pagination.next")}
         </button>
       </div>
 
@@ -152,16 +158,22 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
         {showResultsCount && total > 0 && (
           <div>
             <p className="text-sm text-gray-700">
-              Affichage <span className="font-medium">{startResult}</span> à{' '}
-              <span className="font-medium">{endResult}</span> sur{' '}
-              <span className="font-medium">{total}</span> résultats
+              {t("pagination.showing")}{" "}
+              <span className="font-medium">{startResult}</span>{" "}
+              {t("pagination.to")}{" "}
+              <span className="font-medium">{endResult}</span>{" "}
+              {t("pagination.of")} <span className="font-medium">{total}</span>{" "}
+              {t("pagination.results")}
             </p>
           </div>
         )}
 
         {/* Pagination */}
-        <div className={showResultsCount ? '' : 'flex-1 flex justify-center'}>
-          <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+        <div className={showResultsCount ? "" : "flex-1 flex justify-center"}>
+          <nav
+            className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+            aria-label={t("pagination.ariaLabel")}
+          >
             {/* Bouton Précédent */}
             <button
               onClick={handlePrevious}
@@ -170,18 +182,18 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
                 relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300
                 ${
                   currentPage === 1
-                    ? 'bg-gray-100 cursor-not-allowed opacity-50'
-                    : 'bg-white hover:bg-gray-50'
+                    ? "bg-gray-100 cursor-not-allowed opacity-50"
+                    : "bg-white hover:bg-gray-50"
                 }
               `}
-              aria-label="Page précédente"
+              aria-label={t("pagination.previousPage")}
             >
               <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
             </button>
 
             {/* Numéros de pages */}
             {pageNumbers.map((page, index) => {
-              if (page === 'ellipsis') {
+              if (page === "ellipsis") {
                 return (
                   <span
                     key={`ellipsis-${index}`}
@@ -198,13 +210,13 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
                 <button
                   key={page}
                   onClick={() => handlePageClick(page)}
-                  aria-current={isActive ? 'page' : undefined}
+                  aria-current={isActive ? "page" : undefined}
                   className={`
                     relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300
                     ${
                       isActive
-                        ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
-                        : 'text-gray-900 hover:bg-gray-50 bg-white'
+                        ? "z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                        : "text-gray-900 hover:bg-gray-50 bg-white"
                     }
                   `}
                 >
@@ -221,11 +233,11 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
                 relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300
                 ${
                   currentPage === totalPages
-                    ? 'bg-gray-100 cursor-not-allowed opacity-50'
-                    : 'bg-white hover:bg-gray-50'
+                    ? "bg-gray-100 cursor-not-allowed opacity-50"
+                    : "bg-white hover:bg-gray-50"
                 }
               `}
-              aria-label="Page suivante"
+              aria-label={t("pagination.nextPage")}
             >
               <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
             </button>

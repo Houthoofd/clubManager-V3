@@ -6,6 +6,7 @@
  */
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import type { PeriodType } from "@clubmanager/types";
 import {
@@ -33,34 +34,6 @@ export interface PeriodSelectorProps {
   /** Compact mode for smaller displays */
   isCompact?: boolean;
 }
-
-/**
- * Preset period options
- */
-const PRESET_OPTIONS: { value: PresetPeriod; label: string }[] = [
-  { value: "today", label: "Aujourd'hui" },
-  { value: "yesterday", label: "Hier" },
-  { value: "thisWeek", label: "Cette semaine" },
-  { value: "lastWeek", label: "Semaine dernière" },
-  { value: "thisMonth", label: "Ce mois" },
-  { value: "lastMonth", label: "Mois dernier" },
-  { value: "last30Days", label: "30 derniers jours" },
-  { value: "last90Days", label: "90 derniers jours" },
-  { value: "thisYear", label: "Cette année" },
-  { value: "lastYear", label: "Année dernière" },
-  { value: "custom", label: "Personnalisé" },
-];
-
-/**
- * Period type options
- */
-const PERIOD_TYPE_OPTIONS: { value: PeriodType; label: string }[] = [
-  { value: "day", label: "Jour" },
-  { value: "week", label: "Semaine" },
-  { value: "month", label: "Mois" },
-  { value: "quarter", label: "Trimestre" },
-  { value: "year", label: "Année" },
-];
 
 // SVG Icons
 function CalendarIcon({ className }: { className?: string }) {
@@ -120,6 +93,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
   isRefreshing = false,
   isCompact = false,
 }) => {
+  const { t } = useTranslation("statistics");
   const {
     dateDebut,
     dateFin,
@@ -129,6 +103,28 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
     setPeriodType,
     setDateRange,
   } = useStatisticsFiltersStore();
+
+  const PRESET_OPTIONS: { value: PresetPeriod; label: string }[] = [
+    { value: "today", label: t("period.presets.today") },
+    { value: "yesterday", label: t("period.presets.yesterday") },
+    { value: "thisWeek", label: t("period.presets.thisWeek") },
+    { value: "lastWeek", label: t("period.presets.lastWeek") },
+    { value: "thisMonth", label: t("period.presets.thisMonth") },
+    { value: "lastMonth", label: t("period.presets.lastMonth") },
+    { value: "last30Days", label: t("period.presets.last30Days") },
+    { value: "last90Days", label: t("period.presets.last90Days") },
+    { value: "thisYear", label: t("period.presets.thisYear") },
+    { value: "lastYear", label: t("period.presets.lastYear") },
+    { value: "custom", label: t("period.presets.custom") },
+  ];
+
+  const PERIOD_TYPE_OPTIONS: { value: PeriodType; label: string }[] = [
+    { value: "day", label: t("period.types.day") },
+    { value: "week", label: t("period.types.week") },
+    { value: "month", label: t("period.types.month") },
+    { value: "quarter", label: t("period.types.quarter") },
+    { value: "year", label: t("period.types.year") },
+  ];
 
   const [showCustomDates, setShowCustomDates] = useState(false);
   const [tempStartDate, setTempStartDate] = useState<string>("");
@@ -194,7 +190,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
           <select
             value={preset}
             onChange={handlePresetSelect}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pl-3 pr-10 bg-white"
+            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pl-3 pr-10 bg-white"
             style={{ minWidth: isCompact ? "180px" : "220px" }}
           >
             {PRESET_OPTIONS.map((option) => (
@@ -209,7 +205,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
         {preset === "custom" && !showCustomDates && (
           <button
             onClick={() => setShowCustomDates(true)}
-            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
           >
             <CalendarIcon className="w-4 h-4" />
             {formatDateRange(dateDebut, dateFin)}
@@ -222,7 +218,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
             <select
               value={periodType}
               onChange={handlePeriodTypeSelect}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pl-3 pr-10 bg-white"
+              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pl-3 pr-10 bg-white"
               style={{ minWidth: isCompact ? "140px" : "160px" }}
             >
               {PERIOD_TYPE_OPTIONS.map((option) => (
@@ -239,12 +235,12 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
           <button
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <RefreshIcon
               className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
             />
-            {!isCompact && "Actualiser"}
+            {!isCompact && t("buttons.refresh")}
           </button>
         )}
 
@@ -260,7 +256,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
       {showCustomDates && (
         <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-4">
           <h4 className="text-sm font-semibold text-gray-900">
-            Période personnalisée
+            {t("period.customPeriod")}
           </h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -269,14 +265,14 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
                 htmlFor="start-date"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Date de début
+                {t("period.startDate")}
               </label>
               <input
                 type="date"
                 id="start-date"
                 value={tempStartDate}
                 onChange={(e) => setTempStartDate(e.target.value)}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
               />
             </div>
 
@@ -285,7 +281,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
                 htmlFor="end-date"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Date de fin
+                {t("period.endDate")}
               </label>
               <input
                 type="date"
@@ -293,7 +289,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
                 value={tempEndDate}
                 onChange={(e) => setTempEndDate(e.target.value)}
                 min={tempStartDate}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
               />
             </div>
           </div>
@@ -301,15 +297,15 @@ export const PeriodSelector: React.FC<PeriodSelectorProps> = ({
           <div className="flex gap-2">
             <button
               onClick={handleApplyCustomDates}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
-              Appliquer
+              {t("buttons.apply")}
             </button>
             <button
               onClick={handleCancelCustomDates}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
-              Annuler
+              {t("buttons.cancel")}
             </button>
           </div>
         </div>

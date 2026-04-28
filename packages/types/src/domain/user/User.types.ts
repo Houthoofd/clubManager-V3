@@ -43,6 +43,9 @@ export interface User {
   // Rôle applicatif RBAC v4.4
   role_app?: UserRole;
 
+  // Internationalisation v4.5
+  langue_preferee?: string; // ISO 639-1: fr, en, nl, de, es
+
   // RGPD v4.1 - Soft Delete
   deleted_at?: Date | null;
   deleted_by?: number | null;
@@ -100,6 +103,7 @@ export interface UserPublic {
   genre_id: number;
   grade_id?: number;
   status_id: number;
+  langue_preferee?: string;
   date_inscription: Date;
 }
 

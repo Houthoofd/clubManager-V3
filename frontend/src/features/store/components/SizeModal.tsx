@@ -6,6 +6,9 @@
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { Modal } from "@/shared/components/Modal/Modal";
+import { cn, BUTTON } from "@/shared/styles/designTokens";
 import type { Size } from "../api/storeApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -57,7 +60,7 @@ function SpinnerIcon() {
  *
  * - Si `size` est fourni  → mode édition (pré-remplit les champs)
  * - Si `size` est absent  → mode création
- * Fermeture sur Escape ou clic overlay (hors chargement).
+ * Fermeture sur Escape ou clic overlay gérée automatiquement par Modal.
  */
 export const SizeModal: React.FC<SizeModalProps> = ({
   isOpen,
@@ -65,6 +68,7 @@ export const SizeModal: React.FC<SizeModalProps> = ({
   size,
   onSubmit,
 }) => {
+  const { t } = useTranslation("store");
   const isEditMode = !!size;
 
   const {
@@ -89,24 +93,6 @@ export const SizeModal: React.FC<SizeModalProps> = ({
     }
   }, [isOpen, size, reset]);
 
-  // ── Fermeture sur Escape ──────────────────────────────────────────────────
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !isSubmitting) onClose();
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, isSubmitting, onClose]);
-
-  // ── Bloquer le scroll du body ─────────────────────────────────────────────
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
   // ── Soumission ────────────────────────────────────────────────────────────
   const handleFormSubmit = async (data: SizeFormData) => {
     const payload: SizeFormData = {
@@ -117,67 +103,32 @@ export const SizeModal: React.FC<SizeModalProps> = ({
     onClose();
   };
 
-  if (!isOpen) return null;
-
   // ── Rendu ─────────────────────────────────────────────────────────────────
   return (
-    <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="size-form-title"
-      onClick={() => {
-        if (!isSubmitting) onClose();
-      }}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="md"
+      closeOnOverlayClick={!isSubmitting}
+      closeOnEscape={!isSubmitting}
     >
-      <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* ── En-tête ── */}
-        <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <h2
-              id="size-form-title"
-              className="text-xl font-semibold text-gray-900"
-            >
-              {isEditMode ? "Modifier la taille" : "Nouvelle taille"}
-            </h2>
-            <button
-              type="button"
-              onClick={() => {
-                if (!isSubmitting) onClose();
-              }}
-              disabled={isSubmitting}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Fermer"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          <p className="mt-1 text-sm text-gray-500">
-            {isEditMode
-              ? "Modifiez les informations de la taille existante."
-              : "Créez une nouvelle taille pour vos articles."}
-          </p>
-        </div>
+      <Modal.Header
+        title={
+          isEditMode ? t("sizeModal.title.edit") : t("sizeModal.title.create")
+        }
+        subtitle={
+          isEditMode
+            ? t("sizeModal.subtitle.edit")
+            : t("sizeModal.subtitle.create")
+        }
+        onClose={isSubmitting ? undefined : onClose}
+      />
 
-        {/* ── Formulaire ── */}
+      <Modal.Body>
         <form
+          id="size-form"
           onSubmit={handleSubmit(handleFormSubmit)}
-          className="px-6 py-5 space-y-5"
+          className="space-y-5"
         >
           {/* Nom */}
           <div>
@@ -185,25 +136,26 @@ export const SizeModal: React.FC<SizeModalProps> = ({
               htmlFor="size-nom"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Nom de la taille <span className="text-red-500">*</span>
+              {t("sizeModal.fields.name.label")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="size-nom"
               type="text"
-              placeholder="Ex : XS, S, M, L, XL…"
+              placeholder={t("sizeModal.fields.name.placeholder")}
               disabled={isSubmitting}
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.nom ? "border-red-400" : "border-gray-300"
               }`}
               {...register("nom", {
-                required: "Le nom de la taille est requis.",
+                required: t("sizeModal.fields.name.required"),
                 minLength: {
                   value: 1,
-                  message: "Le nom doit comporter au moins 1 caractère.",
+                  message: t("sizeModal.fields.name.minLength"),
                 },
                 maxLength: {
                   value: 50,
-                  message: "Le nom ne peut pas dépasser 50 caractères.",
+                  message: t("sizeModal.fields.name.maxLength"),
                 },
               })}
             />
@@ -218,9 +170,9 @@ export const SizeModal: React.FC<SizeModalProps> = ({
               htmlFor="size-ordre"
               className="block text-sm font-medium text-gray-700 mb-1.5"
             >
-              Ordre d&apos;affichage
+              {t("sizeModal.fields.order.label")}
               <span className="ml-1 text-xs text-gray-400 font-normal">
-                (optionnel)
+                {t("sizeModal.fields.order.optional")}
               </span>
             </label>
             <input
@@ -228,15 +180,15 @@ export const SizeModal: React.FC<SizeModalProps> = ({
               type="number"
               min="0"
               step="1"
-              placeholder="0"
+              placeholder={t("sizeModal.fields.order.placeholder")}
               disabled={isSubmitting}
-              className={`block w-full px-3 py-2.5 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors ${
                 errors.ordre ? "border-red-400" : "border-gray-300"
               }`}
               {...register("ordre", {
                 min: {
                   value: 0,
-                  message: "L'ordre doit être supérieur ou égal à 0.",
+                  message: t("sizeModal.fields.order.min"),
                 },
                 valueAsNumber: true,
               })}
@@ -247,34 +199,36 @@ export const SizeModal: React.FC<SizeModalProps> = ({
               </p>
             )}
           </div>
-
-          {/* ── Actions ── */}
-          <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
-            <button
-              type="button"
-              onClick={() => {
-                if (!isSubmitting) onClose();
-              }}
-              disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isSubmitting && <SpinnerIcon />}
-              {isSubmitting
-                ? "Enregistrement…"
-                : isEditMode
-                  ? "Mettre à jour"
-                  : "Créer la taille"}
-            </button>
-          </div>
         </form>
-      </div>
-    </div>
+      </Modal.Body>
+
+      <Modal.Footer align="right">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={isSubmitting}
+          className={cn(BUTTON.base, BUTTON.variant.secondary, BUTTON.size.md)}
+        >
+          {t("sizeModal.actions.cancel")}
+        </button>
+        <button
+          type="submit"
+          form="size-form"
+          disabled={isSubmitting}
+          className={cn(BUTTON.base, BUTTON.variant.primary, BUTTON.size.md)}
+        >
+          {isSubmitting && (
+            <span className="mr-2">
+              <SpinnerIcon />
+            </span>
+          )}
+          {isSubmitting
+            ? t("sizeModal.actions.saving")
+            : isEditMode
+              ? t("sizeModal.actions.update")
+              : t("sizeModal.actions.create")}
+        </button>
+      </Modal.Footer>
+    </Modal>
   );
 };

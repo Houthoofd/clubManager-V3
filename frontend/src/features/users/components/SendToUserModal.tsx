@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import type { UserListItemDto } from "@clubmanager/types";
 import { sendMessage } from "../../messaging/api/messagingApi";
 import {
@@ -109,6 +110,8 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { t } = useTranslation("users");
+
   // ── Mode & loading ────────────────────────────────────────────────────────
   const [mode, setMode] = useState<Mode>("custom");
   const [isSending, setIsSending] = useState(false);
@@ -133,10 +136,10 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
 
   const groupedTemplates = useMemo(
     () =>
-      templates.reduce<Record<string, Template[]>>((acc, t) => {
-        const key = t.type_nom ?? "Sans catégorie";
+      templates.reduce<Record<string, Template[]>>((acc, tpl) => {
+        const key = tpl.type_nom ?? t("sendMessage.uncategorized");
         if (!acc[key]) acc[key] = [];
-        acc[key].push(t);
+        acc[key].push(tpl);
         return acc;
       }, {}),
     [templates],
@@ -195,7 +198,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
         const tpls = await getTemplates(undefined, true);
         setTemplates(tpls);
       } catch {
-        toast.error("Impossible de charger les modèles.");
+        toast.error(t("common:errors.loadModels"));
       } finally {
         setIsLoadingTemplates(false);
       }
@@ -216,7 +219,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
       const result = await previewTemplate(selectedTemplateId, manualVars);
       setPreview(result);
     } catch {
-      toast.error("Impossible de générer l'aperçu.");
+      toast.error(t("common:errors.generatePreview"));
     } finally {
       setIsPreviewing(false);
     }
@@ -226,7 +229,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
   const handleSendCustom = async () => {
     if (!user) return;
     if (!contenu.trim()) {
-      setContenuError("Le contenu du message est obligatoire.");
+      setContenuError(t("sendMessage.messageRequired"));
       return;
     }
     setIsSending(true);
@@ -237,12 +240,14 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
         contenu: contenu.trim(),
         envoye_par_email: envoyeParEmail,
       });
-      toast.success("Message envoyé", {
-        description: `Message envoyé à ${user.first_name} ${user.last_name}`,
+      toast.success(t("common:success.messageSent"), {
+        description: t("sendMessage.messageSent", {
+          name: `${user.first_name} ${user.last_name}`,
+        }),
       });
       onClose();
     } catch {
-      toast.error("Une erreur est survenue lors de l'envoi.");
+      toast.error(t("common:errors.sendError"));
     } finally {
       setIsSending(false);
     }
@@ -257,12 +262,14 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
         manual_vars: manualVars,
         envoye_par_email: envoyeParEmail,
       });
-      toast.success("Message envoyé", {
-        description: `Message envoyé à ${user.first_name} ${user.last_name}`,
+      toast.success(t("common:success.messageSent"), {
+        description: t("sendMessage.messageSent", {
+          name: `${user.first_name} ${user.last_name}`,
+        }),
       });
       onClose();
     } catch {
-      toast.error("Une erreur est survenue lors de l'envoi.");
+      toast.error(t("common:errors.sendError"));
     } finally {
       setIsSending(false);
     }
@@ -298,14 +305,14 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
               className="text-lg font-semibold text-gray-900 flex items-center gap-2"
             >
               <EnvelopeIcon className="w-5 h-5 text-blue-600" />
-              Envoyer un message
+              {t("sendMessage.title")}
             </h2>
             <button
               type="button"
               onClick={onClose}
               disabled={isSending}
               className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Fermer"
+              aria-label={t("sendMessage.close")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -333,34 +340,34 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                   type="button"
                   onClick={() => handleModeSwitch("custom")}
                   className={[
-                    "flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    "flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                     mode === "custom"
                       ? "bg-white text-blue-700 shadow-sm"
                       : "text-gray-500 hover:text-gray-700",
                   ].join(" ")}
                 >
                   <EnvelopeIcon className="w-4 h-4" />
-                  Message personnalisé
+                  {t("sendMessage.modes.custom")}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleModeSwitch("template")}
                   className={[
-                    "flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    "flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                     mode === "template"
                       ? "bg-white text-blue-700 shadow-sm"
                       : "text-gray-500 hover:text-gray-700",
                   ].join(" ")}
                 >
                   <DocumentTextIcon className="w-4 h-4" />
-                  Depuis un modèle
+                  {t("sendMessage.modes.template")}
                 </button>
               </div>
 
               {/* ── Recipient badge ── */}
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-2">
-                  Destinataire
+                  {t("sendMessage.recipient")}
                 </p>
                 <div className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
                   <UserIcon className="w-4 h-4 text-blue-600 flex-shrink-0" />
@@ -382,9 +389,9 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                       htmlFor="stu-sujet"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Sujet{" "}
+                      {t("sendMessage.subject")}{" "}
                       <span className="text-gray-400 font-normal">
-                        (optionnel)
+                        {t("sendMessage.subjectOptional")}
                       </span>
                     </label>
                     <input
@@ -392,7 +399,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                       type="text"
                       value={sujet}
                       onChange={(e) => setSujet(e.target.value)}
-                      placeholder="Objet du message..."
+                      placeholder={t("sendMessage.subjectPlaceholder")}
                       maxLength={200}
                       className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
                     />
@@ -404,7 +411,8 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                       htmlFor="stu-contenu"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Message <span className="text-red-500">*</span>
+                      {t("sendMessage.message")}{" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       id="stu-contenu"
@@ -413,7 +421,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                         setContenu(e.target.value);
                         if (contenuError) setContenuError("");
                       }}
-                      placeholder="Votre message..."
+                      placeholder={t("sendMessage.messagePlaceholder")}
                       rows={5}
                       className={[
                         "w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-colors resize-y min-h-[120px]",
@@ -423,7 +431,9 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                       ].join(" ")}
                     />
                     {contenuError && (
-                      <p className="mt-1 text-xs text-red-600">{contenuError}</p>
+                      <p className="mt-1 text-xs text-red-600">
+                        {contenuError}
+                      </p>
                     )}
                   </div>
 
@@ -436,7 +446,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                       className="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
                     />
                     <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                      Envoyer par email
+                      {t("sendMessage.sendByEmail")}
                     </span>
                   </label>
                 </>
@@ -448,11 +458,11 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                   {isLoadingTemplates ? (
                     <div className="flex items-center justify-center gap-2 py-10 text-gray-400 text-sm">
                       <SpinnerIcon className="w-4 h-4 animate-spin" />
-                      Chargement des modèles...
+                      {t("sendMessage.loadingTemplates")}
                     </div>
                   ) : templates.length === 0 ? (
                     <p className="text-sm text-gray-400 text-center py-10">
-                      Aucun modèle actif disponible.
+                      {t("sendMessage.noActiveTemplates")}
                     </p>
                   ) : (
                     <>
@@ -462,7 +472,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                           htmlFor="stu-template-select"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          Choisir un modèle{" "}
+                          {t("sendMessage.chooseTemplate")}{" "}
                           <span className="text-red-500">*</span>
                         </label>
                         <select
@@ -474,7 +484,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 bg-white transition-colors"
                         >
                           <option value="" disabled>
-                            Sélectionner un modèle...
+                            {t("sendMessage.selectTemplatePlaceholder")}
                           </option>
                           {Object.entries(groupedTemplates).map(
                             ([typeName, tpls]) => (
@@ -494,7 +504,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                       {selectedTemplate && manualVarNames.length > 0 && (
                         <div className="space-y-3">
                           <p className="text-sm font-medium text-gray-700">
-                            Variables à remplir
+                            {t("sendMessage.variablesToFill")}
                           </p>
                           {manualVarNames.map((varName) => (
                             <div key={varName}>
@@ -515,7 +525,12 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                                     [varName]: e.target.value,
                                   }))
                                 }
-                                placeholder={`Valeur pour {{${varName}}}...`}
+                                placeholder={t(
+                                  "sendMessage.variablePlaceholder",
+                                  {
+                                    variable: varName,
+                                  },
+                                )}
                                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
                               />
                             </div>
@@ -537,7 +552,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                             ) : (
                               <DocumentTextIcon className="w-4 h-4" />
                             )}
-                            Aperçu du modèle
+                            {t("sendMessage.previewButton")}
                           </button>
                         </div>
                       )}
@@ -546,7 +561,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                       {preview && (
                         <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 space-y-2">
                           <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
-                            Aperçu
+                            {t("sendMessage.previewTitle")}
                           </p>
                           {preview.titre && (
                             <p className="text-sm font-medium text-gray-800">
@@ -558,7 +573,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                           </p>
                           {preview.missingVariables.length > 0 && (
                             <p className="text-xs text-amber-600 font-medium">
-                              Variables manquantes :{" "}
+                              {t("sendMessage.missingVariables")}{" "}
                               {preview.missingVariables.join(", ")}
                             </p>
                           )}
@@ -574,7 +589,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
                           className="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
                         />
                         <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                          Envoyer par email
+                          {t("sendMessage.sendByEmail")}
                         </span>
                       </label>
                     </>
@@ -592,7 +607,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
               disabled={isSending}
               className="px-4 py-2 text-sm font-medium bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Annuler
+              {t("sendMessage.cancel")}
             </button>
             <button
               type="button"
@@ -608,12 +623,12 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
               {isSending ? (
                 <>
                   <SpinnerIcon className="w-4 h-4 animate-spin" />
-                  Envoi en cours...
+                  {t("sendMessage.sending")}
                 </>
               ) : (
                 <>
                   <EnvelopeIcon className="w-4 h-4" />
-                  Envoyer
+                  {t("sendMessage.send")}
                 </>
               )}
             </button>

@@ -15,6 +15,7 @@ export interface IUserRepository {
   findById(id: number): Promise<User | null>;
   updateRole(id: number, role_app: string): Promise<void>;
   updateStatus(id: number, status_id: number): Promise<void>;
+  updateLanguage(id: number, langue_preferee: string): Promise<void>;
   softDelete(id: number, deletedBy: number, reason: string): Promise<void>;
   restore(id: number): Promise<void>;
 }
