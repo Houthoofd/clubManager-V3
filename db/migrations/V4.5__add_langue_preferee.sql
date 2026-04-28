@@ -6,30 +6,87 @@
 --               l'application (FR, EN, NL, DE, ES)
 -- Auteur : ClubManager V3 Team
 -- Date : 2024
+-- Idempotent : Oui (safe à ré-exécuter)
 -- =====================================================================
 
--- Étape 1 : Ajouter la colonne langue_preferee
+-- Étape 1 : Ajouter la colonne langue_preferee (si elle n'existe pas)
 -- ---------------------------------------------------------------------
-ALTER TABLE utilisateurs
-ADD COLUMN langue_preferee VARCHAR(5) NOT NULL DEFAULT 'fr'
-COMMENT 'Langue préférée utilisateur (ISO 639-1: fr, en, nl, etc.)'
-AFTER role_app;
+SET @dbname = DATABASE();
+SET @tablename = 'utilisateurs';
+SET @columnname = 'langue_preferee';
 
--- Étape 2 : Ajouter le constraint de validation
--- ---------------------------------------------------------------------
-ALTER TABLE utilisateurs
-ADD CONSTRAINT chk_langue_preferee
-CHECK (langue_preferee IN ('fr', 'en', 'nl', 'de', 'es'));
+SET @preparedStatement = (
+  SELECT IF(
+    (
+      SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_SCHEMA = @dbname
+        AND TABLE_NAME   = @tablename
+        AND COLUMN_NAME  = @columnname
+    ) > 0,
+    'SELECT ''colonne langue_preferee déjà présente, rien à faire.'' AS info;',
+    CONCAT(
+      'ALTER TABLE `', @tablename, '` ',
+      'ADD COLUMN `', @columnname, '` VARCHAR(5) NOT NULL DEFAULT ''fr'' ',
+      'COMMENT ''Langue préférée utilisateur (ISO 639-1: fr, en, nl, etc.)'' ',
+      'AFTER role_app;'
+    )
+  )
+);
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
--- Étape 3 : Créer l'index pour optimiser les requêtes par langue
+-- Étape 2 : Ajouter le constraint de validation (si il n'existe pas)
 -- ---------------------------------------------------------------------
-CREATE INDEX idx_langue_preferee ON utilisateurs(langue_preferee);
+SET @constraintname = 'chk_langue_preferee';
+
+SET @preparedStatement = (
+  SELECT IF(
+    (
+      SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+      WHERE TABLE_SCHEMA     = @dbname
+        AND TABLE_NAME       = @tablename
+        AND CONSTRAINT_NAME  = @constraintname
+    ) > 0,
+    'SELECT ''constraint chk_langue_preferee déjà présent, rien à faire.'' AS info;',
+    CONCAT(
+      'ALTER TABLE `', @tablename, '` ',
+      'ADD CONSTRAINT `', @constraintname, '` ',
+      'CHECK (langue_preferee IN (''fr'', ''en'', ''nl'', ''de'', ''es''));'
+    )
+  )
+);
+PREPARE addConstraintIfNotExists FROM @preparedStatement;
+EXECUTE addConstraintIfNotExists;
+DEALLOCATE PREPARE addConstraintIfNotExists;
+
+-- Étape 3 : Créer l'index (si il n'existe pas)
+-- ---------------------------------------------------------------------
+SET @indexname = 'idx_langue_preferee';
+
+SET @preparedStatement = (
+  SELECT IF(
+    (
+      SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+      WHERE TABLE_SCHEMA = @dbname
+        AND TABLE_NAME   = @tablename
+        AND INDEX_NAME   = @indexname
+    ) > 0,
+    'SELECT ''index idx_langue_preferee déjà présent, rien à faire.'' AS info;',
+    CONCAT(
+      'CREATE INDEX `', @indexname, '` ON `', @tablename, '`(langue_preferee);'
+    )
+  )
+);
+PREPARE createIndexIfNotExists FROM @preparedStatement;
+EXECUTE createIndexIfNotExists;
+DEALLOCATE PREPARE createIndexIfNotExists;
 
 -- =====================================================================
 -- Vérifications post-migration
 -- =====================================================================
 
--- Vérifier que la colonne a été ajoutée correctement
+-- Vérifier que la colonne est présente
 SELECT
     COLUMN_NAME,
     COLUMN_TYPE,
@@ -38,18 +95,10 @@ SELECT
     COLUMN_COMMENT
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_SCHEMA = DATABASE()
-  AND TABLE_NAME = 'utilisateurs'
-  AND COLUMN_NAME = 'langue_preferee';
+  AND TABLE_NAME   = 'utilisateurs'
+  AND COLUMN_NAME  = 'langue_preferee';
 
--- Vérifier que le constraint a été ajouté
-SELECT
-    CONSTRAINT_NAME,
-    CHECK_CLAUSE
-FROM INFORMATION_SCHEMA.CHECK_CONSTRAINTS
-WHERE CONSTRAINT_SCHEMA = DATABASE()
-  AND CONSTRAINT_NAME = 'chk_langue_preferee';
-
--- Vérifier que l'index a été créé
+-- Vérifier que l'index est présent
 SELECT
     INDEX_NAME,
     COLUMN_NAME,
@@ -57,10 +106,10 @@ SELECT
     INDEX_TYPE
 FROM INFORMATION_SCHEMA.STATISTICS
 WHERE TABLE_SCHEMA = DATABASE()
-  AND TABLE_NAME = 'utilisateurs'
-  AND INDEX_NAME = 'idx_langue_preferee';
+  AND TABLE_NAME   = 'utilisateurs'
+  AND INDEX_NAME   = 'idx_langue_preferee';
 
--- Vérifier le nombre d'utilisateurs avec la langue par défaut
+-- Distribution des langues parmi les utilisateurs existants
 SELECT
     langue_preferee,
     COUNT(*) AS nb_utilisateurs
@@ -69,5 +118,5 @@ GROUP BY langue_preferee
 ORDER BY nb_utilisateurs DESC;
 
 -- =====================================================================
--- Fin de la migration V4.5
+-- Fin de la migration V4.5 (idempotente)
 -- =====================================================================

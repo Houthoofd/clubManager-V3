@@ -1,148 +1,197 @@
--- =============================================================
--- V4.7__reference_tables_phase2.sql
--- Migration Phase 2 — Tables de référence supplémentaires
--- Tables : statuts_paiement, statuts_echeance, roles_utilisateur,
---          roles_familial, genres
--- =============================================================
+-- ============================================================================
+-- MIGRATION V4.7: TABLES DE RÉFÉRENCE - PHASE 2
+-- ============================================================================
+-- Date        : Décembre 2024
+-- Version     : 4.7
+-- Moteur      : MySQL 8.0+
+-- Idempotent  : Oui (safe à ré-exécuter — CREATE TABLE IF NOT EXISTS +
+--               INSERT IGNORE)
+--
+-- PHASE 2 INCLUT:
+--   1. statuts_paiement   (en_attente, paye, echoue, rembourse, etc.)
+--   2. statuts_echeance   (en_attente, paye, en_retard, annule)
+--   3. roles_utilisateur  (admin, professor, member, parent)
+--   4. roles_familial     (parent, tuteur, enfant, conjoint, autre)
+--   5. genres             (M, F, autre)
+--
+-- ROLLBACK:
+--   DROP TABLE IF EXISTS statuts_paiement;
+--   DROP TABLE IF EXISTS statuts_echeance;
+--   DROP TABLE IF EXISTS roles_utilisateur;
+--   DROP TABLE IF EXISTS roles_familial;
+--   DROP TABLE IF EXISTS genres;
+-- ============================================================================
 
-BEGIN;
 
--- =============================================================
--- TABLE : statuts_paiement
--- =============================================================
+-- ============================================================================
+-- 1. STATUTS DE PAIEMENT
+-- ============================================================================
 
 CREATE TABLE IF NOT EXISTS statuts_paiement (
-  id                   SERIAL PRIMARY KEY,
-  code                 VARCHAR(50)  UNIQUE NOT NULL,
-  nom                  VARCHAR(100) NOT NULL,
-  nom_en               VARCHAR(100),
-  couleur              VARCHAR(20)  DEFAULT 'neutral',
-  ordre                INTEGER      NOT NULL,
-  compte_dans_revenus  BOOLEAN      DEFAULT false,
-  est_final            BOOLEAN      DEFAULT false,
-  actif                BOOLEAN      DEFAULT true,
-  created_at           TIMESTAMP    DEFAULT NOW()
-);
+  id                   INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  code                 VARCHAR(50)   NOT NULL,
+  nom                  VARCHAR(100)  NOT NULL,
+  nom_en               VARCHAR(100)  DEFAULT NULL,
+  couleur              VARCHAR(20)   NOT NULL DEFAULT 'neutral' COMMENT 'Variant badge: success, warning, danger, info, neutral, purple, orange',
+  ordre                INT           NOT NULL DEFAULT 99,
+  compte_dans_revenus  TINYINT(1)    NOT NULL DEFAULT 0 COMMENT 'Inclus dans le calcul des revenus',
+  est_final            TINYINT(1)    NOT NULL DEFAULT 0 COMMENT 'Aucune transition possible depuis cet état',
+  actif                TINYINT(1)    NOT NULL DEFAULT 1,
+  created_at           DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at           DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_statuts_paiement_code (code),
+  KEY idx_statuts_paiement_actif  (actif),
+  KEY idx_statuts_paiement_ordre  (ordre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='Table de référence : Statuts du cycle de vie d un paiement';
 
-INSERT INTO statuts_paiement (code, nom, nom_en, couleur, ordre, compte_dans_revenus, est_final) VALUES
-  ('en_attente', 'En attente',  'Pending',   'warning', 1, false, false),
-  ('valide',     'Validé',      'Validated', 'info',    2, false, false),
-  ('paye',       'Payé',        'Paid',      'success', 3, true,  true),
-  ('partiel',    'Partiel',     'Partial',   'orange',  4, true,  false),
-  ('echoue',     'Échoué',      'Failed',    'danger',  5, false, true),
-  ('rembourse',  'Remboursé',   'Refunded',  'purple',  6, false, true),
-  ('annule',     'Annulé',      'Cancelled', 'neutral', 7, false, true)
-ON CONFLICT (code) DO NOTHING;
+INSERT IGNORE INTO statuts_paiement
+  (code, nom, nom_en, couleur, ordre, compte_dans_revenus, est_final)
+VALUES
+  ('en_attente', 'En attente',  'Pending',   'warning', 1, 0, 0),
+  ('valide',     'Validé',      'Validated', 'info',    2, 0, 0),
+  ('paye',       'Payé',        'Paid',      'success', 3, 1, 1),
+  ('partiel',    'Partiel',     'Partial',   'orange',  4, 1, 0),
+  ('echoue',     'Échoué',      'Failed',    'danger',  5, 0, 1),
+  ('rembourse',  'Remboursé',   'Refunded',  'purple',  6, 0, 1),
+  ('annule',     'Annulé',      'Cancelled', 'neutral', 7, 0, 1);
 
-CREATE INDEX IF NOT EXISTS idx_statuts_paiement_actif  ON statuts_paiement (actif);
-CREATE INDEX IF NOT EXISTS idx_statuts_paiement_ordre  ON statuts_paiement (ordre);
-CREATE INDEX IF NOT EXISTS idx_statuts_paiement_code   ON statuts_paiement (code);
 
--- =============================================================
--- TABLE : statuts_echeance
--- =============================================================
+-- ============================================================================
+-- 2. STATUTS D'ÉCHÉANCE
+-- ============================================================================
 
 CREATE TABLE IF NOT EXISTS statuts_echeance (
-  id         SERIAL PRIMARY KEY,
-  code       VARCHAR(50)  UNIQUE NOT NULL,
-  nom        VARCHAR(100) NOT NULL,
-  nom_en     VARCHAR(100),
-  couleur    VARCHAR(20)  DEFAULT 'neutral',
-  ordre      INTEGER      NOT NULL,
-  est_final  BOOLEAN      DEFAULT false,
-  actif      BOOLEAN      DEFAULT true,
-  created_at TIMESTAMP    DEFAULT NOW()
-);
+  id         INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  code       VARCHAR(50)   NOT NULL,
+  nom        VARCHAR(100)  NOT NULL,
+  nom_en     VARCHAR(100)  DEFAULT NULL,
+  couleur    VARCHAR(20)   NOT NULL DEFAULT 'neutral' COMMENT 'Variant badge: success, warning, danger, info, neutral',
+  ordre      INT           NOT NULL DEFAULT 99,
+  est_final  TINYINT(1)    NOT NULL DEFAULT 0,
+  actif      TINYINT(1)    NOT NULL DEFAULT 1,
+  created_at DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_statuts_echeance_code (code),
+  KEY idx_statuts_echeance_actif (actif),
+  KEY idx_statuts_echeance_ordre (ordre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='Table de référence : Statuts des échéances de paiement';
 
-INSERT INTO statuts_echeance (code, nom, nom_en, couleur, ordre, est_final) VALUES
-  ('en_attente', 'En attente', 'Pending',  'warning', 1, false),
-  ('paye',       'Payé',       'Paid',     'success', 2, true),
-  ('en_retard',  'En retard',  'Overdue',  'danger',  3, false),
-  ('annule',     'Annulé',     'Cancelled','neutral', 4, true)
-ON CONFLICT (code) DO NOTHING;
+INSERT IGNORE INTO statuts_echeance
+  (code, nom, nom_en, couleur, ordre, est_final)
+VALUES
+  ('en_attente', 'En attente', 'Pending',  'warning', 1, 0),
+  ('paye',       'Payé',       'Paid',     'success', 2, 1),
+  ('en_retard',  'En retard',  'Overdue',  'danger',  3, 0),
+  ('annule',     'Annulé',     'Cancelled','neutral', 4, 1);
 
-CREATE INDEX IF NOT EXISTS idx_statuts_echeance_actif  ON statuts_echeance (actif);
-CREATE INDEX IF NOT EXISTS idx_statuts_echeance_ordre  ON statuts_echeance (ordre);
-CREATE INDEX IF NOT EXISTS idx_statuts_echeance_code   ON statuts_echeance (code);
 
--- =============================================================
--- TABLE : roles_utilisateur
--- =============================================================
+-- ============================================================================
+-- 3. RÔLES UTILISATEUR
+-- ============================================================================
 
 CREATE TABLE IF NOT EXISTS roles_utilisateur (
-  id            SERIAL PRIMARY KEY,
-  code          VARCHAR(50)  UNIQUE NOT NULL,
-  nom           VARCHAR(100) NOT NULL,
-  nom_en        VARCHAR(100),
-  couleur       VARCHAR(20)  DEFAULT 'neutral',
-  niveau_acces  INTEGER      NOT NULL DEFAULT 1,
-  ordre         INTEGER      NOT NULL,
-  actif         BOOLEAN      DEFAULT true,
-  created_at    TIMESTAMP    DEFAULT NOW()
-);
+  id           INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  code         VARCHAR(50)   NOT NULL,
+  nom          VARCHAR(100)  NOT NULL,
+  nom_en       VARCHAR(100)  DEFAULT NULL,
+  couleur      VARCHAR(20)   NOT NULL DEFAULT 'neutral' COMMENT 'Variant badge',
+  niveau_acces INT           NOT NULL DEFAULT 1 COMMENT '1=minimum, 100=maximum (admin)',
+  ordre        INT           NOT NULL DEFAULT 99,
+  actif        TINYINT(1)    NOT NULL DEFAULT 1,
+  created_at   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_roles_utilisateur_code (code),
+  KEY idx_roles_utilisateur_actif  (actif),
+  KEY idx_roles_utilisateur_niveau (niveau_acces)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='Table de référence : Rôles applicatifs des utilisateurs';
 
-INSERT INTO roles_utilisateur (code, nom, nom_en, couleur, niveau_acces, ordre) VALUES
+INSERT IGNORE INTO roles_utilisateur
+  (code, nom, nom_en, couleur, niveau_acces, ordre)
+VALUES
   ('admin',     'Administrateur', 'Administrator', 'danger', 100, 1),
   ('professor', 'Professeur',     'Professor',     'purple',  50, 2),
   ('member',    'Membre',         'Member',        'success', 10, 3),
-  ('parent',    'Parent',         'Parent',        'info',    10, 4)
-ON CONFLICT (code) DO NOTHING;
+  ('parent',    'Parent',         'Parent',        'info',    10, 4);
 
-CREATE INDEX IF NOT EXISTS idx_roles_utilisateur_actif  ON roles_utilisateur (actif);
-CREATE INDEX IF NOT EXISTS idx_roles_utilisateur_ordre  ON roles_utilisateur (ordre);
-CREATE INDEX IF NOT EXISTS idx_roles_utilisateur_code   ON roles_utilisateur (code);
 
--- =============================================================
--- TABLE : roles_familial
--- =============================================================
+-- ============================================================================
+-- 4. RÔLES FAMILIAUX
+-- ============================================================================
 
 CREATE TABLE IF NOT EXISTS roles_familial (
-  id         SERIAL PRIMARY KEY,
-  code       VARCHAR(50)  UNIQUE NOT NULL,
-  nom        VARCHAR(100) NOT NULL,
-  nom_en     VARCHAR(100),
-  couleur    VARCHAR(20)  DEFAULT 'neutral',
-  ordre      INTEGER      NOT NULL,
-  actif      BOOLEAN      DEFAULT true,
-  created_at TIMESTAMP    DEFAULT NOW()
-);
+  id         INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  code       VARCHAR(50)   NOT NULL,
+  nom        VARCHAR(100)  NOT NULL,
+  nom_en     VARCHAR(100)  DEFAULT NULL,
+  couleur    VARCHAR(20)   NOT NULL DEFAULT 'neutral',
+  ordre      INT           NOT NULL DEFAULT 99,
+  actif      TINYINT(1)    NOT NULL DEFAULT 1,
+  created_at DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_roles_familial_code (code),
+  KEY idx_roles_familial_actif (actif),
+  KEY idx_roles_familial_ordre (ordre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='Table de référence : Rôles au sein d une unité familiale';
 
-INSERT INTO roles_familial (code, nom, nom_en, couleur, ordre) VALUES
-  ('parent',   'Parent',        'Parent',        'blue',    1),
-  ('tuteur',   'Tuteur légal',  'Legal guardian','purple',  2),
-  ('enfant',   'Enfant',        'Child',         'green',   3),
-  ('conjoint', 'Conjoint',      'Spouse',        'info',    4),
-  ('autre',    'Autre',         'Other',         'neutral', 5)
-ON CONFLICT (code) DO NOTHING;
+INSERT IGNORE INTO roles_familial
+  (code, nom, nom_en, couleur, ordre)
+VALUES
+  ('parent',   'Parent',       'Parent',        'blue',    1),
+  ('tuteur',   'Tuteur légal', 'Legal guardian', 'purple',  2),
+  ('enfant',   'Enfant',       'Child',          'green',   3),
+  ('conjoint', 'Conjoint',     'Spouse',         'info',    4),
+  ('autre',    'Autre',        'Other',          'neutral', 5);
 
-CREATE INDEX IF NOT EXISTS idx_roles_familial_actif  ON roles_familial (actif);
-CREATE INDEX IF NOT EXISTS idx_roles_familial_ordre  ON roles_familial (ordre);
-CREATE INDEX IF NOT EXISTS idx_roles_familial_code   ON roles_familial (code);
 
--- =============================================================
--- TABLE : genres
--- =============================================================
+-- ============================================================================
+-- 5. GENRES
+-- ============================================================================
 
 CREATE TABLE IF NOT EXISTS genres (
-  id         SERIAL PRIMARY KEY,
-  code       VARCHAR(10)  UNIQUE NOT NULL,
-  nom        VARCHAR(50)  NOT NULL,
-  nom_en     VARCHAR(50),
-  ordre      INTEGER      NOT NULL,
-  actif      BOOLEAN      DEFAULT true,
-  created_at TIMESTAMP    DEFAULT NOW()
-);
+  id         INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  code       VARCHAR(10)   NOT NULL,
+  nom        VARCHAR(50)   NOT NULL,
+  nom_en     VARCHAR(50)   DEFAULT NULL,
+  ordre      INT           NOT NULL DEFAULT 99,
+  actif      TINYINT(1)    NOT NULL DEFAULT 1,
+  created_at DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_genres_code (code),
+  KEY idx_genres_actif (actif),
+  KEY idx_genres_ordre (ordre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='Table de référence : Genres';
 
-INSERT INTO genres (code, nom, nom_en, ordre) VALUES
+INSERT IGNORE INTO genres
+  (code, nom, nom_en, ordre)
+VALUES
   ('M',     'Homme', 'Male',   1),
   ('F',     'Femme', 'Female', 2),
-  ('autre', 'Autre', 'Other',  3)
-ON CONFLICT (code) DO NOTHING;
+  ('autre', 'Autre', 'Other',  3);
 
-CREATE INDEX IF NOT EXISTS idx_genres_actif  ON genres (actif);
-CREATE INDEX IF NOT EXISTS idx_genres_ordre  ON genres (ordre);
-CREATE INDEX IF NOT EXISTS idx_genres_code   ON genres (code);
 
--- =============================================================
+-- ============================================================================
+-- VÉRIFICATIONS POST-MIGRATION
+-- ============================================================================
 
-COMMIT;
+SELECT 'statuts_paiement'  AS table_name, COUNT(*) AS nb_lignes FROM statuts_paiement
+UNION ALL
+SELECT 'statuts_echeance'  AS table_name, COUNT(*) AS nb_lignes FROM statuts_echeance
+UNION ALL
+SELECT 'roles_utilisateur' AS table_name, COUNT(*) AS nb_lignes FROM roles_utilisateur
+UNION ALL
+SELECT 'roles_familial'    AS table_name, COUNT(*) AS nb_lignes FROM roles_familial
+UNION ALL
+SELECT 'genres'            AS table_name, COUNT(*) AS nb_lignes FROM genres;
+
+-- ============================================================================
+-- FIN DE LA MIGRATION V4.7 (idempotente — MySQL)
+-- ============================================================================
