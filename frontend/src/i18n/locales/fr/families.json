@@ -93,6 +93,10 @@
     "saving": "Enregistrement…",
     "processing": "Traitement…"
   },
+  "age": {
+    "year": "an",
+    "year_plural": "ans"
+  },
   "aria": {
     "removeMember": "Retirer {{firstName}} {{lastName}} de la famille"
   }

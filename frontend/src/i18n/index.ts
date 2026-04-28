@@ -18,6 +18,7 @@ import paymentsFr from "./locales/fr/payments.json";
 import statisticsFr from "./locales/fr/statistics.json";
 import messagesFr from "./locales/fr/messages.json";
 import familiesFr from "./locales/fr/families.json";
+import usersFr from "./locales/fr/users.json";
 
 // Import des traductions EN
 import commonEn from "./locales/en/common.json";
@@ -30,6 +31,7 @@ import paymentsEn from "./locales/en/payments.json";
 import statisticsEn from "./locales/en/statistics.json";
 import messagesEn from "./locales/en/messages.json";
 import familiesEn from "./locales/en/families.json";
+import usersEn from "./locales/en/users.json";
 
 /**
  * Namespaces disponibles pour l'application
@@ -46,6 +48,7 @@ export const namespaces = [
   "statistics", // Statistiques
   "messages", // Messagerie
   "families", // Gestion des familles
+  "users", // Gestion des utilisateurs
 ] as const;
 
 /**
@@ -120,6 +123,7 @@ i18n
         statistics: statisticsFr,
         messages: messagesFr,
         families: familiesFr,
+        users: usersFr,
       },
       en: {
         common: commonEn,
@@ -132,6 +136,7 @@ i18n
         statistics: statisticsEn,
         messages: messagesEn,
         families: familiesEn,
+        users: usersEn,
       },
     },
 

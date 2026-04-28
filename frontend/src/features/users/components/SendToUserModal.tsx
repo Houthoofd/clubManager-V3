@@ -198,7 +198,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
         const tpls = await getTemplates(undefined, true);
         setTemplates(tpls);
       } catch {
-        toast.error(t("common:errors.loadModels"));
+        toast.error(t("messages:errors.loadModels"));
       } finally {
         setIsLoadingTemplates(false);
       }
@@ -219,7 +219,7 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
       const result = await previewTemplate(selectedTemplateId, manualVars);
       setPreview(result);
     } catch {
-      toast.error(t("common:errors.generatePreview"));
+      toast.error(t("messages:errors.generatePreview"));
     } finally {
       setIsPreviewing(false);
     }
@@ -240,14 +240,14 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
         contenu: contenu.trim(),
         envoye_par_email: envoyeParEmail,
       });
-      toast.success(t("common:success.messageSent"), {
+      toast.success(t("messages:success.messageSent"), {
         description: t("sendMessage.messageSent", {
           name: `${user.first_name} ${user.last_name}`,
         }),
       });
       onClose();
     } catch {
-      toast.error(t("common:errors.sendError"));
+      toast.error(t("messages:errors.sendError"));
     } finally {
       setIsSending(false);
     }
@@ -262,14 +262,14 @@ export const SendToUserModal: React.FC<SendToUserModalProps> = ({
         manual_vars: manualVars,
         envoye_par_email: envoyeParEmail,
       });
-      toast.success(t("common:success.messageSent"), {
+      toast.success(t("messages:success.messageSent"), {
         description: t("sendMessage.messageSent", {
           name: `${user.first_name} ${user.last_name}`,
         }),
       });
       onClose();
     } catch {
-      toast.error(t("common:errors.sendError"));
+      toast.error(t("messages:errors.sendError"));
     } finally {
       setIsSending(false);
     }

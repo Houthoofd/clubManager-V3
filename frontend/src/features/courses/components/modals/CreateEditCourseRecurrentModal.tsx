@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useTypesCours } from "../../../../shared/hooks/useReferences";
+import type { TypeCours } from "../../../../shared/hooks/useReferences";
 import { Modal } from "../../../../shared/components/Modal/Modal";
 import { Input } from "../../../../shared/components/Input/Input";
 import { Button } from "../../../../shared/components/Button/Button";
@@ -51,7 +53,8 @@ export function CreateEditCourseRecurrentModal({
   onSubmit,
   onUpdate,
 }: CreateEditCourseRecurrentModalProps) {
-  const { t } = useTranslation("courses");
+  const { t, i18n } = useTranslation("courses");
+  const typesCours: TypeCours[] = useTypesCours();
   const [form, setForm] = useState({
     type_cours: "",
     jour_semaine: 1,
@@ -205,17 +208,35 @@ export function CreateEditCourseRecurrentModal({
             </div>
           )}
 
-          <Input
+          <Input.Select
             label={t("fields.courseType")}
             id="type_cours"
-            type="text"
             value={form.type_cours}
             onChange={(e) =>
               setForm((f) => ({ ...f, type_cours: e.target.value }))
             }
-            placeholder={t("placeholders.courseType")}
             required
-          />
+          >
+            <option value="">{t("fields.selectType")}</option>
+            {typesCours.length > 0 ? (
+              typesCours.map((type) => (
+                <option key={type.code} value={type.code}>
+                  {i18n.language === "en" && type.nom_en
+                    ? type.nom_en
+                    : type.nom}
+                </option>
+              ))
+            ) : (
+              <>
+                <option value="karate">{t("fallbackTypes.karate")}</option>
+                <option value="judo">{t("fallbackTypes.judo")}</option>
+                <option value="taekwondo">
+                  {t("fallbackTypes.taekwondo")}
+                </option>
+                <option value="autre">{t("fallbackTypes.autre")}</option>
+              </>
+            )}
+          </Input.Select>
 
           <Input.Select
             label={t("fields.dayOfWeek")}

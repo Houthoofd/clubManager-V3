@@ -195,7 +195,6 @@
     "variables": "Variables",
     "recipient": "Destinataire",
     "byRole": "Par rôle",
-    "preview": "Aperçu",
     "send": "Envoyer",
     "noManualVars": "Aucune variable manuelle pour ce template — prêt à envoyer !",
     "broadcastWarningLabel": "Envoi groupé :",

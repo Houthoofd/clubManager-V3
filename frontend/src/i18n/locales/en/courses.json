@@ -82,7 +82,14 @@
     "phone": "+33 6 12 34 56 78",
     "specialty": "E.g. Judo, Black belt 3rd dan…",
     "selectCourse": "— Select a course —",
+    "selectType": "— Select a type —",
     "none": "— None —"
+  },
+  "fallbackTypes": {
+    "karate": "Karate",
+    "judo": "Judo",
+    "taekwondo": "Taekwondo",
+    "autre": "Other"
   },
   "columns": {
     "date": "Date",
