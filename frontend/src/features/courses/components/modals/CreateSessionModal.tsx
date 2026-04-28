@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useTypesCours } from "../../../../shared/hooks/useReferences";
+import type { TypeCours } from "../../../../shared/hooks/useReferences";
 import { Modal } from "../../../../shared/components/Modal/Modal";
 import { Input } from "../../../../shared/components/Input/Input";
 import { Button } from "../../../../shared/components/Button/Button";
@@ -25,7 +27,8 @@ export function CreateSessionModal({
   onClose,
   onSubmit,
 }: CreateSessionModalProps) {
-  const { t } = useTranslation("courses");
+  const { t, i18n } = useTranslation("courses");
+  const typesCours: TypeCours[] = useTypesCours();
   const [form, setForm] = useState({
     date_cours: "",
     type_cours: "",
@@ -98,17 +101,33 @@ export function CreateSessionModal({
             required
           />
 
-          <Input
+          <Input.Select
             label={t("fields.courseType")}
             id="type_cours"
-            type="text"
             value={form.type_cours}
             onChange={(e) =>
               setForm((f) => ({ ...f, type_cours: e.target.value }))
             }
-            placeholder={t("placeholders.courseType")}
             required
-          />
+          >
+            <option value="">{t("fields.selectType")}</option>
+            {typesCours.length > 0 ? (
+              typesCours.map((type) => (
+                <option key={type.code} value={type.code}>
+                  {i18n.language === "en" && type.nom_en
+                    ? type.nom_en
+                    : type.nom}
+                </option>
+              ))
+            ) : (
+              <>
+                <option value="karate">Karaté</option>
+                <option value="judo">Judo</option>
+                <option value="taekwondo">Taekwondo</option>
+                <option value="autre">Autre</option>
+              </>
+            )}
+          </Input.Select>
 
           <div className="grid grid-cols-2 gap-4">
             <Input

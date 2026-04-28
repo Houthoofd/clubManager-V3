@@ -10,6 +10,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useRolesUtilisateur } from "../../../shared/hooks/useReferences";
 import { toast } from "sonner";
 import {
   UsersIcon,
@@ -68,7 +69,8 @@ type ModalState =
  * - Notifications sonner sur succès / erreur
  */
 export function UsersPage() {
-  const { t } = useTranslation("users");
+  const { t, i18n } = useTranslation("users");
+  const rolesUtilisateur = useRolesUtilisateur();
 
   // ── Options dynamiques avec i18n ──
   const roleOptions = [
@@ -462,9 +464,20 @@ export function UsersPage() {
                        transition-colors min-w-[140px]"
           >
             <option value="">{t("allRoles")}</option>
-            <option value="admin">{t("roles.admin")}</option>
-            <option value="professor">{t("roles.professor")}</option>
-            <option value="member">{t("roles.member")}</option>
+            {rolesUtilisateur.length > 0 ? (
+              rolesUtilisateur.map((r) => (
+                <option key={r.code} value={r.code}>
+                  {i18n.language === "en" && r.nom_en ? r.nom_en : r.nom}
+                </option>
+              ))
+            ) : (
+              <>
+                <option value="admin">{t("roles.admin")}</option>
+                <option value="professor">{t("roles.professor")}</option>
+                <option value="member">{t("roles.member")}</option>
+                <option value="parent">{t("roles.parent")}</option>
+              </>
+            )}
           </select>
 
           {/* Filtre statut */}

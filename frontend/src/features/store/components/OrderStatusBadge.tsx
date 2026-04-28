@@ -1,13 +1,14 @@
 /**
  * OrderStatusBadge
- * Wrapper vers Badge.OrderStatus du Design System.
+ * Affiche le statut d'une commande sous forme de badge coloré.
  *
- * Ce composant maintient la compatibilité avec l'ancienne interface
- * tout en utilisant le composant Badge.OrderStatus du design system.
+ * Utilise useStatutCommandeByCode pour récupérer les données depuis la DB.
+ * Fallback vers Badge.OrderStatus si les références ne sont pas encore chargées.
  */
 
 import { useTranslation } from "react-i18next";
 import { Badge } from "../../../shared/components";
+import { useStatutCommandeByCode } from "../../../shared/hooks/useReferences";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -15,68 +16,62 @@ interface OrderStatusBadgeProps {
   statut?: string;
 }
 
+// ─── Constantes ───────────────────────────────────────────────────────────────
+
+const VALID_STATUSES = [
+  "en_attente",
+  "en_cours",
+  "payee",
+  "expediee",
+  "prete",
+  "livree",
+  "annulee",
+] as const;
+
+type ValidStatus = (typeof VALID_STATUSES)[number];
+
+function isValidStatus(s: string): s is ValidStatus {
+  return (VALID_STATUSES as readonly string[]).includes(s);
+}
+
 // ─── Composant ────────────────────────────────────────────────────────────────
 
 /**
  * OrderStatusBadge — Affiche le statut d'une commande sous forme de badge coloré.
  *
- * Utilise Badge.OrderStatus du design system.
- *
- * Statuts supportés:
- * - en_attente → jaune
- * - en_cours   → bleu
- * - payee      → bleu
- * - expediee   → violet
- * - prete      → violet
- * - livree     → vert
- * - annulee    → rouge
+ * Priorité d'affichage :
+ * 1. Données DB via useStatutCommandeByCode (couleur + label i18n)
+ * 2. Fallback Badge.OrderStatus du design system (statuts connus)
+ * 3. Fallback générique badge neutre (statut inconnu)
  */
 export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({
   statut,
 }) => {
-  const { t } = useTranslation("store");
+  const { t, i18n } = useTranslation("store");
+  const statutInfo = useStatutCommandeByCode(statut);
 
-  // Si pas de statut ou statut invalide, on affiche un badge neutre
+  // Aucun statut fourni
   if (!statut) {
+    return <Badge variant="neutral">{t("orderStatus.unknown")}</Badge>;
+  }
+
+  // ── Données DB disponibles ────────────────────────────────────────────────
+  if (statutInfo) {
+    const label =
+      i18n.language === "en" && statutInfo.nom_en
+        ? statutInfo.nom_en
+        : statutInfo.nom;
+
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 ring-1 ring-gray-200">
-        {t("orderStatus.unknown")}
-      </span>
+      <Badge variant={(statutInfo.couleur ?? "neutral") as any}>{label}</Badge>
     );
   }
 
-  // Vérifier si le statut est valide pour Badge.OrderStatus
-  const validStatuses = [
-    "en_attente",
-    "en_cours",
-    "payee",
-    "expediee",
-    "prete",
-    "livree",
-    "annulee",
-  ];
-
-  if (validStatuses.includes(statut)) {
-    return (
-      <Badge.OrderStatus
-        status={
-          statut as
-            | "en_attente"
-            | "en_cours"
-            | "payee"
-            | "expediee"
-            | "prete"
-            | "livree"
-            | "annulee"
-        }
-      />
-    );
+  // ── Fallback : références pas encore chargées, statut connu du DS ─────────
+  if (isValidStatus(statut)) {
+    return <Badge.OrderStatus status={statut} />;
   }
 
-  // Fallback pour statuts inconnus
-  return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 ring-1 ring-gray-200">
-      {statut}
-    </span>
-  );
+  // ── Fallback générique pour statuts totalement inconnus ───────────────────
+  return <Badge variant="neutral">{statut}</Badge>;
 };

@@ -18,6 +18,7 @@
  */
 
 import { useTranslation } from "react-i18next";
+import { useStatutsCommande } from "../../../../shared/hooks/useReferences";
 import { Badge } from "../../../../shared/components/Badge/Badge";
 import { AlertBanner } from "../../../../shared/components/Feedback/AlertBanner";
 import { LoadingSpinner } from "../../../../shared/components/Layout/LoadingSpinner";
@@ -35,7 +36,8 @@ import {
 } from "../../../../shared/utils";
 
 export function OrdersTab() {
-  const { t } = useTranslation("store");
+  const { t, i18n } = useTranslation("store");
+  const statutsQuery = useStatutsCommande();
   const store = useStoreUI();
   const ordersQuery = useOrders({
     page: store.orderPage,
@@ -88,13 +90,20 @@ export function OrdersTab() {
           id="order-status-filter"
           label=""
           placeholder={t("orders.filters.allStatuses")}
-          options={[
-            { value: "en_attente", label: t("orders.filters.pending") },
-            { value: "payee", label: t("orders.filters.paid") },
-            { value: "expediee", label: t("orders.filters.shipped") },
-            { value: "livree", label: t("orders.filters.delivered") },
-            { value: "annulee", label: t("orders.filters.cancelled") },
-          ]}
+          options={
+            statutsQuery.length > 0
+              ? statutsQuery.map((s) => ({
+                  value: s.code,
+                  label: i18n.language === "en" && s.nom_en ? s.nom_en : s.nom,
+                }))
+              : [
+                  { value: "en_attente", label: t("orders.filters.pending") },
+                  { value: "payee", label: t("orders.filters.paid") },
+                  { value: "expediee", label: t("orders.filters.shipped") },
+                  { value: "livree", label: t("orders.filters.delivered") },
+                  { value: "annulee", label: t("orders.filters.cancelled") },
+                ]
+          }
           value={store.orderStatusFilter}
           onChange={(value) => store.setOrderStatusFilter(String(value))}
           className="[&>label]:hidden max-w-xs"

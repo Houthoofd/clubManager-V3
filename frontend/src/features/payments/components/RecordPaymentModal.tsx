@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import type { PricingPlan } from "@clubmanager/types";
 import { Modal, Button } from "../../../shared/components";
 import { Input } from "../../../shared/components/Input/Input";
+import { useMethodesPaiement } from "../../../shared/hooks/useReferences";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -30,7 +31,7 @@ interface RecordPaymentModalProps {
 export interface RecordPaymentFormData {
   user_id: number;
   montant: number;
-  methode_paiement: "especes" | "virement" | "autre";
+  methode_paiement: string;
   plan_tarifaire_id?: number;
   description?: string;
   date_paiement: string;
@@ -57,7 +58,8 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   plans,
   onSubmit,
 }) => {
-  const { t } = useTranslation("payments");
+  const { t, i18n } = useTranslation("payments");
+  const methodesPaiement = useMethodesPaiement();
 
   const {
     register,
@@ -178,9 +180,19 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               disabled={isSubmitting}
               {...register("methode_paiement", { required: true })}
             >
-              <option value="especes">{t("methods.cash")}</option>
-              <option value="virement">{t("methods.transfer")}</option>
-              <option value="autre">{t("methods.other")}</option>
+              {methodesPaiement.length > 0 ? (
+                methodesPaiement.map((m) => (
+                  <option key={m.code} value={m.code}>
+                    {i18n.language === "en" && m.nom_en ? m.nom_en : m.nom}
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option value="especes">{t("methods.cash")}</option>
+                  <option value="virement">{t("methods.transfer")}</option>
+                  <option value="autre">{t("methods.other")}</option>
+                </>
+              )}
             </Input.Select>
           </div>
 

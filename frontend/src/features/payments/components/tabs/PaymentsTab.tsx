@@ -5,6 +5,7 @@
 
 import { useTranslation } from "react-i18next";
 import { CheckIcon, CreditCardIcon } from "@heroicons/react/24/outline";
+import { useStatutsPaiement } from "../../../../shared/hooks/useReferences";
 import { DataTable } from "../../../../shared/components/Table/DataTable";
 import { SearchBar } from "../../../../shared/components/Forms/SearchBar";
 import { DateRangePicker } from "../../../../shared/components/Forms/DateRangePicker";
@@ -77,7 +78,8 @@ export function PaymentsTab({
   setStripeSetup,
   isAdmin,
 }: PaymentsTabProps) {
-  const { t } = useTranslation("payments");
+  const { t, i18n } = useTranslation("payments");
+  const statutsPaiement = useStatutsPaiement();
 
   return (
     <div>
@@ -174,10 +176,20 @@ export function PaymentsTab({
                        transition-colors min-w-[150px]"
           >
             <option value="">{t("tabs.allStatuses")}</option>
-            <option value="en_attente">{t("status.pending")}</option>
-            <option value="valide">{t("status.paid")}</option>
-            <option value="echoue">{t("status.failed")}</option>
-            <option value="rembourse">{t("status.refunded")}</option>
+            {statutsPaiement.length > 0 ? (
+              statutsPaiement.map((s) => (
+                <option key={s.code} value={s.code}>
+                  {i18n.language === "en" && s.nom_en ? s.nom_en : s.nom}
+                </option>
+              ))
+            ) : (
+              <>
+                <option value="en_attente">{t("status.pending")}</option>
+                <option value="valide">{t("status.paid")}</option>
+                <option value="echoue">{t("status.failed")}</option>
+                <option value="rembourse">{t("status.refunded")}</option>
+              </>
+            )}
           </select>
 
           {/* Filtre méthode */}
