@@ -170,6 +170,7 @@ interface CourseListRow extends RowDataPacket {
   jour_semaine: number | null;
   professeurs_noms: string | null;
   nombre_inscriptions: number;
+  nombre_reservations: number;
 }
 
 interface CourseDetailRow extends RowDataPacket {
@@ -186,6 +187,7 @@ interface CourseDetailRow extends RowDataPacket {
   cr_heure_fin: string | null;
   cr_active: number | null;
   nombre_inscriptions: number;
+  nombre_reservations: number;
 }
 
 interface ProfessorForCourseRow extends RowDataPacket {
@@ -788,7 +790,8 @@ export class MySQLCourseRepository implements ICourseRepository {
       SELECT c.*,
         cr.jour_semaine,
         GROUP_CONCAT(DISTINCT CONCAT(p.prenom,' ',p.nom) ORDER BY p.nom SEPARATOR '||') AS professeurs_noms,
-        COUNT(DISTINCT i.id) AS nombre_inscriptions
+        COUNT(DISTINCT i.id) AS nombre_inscriptions,
+        (SELECT COUNT(*) FROM reservations r WHERE r.cours_id = c.id AND r.statut != 'annulee') AS nombre_reservations
       FROM cours c
       LEFT JOIN cours_recurrent cr ON cr.id = c.cours_recurrent_id
       LEFT JOIN cours_recurrent_professeur crp ON crp.cours_recurrent_id = cr.id
@@ -818,7 +821,7 @@ export class MySQLCourseRepository implements ICourseRepository {
         jour_semaine_nom: getDayName(dbDay),
         annule: false, // no annule column in DB
         nombre_inscriptions: row.nombre_inscriptions,
-        nombre_reservations: 0,
+        nombre_reservations: row.nombre_reservations ?? 0,
         nombre_professeurs: profNames.length,
         professeurs_noms: profNames,
         cours_recurrent_id: row.cours_recurrent_id ?? undefined,
@@ -842,7 +845,8 @@ export class MySQLCourseRepository implements ICourseRepository {
         cr.heure_debut  AS cr_heure_debut,
         cr.heure_fin    AS cr_heure_fin,
         cr.active       AS cr_active,
-        COUNT(DISTINCT i.id) AS nombre_inscriptions
+        COUNT(DISTINCT i.id) AS nombre_inscriptions,
+        (SELECT COUNT(*) FROM reservations r WHERE r.cours_id = c.id AND r.statut != 'annulee') AS nombre_reservations
       FROM cours c
       LEFT JOIN cours_recurrent cr ON cr.id = c.cours_recurrent_id
       LEFT JOIN inscriptions i ON i.cours_id = c.id
@@ -917,7 +921,7 @@ export class MySQLCourseRepository implements ICourseRepository {
             : undefined,
       })),
       nombre_inscriptions: row.nombre_inscriptions,
-      nombre_reservations: 0,
+      nombre_reservations: row.nombre_reservations ?? 0,
       created_at: new Date(row.created_at).toISOString(),
     };
   }
@@ -1006,7 +1010,8 @@ export class MySQLCourseRepository implements ICourseRepository {
       SELECT c.*,
         cr.jour_semaine,
         GROUP_CONCAT(DISTINCT CONCAT(p.prenom,' ',p.nom) ORDER BY p.nom SEPARATOR '||') AS professeurs_noms,
-        COUNT(DISTINCT i.id) AS nombre_inscriptions
+        COUNT(DISTINCT i.id) AS nombre_inscriptions,
+        (SELECT COUNT(*) FROM reservations r WHERE r.cours_id = c.id AND r.statut != 'annulee') AS nombre_reservations
       FROM cours c
       LEFT JOIN cours_recurrent cr ON cr.id = c.cours_recurrent_id
       LEFT JOIN cours_recurrent_professeur crp ON crp.cours_recurrent_id = cr.id
@@ -1036,7 +1041,7 @@ export class MySQLCourseRepository implements ICourseRepository {
         jour_semaine_nom: getDayName(dbDay),
         annule: false,
         nombre_inscriptions: row.nombre_inscriptions,
-        nombre_reservations: 0,
+        nombre_reservations: row.nombre_reservations ?? 0,
         nombre_professeurs: profNames.length,
         professeurs_noms: profNames,
         cours_recurrent_id: row.cours_recurrent_id ?? undefined,
