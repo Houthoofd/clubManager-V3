@@ -15,6 +15,8 @@ import { RestoreUserUseCase } from "../../application/use-cases/RestoreUserUseCa
 import { UpdateUserLanguageUseCase } from "../../application/use-cases/UpdateUserLanguageUseCase.js";
 import { MySQLUserRepository } from "../../infrastructure/repositories/MySQLUserRepository.js";
 import { NotifyUsersUseCase } from "../../application/use-cases/NotifyUsersUseCase.js";
+import { UpdateUserProfileUseCase } from "../../application/use-cases/UpdateUserProfileUseCase.js";
+import { GetUserProfileUseCase } from "../../application/use-cases/GetUserProfileUseCase.js";
 
 const repo = new MySQLUserRepository();
 const getUsersUC = new GetUsersUseCase(repo);
@@ -25,6 +27,8 @@ const softDeleteUC = new SoftDeleteUserUseCase(repo);
 const restoreUC = new RestoreUserUseCase(repo);
 const updateLanguageUC = new UpdateUserLanguageUseCase(repo);
 const notifyUsersUC = new NotifyUsersUseCase(repo);
+const updateProfileUC = new UpdateUserProfileUseCase(repo);
+const getProfileUC = new GetUserProfileUseCase(repo);
 
 export class UserController {
   /**
@@ -64,6 +68,56 @@ export class UserController {
       res.json({ success: true, message: "User retrieved", data: user });
     } catch (error: any) {
       const status = error.message === "Utilisateur introuvable" ? 404 : 500;
+      res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * GET /api/users/:id/profile
+   * Retourne le profil complet d'un utilisateur
+   * Un utilisateur peut consulter son propre profil ; l'admin peut consulter n'importe lequel
+   */
+  async getProfile(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const targetId = Number(req.params.id);
+      const requesterId = req.user!.userId;
+      const requesterRole = req.user!.role_app;
+      // Only own profile or admin
+      if (targetId !== requesterId && requesterRole !== "admin") {
+        res.status(403).json({ success: false, message: "Accès refusé" });
+        return;
+      }
+      const profile = await getProfileUC.execute(targetId);
+      res.json({ success: true, message: "Profil récupéré", data: profile });
+    } catch (error: any) {
+      const status = error.message.includes("introuvable") ? 404 : 500;
+      res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * PATCH /api/users/:id/profile
+   * Met à jour le profil d'un utilisateur
+   * Un utilisateur peut modifier son propre profil ; l'admin peut modifier n'importe lequel
+   */
+  async updateProfile(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const targetId = Number(req.params.id);
+      const requesterId = req.user!.userId;
+      const requesterRole = req.user!.role_app ?? "";
+      const profile = await updateProfileUC.execute(
+        targetId,
+        requesterId,
+        requesterRole,
+        req.body,
+      );
+      res.json({ success: true, message: "Profil mis à jour", data: profile });
+    } catch (error: any) {
+      const status = error.message.includes("introuvable")
+        ? 404
+        : error.message.includes("refusé")
+          ? 403
+          : 400;
       res.status(status).json({ success: false, message: error.message });
     }
   }
@@ -171,7 +225,7 @@ export class UserController {
 
   /**
    * POST /api/users/notify-bulk
-   * Envoie un message à une sélection d’utilisateurs (admin + professor)
+   * Envoie un message à une sélection d'utilisateurs (admin + professor)
    */
   async notifyBulk(req: AuthRequest, res: Response): Promise<void> {
     try {

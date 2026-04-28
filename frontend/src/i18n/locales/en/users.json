@@ -145,5 +145,36 @@
     "sending": "Sending...",
     "messageSent": "Message sent to {{name}}",
     "uncategorized": "No category"
+  },
+  "profile": {
+    "title": "My profile",
+    "memberSince": "Member since",
+    "lastLogin": "Last login",
+    "editForm": "Edit profile",
+    "editFormSubtitle": "Update your personal information",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Profile updated",
+    "cancel": "Cancel",
+    "never": "Never",
+    "emailVerified": "Email verified",
+    "emailNotVerified": "Not verified",
+    "loadError": "Loading error",
+    "loadErrorGeneric": "Unable to load profile.",
+    "updateError": "Error updating profile",
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone",
+      "dateOfBirth": "Date of birth",
+      "genre": "Gender",
+      "genreNone": "Not specified",
+      "photoUrl": "Photo (URL)",
+      "photoUrlHelp": "Link to an online image (jpg, png…)",
+      "address": "Address",
+      "addressPlaceholder": "Your full address…",
+      "firstNameMin": "First name must be at least 2 characters",
+      "lastNameMin": "Last name must be at least 2 characters"
+    }
   }
 }

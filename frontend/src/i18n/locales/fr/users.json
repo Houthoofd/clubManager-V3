@@ -145,5 +145,36 @@
     "sending": "Envoi en cours...",
     "messageSent": "Message envoyé à {{name}}",
     "uncategorized": "Sans catégorie"
+  },
+  "profile": {
+    "title": "Mon profil",
+    "memberSince": "Membre depuis",
+    "lastLogin": "Dernière connexion",
+    "editForm": "Modifier le profil",
+    "editFormSubtitle": "Mettez à jour vos informations personnelles",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saved": "Profil mis à jour",
+    "cancel": "Annuler",
+    "never": "Jamais",
+    "emailVerified": "Email vérifié",
+    "emailNotVerified": "Non vérifié",
+    "loadError": "Erreur de chargement",
+    "loadErrorGeneric": "Impossible de charger le profil.",
+    "updateError": "Erreur lors de la mise à jour",
+    "fields": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "phone": "Téléphone",
+      "dateOfBirth": "Date de naissance",
+      "genre": "Genre",
+      "genreNone": "Non renseigné",
+      "photoUrl": "Photo (URL)",
+      "photoUrlHelp": "Lien vers une image en ligne (jpg, png…)",
+      "address": "Adresse",
+      "addressPlaceholder": "Votre adresse complète…",
+      "firstNameMin": "Le prénom doit contenir au moins 2 caractères",
+      "lastNameMin": "Le nom doit contenir au moins 2 caractères"
+    }
   }
 }
