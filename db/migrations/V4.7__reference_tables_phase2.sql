@@ -4,8 +4,8 @@
 -- Date        : Décembre 2024
 -- Version     : 4.7
 -- Moteur      : MySQL 8.0+
--- Idempotent  : Oui (safe à ré-exécuter — CREATE TABLE IF NOT EXISTS +
---               INSERT IGNORE)
+-- Idempotent  : Oui — DROP + CREATE IF NOT EXISTS + INSERT IGNORE
+--               (tables de référence : pas de données utilisateur, safe à recréer)
 --
 -- PHASE 2 INCLUT:
 --   1. statuts_paiement   (en_attente, paye, echoue, rembourse, etc.)
@@ -27,7 +27,9 @@
 -- 1. STATUTS DE PAIEMENT
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS statuts_paiement (
+DROP TABLE IF EXISTS statuts_paiement;
+
+CREATE TABLE statuts_paiement (
   id                   INT UNSIGNED  NOT NULL AUTO_INCREMENT,
   code                 VARCHAR(50)   NOT NULL,
   nom                  VARCHAR(100)  NOT NULL,
@@ -46,23 +48,25 @@ CREATE TABLE IF NOT EXISTS statuts_paiement (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='Table de référence : Statuts du cycle de vie d un paiement';
 
-INSERT IGNORE INTO statuts_paiement
+INSERT INTO statuts_paiement
   (code, nom, nom_en, couleur, ordre, compte_dans_revenus, est_final)
 VALUES
-  ('en_attente', 'En attente',  'Pending',   'warning', 1, 0, 0),
-  ('valide',     'Validé',      'Validated', 'info',    2, 0, 0),
-  ('paye',       'Payé',        'Paid',      'success', 3, 1, 1),
-  ('partiel',    'Partiel',     'Partial',   'orange',  4, 1, 0),
-  ('echoue',     'Échoué',      'Failed',    'danger',  5, 0, 1),
-  ('rembourse',  'Remboursé',   'Refunded',  'purple',  6, 0, 1),
-  ('annule',     'Annulé',      'Cancelled', 'neutral', 7, 0, 1);
+  ('en_attente', 'En attente', 'Pending',   'warning', 1, 0, 0),
+  ('valide',     'Validé',     'Validated', 'info',    2, 0, 0),
+  ('paye',       'Payé',       'Paid',      'success', 3, 1, 1),
+  ('partiel',    'Partiel',    'Partial',   'orange',  4, 1, 0),
+  ('echoue',     'Échoué',     'Failed',    'danger',  5, 0, 1),
+  ('rembourse',  'Remboursé',  'Refunded',  'purple',  6, 0, 1),
+  ('annule',     'Annulé',     'Cancelled', 'neutral', 7, 0, 1);
 
 
 -- ============================================================================
 -- 2. STATUTS D'ÉCHÉANCE
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS statuts_echeance (
+DROP TABLE IF EXISTS statuts_echeance;
+
+CREATE TABLE statuts_echeance (
   id         INT UNSIGNED  NOT NULL AUTO_INCREMENT,
   code       VARCHAR(50)   NOT NULL,
   nom        VARCHAR(100)  NOT NULL,
@@ -80,7 +84,7 @@ CREATE TABLE IF NOT EXISTS statuts_echeance (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='Table de référence : Statuts des échéances de paiement';
 
-INSERT IGNORE INTO statuts_echeance
+INSERT INTO statuts_echeance
   (code, nom, nom_en, couleur, ordre, est_final)
 VALUES
   ('en_attente', 'En attente', 'Pending',  'warning', 1, 0),
@@ -93,7 +97,9 @@ VALUES
 -- 3. RÔLES UTILISATEUR
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS roles_utilisateur (
+DROP TABLE IF EXISTS roles_utilisateur;
+
+CREATE TABLE roles_utilisateur (
   id           INT UNSIGNED  NOT NULL AUTO_INCREMENT,
   code         VARCHAR(50)   NOT NULL,
   nom          VARCHAR(100)  NOT NULL,
@@ -111,7 +117,7 @@ CREATE TABLE IF NOT EXISTS roles_utilisateur (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='Table de référence : Rôles applicatifs des utilisateurs';
 
-INSERT IGNORE INTO roles_utilisateur
+INSERT INTO roles_utilisateur
   (code, nom, nom_en, couleur, niveau_acces, ordre)
 VALUES
   ('admin',     'Administrateur', 'Administrator', 'danger', 100, 1),
@@ -124,7 +130,9 @@ VALUES
 -- 4. RÔLES FAMILIAUX
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS roles_familial (
+DROP TABLE IF EXISTS roles_familial;
+
+CREATE TABLE roles_familial (
   id         INT UNSIGNED  NOT NULL AUTO_INCREMENT,
   code       VARCHAR(50)   NOT NULL,
   nom        VARCHAR(100)  NOT NULL,
@@ -141,21 +149,23 @@ CREATE TABLE IF NOT EXISTS roles_familial (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='Table de référence : Rôles au sein d une unité familiale';
 
-INSERT IGNORE INTO roles_familial
+INSERT INTO roles_familial
   (code, nom, nom_en, couleur, ordre)
 VALUES
-  ('parent',   'Parent',       'Parent',        'blue',    1),
-  ('tuteur',   'Tuteur légal', 'Legal guardian', 'purple',  2),
-  ('enfant',   'Enfant',       'Child',          'green',   3),
-  ('conjoint', 'Conjoint',     'Spouse',         'info',    4),
-  ('autre',    'Autre',        'Other',          'neutral', 5);
+  ('parent',   'Parent',       'Parent',         'blue',    1),
+  ('tuteur',   'Tuteur légal', 'Legal guardian',  'purple',  2),
+  ('enfant',   'Enfant',       'Child',           'green',   3),
+  ('conjoint', 'Conjoint',     'Spouse',          'info',    4),
+  ('autre',    'Autre',        'Other',           'neutral', 5);
 
 
 -- ============================================================================
 -- 5. GENRES
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS genres (
+DROP TABLE IF EXISTS genres;
+
+CREATE TABLE genres (
   id         INT UNSIGNED  NOT NULL AUTO_INCREMENT,
   code       VARCHAR(10)   NOT NULL,
   nom        VARCHAR(50)   NOT NULL,
@@ -170,7 +180,7 @@ CREATE TABLE IF NOT EXISTS genres (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='Table de référence : Genres';
 
-INSERT IGNORE INTO genres
+INSERT INTO genres
   (code, nom, nom_en, ordre)
 VALUES
   ('M',     'Homme', 'Male',   1),
@@ -193,5 +203,5 @@ UNION ALL
 SELECT 'genres'            AS table_name, COUNT(*) AS nb_lignes FROM genres;
 
 -- ============================================================================
--- FIN DE LA MIGRATION V4.7 (idempotente — MySQL)
+-- FIN DE LA MIGRATION V4.7 (MySQL)
 -- ============================================================================
