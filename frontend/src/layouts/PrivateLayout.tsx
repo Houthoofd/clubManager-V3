@@ -23,6 +23,8 @@ import { INFORMATION_KEYS } from "@clubmanager/types";
 import { useAuth } from "../shared/hooks/useAuth";
 import { useUnreadCount } from "../features/messaging/hooks/useMessaging";
 import { useSettingsStore } from "../features/settings/stores/settingsStore";
+import { useNotificationCount } from "../features/notifications/hooks/useNotifications";
+import { NotificationDropdown } from "../features/notifications/components/NotificationDropdown";
 
 // ─── SVG Icon Components ──────────────────────────────────────────────────────
 
@@ -166,11 +168,13 @@ function ArrowRightOnRectangleIcon({
 const PrivateLayout: React.FC = () => {
   const { t } = useTranslation("common");
   const { user, logout, getFullName, getInitials } = useAuth();
-  const unreadCount = useUnreadCount();
+  const unreadCount = useUnreadCount(); // keep for messages
+  const { data: notifCount = 0 } = useNotificationCount();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
 
   const { settings, fetchSettings, getByKey } = useSettingsStore();
 
@@ -425,17 +429,27 @@ const PrivateLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            {/* Notifications */}
-            <button
-              className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              aria-label={t("navigation.notifications")}
-            >
-              <BellIcon className="h-5 w-5 text-gray-600" />
-              <span
-                className="absolute top-1 right-1 w-2 h-2 rounded-full"
-                style={{ backgroundColor: "var(--color-secondary)" }}
-              />
-            </button>
+            {/* Bell / Notifications */}
+            <div className="relative">
+              <button
+                onClick={() => setIsNotifDropdownOpen(!isNotifDropdownOpen)}
+                className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label={t("navigation.notifications")}
+              >
+                <BellIcon className="h-5 w-5 text-gray-600" />
+                {notifCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                    {notifCount > 99 ? "99+" : notifCount}
+                  </span>
+                )}
+              </button>
+              {isNotifDropdownOpen && (
+                <NotificationDropdown
+                  isOpen={isNotifDropdownOpen}
+                  onClose={() => setIsNotifDropdownOpen(false)}
+                />
+              )}
+            </div>
 
             {/* User Menu */}
             <div className="relative">
@@ -502,6 +516,14 @@ const PrivateLayout: React.FC = () => {
         <div
           className="fixed inset-0 z-40"
           onClick={() => setIsUserMenuOpen(false)}
+        />
+      )}
+
+      {/* Click outside to close notifications dropdown */}
+      {isNotifDropdownOpen && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setIsNotifDropdownOpen(false)}
         />
       )}
     </div>
