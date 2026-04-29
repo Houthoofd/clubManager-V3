@@ -4,7 +4,7 @@
     "description": "Your club overview"
   },
   "welcome": {
-    "greeting": "Hello, {{name}}"
+    "greeting": "Hello, {{name}}",
     "today": "Today, {{date}}"
   },
   "roles": {
