@@ -34,6 +34,7 @@ import {
   PaintBrushIcon,
   Squares2X2Icon,
   LanguageIcon,
+  AcademicCapIcon,
 } from "@heroicons/react/24/outline";
 
 // ─── Sections de paramètres ───────────────────────────────────────────────────
@@ -46,6 +47,7 @@ import {
   NavigationSection,
   LocalizationSection,
 } from "../components/sections";
+import { GradesManager } from "../components/GradesManager";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -56,7 +58,8 @@ type TabId =
   | "finance"
   | "apparence"
   | "navigation"
-  | "localisation";
+  | "localisation"
+  | "grades";
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
@@ -296,6 +299,11 @@ export const SettingsPage = () => {
       label: t("tabs.localization"),
       icon: <LanguageIcon className="h-5 w-5" />,
     },
+    {
+      id: "grades",
+      label: t("tabs.grades"),
+      icon: <AcademicCapIcon className="h-5 w-5" />,
+    },
   ];
 
   // ─── Rendu ─────────────────────────────────────────────────────────────────
@@ -390,6 +398,13 @@ export const SettingsPage = () => {
           handleSaveLocalisation={handleSaveLocalisation}
           isSaving={isSaving}
         />
+      )}
+
+      {/* ─── Onglet: Grades / Ceintures ───────────────────────────────────── */}
+      {activeTab === "grades" && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <GradesManager />
+        </div>
       )}
     </div>
   );
