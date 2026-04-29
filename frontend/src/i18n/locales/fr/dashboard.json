@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Tableau de bord",
+    "description": "Vue d'ensemble de votre club"
+  },
+  "welcome": {
+    "greeting": "Bonjour, {{name}} 👋",
+    "today": "Aujourd'hui, {{date}}"
+  },
+  "roles": {
+    "admin": "Administrateur",
+    "professor": "Professeur",
+    "member": "Membre",
+    "parent": "Parent"
+  },
+  "kpis": {
+    "members": "Membres actifs",
+    "membersDesc": "taux de croissance",
+    "courses": "Cours actifs",
+    "coursesDesc": "taux de présence",
+    "revenue": "Revenus du mois",
+    "revenueDesc": "taux de paiement",
+    "notifications": "Notifications non lues",
+    "notificationsDesc": "messages non lus"
+  },
+  "alerts": {
+    "title": "Alertes",
+    "latePayments": "Paiements en retard",
+    "latePaymentsMessage": "{{count}} paiement(s) en retard — montant total : {{amount}}",
+    "lowStock": "Alertes de stock",
+    "lowStockMessage": "{{count}} article(s) avec stock bas ou en rupture"
+  },
+  "quickActions": {
+    "title": "Accès rapides",
+    "courses": "Cours",
+    "members": "Membres",
+    "payments": "Paiements",
+    "store": "Boutique",
+    "messages": "Messages",
+    "statistics": "Statistiques",
+    "profile": "Mon profil",
+    "notifications": "Notifications"
+  },
+  "todayCourses": {
+    "title": "Cours du jour",
+    "noCourses": "Aucun cours aujourd'hui",
+    "noCoursesDesc": "Pas de séance prévue ce jour.",
+    "viewAll": "Voir tous les cours"
+  },
+  "notifications": {
+    "title": "Notifications récentes",
+    "empty": "Aucune notification",
+    "emptyDesc": "Vous êtes à jour, rien de nouveau !",
+    "markAllRead": "Tout marquer comme lu",
+    "viewAll": "Voir toutes les notifications",
+    "types": {
+      "info": "Info",
+      "success": "Succès",
+      "warning": "Avertissement",
+      "error": "Erreur"
+    }
+  },
+  "loading": "Chargement du tableau de bord...",
+  "errors": {
+    "stats": "Impossible de charger les statistiques.",
+    "notifications": "Impossible de charger les notifications."
+  }
+}
