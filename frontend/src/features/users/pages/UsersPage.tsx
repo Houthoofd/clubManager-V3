@@ -27,6 +27,7 @@ import {
 
 import { useUsers } from "../hooks/useUsers";
 import { useAuth } from "../../../shared/hooks/useAuth";
+import { RecoveryRequestsPanel } from "../components/RecoveryRequestsPanel";
 import { UserRoleBadge } from "../components/UserRoleBadge";
 import { UserStatusBadge } from "../components/UserStatusBadge";
 import { SendToUserModal } from "../components/SendToUserModal";
@@ -727,6 +728,13 @@ export function UsersPage() {
         isOpen={modal.type === "notifyBulk"}
         onClose={closeModal}
       />
+
+      {/* ── Récupération de comptes (admin uniquement) ── */}
+      {isAdmin && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <RecoveryRequestsPanel />
+        </div>
+      )}
     </div>
   );
 }
