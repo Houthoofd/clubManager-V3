@@ -4,7 +4,7 @@
  * Les données serveur sont gérées par React Query dans useStore.ts.
  */
 
-import { create } from 'zustand';
+import { create } from "zustand";
 
 // ─── Types locaux ─────────────────────────────────────────────────────────────
 
@@ -46,7 +46,12 @@ export interface ArticleWithImages extends Article {
   images: ArticleImage[];
 }
 
-export type OrderStatus = 'en_attente' | 'payee' | 'expediee' | 'livree' | 'annulee';
+export type OrderStatus =
+  | "en_attente"
+  | "payee"
+  | "expediee"
+  | "livree"
+  | "annulee";
 
 export interface OrderItem {
   id: number;
@@ -103,8 +108,15 @@ export interface CartItem {
 
 interface StoreUIState {
   // ── Onglet actif ────────────────────────────────────────────────────────────
-  activeTab: 'catalogue' | 'commandes' | 'stocks' | 'configuration' | 'boutique' | 'mes_commandes';
-  setActiveTab: (tab: StoreUIState['activeTab']) => void;
+  activeTab:
+    | "catalogue"
+    | "commandes"
+    | "stocks"
+    | "configuration"
+    | "boutique"
+    | "mes_commandes"
+    | "mouvements";
+  setActiveTab: (tab: StoreUIState["activeTab"]) => void;
 
   // ── Modal article ────────────────────────────────────────────────────────────
   articleModalOpen: boolean;
@@ -179,7 +191,7 @@ export const useStoreUI = create<StoreUIState>((set) => ({
   // ONGLET ACTIF
   // ══════════════════════════════════════════════════════════════════════════
 
-  activeTab: 'catalogue',
+  activeTab: "catalogue",
   setActiveTab: (tab) => set({ activeTab: tab }),
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -212,8 +224,7 @@ export const useStoreUI = create<StoreUIState>((set) => ({
   editingSize: null,
   openSizeModal: (size) =>
     set({ sizeModalOpen: true, editingSize: size ?? null }),
-  closeSizeModal: () =>
-    set({ sizeModalOpen: false, editingSize: null }),
+  closeSizeModal: () => set({ sizeModalOpen: false, editingSize: null }),
 
   // ══════════════════════════════════════════════════════════════════════════
   // MODAL DÉTAIL COMMANDE
@@ -235,7 +246,8 @@ export const useStoreUI = create<StoreUIState>((set) => ({
   addToCart: (item) =>
     set((state) => {
       const existing = state.cartItems.find(
-        (c) => c.article_id === item.article_id && c.taille_id === item.taille_id,
+        (c) =>
+          c.article_id === item.article_id && c.taille_id === item.taille_id,
       );
       if (existing) {
         return {
@@ -288,20 +300,21 @@ export const useStoreUI = create<StoreUIState>((set) => ({
   // FILTRES ARTICLES
   // ══════════════════════════════════════════════════════════════════════════
 
-  articleSearch: '',
+  articleSearch: "",
   setArticleSearch: (s) => set({ articleSearch: s, articlePage: 1 }),
 
   articleCategoryFilter: null,
-  setArticleCategoryFilter: (id) => set({ articleCategoryFilter: id, articlePage: 1 }),
+  setArticleCategoryFilter: (id) =>
+    set({ articleCategoryFilter: id, articlePage: 1 }),
 
-  articleActifFilter: '',
+  articleActifFilter: "",
   setArticleActifFilter: (v) => set({ articleActifFilter: v, articlePage: 1 }),
 
   // ══════════════════════════════════════════════════════════════════════════
   // FILTRES COMMANDES
   // ══════════════════════════════════════════════════════════════════════════
 
-  orderStatusFilter: '',
+  orderStatusFilter: "",
   setOrderStatusFilter: (s) => set({ orderStatusFilter: s, orderPage: 1 }),
 
   // ══════════════════════════════════════════════════════════════════════════

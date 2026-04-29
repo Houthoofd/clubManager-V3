@@ -229,6 +229,14 @@ router.get(
   (req, res) => stockCtrl.getArticleStocks(req as any, res),
 );
 
+// GET /stocks/movements - Historique des mouvements de stock
+router.get(
+  "/stocks/movements",
+  authMiddleware,
+  requireRole(UserRole.ADMIN),
+  (req, res) => stockCtrl.getMovements(req as any, res),
+);
+
 // GET /stocks - Liste tous les stocks
 router.get("/stocks", authMiddleware, requireRole(UserRole.ADMIN), (req, res) =>
   stockCtrl.getStocks(req as any, res),

@@ -93,6 +93,27 @@ export interface Stock {
   stock_bas?: boolean;
 }
 
+export interface StockMovementItem {
+  id: number;
+  article_id: number;
+  taille: string;
+  type_mouvement:
+    | "commande"
+    | "livraison"
+    | "annulation"
+    | "retour"
+    | "ajustement"
+    | "inventaire";
+  quantite_avant: number;
+  quantite_apres: number;
+  quantite_mouvement: number;
+  commande_id: number | null;
+  motif: string | null;
+  created_at: string;
+  article_nom: string;
+  effectue_par: string | null;
+}
+
 export interface PaginatedResponse<T> {
   items: T[];
   pagination: {
@@ -292,4 +313,16 @@ export const storeApi = {
     apiClient
       .post("/store/stocks/adjust", { id, ...data })
       .then((r) => r.data.data),
+};
+
+// ─── Stock Movements ──────────────────────────────────────────────────────────
+
+export const getStockMovements = async (params?: {
+  article_id?: number;
+  type_mouvement?: string;
+  page?: number;
+  limit?: number;
+}): Promise<{ movements: StockMovementItem[]; pagination: any }> => {
+  const res = await apiClient.get("/store/stocks/movements", { params });
+  return res.data.data!;
 };
