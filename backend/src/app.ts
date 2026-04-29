@@ -28,6 +28,11 @@ import courseRoutes from "./modules/courses/presentation/routes/courseRoutes.js"
 import statisticsRoutes from "./modules/statistics/presentation/routes/statistics.routes.js";
 import storeRoutes from "./modules/store/presentation/routes/storeRoutes.js";
 import referencesRoutes from "./modules/references/presentation/routes/referencesRoutes.js";
+import notificationRoutes from "./modules/notifications/presentation/routes/notificationRoutes.js";
+import gradeRoutes from "./modules/grades/presentation/routes/gradeRoutes.js";
+import recoveryRoutes from "./modules/recovery/presentation/routes/recoveryRoutes.js";
+import reservationRoutes from "./modules/reservations/presentation/routes/reservationRoutes.js";
+import groupRoutes from "./modules/groups/presentation/routes/groupRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -116,6 +121,11 @@ const createApp = (): Express => {
   app.use("/api/statistics", statisticsRoutes);
   app.use("/api/store", storeRoutes);
   app.use("/api/references", referencesRoutes);
+  app.use("/api/notifications", notificationRoutes);
+  app.use("/api/grades", gradeRoutes);
+  app.use("/api/recovery", recoveryRoutes);
+  app.use("/api/reservations", reservationRoutes);
+  app.use("/api/groups", groupRoutes);
 
   // ==================== ERROR HANDLING ====================
 
