@@ -258,7 +258,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
         const result = await getUsers({ page: 1, limit: 200 });
         setAllUsers(result.users);
       } catch {
-        toast.error(t("common:errors.loadUsers"));
+        toast.error(t("messages:errors.loadUsers"));
       } finally {
         setIsLoadingUsers(false);
       }
@@ -345,7 +345,7 @@ export const NotifyUsersModal: React.FC<NotifyUsersModalProps> = ({
       });
       onClose();
     } catch {
-      toast.error(t("common:errors.sendError"));
+      toast.error(t("messages:errors.sendError"));
     } finally {
       setIsSending(false);
     }

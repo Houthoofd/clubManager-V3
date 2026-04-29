@@ -195,7 +195,6 @@
     "variables": "Variables",
     "recipient": "Recipient",
     "byRole": "By role",
-    "preview": "Preview",
     "send": "Send",
     "noManualVars": "No manual variables for this template — ready to send!",
     "broadcastWarningLabel": "Broadcast:",

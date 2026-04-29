@@ -228,10 +228,12 @@ export function CreateEditCourseRecurrentModal({
               ))
             ) : (
               <>
-                <option value="karate">Karaté</option>
-                <option value="judo">Judo</option>
-                <option value="taekwondo">Taekwondo</option>
-                <option value="autre">Autre</option>
+                <option value="karate">{t("fallbackTypes.karate")}</option>
+                <option value="judo">{t("fallbackTypes.judo")}</option>
+                <option value="taekwondo">
+                  {t("fallbackTypes.taekwondo")}
+                </option>
+                <option value="autre">{t("fallbackTypes.autre")}</option>
               </>
             )}
           </Input.Select>

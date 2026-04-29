@@ -82,7 +82,14 @@
     "phone": "+33 6 12 34 56 78",
     "specialty": "Ex. Judo, Ceinture noire 3e dan…",
     "selectCourse": "— Sélectionner un cours —",
+    "selectType": "— Sélectionner un type —",
     "none": "— Aucun —"
+  },
+  "fallbackTypes": {
+    "karate": "Karaté",
+    "judo": "Judo",
+    "taekwondo": "Taekwondo",
+    "autre": "Autre"
   },
   "columns": {
     "date": "Date",
