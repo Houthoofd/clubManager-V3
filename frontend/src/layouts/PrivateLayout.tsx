@@ -18,6 +18,7 @@ import {
   ChartBarIcon,
   CogIcon,
 } from "@patternfly/react-icons";
+import { UserGroupIcon } from "@heroicons/react/24/outline";
 import { UserRole } from "@clubmanager/types";
 import { INFORMATION_KEYS } from "@clubmanager/types";
 import { useAuth } from "../shared/hooks/useAuth";
@@ -257,6 +258,12 @@ const PrivateLayout: React.FC = () => {
       roles: [UserRole.ADMIN, UserRole.PROFESSOR],
     },
     {
+      name: t("navigation.groups"),
+      path: "/groups",
+      icon: <UserGroupIcon className="h-5 w-5" />,
+      roles: [UserRole.ADMIN],
+    },
+    {
       name: t("navigation.settings"),
       path: "/settings",
       icon: <CogIcon />,
@@ -284,6 +291,7 @@ const PrivateLayout: React.FC = () => {
     "/store": "store",
     "/messages": "messages",
     "/statistics": "statistics",
+    "/groups": "groups",
     "/settings": "settings", // settings is always visible to admin
   };
 

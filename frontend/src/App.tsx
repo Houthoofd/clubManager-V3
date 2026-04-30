@@ -41,6 +41,7 @@ import { StorePage } from "./features/store/pages";
 import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
 import { NotificationsPage } from "./features/notifications/pages";
 import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
+import { GroupsPage } from "./features/groups/pages";
 
 /**
  * AuthenticatedLayout Component
@@ -197,6 +198,14 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/family" element={<FamilyPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route
+              path="/groups"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                  <GroupsPage />
+                </RoleGuard>
+              }
+            />
             <Route
               path="/settings"
               element={

@@ -38,7 +38,8 @@
     "login": "Login",
     "register": "Register",
     "toggleSidebar": "Toggle sidebar",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "groups": "Groups"
   },
   "footer": {
     "allRightsReserved": "All rights reserved",
