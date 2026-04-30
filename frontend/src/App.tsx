@@ -40,17 +40,7 @@ import { CoursesPage } from "./features/courses/pages";
 import { StorePage } from "./features/store/pages";
 import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
 import { NotificationsPage } from "./features/notifications/pages";
-
-// Dashboard (placeholder)
-const DashboardPage = () => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <h1 className="text-2xl font-bold text-gray-900 mb-4">Dashboard</h1>
-    <p className="text-gray-600">
-      Bienvenue sur ClubManager V3 - Votre application de gestion de club
-      sportif.
-    </p>
-  </div>
-);
+import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
 
 /**
  * AuthenticatedLayout Component

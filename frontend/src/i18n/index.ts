@@ -19,6 +19,7 @@ import statisticsFr from "./locales/fr/statistics.json";
 import messagesFr from "./locales/fr/messages.json";
 import familiesFr from "./locales/fr/families.json";
 import usersFr from "./locales/fr/users.json";
+import dashboardFr from "./locales/fr/dashboard.json";
 
 // Import des traductions EN
 import commonEn from "./locales/en/common.json";
@@ -32,6 +33,7 @@ import statisticsEn from "./locales/en/statistics.json";
 import messagesEn from "./locales/en/messages.json";
 import familiesEn from "./locales/en/families.json";
 import usersEn from "./locales/en/users.json";
+import dashboardEn from "./locales/en/dashboard.json";
 
 /**
  * Namespaces disponibles pour l'application
@@ -49,6 +51,7 @@ export const namespaces = [
   "messages", // Messagerie
   "families", // Gestion des familles
   "users", // Gestion des utilisateurs
+  "dashboard", // Tableau de bord
 ] as const;
 
 /**
@@ -124,6 +127,7 @@ i18n
         messages: messagesFr,
         families: familiesFr,
         users: usersFr,
+        dashboard: dashboardFr,
       },
       en: {
         common: commonEn,
@@ -137,6 +141,7 @@ i18n
         messages: messagesEn,
         families: familiesEn,
         users: usersEn,
+        dashboard: dashboardEn,
       },
     },
 

@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Dashboard",
+    "description": "Your club overview"
+  },
+  "welcome": {
+    "greeting": "Hello, {{name}}",
+    "today": "Today, {{date}}"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "professor": "Professor",
+    "member": "Member",
+    "parent": "Parent"
+  },
+  "kpis": {
+    "members": "Active members",
+    "membersDesc": "growth rate",
+    "courses": "Active courses",
+    "coursesDesc": "attendance rate",
+    "revenue": "Monthly revenue",
+    "revenueDesc": "payment rate",
+    "notifications": "Unread notifications",
+    "notificationsDesc": "unread messages"
+  },
+  "alerts": {
+    "title": "Alerts",
+    "latePayments": "Late payments",
+    "latePaymentsMessage": "{{count}} overdue payment(s) — total amount: {{amount}}",
+    "lowStock": "Stock alerts",
+    "lowStockMessage": "{{count}} item(s) with low or out-of-stock inventory"
+  },
+  "quickActions": {
+    "title": "Quick access",
+    "courses": "Courses",
+    "members": "Members",
+    "payments": "Payments",
+    "store": "Store",
+    "messages": "Messages",
+    "statistics": "Statistics",
+    "profile": "My profile",
+    "notifications": "Notifications"
+  },
+  "todayCourses": {
+    "title": "Today's courses",
+    "noCourses": "No courses today",
+    "noCoursesDesc": "No session scheduled today.",
+    "viewAll": "View all courses"
+  },
+  "notifications": {
+    "title": "Recent notifications",
+    "empty": "No notifications",
+    "emptyDesc": "You're all caught up!",
+    "markAllRead": "Mark all as read",
+    "viewAll": "View all notifications",
+    "types": {
+      "info": "Info",
+      "success": "Success",
+      "warning": "Warning",
+      "error": "Error"
+    }
+  },
+  "loading": "Loading dashboard...",
+  "errors": {
+    "stats": "Unable to load statistics.",
+    "notifications": "Unable to load notifications."
+  }
+}
