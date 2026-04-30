@@ -1,0 +1,90 @@
+{
+  "page": {
+    "title": "Groupes",
+    "description": "Gérez les groupes de membres de votre club"
+  },
+  "fields": {
+    "name": "Nom du groupe",
+    "description": "Description",
+    "memberCount": "{{count}} membre",
+    "memberCount_plural": "{{count}} membres",
+    "createdAt": "Créé le"
+  },
+  "actions": {
+    "create": "Nouveau groupe",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "confirm": "Confirmer",
+    "addMember": "Ajouter un membre",
+    "removeMember": "Retirer",
+    "viewMembers": "Voir les membres",
+    "refresh": "Actualiser"
+  },
+  "modal": {
+    "createTitle": "Nouveau groupe",
+    "createSubtitle": "Créez un nouveau groupe de membres",
+    "editTitle": "Modifier le groupe",
+    "editSubtitle": "Modifiez les informations du groupe",
+    "deleteTitle": "Supprimer le groupe",
+    "membersTitle": "Membres du groupe",
+    "membersSubtitle": "{{name}} — {{count}} membre",
+    "membersSubtitle_plural": "{{name}} — {{count}} membres"
+  },
+  "placeholders": {
+    "name": "Ex : Cours avancés adultes",
+    "description": "Description optionnelle du groupe...",
+    "search": "Rechercher un groupe...",
+    "userId": "ID de l'utilisateur"
+  },
+  "messages": {
+    "success": {
+      "created": "Groupe créé",
+      "createdDescription": "Le groupe \"{{name}}\" a été créé avec succès.",
+      "updated": "Groupe mis à jour",
+      "updatedDescription": "Le groupe \"{{name}}\" a été mis à jour.",
+      "deleted": "Groupe supprimé",
+      "deletedDescription": "Le groupe a été supprimé avec succès.",
+      "memberAdded": "Membre ajouté au groupe.",
+      "memberRemoved": "Membre retiré du groupe."
+    },
+    "error": {
+      "loadError": "Impossible de charger les groupes.",
+      "createError": "Erreur lors de la création du groupe.",
+      "updateError": "Erreur lors de la mise à jour du groupe.",
+      "deleteError": "Erreur lors de la suppression du groupe.",
+      "membersLoadError": "Impossible de charger les membres.",
+      "memberAddError": "Erreur lors de l'ajout du membre.",
+      "memberRemoveError": "Erreur lors du retrait du membre.",
+      "genericError": "Une erreur est survenue."
+    },
+    "empty": {
+      "title": "Aucun groupe",
+      "description": "Aucun groupe ne correspond à votre recherche.",
+      "noGroups": "Vous n'avez pas encore créé de groupe.",
+      "action": "Créer le premier groupe"
+    },
+    "confirm": {
+      "deleteTitle": "Supprimer ce groupe ?",
+      "deleteMessage": "Voulez-vous vraiment supprimer le groupe \"{{name}}\" ? Cette action est irréversible.",
+      "removeMemberMessage": "Retirer ce membre du groupe ?"
+    }
+  },
+  "validation": {
+    "nameRequired": "Le nom du groupe est requis.",
+    "nameTooShort": "Le nom doit contenir au moins 2 caractères.",
+    "nameTooLong": "Le nom ne peut pas dépasser 100 caractères."
+  },
+  "states": {
+    "loading": "Chargement des groupes...",
+    "saving": "Enregistrement...",
+    "deleting": "Suppression...",
+    "addingMember": "Ajout en cours..."
+  },
+  "aria": {
+    "editGroup": "Modifier le groupe {{name}}",
+    "deleteGroup": "Supprimer le groupe {{name}}",
+    "viewMembers": "Voir les membres du groupe {{name}}"
+  }
+}

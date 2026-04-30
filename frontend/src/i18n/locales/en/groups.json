@@ -1,0 +1,90 @@
+{
+  "page": {
+    "title": "Groups",
+    "description": "Manage your club's member groups"
+  },
+  "fields": {
+    "name": "Group name",
+    "description": "Description",
+    "memberCount": "{{count}} member",
+    "memberCount_plural": "{{count}} members",
+    "createdAt": "Created on"
+  },
+  "actions": {
+    "create": "New group",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "confirm": "Confirm",
+    "addMember": "Add member",
+    "removeMember": "Remove",
+    "viewMembers": "View members",
+    "refresh": "Refresh"
+  },
+  "modal": {
+    "createTitle": "New group",
+    "createSubtitle": "Create a new member group",
+    "editTitle": "Edit group",
+    "editSubtitle": "Update the group information",
+    "deleteTitle": "Delete group",
+    "membersTitle": "Group members",
+    "membersSubtitle": "{{name}} — {{count}} member",
+    "membersSubtitle_plural": "{{name}} — {{count}} members"
+  },
+  "placeholders": {
+    "name": "E.g. Advanced adult class",
+    "description": "Optional group description...",
+    "search": "Search groups...",
+    "userId": "User ID"
+  },
+  "messages": {
+    "success": {
+      "created": "Group created",
+      "createdDescription": "Group \"{{name}}\" has been successfully created.",
+      "updated": "Group updated",
+      "updatedDescription": "Group \"{{name}}\" has been updated.",
+      "deleted": "Group deleted",
+      "deletedDescription": "The group has been successfully deleted.",
+      "memberAdded": "Member added to the group.",
+      "memberRemoved": "Member removed from the group."
+    },
+    "error": {
+      "loadError": "Failed to load groups.",
+      "createError": "Error creating group.",
+      "updateError": "Error updating group.",
+      "deleteError": "Error deleting group.",
+      "membersLoadError": "Failed to load members.",
+      "memberAddError": "Error adding member.",
+      "memberRemoveError": "Error removing member.",
+      "genericError": "An unexpected error occurred."
+    },
+    "empty": {
+      "title": "No groups",
+      "description": "No groups match your search.",
+      "noGroups": "You haven't created any groups yet.",
+      "action": "Create the first group"
+    },
+    "confirm": {
+      "deleteTitle": "Delete this group?",
+      "deleteMessage": "Are you sure you want to delete the group \"{{name}}\"? This action cannot be undone.",
+      "removeMemberMessage": "Remove this member from the group?"
+    }
+  },
+  "validation": {
+    "nameRequired": "Group name is required.",
+    "nameTooShort": "Name must be at least 2 characters.",
+    "nameTooLong": "Name cannot exceed 100 characters."
+  },
+  "states": {
+    "loading": "Loading groups...",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "addingMember": "Adding..."
+  },
+  "aria": {
+    "editGroup": "Edit group {{name}}",
+    "deleteGroup": "Delete group {{name}}",
+    "viewMembers": "View members of group {{name}}"
+  }
+}
