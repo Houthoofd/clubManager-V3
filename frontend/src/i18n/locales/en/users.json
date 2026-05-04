@@ -176,5 +176,23 @@
       "firstNameMin": "First name must be at least 2 characters",
       "lastNameMin": "Last name must be at least 2 characters"
     }
+  },
+  "deleted": {
+    "title": "Deleted Users",
+    "description": "List of soft-deleted accounts — restore or GDPR anonymization",
+    "backToUsers": "Back to Users",
+    "noDeleted": "No deleted users",
+    "deletedAt": "Deleted at",
+    "deletedBy": "Deleted by",
+    "deletionReason": "Reason",
+    "restore": "Restore",
+    "anonymize": "Anonymize (GDPR)",
+    "anonymizeTitle": "Anonymize this user?",
+    "anonymizeWarning": "This action is irreversible. All personal data (name, email, phone, address) will be permanently erased in compliance with GDPR.",
+    "anonymizeConfirm": "Confirm anonymization",
+    "userRestored": "User restored successfully",
+    "userAnonymized": "User anonymized (GDPR)",
+    "loadError": "Unable to load deleted users",
+    "viewDeletedUsers": "Deleted users"
   }
 }

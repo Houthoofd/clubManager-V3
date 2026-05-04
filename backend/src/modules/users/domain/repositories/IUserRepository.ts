@@ -43,6 +43,24 @@ export interface UserProfileDto {
   status: { id: number; nom: string };
 }
 
+export interface DeletedUserDto {
+  id: number;
+  userId: string;
+  first_name: string;
+  last_name: string;
+  nom_utilisateur: string | null;
+  email: string;
+  email_verified: boolean;
+  active: boolean;
+  status_id: number;
+  role_app: string | undefined;
+  langue_preferee: string | undefined;
+  date_inscription: string;
+  deleted_at: string;
+  deleted_by: number | null;
+  deletion_reason: string | null;
+}
+
 export interface IUserRepository {
   findAll(query: GetUsersQueryDto): Promise<PaginatedUsersResponseDto>;
   findById(id: number): Promise<User | null>;
@@ -56,4 +74,6 @@ export interface IUserRepository {
   ): Promise<UserProfileDto>;
   softDelete(id: number, deletedBy: number, reason: string): Promise<void>;
   restore(id: number): Promise<void>;
+  findDeleted(): Promise<DeletedUserDto[]>;
+  anonymize(id: number): Promise<void>;
 }

@@ -6,9 +6,15 @@
 import apiClient, { type ApiResponse } from "../../../shared/api/apiClient";
 import type { UserListItemDto } from "@clubmanager/types";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────────────────────────────
 
 export type { UserListItemDto };
+
+export interface DeletedUserDto extends UserListItemDto {
+  deleted_at: string;
+  deleted_by: number | null;
+  deletion_reason: string | null;
+}
 
 export interface GetUsersParams {
   page?: number;
@@ -98,6 +104,22 @@ export const deleteUser = async (id: number, reason: string): Promise<void> => {
  */
 export const restoreUser = async (id: number): Promise<void> => {
   await apiClient.post(`/users/${id}/restore`);
+};
+
+/**
+ * Récupère la liste des utilisateurs supprimés (soft delete, non anonymisés)
+ */
+export const getDeletedUsers = async (): Promise<DeletedUserDto[]> => {
+  const res =
+    await apiClient.get<ApiResponse<DeletedUserDto[]>>("/users/deleted");
+  return res.data.data!;
+};
+
+/**
+ * Anonymise définitivement un utilisateur (RGPD)
+ */
+export const anonymizeUser = async (id: number): Promise<void> => {
+  await apiClient.post(`/users/${id}/anonymize`);
 };
 
 /**

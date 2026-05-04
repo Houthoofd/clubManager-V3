@@ -34,7 +34,11 @@ import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 import { RecoveryRequestPage } from "./features/auth/pages/RecoveryRequestPage";
 import { FamilyPage } from "./features/families/pages";
-import { UsersPage, ProfilePage } from "./features/users/pages";
+import {
+  UsersPage,
+  ProfilePage,
+  DeletedUsersPage,
+} from "./features/users/pages";
 import { MessagesPage } from "./features/messaging/pages";
 import { SettingsPage } from "./features/settings/pages";
 import { PaymentsPage } from "./features/payments/pages";
@@ -210,6 +214,14 @@ function App() {
                   ]}
                 >
                   <MyCoursesPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/users/deleted"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                  <DeletedUsersPage />
                 </RoleGuard>
               }
             />
