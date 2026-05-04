@@ -1,0 +1,105 @@
+{
+  "page": {
+    "title": "Message templates",
+    "description": "Manage your personalized message templates"
+  },
+  "types": {
+    "title": "Template types",
+    "noTypes": "No types created",
+    "createType": "New type",
+    "editType": "Edit type",
+    "deleteType": "Delete",
+    "allTemplates": "All templates",
+    "templatesCount": "{{count}} template",
+    "templatesCount_plural": "{{count}} templates"
+  },
+  "list": {
+    "title": "Templates",
+    "newTemplate": "New template",
+    "noTemplates": "No templates found",
+    "filterAll": "All",
+    "filterActive": "Active",
+    "filterInactive": "Inactive"
+  },
+  "fields": {
+    "titre": "Title",
+    "contenu": "Content",
+    "type": "Type",
+    "active": "Active",
+    "inactive": "Inactive",
+    "variables": "Variables",
+    "createdAt": "Created at",
+    "noVariables": "No variables"
+  },
+  "actions": {
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "toggle": "Toggle active",
+    "preview": "Preview",
+    "send": "Send",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "close": "Close"
+  },
+  "modal": {
+    "createTypeTitle": "New template type",
+    "editTypeTitle": "Edit type",
+    "createTemplateTitle": "New template",
+    "editTemplateTitle": "Edit template",
+    "previewTitle": "Template preview",
+    "sendTitle": "Send from template",
+    "deleteTypeTitle": "Delete type?",
+    "deleteTemplateTitle": "Delete template?"
+  },
+  "form": {
+    "typeName": "Type name",
+    "typeDescription": "Description",
+    "typeNamePlaceholder": "E.g.: Welcome, Payment reminder...",
+    "typeDescriptionPlaceholder": "Optional description...",
+    "templateTitle": "Template title",
+    "templateTitlePlaceholder": "E.g.: Welcome to the club",
+    "templateContent": "Content",
+    "templateContentPlaceholder": "Hello {{prenom}}, ...",
+    "templateType": "Template type",
+    "selectType": "Select a type...",
+    "activeTemplate": "Active template",
+    "variablesHelp": "Use {{variable}} to insert dynamic variables.",
+    "recipientId": "Recipient ID",
+    "sendByEmail": "Send by email"
+  },
+  "preview": {
+    "variablesToFill": "Variables to fill",
+    "variablePlaceholder": "Value for {{variable}}",
+    "renderedContent": "Rendered preview",
+    "generatePreview": "Generate preview"
+  },
+  "messages": {
+    "typeCreated": "Type created successfully",
+    "typeUpdated": "Type updated",
+    "typeDeleted": "Type deleted",
+    "templateCreated": "Template created successfully",
+    "templateUpdated": "Template updated",
+    "templateDeleted": "Template deleted",
+    "templateActivated": "Template activated",
+    "templateDeactivated": "Template deactivated",
+    "messageSent": "Message sent successfully",
+    "loadError": "Error loading templates",
+    "deleteTypeConfirm": "Are you sure you want to delete this type? All associated templates will be deleted.",
+    "deleteTemplateConfirm": "Are you sure you want to delete this template?"
+  },
+  "validation": {
+    "typeNameRequired": "Type name is required.",
+    "titleRequired": "Title is required.",
+    "contentRequired": "Content is required.",
+    "typeRequired": "Type is required.",
+    "recipientRequired": "Recipient ID is required."
+  },
+  "states": {
+    "loading": "Loading templates...",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "sending": "Sending..."
+  }
+}

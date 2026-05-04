@@ -50,6 +50,7 @@ import { NotificationsPage } from "./features/notifications/pages";
 import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
 import { GroupsPage } from "./features/groups/pages";
 import { ReservationsPage } from "./features/reservations/pages";
+import { TemplatesPage } from "./features/templates/pages";
 
 /**
  * AuthenticatedLayout Component
@@ -273,6 +274,14 @@ function App() {
                   ]}
                 >
                   <ReservationsPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/templates"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.PROFESSOR]}>
+                  <TemplatesPage />
                 </RoleGuard>
               }
             />
