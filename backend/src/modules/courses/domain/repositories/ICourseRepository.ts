@@ -119,6 +119,7 @@ export interface ICourseRepository {
    * Met à jour un professeur existant
    */
   updateProfessor(dto: UpdateProfessorDto): Promise<ProfessorResponseDto>;
+  deleteProfessor(id: number): Promise<void>;
 
   // ==================== COURS (INSTANCES) ====================
 

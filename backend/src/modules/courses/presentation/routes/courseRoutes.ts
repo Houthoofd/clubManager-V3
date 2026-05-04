@@ -39,16 +39,22 @@ router.get(
   (req, res) => ctrl.getProfessors(req as any, res),
 );
 
-router.post(
-  "/professors",
-  requireRole(UserRole.ADMIN),
-  (req, res) => ctrl.createProfessor(req as any, res),
+router.post("/professors", requireRole(UserRole.ADMIN), (req, res) =>
+  ctrl.createProfessor(req as any, res),
 );
 
-router.put(
+router.put("/professors/:id", requireRole(UserRole.ADMIN), (req, res) =>
+  ctrl.updateProfessor(req as any, res),
+);
+
+router.get(
   "/professors/:id",
-  requireRole(UserRole.ADMIN),
-  (req, res) => ctrl.updateProfessor(req as any, res),
+  requireRole(UserRole.ADMIN, UserRole.PROFESSOR),
+  (req, res) => ctrl.getProfessorById(req as any, res),
+);
+
+router.delete("/professors/:id", requireRole(UserRole.ADMIN), (req, res) =>
+  ctrl.deleteProfessor(req as any, res),
 );
 
 // --- Sessions list (must be before /:id) ---
@@ -60,16 +66,12 @@ router.get(
 
 // POST /sessions/generate must be declared before POST /sessions
 // so that a body sent to /sessions/generate is not misrouted.
-router.post(
-  "/sessions/generate",
-  requireRole(UserRole.ADMIN),
-  (req, res) => ctrl.generateCourses(req as any, res),
+router.post("/sessions/generate", requireRole(UserRole.ADMIN), (req, res) =>
+  ctrl.generateCourses(req as any, res),
 );
 
-router.post(
-  "/sessions",
-  requireRole(UserRole.ADMIN),
-  (req, res) => ctrl.createCourse(req as any, res),
+router.post("/sessions", requireRole(UserRole.ADMIN), (req, res) =>
+  ctrl.createCourse(req as any, res),
 );
 
 // --- Sessions parameterised paths ---
@@ -110,10 +112,8 @@ router.delete(
 // These must come last — /:id would otherwise shadow every fixed
 // path segment defined above.
 
-router.post(
-  "/",
-  requireRole(UserRole.ADMIN),
-  (req, res) => ctrl.createCourseRecurrent(req as any, res),
+router.post("/", requireRole(UserRole.ADMIN), (req, res) =>
+  ctrl.createCourseRecurrent(req as any, res),
 );
 
 router.get(
@@ -122,16 +122,12 @@ router.get(
   (req, res) => ctrl.getCourseRecurrentById(req as any, res),
 );
 
-router.put(
-  "/:id",
-  requireRole(UserRole.ADMIN),
-  (req, res) => ctrl.updateCourseRecurrent(req as any, res),
+router.put("/:id", requireRole(UserRole.ADMIN), (req, res) =>
+  ctrl.updateCourseRecurrent(req as any, res),
 );
 
-router.delete(
-  "/:id",
-  requireRole(UserRole.ADMIN),
-  (req, res) => ctrl.deleteCourseRecurrent(req as any, res),
+router.delete("/:id", requireRole(UserRole.ADMIN), (req, res) =>
+  ctrl.deleteCourseRecurrent(req as any, res),
 );
 
 export default router;

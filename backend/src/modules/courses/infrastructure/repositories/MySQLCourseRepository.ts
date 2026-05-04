@@ -755,6 +755,19 @@ export class MySQLCourseRepository implements ICourseRepository {
     return result;
   }
 
+  async deleteProfessor(id: number): Promise<void> {
+    // Retire d'abord toutes les assignations cours_recurrent_professeur
+    await pool.query(
+      `DELETE FROM cours_recurrent_professeur WHERE professeur_id = ?`,
+      [id],
+    );
+    const [result] = await pool.query<ResultSetHeader>(
+      `DELETE FROM professeurs WHERE id = ?`,
+      [id],
+    );
+    if (result.affectedRows === 0) throw new Error("Professeur introuvable");
+  }
+
   // ==================== COURS (INSTANCES) ====================
 
   /**
