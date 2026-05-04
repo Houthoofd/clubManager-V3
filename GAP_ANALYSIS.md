@@ -2,6 +2,7 @@
 **Database schema vs. Backend implementation vs. Frontend features**
 
 > **Generated:** 2025  
+> **Last updated:** 2025 — Sprint 1 completed (GAP-02, GAP-07 backend, GAP-08)  
 > **Schema version:** v4.4 (43 tables)  
 > **Author:** Benoit Houthoofd (TFE project)
 
@@ -55,9 +56,9 @@ Legend: ✅ Backend implemented | ⚠️ Partial | ❌ Not implemented
 |---|---|---|---|
 | `cours_recurrent` | Weekly recurring course schedule (planning template) | `id`, `type_cours`, `jour_semaine`, `heure_debut`, `heure_fin`, `active` | ✅ Full CRUD via `courses` module |
 | `cours` | Concrete course instances (realized sessions) | `id`, `cours_recurrent_id`, `date_cours`, `type_cours`, `heure_debut`, `heure_fin` | ✅ Full CRUD + generation via `courses` module |
-| `professeurs` | Instructors (separate entity from users) | `id`, `nom`, `prenom`, `email`, `specialite`, `grade_id`, `actif` | ⚠️ GET list, POST, PUT/:id — missing GET/:id and DELETE/:id |
+| `professeurs` | Instructors (separate entity from users) | `id`, `nom`, `prenom`, `email`, `specialite`, `grade_id`, `actif` | ✅ Full CRUD — GET list, GET/:id, POST, PUT/:id, DELETE/:id |
 | `cours_recurrent_professeur` | Many-to-many: recurring courses ↔ professors | `cours_recurrent_id`, `professeur_id` | ⚠️ Managed implicitly through course creation/update — no dedicated endpoint |
-| `inscriptions` | User enrollments in specific course sessions | `user_id`, `cours_id`, `status_id`, `commentaire` | ✅ Create, list per session, delete — no "my enrollments" |
+| `inscriptions` | User enrollments in specific course sessions | `user_id`, `cours_id`, `status_id`, `commentaire` | ✅ Create, list per session, delete — `GET /sessions/my-enrollments` added |
 | `reservations` | User reservations for upcoming sessions | `user_id`, `cours_id`, `statut` (`confirmee`/`annulee`/`en_attente`) | ✅ Full CRUD + cancel via `reservations` module |
 
 ---
@@ -175,9 +176,12 @@ Legend: ✅ Backend implemented | ⚠️ Partial | ❌ Not implemented
 | GET | `/professors` | Admin + Professor | ✅ List professors |
 | POST | `/professors` | Admin | ✅ Create professor |
 | PUT | `/professors/:id` | Admin | ✅ Update professor |
+| GET | `/professors/:id` | Admin + Professor | ✅ Get professor by ID |
+| DELETE | `/professors/:id` | Admin | ✅ Delete professor |
 | GET | `/sessions` | Auth (all roles) | ✅ List course instances |
 | POST | `/sessions` | Admin | ✅ Create session |
 | POST | `/sessions/generate` | Admin | ✅ Auto-generate sessions |
+| GET | `/sessions/my-enrollments` | Auth (all roles) | ✅ Member's own enrollment history |
 | GET | `/sessions/:id` | Auth (all roles) | ✅ Get session |
 | GET | `/sessions/:id/inscriptions` | Admin + Professor | ✅ List enrollments |
 | POST | `/sessions/:id/inscriptions` | Admin + Professor | ✅ Create enrollment |
@@ -185,9 +189,6 @@ Legend: ✅ Backend implemented | ⚠️ Partial | ❌ Not implemented
 | DELETE | `/inscriptions/:inscriptionId` | Admin + Professor | ✅ Delete enrollment |
 
 **Missing endpoints:**
-- `GET /professors/:id` — Cannot fetch a single professor by ID
-- `DELETE /professors/:id` — Cannot deactivate/delete a professor
-- `GET /sessions/my-enrollments` — Members have no dedicated endpoint for their own course history
 - `GET /sessions/:id/presence` — Cannot fetch the current attendance sheet (GET, as opposed to PATCH)
 - No attendance export (CSV/PDF generation)
 - No link between `professeurs` table and `utilisateurs` table (professors are a separate entity not tied to user accounts)
@@ -321,11 +322,11 @@ Legend: ✅ Backend implemented | ⚠️ Partial | ❌ Not implemented
 
 | Method | Route | Access | Status |
 |---|---|---|---|
+| POST | `/public` | **Public (no auth)** | ✅ Submit manual recovery request |
 | GET | `/` | Admin only | ✅ List recovery requests (paginated, filterable by status) |
 | PATCH | `/:id` | Admin only | ✅ Process request (approve/reject) |
 
-**Missing endpoints:**
-- `POST /request` (public) — **Critical:** Users have no way to submit a recovery request from the app. The admin can manage them but there is no public-facing submission endpoint. This breaks the recovery user flow entirely.
+**Status:** ✅ Fully implemented — public submission + admin management both complete.
 
 ---
 
@@ -507,9 +508,9 @@ This entire domain has no backend module whatsoever. Required endpoints would in
 | `ForgotPasswordPage.tsx` | Request password reset email | ✅ |
 | `ResetPasswordPage.tsx` | Set new password from token | ✅ |
 | `EmailVerificationPage.tsx` | Confirm email via token | ✅ |
+| `RecoveryRequestPage.tsx` | Public form to submit a manual recovery request | ✅ |
 
 **Missing pages:**
-- No `RecoveryRequestPage` — Users have no UI to submit a manual recovery request
 - No `ChangeEmailPage` — No flow to change email address
 - No `ActiveSessionsPage` — No page to see and revoke active sessions
 
@@ -523,7 +524,7 @@ This entire domain has no backend module whatsoever. Required endpoints would in
 | `CoursesPage.tsx` | Single tabbed page — Planning (recurring), Sessions (instances), Attendance sheet | ✅ Admin/Prof view |
 
 **Missing pages:**
-- No `MyCoursesPage` / `MemberCoursesPage` — Members have no dedicated page to view their own enrollments and attendance history
+- No `MyCoursesPage` / `MemberCoursesPage` — Backend endpoint `GET /sessions/my-enrollments` is ✅ implemented — **frontend page still pending (GAP-07)**
 - No `CourseDetailPage` — No full-screen course detail/session view
 - No dedicated professor management page (embedded in CoursesPage tabs but not a standalone CRUD UI)
 
@@ -671,7 +672,6 @@ This entire domain has no backend module whatsoever. Required endpoints would in
 |---|---|---|
 | `alerts` | ❌ None | Entire alerts system missing from both backend and frontend |
 | `templates` | ✅ Complete | Backend is built — no frontend UI exists to manage templates |
-| `recovery` (user-side) | ⚠️ Admin-only | No page for a user to submit a manual recovery request |
 
 ---
 
@@ -694,14 +694,14 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-02: Recovery Request — Missing Public Submission Endpoint
+#### ~~GAP-02: Recovery Request — Missing Public Submission Endpoint~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `manual_recovery_requests` |
-| **Backend work** | Add `POST /api/recovery/request` (public, rate-limited) — users submit their email + reason to request manual account recovery. |
-| **Frontend work** | Add `RecoveryRequestPage` in `auth` feature with form. Link from `LoginPage`. |
-| **Complexity** | 🟡 **Small** — The admin-side already exists; only the public submission endpoint + one page is missing. |
+| **Backend work** | ✅ `POST /api/recovery/public` (public, no auth) — merged in `feature/gap02-recovery-public-submit` |
+| **Frontend work** | ✅ `RecoveryRequestPage` created in `auth` feature, route `/recovery-request` added |
+| **Completed** | Sprint 1 — `feature/gap02-recovery-public-submit` |
 
 ---
 
@@ -751,27 +751,27 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-07: Member Courses View (My Enrollments)
+#### GAP-07: Member Courses View (My Enrollments) — ⚠️ BACKEND DONE / FRONTEND PENDING
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `inscriptions`, `cours`, `cours_recurrent` |
-| **Backend work** | Add `GET /api/courses/sessions/my-enrollments` (member: own enrollment history with attendance status). |
-| **Frontend work** | Add `MyCoursesPage` in `courses` feature (member view: upcoming sessions they're enrolled in, past attendance history). |
-| **Complexity** | 🟡 **Small** — Backend: 1 query. Frontend: 1 new page component. |
+| **Backend work** | ✅ `GET /api/courses/sessions/my-enrollments` — merged in `feature/gap07-courses-my-enrollments` |
+| **Frontend work** | ⏳ `MyCoursesPage` still needed in `courses` feature (member view: upcoming sessions, past attendance history) |
+| **Complexity remaining** | 🟢 **Small** — Backend done; 1 frontend page left |
 
 ---
 
 ### 🟡 MEDIUM PRIORITY — Missing but Non-Blocking
 
-#### GAP-08: Professors — Incomplete CRUD
+#### ~~GAP-08: Professors — Incomplete CRUD~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `professeurs`, `cours_recurrent_professeur` |
-| **Backend work** | Add `GET /api/courses/professors/:id`. Add `DELETE /api/courses/professors/:id`. |
-| **Frontend work** | Enhance the existing Professors tab in `CoursesPage` to support individual professor detail view and deletion. |
-| **Complexity** | 🟢 **Small** — 2 missing route handlers; minimal UI changes. |
+| **Backend work** | ✅ `GET /professors/:id` + `DELETE /professors/:id` — merged in `feature/gap08-professors-complete-crud` |
+| **Frontend work** | ⏳ Professors tab in `CoursesPage` not yet updated to show delete button — minor UI enhancement pending |
+| **Completed** | Sprint 1 — `feature/gap08-professors-complete-crud` |
 
 ---
 
@@ -902,9 +902,9 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 | Domain | Backend | Frontend | Overall |
 |---|---|---|---|
-| Authentication / Security | ✅ ~85% | ✅ ~80% | ⚠️ 82% |
+| Authentication / Security | ✅ ~90% | ✅ ~85% | ⚠️ 87% |
 | Users & Profiles | ✅ ~80% | ✅ ~85% | ⚠️ 82% |
-| Courses & Attendance | ✅ ~88% | ⚠️ ~65% | ⚠️ 76% |
+| Courses & Attendance | ✅ ~95% | ⚠️ ~65% | ⚠️ 80% |
 | Payments & Subscriptions | ✅ ~80% | ⚠️ ~60% | ⚠️ 70% |
 | Store (E-commerce) | ✅ 100% | ✅ 100% | ✅ 100% |
 | Messaging | ✅ ~85% | ✅ ~80% | ✅ 82% |
@@ -915,7 +915,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | Statistics | ✅ ~90% | ✅ 100% | ✅ 95% |
 | Settings | ✅ 100% | ✅ 100% | ✅ 100% |
 | Templates | ✅ 100% | ❌ **0%** | ⚠️ 50% |
-| Recovery | ⚠️ ~50% | ❌ **0%** | ⚠️ 25% |
+| Recovery | ✅ **100%** | ✅ **100%** | ✅ **100%** |
 | References | ✅ 100% | n/a | ✅ 100% |
 | Grades | ✅ 100% | ✅ (via Settings) | ✅ 95% |
 
@@ -923,24 +923,26 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ## Recommended Development Order (TFE Sprint Plan)
 
-| Sprint | Priority | Gap IDs | Estimated Effort |
-|---|---|---|---|
-| Sprint 1 | 🔴 Critical | GAP-02 (recovery submission) | 0.5 day |
-| Sprint 1 | 🔴 Critical | GAP-07 (member courses page) | 1 day |
-| Sprint 1 | 🔴 Critical | GAP-08 (professor CRUD) | 0.5 day |
-| Sprint 2 | 🟠 High | GAP-03 (templates frontend) | 3 days |
-| Sprint 2 | 🟠 High | GAP-04 (GDPR/soft delete page) | 2 days |
-| Sprint 3 | 🟠 High | GAP-05 (member payments + Stripe) | 3 days |
-| Sprint 3 | 🟡 Medium | GAP-13 (subscription assignment) | 0.5 day |
-| Sprint 3 | 🟡 Medium | GAP-12 (schedule generation) | 1 day |
-| Sprint 4 | 🟠 High | GAP-06 (families admin) | 2 days |
-| Sprint 4 | 🟡 Medium | GAP-09+10 (notification admin) | 1 day |
-| Sprint 5 | 🔴 Critical | GAP-01 (alerts system — full) | 5–7 days |
-| Sprint 6 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days |
-| Sprint 6 | 🟡 Medium | GAP-14 (security audit logs) | 1 day |
-| Sprint 7 | 🟢 Low | GAP-15 to GAP-19 (polish) | 3–4 days |
+| Sprint | Priority | Gap IDs | Estimated Effort | Status |
+|---|---|---|---|---|
+| **Sprint 1** | 🔴 Critical | GAP-02 (recovery submission) | 0.5 day | ✅ Done |
+| **Sprint 1** | 🔴 Critical | GAP-07 (member courses — backend) | 0.5 day | ✅ Done |
+| **Sprint 1** | 🟡 Medium | GAP-08 (professor CRUD) | 0.5 day | ✅ Done |
+| Sprint 2 | 🟠 High | GAP-03 (templates frontend) | 3 days | ⏳ Next |
+| Sprint 2 | 🟠 High | GAP-04 (GDPR/soft delete page) | 2 days | ⏳ Next |
+| Sprint 2 | 🟢 Small | GAP-07 frontend (MyCoursesPage) | 1 day | ⏳ Next |
+| Sprint 3 | 🟠 High | GAP-05 (member payments + Stripe) | 3 days | ⏳ |
+| Sprint 3 | 🟡 Medium | GAP-13 (subscription assignment) | 0.5 day | ⏳ |
+| Sprint 3 | 🟡 Medium | GAP-12 (schedule generation) | 1 day | ⏳ |
+| Sprint 4 | 🟠 High | GAP-06 (families admin) | 2 days | ⏳ |
+| Sprint 4 | 🟡 Medium | GAP-09+10 (notification admin) | 1 day | ⏳ |
+| Sprint 5 | 🔴 Critical | GAP-01 (alerts system — full) | 5–7 days | ⏳ |
+| Sprint 6 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days | ⏳ |
+| Sprint 6 | 🟡 Medium | GAP-14 (security audit logs) | 1 day | ⏳ |
+| Sprint 7 | 🟢 Low | GAP-15 to GAP-19 (polish) | 3–4 days | ⏳ |
 
-**Total estimated remaining work: ~27–30 developer days**
+**Completed Sprint 1:** 1.5 developer days — 3 gaps closed (GAP-02 ✅, GAP-07 backend ✅, GAP-08 ✅)  
+**Total estimated remaining work: ~25–28 developer days**
 
 ---
 
