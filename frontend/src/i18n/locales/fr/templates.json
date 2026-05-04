@@ -1,0 +1,105 @@
+{
+  "page": {
+    "title": "Modèles de messages",
+    "description": "Gérez vos modèles de messages personnalisés"
+  },
+  "types": {
+    "title": "Types de modèles",
+    "noTypes": "Aucun type créé",
+    "createType": "Nouveau type",
+    "editType": "Modifier le type",
+    "deleteType": "Supprimer",
+    "allTemplates": "Tous les modèles",
+    "templatesCount": "{{count}} modèle",
+    "templatesCount_plural": "{{count}} modèles"
+  },
+  "list": {
+    "title": "Modèles",
+    "newTemplate": "Nouveau modèle",
+    "noTemplates": "Aucun modèle trouvé",
+    "filterAll": "Tous",
+    "filterActive": "Actifs",
+    "filterInactive": "Inactifs"
+  },
+  "fields": {
+    "titre": "Titre",
+    "contenu": "Contenu",
+    "type": "Type",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "variables": "Variables",
+    "createdAt": "Créé le",
+    "noVariables": "Aucune variable"
+  },
+  "actions": {
+    "create": "Créer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "toggle": "Activer/Désactiver",
+    "preview": "Aperçu",
+    "send": "Envoyer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "close": "Fermer"
+  },
+  "modal": {
+    "createTypeTitle": "Nouveau type de modèle",
+    "editTypeTitle": "Modifier le type",
+    "createTemplateTitle": "Nouveau modèle",
+    "editTemplateTitle": "Modifier le modèle",
+    "previewTitle": "Aperçu du modèle",
+    "sendTitle": "Envoyer depuis un modèle",
+    "deleteTypeTitle": "Supprimer le type ?",
+    "deleteTemplateTitle": "Supprimer le modèle ?"
+  },
+  "form": {
+    "typeName": "Nom du type",
+    "typeDescription": "Description",
+    "typeNamePlaceholder": "Ex : Bienvenue, Rappel paiement...",
+    "typeDescriptionPlaceholder": "Description optionnelle...",
+    "templateTitle": "Titre du modèle",
+    "templateTitlePlaceholder": "Ex : Bienvenue au club",
+    "templateContent": "Contenu",
+    "templateContentPlaceholder": "Bonjour {{prenom}}, ...",
+    "templateType": "Type de modèle",
+    "selectType": "Sélectionner un type...",
+    "activeTemplate": "Modèle actif",
+    "variablesHelp": "Utilisez {{variable}} pour insérer des variables dynamiques.",
+    "recipientId": "ID du destinataire",
+    "sendByEmail": "Envoyer par email"
+  },
+  "preview": {
+    "variablesToFill": "Variables à remplir",
+    "variablePlaceholder": "Valeur pour {{variable}}",
+    "renderedContent": "Aperçu rendu",
+    "generatePreview": "Générer l'aperçu"
+  },
+  "messages": {
+    "typeCreated": "Type créé avec succès",
+    "typeUpdated": "Type mis à jour",
+    "typeDeleted": "Type supprimé",
+    "templateCreated": "Modèle créé avec succès",
+    "templateUpdated": "Modèle mis à jour",
+    "templateDeleted": "Modèle supprimé",
+    "templateActivated": "Modèle activé",
+    "templateDeactivated": "Modèle désactivé",
+    "messageSent": "Message envoyé avec succès",
+    "loadError": "Erreur de chargement des modèles",
+    "deleteTypeConfirm": "Voulez-vous vraiment supprimer ce type ? Tous les modèles associés seront supprimés.",
+    "deleteTemplateConfirm": "Voulez-vous vraiment supprimer ce modèle ?"
+  },
+  "validation": {
+    "typeNameRequired": "Le nom du type est requis.",
+    "titleRequired": "Le titre est requis.",
+    "contentRequired": "Le contenu est requis.",
+    "typeRequired": "Le type est requis.",
+    "recipientRequired": "L'ID du destinataire est requis."
+  },
+  "states": {
+    "loading": "Chargement des modèles...",
+    "saving": "Enregistrement...",
+    "deleting": "Suppression...",
+    "sending": "Envoi en cours..."
+  }
+}

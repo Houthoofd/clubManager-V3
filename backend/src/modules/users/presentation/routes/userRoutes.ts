@@ -27,7 +27,13 @@ router.post(
   (req, res) => ctrl.notifyBulk(req as any, res),
 );
 
-// ── Routes paramétrées /:id ───────────────────────────────────────────────────
+// GET /api/users/deleted — admin seulement : liste des utilisateurs supprimés (soft delete)
+// ⚠️ DOIT être déclaré avant /:id pour ne pas être capturé comme un paramètre
+router.get("/deleted", requireRole(UserRole.ADMIN), (req, res) =>
+  ctrl.getDeletedUsers(req as any, res),
+);
+
+// ── Routes paramétrées /:id ─────────────────────────────────────────────────────────
 
 // GET /api/users/:id — admin + professor
 router.get(
@@ -65,6 +71,11 @@ router.delete("/:id", requireRole(UserRole.ADMIN), (req, res) =>
 // POST /api/users/:id/restore — admin seulement
 router.post("/:id/restore", requireRole(UserRole.ADMIN), (req, res) =>
   ctrl.restore(req as any, res),
+);
+
+// POST /api/users/:id/anonymize — admin seulement : anonymisation RGPD
+router.post("/:id/anonymize", requireRole(UserRole.ADMIN), (req, res) =>
+  ctrl.anonymize(req as any, res),
 );
 
 export default router;

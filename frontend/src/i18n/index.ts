@@ -22,6 +22,7 @@ import usersFr from "./locales/fr/users.json";
 import dashboardFr from "./locales/fr/dashboard.json";
 import groupsFr from "./locales/fr/groups.json";
 import reservationsFr from "./locales/fr/reservations.json";
+import templatesFr from "./locales/fr/templates.json";
 
 // Import des traductions EN
 import commonEn from "./locales/en/common.json";
@@ -38,6 +39,7 @@ import usersEn from "./locales/en/users.json";
 import dashboardEn from "./locales/en/dashboard.json";
 import groupsEn from "./locales/en/groups.json";
 import reservationsEn from "./locales/en/reservations.json";
+import templatesEn from "./locales/en/templates.json";
 
 /**
  * Namespaces disponibles pour l'application
@@ -58,6 +60,7 @@ export const namespaces = [
   "dashboard", // Tableau de bord
   "groups", // Gestion des groupes
   "reservations", // Gestion des réservations
+  "templates", // Gestion des modèles de messages
 ] as const;
 
 /**
@@ -136,6 +139,7 @@ i18n
         dashboard: dashboardFr,
         groups: groupsFr,
         reservations: reservationsFr,
+        templates: templatesFr,
       },
       en: {
         common: commonEn,
@@ -152,6 +156,7 @@ i18n
         dashboard: dashboardEn,
         groups: groupsEn,
         reservations: reservationsEn,
+        templates: templatesEn,
       },
     },
 

@@ -34,7 +34,11 @@ import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 import { RecoveryRequestPage } from "./features/auth/pages/RecoveryRequestPage";
 import { FamilyPage } from "./features/families/pages";
-import { UsersPage, ProfilePage } from "./features/users/pages";
+import {
+  UsersPage,
+  ProfilePage,
+  DeletedUsersPage,
+} from "./features/users/pages";
 import { MessagesPage } from "./features/messaging/pages";
 import { SettingsPage } from "./features/settings/pages";
 import { PaymentsPage } from "./features/payments/pages";
@@ -46,6 +50,7 @@ import { NotificationsPage } from "./features/notifications/pages";
 import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
 import { GroupsPage } from "./features/groups/pages";
 import { ReservationsPage } from "./features/reservations/pages";
+import { TemplatesPage } from "./features/templates/pages";
 
 /**
  * AuthenticatedLayout Component
@@ -214,6 +219,14 @@ function App() {
               }
             />
             <Route
+              path="/users/deleted"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                  <DeletedUsersPage />
+                </RoleGuard>
+              }
+            />
+            <Route
               path="/users"
               element={
                 <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.PROFESSOR]}>
@@ -261,6 +274,14 @@ function App() {
                   ]}
                 >
                   <ReservationsPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/templates"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.PROFESSOR]}>
+                  <TemplatesPage />
                 </RoleGuard>
               }
             />

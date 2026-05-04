@@ -3,9 +3,10 @@
  * Store Zustand pour la gestion des utilisateurs (liste, filtres, pagination)
  */
 
-import { create } from 'zustand';
-import type { UserListItemDto } from '@clubmanager/types';
-import * as usersApi from '../api/usersApi';
+import { create } from "zustand";
+import type { UserListItemDto } from "@clubmanager/types";
+import * as usersApi from "../api/usersApi";
+import type { DeletedUserDto } from "../api/usersApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,14 +24,16 @@ interface Filters {
 }
 
 interface UserStore {
-  // ── État ──────────────────────────────────────────────────────────────────
+  // ── État ────────────────────────────────────────────────────────────────────────────
   users: UserListItemDto[];
   pagination: Pagination;
   filters: Filters;
   isLoading: boolean;
   error: string | null;
+  deletedUsers: DeletedUserDto[];
+  isLoadingDeleted: boolean;
 
-  // ── Actions ───────────────────────────────────────────────────────────────
+  // ── Actions ───────────────────────────────────────────────────────────────────────
   fetchUsers: () => Promise<void>;
   setFilter: (key: keyof Filters, value: string) => void;
   setPage: (page: number) => void;
@@ -39,6 +42,8 @@ interface UserStore {
   deleteUser: (id: number, reason: string) => Promise<void>;
   restoreUser: (id: number) => Promise<void>;
   clearError: () => void;
+  fetchDeletedUsers: () => Promise<void>;
+  anonymizeUser: (id: number) => Promise<void>;
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -47,9 +52,11 @@ export const useUserStore = create<UserStore>((set, get) => ({
   // ── État initial ──────────────────────────────────────────────────────────
   users: [],
   pagination: { total: 0, page: 1, limit: 20, totalPages: 0 },
-  filters: { search: '', role_app: '', status_id: '' },
+  filters: { search: "", role_app: "", status_id: "" },
   isLoading: false,
   error: null,
+  deletedUsers: [],
+  isLoadingDeleted: false,
 
   // ── fetchUsers ────────────────────────────────────────────────────────────
   fetchUsers: async () => {
@@ -73,7 +80,10 @@ export const useUserStore = create<UserStore>((set, get) => ({
     } catch (error: any) {
       set({
         isLoading: false,
-        error: error.response?.data?.message ?? error.message ?? 'Une erreur est survenue.',
+        error:
+          error.response?.data?.message ??
+          error.message ??
+          "Une erreur est survenue.",
       });
     }
   },
@@ -117,6 +127,24 @@ export const useUserStore = create<UserStore>((set, get) => ({
     await get().fetchUsers();
   },
 
-  // ── clearError ────────────────────────────────────────────────────────────
+  // ── clearError ──────────────────────────────────────────────────────────────────────────
   clearError: () => set({ error: null }),
+
+  // ── fetchDeletedUsers ─────────────────────────────────────────────────────────────────────
+  fetchDeletedUsers: async () => {
+    set({ isLoadingDeleted: true });
+    try {
+      const users = await usersApi.getDeletedUsers();
+      set({ deletedUsers: users, isLoadingDeleted: false });
+    } catch (error: any) {
+      set({ isLoadingDeleted: false });
+      throw error;
+    }
+  },
+
+  // ── anonymizeUser ──────────────────────────────────────────────────────────────────────────
+  anonymizeUser: async (id) => {
+    await usersApi.anonymizeUser(id);
+    await get().fetchDeletedUsers();
+  },
 }));
