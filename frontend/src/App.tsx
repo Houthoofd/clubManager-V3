@@ -42,6 +42,7 @@ import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
 import { NotificationsPage } from "./features/notifications/pages";
 import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
 import { GroupsPage } from "./features/groups/pages";
+import { ReservationsPage } from "./features/reservations/pages";
 
 /**
  * AuthenticatedLayout Component
@@ -203,6 +204,20 @@ function App() {
               element={
                 <RoleGuard allowedRoles={[UserRole.ADMIN]}>
                   <GroupsPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/reservations"
+              element={
+                <RoleGuard
+                  allowedRoles={[
+                    UserRole.ADMIN,
+                    UserRole.PROFESSOR,
+                    UserRole.MEMBER,
+                  ]}
+                >
+                  <ReservationsPage />
                 </RoleGuard>
               }
             />

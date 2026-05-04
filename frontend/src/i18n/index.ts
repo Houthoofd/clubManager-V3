@@ -21,6 +21,7 @@ import familiesFr from "./locales/fr/families.json";
 import usersFr from "./locales/fr/users.json";
 import dashboardFr from "./locales/fr/dashboard.json";
 import groupsFr from "./locales/fr/groups.json";
+import reservationsFr from "./locales/fr/reservations.json";
 
 // Import des traductions EN
 import commonEn from "./locales/en/common.json";
@@ -36,6 +37,7 @@ import familiesEn from "./locales/en/families.json";
 import usersEn from "./locales/en/users.json";
 import dashboardEn from "./locales/en/dashboard.json";
 import groupsEn from "./locales/en/groups.json";
+import reservationsEn from "./locales/en/reservations.json";
 
 /**
  * Namespaces disponibles pour l'application
@@ -55,6 +57,7 @@ export const namespaces = [
   "users", // Gestion des utilisateurs
   "dashboard", // Tableau de bord
   "groups", // Gestion des groupes
+  "reservations", // Gestion des réservations
 ] as const;
 
 /**
@@ -132,6 +135,7 @@ i18n
         users: usersFr,
         dashboard: dashboardFr,
         groups: groupsFr,
+        reservations: reservationsFr,
       },
       en: {
         common: commonEn,
@@ -147,6 +151,7 @@ i18n
         users: usersEn,
         dashboard: dashboardEn,
         groups: groupsEn,
+        reservations: reservationsEn,
       },
     },
 

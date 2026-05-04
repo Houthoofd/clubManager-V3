@@ -39,7 +39,8 @@
     "register": "Register",
     "toggleSidebar": "Toggle sidebar",
     "notifications": "Notifications",
-    "groups": "Groups"
+    "groups": "Groups",
+    "reservations": "Reservations"
   },
   "footer": {
     "allRightsReserved": "All rights reserved",
