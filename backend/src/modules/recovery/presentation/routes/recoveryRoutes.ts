@@ -16,14 +16,22 @@ const router = Router();
 const ctrl = new RecoveryController();
 
 // ============================================================
-// GUARDS — appliqués à toutes les routes du module
+// PUBLIC ROUTE — aucune authentification requise
+// ============================================================
+
+// POST /api/recovery/public — soumission publique d'une demande de récupération
+// Body : { email: string, reason: string }
+router.post("/public", (req, res) => ctrl.submitRequest(req as any, res));
+
+// ============================================================
+// GUARDS — appliqués à toutes les routes du module après ce point
 // ============================================================
 
 router.use(authMiddleware);
 router.use(requireRole(UserRole.ADMIN));
 
 // ============================================================
-// ROUTES
+// ROUTES ADMIN
 // ============================================================
 
 // GET /api/recovery — liste paginée des demandes de récupération

@@ -32,6 +32,7 @@ import { RegisterPage } from "./features/auth/pages/RegisterPage";
 import { EmailVerificationPage } from "./features/auth/pages/EmailVerificationPage";
 import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
+import { RecoveryRequestPage } from "./features/auth/pages/RecoveryRequestPage";
 import { FamilyPage } from "./features/families/pages";
 import { UsersPage, ProfilePage } from "./features/users/pages";
 import { MessagesPage } from "./features/messaging/pages";
@@ -177,6 +178,7 @@ function App() {
                 </PublicRoute>
               }
             />
+            <Route path="/recovery-request" element={<RecoveryRequestPage />} />
           </Route>
 
           {/* Private Routes */}

@@ -18,5 +18,12 @@ export interface IRecoveryRepository {
   findById(id: number): Promise<RecoveryRequest | null>;
 
   /** Met à jour le statut d'une demande ('approved' ou 'rejected') */
-  updateStatus(id: number, status: 'approved' | 'rejected'): Promise<void>;
+  updateStatus(id: number, status: "approved" | "rejected"): Promise<void>;
+
+  /** Crée une nouvelle demande de récupération (soumission publique) */
+  create(dto: {
+    email: string;
+    reason: string;
+    ip_address: string;
+  }): Promise<void>;
 }

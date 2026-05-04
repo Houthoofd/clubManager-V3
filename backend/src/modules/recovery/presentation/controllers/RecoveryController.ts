@@ -9,6 +9,7 @@ import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
 import { MySQLRecoveryRepository } from "../../infrastructure/repositories/MySQLRecoveryRepository.js";
 import { GetRecoveryRequestsUseCase } from "../../application/use-cases/GetRecoveryRequestsUseCase.js";
 import { ProcessRecoveryRequestUseCase } from "../../application/use-cases/ProcessRecoveryRequestUseCase.js";
+import { CreateRecoveryRequestUseCase } from "../../application/use-cases/CreateRecoveryRequestUseCase.js";
 import type { RecoveryStatus } from "../../domain/types.js";
 
 // ==================== MODULE-LEVEL INSTANTIATION ====================
@@ -16,10 +17,38 @@ import type { RecoveryStatus } from "../../domain/types.js";
 const repo = new MySQLRecoveryRepository();
 const getRecoveryRequestsUC = new GetRecoveryRequestsUseCase(repo);
 const processRecoveryRequestUC = new ProcessRecoveryRequestUseCase(repo);
+const createRecoveryRequestUC = new CreateRecoveryRequestUseCase(repo);
 
 // ==================== CONTROLLER ====================
 
 export class RecoveryController {
+  /**
+   * POST /api/recovery/public
+   * Soumet une demande de récupération de compte (route publique, sans auth)
+   * Body : { email: string, reason: string }
+   */
+  async submitRequest(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { email, reason } = req.body;
+      const ip_address =
+        (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ??
+        req.socket.remoteAddress ??
+        "unknown";
+      await createRecoveryRequestUC.execute({ email, reason, ip_address });
+      res.status(201).json({
+        success: true,
+        message: "Demande de récupération soumise",
+      });
+    } catch (error: any) {
+      const status =
+        error.message.includes("invalide") ||
+        error.message.includes("caractères")
+          ? 400
+          : 500;
+      res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
   /**
    * GET /api/recovery
    * Retourne la liste paginée des demandes de récupération manuelle
@@ -28,7 +57,11 @@ export class RecoveryController {
   async getRequests(req: AuthRequest, res: Response): Promise<void> {
     try {
       const rawStatus = req.query.status as string | undefined;
-      const validStatuses: RecoveryStatus[] = ["pending", "approved", "rejected"];
+      const validStatuses: RecoveryStatus[] = [
+        "pending",
+        "approved",
+        "rejected",
+      ];
 
       const status =
         rawStatus && validStatuses.includes(rawStatus as RecoveryStatus)
@@ -107,9 +140,7 @@ export class RecoveryController {
     } catch (error: any) {
       console.error("[RecoveryController.processRequest]", error);
 
-      if (
-        error.message === "Demande introuvable"
-      ) {
+      if (error.message === "Demande introuvable") {
         res.status(404).json({ success: false, message: error.message });
         return;
       }

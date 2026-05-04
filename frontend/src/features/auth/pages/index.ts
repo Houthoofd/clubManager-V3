@@ -17,3 +17,4 @@ export {
   ResetPasswordPage,
   default as ResetPasswordPageDefault,
 } from "./ResetPasswordPage";
+export { RecoveryRequestPage } from "./RecoveryRequestPage";

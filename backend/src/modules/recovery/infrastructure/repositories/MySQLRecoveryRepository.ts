@@ -38,7 +38,9 @@ export class MySQLRecoveryRepository implements IRecoveryRepository {
    * Filtre dynamiquement sur le statut si fourni
    * Ordonne par date de création décroissante
    */
-  async findAll(query: GetRecoveryRequestsQuery): Promise<PaginatedRecoveryResponse> {
+  async findAll(
+    query: GetRecoveryRequestsQuery,
+  ): Promise<PaginatedRecoveryResponse> {
     const { status, page = 1, limit = 20 } = query;
 
     const conditions: string[] = [];
@@ -103,12 +105,30 @@ export class MySQLRecoveryRepository implements IRecoveryRepository {
    * Met à jour le statut d'une demande de récupération
    * Statut possible : 'approved' ou 'rejected'
    */
-  async updateStatus(id: number, status: 'approved' | 'rejected'): Promise<void> {
+  async updateStatus(
+    id: number,
+    status: "approved" | "rejected",
+  ): Promise<void> {
     await pool.query<ResultSetHeader>(
       `UPDATE manual_recovery_requests
        SET status = ?
        WHERE id = ?`,
       [status, id],
+    );
+  }
+
+  /**
+   * Crée une nouvelle demande de récupération (soumission publique)
+   * Le statut est automatiquement défini à 'pending'
+   */
+  async create(dto: {
+    email: string;
+    reason: string;
+    ip_address: string;
+  }): Promise<void> {
+    await pool.query(
+      `INSERT INTO manual_recovery_requests (email, reason, ip_address, status) VALUES (?, ?, ?, 'pending')`,
+      [dto.email, dto.reason.trim(), dto.ip_address],
     );
   }
 
