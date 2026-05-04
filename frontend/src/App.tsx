@@ -4,6 +4,7 @@
  */
 
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   BrowserRouter,
   Routes,
@@ -51,13 +52,14 @@ import { ReservationsPage } from "./features/reservations/pages";
 const AuthenticatedLayout = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation("common");
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement...</p>
+          <p className="mt-4 text-gray-600">{t("loading.auth")}</p>
         </div>
       </div>
     );
@@ -80,19 +82,43 @@ const AuthenticatedLayout = () => {
  */
 const RootRedirect = () => {
   const { isAuthenticated, isLoading } = useAuthStore();
+  const { t } = useTranslation("common");
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600">{t("loading.app")}</p>
         </div>
       </div>
     );
   }
 
   return <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />;
+};
+
+/**
+ * NotFoundPage Component
+ * Page 404 avec traductions i18n
+ */
+const NotFoundPage = () => {
+  const { t } = useTranslation("common");
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <h1 className="text-6xl font-bold text-gray-900">404</h1>
+        <p className="text-xl text-gray-600 mt-4">{t("notFound.heading")}</p>
+        <p className="text-sm text-gray-400 mt-2">{t("notFound.message")}</p>
+        <a
+          href="/dashboard"
+          className="mt-6 inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          {t("notFound.action")}
+        </a>
+      </div>
+    </div>
+  );
 };
 
 /**
@@ -232,23 +258,7 @@ function App() {
           </Route>
 
           {/* 404 Not Found */}
-          <Route
-            path="*"
-            element={
-              <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                  <h1 className="text-6xl font-bold text-gray-900">404</h1>
-                  <p className="text-xl text-gray-600 mt-4">Page not found</p>
-                  <a
-                    href="/dashboard"
-                    className="mt-6 inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Go to Dashboard
-                  </a>
-                </div>
-              </div>
-            }
-          />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </I18nextProvider>

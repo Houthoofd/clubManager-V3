@@ -195,6 +195,15 @@
       "archived": "Archived"
     }
   },
+  "notFound": {
+    "heading": "Page not found",
+    "message": "The page you are looking for does not exist or has been moved.",
+    "action": "Back to dashboard"
+  },
+  "loading": {
+    "auth": "Verifying authentication...",
+    "app": "Loading application..."
+  },
   "families": {
     "title": "My Family",
     "description": "Family member management",

@@ -195,6 +195,15 @@
       "archived": "Archivé"
     }
   },
+  "notFound": {
+    "heading": "Page introuvable",
+    "message": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "action": "Retourner au tableau de bord"
+  },
+  "loading": {
+    "auth": "Vérification de l'authentification...",
+    "app": "Chargement de l'application..."
+  },
   "families": {
     "title": "Ma famille",
     "description": "Gestion des membres de la famille",
