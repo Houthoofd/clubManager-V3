@@ -40,7 +40,8 @@
     "toggleSidebar": "Ouvrir/fermer le menu",
     "notifications": "Notifications",
     "groups": "Groupes",
-    "reservations": "Réservations"
+    "reservations": "Réservations",
+    "myCourses": "Mes cours"
   },
   "footer": {
     "allRightsReserved": "Tous droits réservés",
