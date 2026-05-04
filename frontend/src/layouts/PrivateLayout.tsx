@@ -18,7 +18,11 @@ import {
   ChartBarIcon,
   CogIcon,
 } from "@patternfly/react-icons";
-import { UserGroupIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
+import {
+  UserGroupIcon,
+  CalendarDaysIcon,
+  ClipboardDocumentListIcon,
+} from "@heroicons/react/24/outline";
 import { UserRole } from "@clubmanager/types";
 import { INFORMATION_KEYS } from "@clubmanager/types";
 import { useAuth } from "../shared/hooks/useAuth";
@@ -225,6 +229,12 @@ const PrivateLayout: React.FC = () => {
       icon: <GraduationCapIcon />,
     },
     {
+      name: t("navigation.myCourses"),
+      path: "/my-courses",
+      icon: <ClipboardDocumentListIcon className="h-5 w-5" />,
+      // Visible to all roles
+    },
+    {
       name: t("navigation.users"),
       path: "/users",
       icon: <UserIcon />,
@@ -291,6 +301,7 @@ const PrivateLayout: React.FC = () => {
   const pathToModuleKey: Record<string, string> = {
     "/dashboard": "dashboard",
     "/courses": "courses",
+    "/my-courses": "courses",
     "/users": "users",
     "/family": "families",
     "/payments": "payments",

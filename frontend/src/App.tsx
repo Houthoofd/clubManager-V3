@@ -39,6 +39,7 @@ import { MessagesPage } from "./features/messaging/pages";
 import { SettingsPage } from "./features/settings/pages";
 import { PaymentsPage } from "./features/payments/pages";
 import { CoursesPage } from "./features/courses/pages";
+import { MyCoursesPage } from "./features/courses/pages";
 import { StorePage } from "./features/store/pages";
 import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
 import { NotificationsPage } from "./features/notifications/pages";
@@ -195,6 +196,20 @@ function App() {
                   ]}
                 >
                   <CoursesPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/my-courses"
+              element={
+                <RoleGuard
+                  allowedRoles={[
+                    UserRole.ADMIN,
+                    UserRole.PROFESSOR,
+                    UserRole.MEMBER,
+                  ]}
+                >
+                  <MyCoursesPage />
                 </RoleGuard>
               }
             />

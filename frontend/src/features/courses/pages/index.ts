@@ -5,3 +5,4 @@
 
 export { default as CoursesPage } from "./CoursesPage";
 export { default } from "./CoursesPage";
+export { MyCoursesPage } from "./MyCoursesPage";
