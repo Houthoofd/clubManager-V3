@@ -74,6 +74,13 @@ router.post("/sessions", requireRole(UserRole.ADMIN), (req, res) =>
   ctrl.createCourse(req as any, res),
 );
 
+// GET /sessions/my-enrollments — must be before /sessions/:id catch-all
+router.get(
+  "/sessions/my-enrollments",
+  requireRole(UserRole.ADMIN, UserRole.PROFESSOR, UserRole.MEMBER),
+  (req, res) => ctrl.getMyEnrollments(req as any, res),
+);
+
 // --- Sessions parameterised paths ---
 // Deeper paths (/sessions/:id/inscriptions, /sessions/:id/presence)
 // before the shallower /sessions/:id catch-all.

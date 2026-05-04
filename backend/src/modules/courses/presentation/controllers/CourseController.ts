@@ -33,6 +33,7 @@ import { GetCourseInscriptionsUseCase } from "../../application/use-cases/GetCou
 import { CreateInscriptionUseCase } from "../../application/use-cases/CreateInscriptionUseCase.js";
 import { BulkUpdatePresenceUseCase } from "../../application/use-cases/BulkUpdatePresenceUseCase.js";
 import { DeleteInscriptionUseCase } from "../../application/use-cases/DeleteInscriptionUseCase.js";
+import { GetMyEnrollmentsUseCase } from "../../application/use-cases/GetMyEnrollmentsUseCase.js";
 
 // ==================== INSTANTIATION ====================
 
@@ -63,6 +64,7 @@ const getCourseInscriptionsUC = new GetCourseInscriptionsUseCase(repo);
 const createInscriptionUC = new CreateInscriptionUseCase(repo);
 const bulkUpdatePresenceUC = new BulkUpdatePresenceUseCase(repo);
 const deleteInscriptionUC = new DeleteInscriptionUseCase(repo);
+const getMyEnrollmentsUC = new GetMyEnrollmentsUseCase(repo);
 
 // ==================== CONTROLLER ====================
 
@@ -488,6 +490,29 @@ export class CourseController {
       res.json({
         success: true,
         message: "Inscription supprimée",
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+        error: "INTERNAL_ERROR",
+      });
+    }
+  }
+
+  /**
+   * GET /api/courses/sessions/my-enrollments
+   * Retourne les inscriptions de l'utilisateur connecté avec le détail des cours
+   * Accessible aux membres, professeurs et admins
+   */
+  async getMyEnrollments(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.user!.userId;
+      const data = await getMyEnrollmentsUC.execute(userId);
+      res.json({
+        success: true,
+        message: "Inscriptions récupérées",
+        data,
       });
     } catch (error: any) {
       res.status(500).json({

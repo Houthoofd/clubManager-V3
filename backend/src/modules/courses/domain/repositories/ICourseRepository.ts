@@ -171,4 +171,24 @@ export interface ICourseRepository {
    * Supprime une inscription par son ID
    */
   deleteInscription(id: number): Promise<void>;
+
+  /**
+   * Récupère toutes les inscriptions d'un utilisateur avec les détails du cours
+   * Retourne les inscriptions triées par date de cours décroissante
+   */
+  getMyEnrollments(userId: number): Promise<
+    Array<{
+      inscription_id: number;
+      cours_id: number;
+      date_cours: string;
+      type_cours: string;
+      heure_debut: string;
+      heure_fin: string;
+      status_id: number;
+      status_nom?: string;
+      presence: boolean | null;
+      commentaire: string | null;
+      created_at: string;
+    }>
+  >;
 }

@@ -1229,4 +1229,74 @@ export class MySQLCourseRepository implements ICourseRepository {
       id,
     ]);
   }
+
+  /**
+   * Récupère toutes les inscriptions d'un utilisateur avec les détails du cours
+   * Joint la table cours et la table status pour un résultat complet
+   * Trié par date de cours décroissante
+   */
+  async getMyEnrollments(userId: number): Promise<
+    Array<{
+      inscription_id: number;
+      cours_id: number;
+      date_cours: string;
+      type_cours: string;
+      heure_debut: string;
+      heure_fin: string;
+      status_id: number;
+      status_nom?: string;
+      presence: boolean | null;
+      commentaire: string | null;
+      created_at: string;
+    }>
+  > {
+    interface EnrollmentRow extends RowDataPacket {
+      inscription_id: number;
+      cours_id: number;
+      date_cours: Date;
+      type_cours: string;
+      heure_debut: string;
+      heure_fin: string;
+      status_id: number;
+      status_nom: string | null;
+      presence: number | null;
+      commentaire: string | null;
+      created_at: Date;
+    }
+
+    const [rows] = await pool.query<EnrollmentRow[]>(
+      `SELECT
+        i.id          AS inscription_id,
+        i.cours_id,
+        c.date_cours,
+        c.type_cours,
+        c.heure_debut,
+        c.heure_fin,
+        i.status_id,
+        s.nom         AS status_nom,
+        i.presence,
+        i.commentaire,
+        i.created_at
+      FROM inscriptions i
+      JOIN cours c        ON i.cours_id   = c.id
+      LEFT JOIN status s  ON i.status_id  = s.id
+      WHERE i.user_id = ?
+      ORDER BY c.date_cours DESC`,
+      [userId],
+    );
+
+    return rows.map((row) => ({
+      inscription_id: row.inscription_id,
+      cours_id: row.cours_id,
+      date_cours: new Date(row.date_cours).toISOString().split("T")[0]!,
+      type_cours: row.type_cours,
+      heure_debut: row.heure_debut,
+      heure_fin: row.heure_fin,
+      status_id: row.status_id,
+      status_nom: row.status_nom ?? undefined,
+      presence: row.presence === null ? null : Boolean(row.presence),
+      commentaire: row.commentaire,
+      created_at: new Date(row.created_at).toISOString(),
+    }));
+  }
 }
