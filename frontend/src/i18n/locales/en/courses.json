@@ -121,6 +121,10 @@
     "deleteRecurrentCourse": "Delete Recurring Course",
     "createProfessor": "New Professor",
     "editProfessor": "Edit Professor",
+    "confirmDeleteProfessor": {
+      "title": "Delete professor",
+      "message": "Are you sure you want to delete {{name}}? This will also remove this professor from all recurring courses they are assigned to."
+    },
     "generateSessions": "Generate Sessions from Schedule",
     "createSession": "New Session",
     "attendanceSheet": "Attendance Sheet"
@@ -132,6 +136,7 @@
       "recurrentCourseDeleted": "Recurring course deleted successfully",
       "professorCreated": "Professor created successfully",
       "professorUpdated": "Professor updated successfully",
+      "professorDeleted": "Professor successfully deleted",
       "sessionCreated": "Session created successfully",
       "sessionsGenerated": "{{count}} session(s) generated successfully",
       "attendanceSaved": "Attendance saved"
@@ -143,7 +148,8 @@
       "timeConflict": "Time slot already occupied by \"{{courseType}}\" ({{startTime}}–{{endTime}}).",
       "firstLastNameRequired": "First name and last name are required.",
       "allFieldsRequired": "Please fill in all fields.",
-      "savingAttendance": "Error saving attendance."
+      "savingAttendance": "Error saving attendance.",
+      "professorDeleteError": "Error deleting professor"
     },
     "confirm": {
       "deleteRecurrentCourse": "Are you sure you want to delete \"{{courseType}}\" ({{day}} {{startTime}}-{{endTime}})?"
@@ -161,5 +167,22 @@
     "generating": "Generating…",
     "creating": "Creating…",
     "savingAttendance": "Saving…"
+  },
+  "myCourses": {
+    "title": "My courses",
+    "description": "Your enrollment history and attendance",
+    "empty": "You are not enrolled in any courses yet.",
+    "columns": {
+      "date": "Date",
+      "type": "Course type",
+      "time": "Time",
+      "presence": "Attendance",
+      "status": "Status"
+    },
+    "presence": {
+      "present": "Present",
+      "absent": "Absent",
+      "pending": "Not marked"
+    }
   }
 }

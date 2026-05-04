@@ -3,7 +3,7 @@
  * Service pour gérer les appels API du module cours
  */
 
-import apiClient, { type ApiResponse } from '../../../shared/api/apiClient';
+import apiClient, { type ApiResponse } from "../../../shared/api/apiClient";
 import type {
   CourseRecurrentListItemDto,
   CourseRecurrentResponseDto,
@@ -20,15 +20,18 @@ import type {
   AttendanceSheetDto,
   BulkUpdatePresenceDto,
   CreateInscriptionDto,
-} from '@clubmanager/types';
+} from "@clubmanager/types";
 
 // ─── Course Recurrent ─────────────────────────────────────────────────────────
 
 /**
  * Récupère la liste des cours récurrents (planning hebdomadaire)
  */
-export const getCourseRecurrents = async (): Promise<CourseRecurrentListItemDto[]> => {
-  const response = await apiClient.get<ApiResponse<CourseRecurrentListItemDto[]>>('/courses');
+export const getCourseRecurrents = async (): Promise<
+  CourseRecurrentListItemDto[]
+> => {
+  const response =
+    await apiClient.get<ApiResponse<CourseRecurrentListItemDto[]>>("/courses");
   return response.data.data!;
 };
 
@@ -38,7 +41,9 @@ export const getCourseRecurrents = async (): Promise<CourseRecurrentListItemDto[
 export const createCourseRecurrent = async (
   dto: CreateCourseRecurrentDto,
 ): Promise<CourseRecurrentResponseDto> => {
-  const response = await apiClient.post<ApiResponse<CourseRecurrentResponseDto>>('/courses', dto);
+  const response = await apiClient.post<
+    ApiResponse<CourseRecurrentResponseDto>
+  >("/courses", dto);
   return response.data.data!;
 };
 
@@ -69,7 +74,9 @@ export const deleteCourseRecurrent = async (id: number): Promise<void> => {
  * Récupère la liste des professeurs
  */
 export const getProfessors = async (): Promise<ProfessorListItemDto[]> => {
-  const response = await apiClient.get<ApiResponse<ProfessorListItemDto[]>>('/courses/professors');
+  const response = await apiClient.get<ApiResponse<ProfessorListItemDto[]>>(
+    "/courses/professors",
+  );
   return response.data.data!;
 };
 
@@ -80,7 +87,7 @@ export const createProfessor = async (
   dto: CreateProfessorDto,
 ): Promise<ProfessorResponseDto> => {
   const response = await apiClient.post<ApiResponse<ProfessorResponseDto>>(
-    '/courses/professors',
+    "/courses/professors",
     dto,
   );
   return response.data.data!;
@@ -100,6 +107,25 @@ export const updateProfessor = async (
   return response.data.data!;
 };
 
+/**
+ * Récupère un professeur par son ID
+ */
+export const getProfessorById = async (
+  id: number,
+): Promise<ProfessorResponseDto> => {
+  const response = await apiClient.get<ApiResponse<ProfessorResponseDto>>(
+    `/courses/professors/${id}`,
+  );
+  return response.data.data!;
+};
+
+/**
+ * Supprime un professeur
+ */
+export const deleteProfessor = async (id: number): Promise<void> => {
+  await apiClient.delete(`/courses/professors/${id}`);
+};
+
 // ─── Sessions (cours instances) ───────────────────────────────────────────────
 
 /**
@@ -114,10 +140,15 @@ export interface GetCoursesParams {
 /**
  * Récupère la liste des séances avec filtres optionnels
  */
-export const getCourses = async (params?: GetCoursesParams): Promise<CourseListItemDto[]> => {
-  const response = await apiClient.get<ApiResponse<CourseListItemDto[]>>('/courses/sessions', {
-    params,
-  });
+export const getCourses = async (
+  params?: GetCoursesParams,
+): Promise<CourseListItemDto[]> => {
+  const response = await apiClient.get<ApiResponse<CourseListItemDto[]>>(
+    "/courses/sessions",
+    {
+      params,
+    },
+  );
   return response.data.data!;
 };
 
@@ -125,15 +156,22 @@ export const getCourses = async (params?: GetCoursesParams): Promise<CourseListI
  * Récupère une séance par son ID
  */
 export const getCourseById = async (id: number): Promise<CourseResponseDto> => {
-  const response = await apiClient.get<ApiResponse<CourseResponseDto>>(`/courses/sessions/${id}`);
+  const response = await apiClient.get<ApiResponse<CourseResponseDto>>(
+    `/courses/sessions/${id}`,
+  );
   return response.data.data!;
 };
 
 /**
  * Crée une nouvelle séance
  */
-export const createSession = async (dto: CreateCourseDto): Promise<CourseResponseDto> => {
-  const response = await apiClient.post<ApiResponse<CourseResponseDto>>('/courses/sessions', dto);
+export const createSession = async (
+  dto: CreateCourseDto,
+): Promise<CourseResponseDto> => {
+  const response = await apiClient.post<ApiResponse<CourseResponseDto>>(
+    "/courses/sessions",
+    dto,
+  );
   return response.data.data!;
 };
 
@@ -145,7 +183,7 @@ export const generateCourses = async (
 ): Promise<{ generated: number; cours: CourseListItemDto[] }> => {
   const response = await apiClient.post<
     ApiResponse<{ generated: number; cours: CourseListItemDto[] }>
-  >('/courses/sessions/generate', dto);
+  >("/courses/sessions/generate", dto);
   return response.data.data!;
 };
 
@@ -154,7 +192,9 @@ export const generateCourses = async (
 /**
  * Récupère la feuille de présence d'une séance
  */
-export const getCourseInscriptions = async (cours_id: number): Promise<AttendanceSheetDto> => {
+export const getCourseInscriptions = async (
+  cours_id: number,
+): Promise<AttendanceSheetDto> => {
   const response = await apiClient.get<ApiResponse<AttendanceSheetDto>>(
     `/courses/sessions/${cours_id}/inscriptions`,
   );
@@ -186,4 +226,34 @@ export const bulkUpdatePresence = async (
  */
 export const deleteInscription = async (id: number): Promise<void> => {
   await apiClient.delete(`/courses/inscriptions/${id}`);
+};
+
+// ─── My Enrollments ───────────────────────────────────────────────────────────
+
+/**
+ * DTO retourné par GET /api/courses/sessions/my-enrollments
+ * Représente une inscription du membre authentifié avec les infos de la séance.
+ */
+export interface MyEnrollmentDto {
+  inscription_id: number;
+  cours_id: number;
+  date_cours: string;
+  type_cours: string;
+  heure_debut: string;
+  heure_fin: string;
+  status_id: number;
+  status_nom?: string;
+  presence: boolean | null;
+  commentaire: string | null;
+  created_at: string;
+}
+
+/**
+ * Récupère les inscriptions du membre authentifié
+ */
+export const getMyEnrollments = async (): Promise<MyEnrollmentDto[]> => {
+  const response = await apiClient.get<ApiResponse<MyEnrollmentDto[]>>(
+    "/courses/sessions/my-enrollments",
+  );
+  return response.data.data!;
 };

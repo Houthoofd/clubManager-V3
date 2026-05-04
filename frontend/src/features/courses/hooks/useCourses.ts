@@ -59,6 +59,9 @@ export const courseKeys = {
    * staleTime = 0 → toujours refetchée à l'ouverture de la modale.
    */
   attendance: (id: number) => [...courseKeys.all, "attendance", id] as const,
+
+  /** Inscriptions du membre authentifié */
+  myEnrollments: () => [...courseKeys.all, "my-enrollments"] as const,
 } as const;
 
 // ─── Options ──────────────────────────────────────────────────────────────────
@@ -125,6 +128,16 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
     staleTime: 30_000,
     refetchInterval: 60_000,
     refetchOnWindowFocus: true,
+  });
+
+  /**
+   * Inscriptions du membre connecté.
+   * Rafraîchi toutes les 30 s — les présences peuvent changer après le cours.
+   */
+  const myEnrollmentsQuery = useQuery({
+    queryKey: courseKeys.myEnrollments(),
+    queryFn: coursesApi.getMyEnrollments,
+    staleTime: 30_000,
   });
 
   /**
@@ -195,7 +208,15 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
     onSuccess: invalidatePlanningAndProfessors,
   });
 
-  // ── Séances ─────────────────────────────────────────────────────────────────
+  const deleteProfessorMutation = useMutation({
+    mutationFn: (id: number) => coursesApi.deleteProfessor(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: courseKeys.professors() });
+      queryClient.invalidateQueries({ queryKey: courseKeys.planning() });
+    },
+  });
+
+  // ── Séances ───────────────────────────────────────────────────────────────────
 
   const createSessionMutation = useMutation({
     mutationFn: (dto: CreateCourseDto) => coursesApi.createSession(dto),
@@ -271,6 +292,10 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
     attendanceSheet: attendanceQuery.data ?? null,
     attendanceLoading: attendanceQuery.isPending,
 
+    // ── Mes inscriptions (vue membre) ─────────────────────────────────────────
+    myEnrollments: myEnrollmentsQuery.data ?? [],
+    myEnrollmentsLoading: myEnrollmentsQuery.isPending,
+
     // ── Mutations cours récurrents ────────────────────────────────────────────
     // Retours explicitement void pour correspondre aux props des modales
     createCourseRecurrent: async (
@@ -301,6 +326,11 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
     ): Promise<void> => {
       await updateProfessorMutation.mutateAsync({ id, dto });
     },
+
+    deleteProfessor: async (id: number): Promise<void> => {
+      await deleteProfessorMutation.mutateAsync(id);
+    },
+    deleteProfessorLoading: deleteProfessorMutation.isPending,
 
     // ── Mutations séances ─────────────────────────────────────────────────────
     createSession: async (dto: CreateCourseDto): Promise<void> => {
