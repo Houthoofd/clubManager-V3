@@ -17,8 +17,10 @@ import { DeleteCourseRecurrentUseCase } from "../../application/use-cases/Delete
 
 // Use Cases — professeurs
 import { GetProfessorsUseCase } from "../../application/use-cases/GetProfessorsUseCase.js";
+import { GetProfessorByIdUseCase } from "../../application/use-cases/GetProfessorByIdUseCase.js";
 import { CreateProfessorUseCase } from "../../application/use-cases/CreateProfessorUseCase.js";
 import { UpdateProfessorUseCase } from "../../application/use-cases/UpdateProfessorUseCase.js";
+import { DeleteProfessorUseCase } from "../../application/use-cases/DeleteProfessorUseCase.js";
 
 // Use Cases — cours (instances)
 import { GetCoursesUseCase } from "../../application/use-cases/GetCoursesUseCase.js";
@@ -45,8 +47,10 @@ const deleteCourseRecurrentUC = new DeleteCourseRecurrentUseCase(repo);
 
 // Professeurs
 const getProfessorsUC = new GetProfessorsUseCase(repo);
+const getProfessorByIdUC = new GetProfessorByIdUseCase(repo);
 const createProfessorUC = new CreateProfessorUseCase(repo);
 const updateProfessorUC = new UpdateProfessorUseCase(repo);
+const deleteProfessorUC = new DeleteProfessorUseCase(repo);
 
 // Cours (instances)
 const getCoursesUC = new GetCoursesUseCase(repo);
@@ -250,6 +254,44 @@ export class CourseController {
         message: "Professeur mis à jour",
         data,
       });
+    } catch (error: any) {
+      const status = error.message.includes("introuvable") ? 404 : 500;
+      res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * GET /api/courses/professors/:id
+   * Retourne un professeur par son identifiant
+   */
+  async getProfessorById(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (isNaN(id)) {
+        res.status(400).json({ success: false, message: "ID invalide" });
+        return;
+      }
+      const data = await getProfessorByIdUC.execute(id);
+      res.json({ success: true, message: "Professeur récupéré", data });
+    } catch (error: any) {
+      const status = error.message.includes("introuvable") ? 404 : 500;
+      res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * DELETE /api/courses/professors/:id
+   * Supprime un professeur et ses assignations de cours récurrents
+   */
+  async deleteProfessor(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (isNaN(id)) {
+        res.status(400).json({ success: false, message: "ID invalide" });
+        return;
+      }
+      await deleteProfessorUC.execute(id);
+      res.json({ success: true, message: "Professeur supprimé" });
     } catch (error: any) {
       const status = error.message.includes("introuvable") ? 404 : 500;
       res.status(status).json({ success: false, message: error.message });
