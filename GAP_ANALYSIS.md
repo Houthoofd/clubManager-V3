@@ -903,7 +903,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | Domain | Backend | Frontend | Overall |
 |---|---|---|---|
 | Authentication / Security | ✅ ~90% | ✅ ~85% | ⚠️ 87% |
-| Users & Profiles | ✅ ~80% | ✅ ~85% | ⚠️ 82% |
+| Users & Profiles | ✅ ~95% | ✅ ~95% | ✅ 95% |
 | Courses & Attendance | ✅ ~95% | ⚠️ ~65% | ⚠️ 80% |
 | Payments & Subscriptions | ✅ ~80% | ⚠️ ~60% | ⚠️ 70% |
 | Store (E-commerce) | ✅ 100% | ✅ 100% | ✅ 100% |
@@ -914,7 +914,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | Families | ⚠️ ~60% | ⚠️ ~50% | ⚠️ 55% |
 | Statistics | ✅ ~90% | ✅ 100% | ✅ 95% |
 | Settings | ✅ 100% | ✅ 100% | ✅ 100% |
-| Templates | ✅ 100% | ❌ **0%** | ⚠️ 50% |
+| Templates | ✅ 100% | ✅ **100%** | ✅ **100%** |
 | Recovery | ✅ **100%** | ✅ **100%** | ✅ **100%** |
 | References | ✅ 100% | n/a | ✅ 100% |
 | Grades | ✅ 100% | ✅ (via Settings) | ✅ 95% |
@@ -928,9 +928,9 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | **Sprint 1** | 🔴 Critical | GAP-02 (recovery submission) | 0.5 day | ✅ Done |
 | **Sprint 1** | 🔴 Critical | GAP-07 (my-enrollments full) | 1.5 days | ✅ Done |
 | **Sprint 1** | 🟡 Medium | GAP-08 (professor CRUD full) | 1 day | ✅ Done |
-| Sprint 2 | 🟠 High | GAP-03 (templates frontend) | 3 days | ⏳ Next |
-| Sprint 2 | 🟠 High | GAP-04 (GDPR/soft delete page) | 2 days | ⏳ Next |
-| Sprint 3 | 🟠 High | GAP-05 (member payments + Stripe) | 3 days | ⏳ |
+| **Sprint 2** | 🟠 High | GAP-03 (templates frontend) | 3 days | ✅ Done |
+| **Sprint 2** | 🟠 High | GAP-04 (GDPR/soft delete page) | 2 days | ✅ Done |
+| Sprint 3 | 🟠 High | GAP-05 (member payments + Stripe) | 3 days | ⏳ Next |
 | Sprint 3 | 🟡 Medium | GAP-13 (subscription assignment) | 0.5 day | ⏳ |
 | Sprint 3 | 🟡 Medium | GAP-12 (schedule generation) | 1 day | ⏳ |
 | Sprint 4 | 🟠 High | GAP-06 (families admin) | 2 days | ⏳ |
@@ -941,7 +941,8 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | Sprint 7 | 🟢 Low | GAP-15 to GAP-19 (polish) | 3–4 days | ⏳ |
 
 **Completed Sprint 1:** 3 developer days — 3 gaps fully closed (GAP-02 ✅, GAP-07 ✅, GAP-08 ✅)  
-**Total estimated remaining work: ~24–27 developer days**
+**Completed Sprint 2:** 2 developer days — 2 gaps fully closed (GAP-03 ✅, GAP-04 ✅)  
+**Total estimated remaining work: ~19–22 developer days**
 
 ---
 
