@@ -1,0 +1,93 @@
+{
+  "page": {
+    "title": "Réservations",
+    "description": "Gérez les réservations de cours de votre club",
+    "myTitle": "Mes réservations",
+    "myDescription": "Consultez et gérez vos réservations de cours"
+  },
+  "fields": {
+    "id": "N°",
+    "course": "Cours",
+    "courseType": "Type de cours",
+    "courseDate": "Date",
+    "courseTime": "Horaire",
+    "member": "Membre",
+    "status": "Statut",
+    "createdAt": "Réservé le",
+    "userId": "ID Utilisateur"
+  },
+  "status": {
+    "confirmee": "Confirmée",
+    "annulee": "Annulée",
+    "en_attente": "En attente",
+    "all": "Tous les statuts"
+  },
+  "actions": {
+    "create": "Nouvelle réservation",
+    "cancel": "Annuler",
+    "cancelReservation": "Annuler la réservation",
+    "confirm": "Confirmer",
+    "close": "Fermer",
+    "refresh": "Actualiser",
+    "myReservations": "Mes réservations"
+  },
+  "modal": {
+    "createTitle": "Nouvelle réservation",
+    "createSubtitle": "Réservez un cours pour un membre",
+    "cancelTitle": "Annuler la réservation",
+    "cancelSubtitle": "Cette action est irréversible"
+  },
+  "placeholders": {
+    "courseId": "ID du cours",
+    "userId": "ID de l'utilisateur (optionnel)",
+    "searchStatus": "Filtrer par statut",
+    "searchCourse": "ID du cours",
+    "searchUser": "ID du membre"
+  },
+  "filters": {
+    "title": "Filtres",
+    "status": "Statut",
+    "courseId": "Cours (ID)",
+    "userId": "Membre (ID)",
+    "clear": "Réinitialiser"
+  },
+  "messages": {
+    "success": {
+      "created": "Réservation créée",
+      "createdDescription": "La réservation a été créée avec succès.",
+      "cancelled": "Réservation annulée",
+      "cancelledDescription": "La réservation a été annulée avec succès."
+    },
+    "error": {
+      "loadError": "Impossible de charger les réservations.",
+      "createError": "Erreur lors de la création de la réservation.",
+      "cancelError": "Erreur lors de l'annulation de la réservation.",
+      "alreadyReserved": "Vous avez déjà une réservation active pour ce cours.",
+      "genericError": "Une erreur est survenue."
+    },
+    "empty": {
+      "title": "Aucune réservation",
+      "description": "Aucune réservation ne correspond à vos filtres.",
+      "noReservations": "Vous n'avez aucune réservation pour le moment.",
+      "action": "Réserver un cours"
+    },
+    "confirm": {
+      "cancelTitle": "Annuler cette réservation ?",
+      "cancelMessage": "Voulez-vous vraiment annuler la réservation n°{{id}} ? Cette action est irréversible."
+    }
+  },
+  "validation": {
+    "courseIdRequired": "L'ID du cours est requis.",
+    "courseIdInvalid": "L'ID du cours doit être un nombre valide.",
+    "userIdInvalid": "L'ID de l'utilisateur doit être un nombre valide."
+  },
+  "states": {
+    "loading": "Chargement des réservations...",
+    "saving": "Création en cours...",
+    "cancelling": "Annulation en cours..."
+  },
+  "aria": {
+    "cancelReservation": "Annuler la réservation n°{{id}}",
+    "statusBadge": "Statut : {{status}}"
+  }
+}

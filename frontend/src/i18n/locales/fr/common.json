@@ -39,7 +39,8 @@
     "register": "Inscription",
     "toggleSidebar": "Ouvrir/fermer le menu",
     "notifications": "Notifications",
-    "groups": "Groupes"
+    "groups": "Groupes",
+    "reservations": "Réservations"
   },
   "footer": {
     "allRightsReserved": "Tous droits réservés",

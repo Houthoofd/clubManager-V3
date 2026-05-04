@@ -18,7 +18,7 @@ import {
   ChartBarIcon,
   CogIcon,
 } from "@patternfly/react-icons";
-import { UserGroupIcon } from "@heroicons/react/24/outline";
+import { UserGroupIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
 import { UserRole } from "@clubmanager/types";
 import { INFORMATION_KEYS } from "@clubmanager/types";
 import { useAuth } from "../shared/hooks/useAuth";
@@ -264,6 +264,12 @@ const PrivateLayout: React.FC = () => {
       roles: [UserRole.ADMIN],
     },
     {
+      name: t("navigation.reservations"),
+      path: "/reservations",
+      icon: <CalendarDaysIcon className="h-5 w-5" />,
+      // No roles restriction — all authenticated users can see their reservations
+    },
+    {
       name: t("navigation.settings"),
       path: "/settings",
       icon: <CogIcon />,
@@ -292,6 +298,7 @@ const PrivateLayout: React.FC = () => {
     "/messages": "messages",
     "/statistics": "statistics",
     "/groups": "groups",
+    "/reservations": "reservations",
     "/settings": "settings", // settings is always visible to admin
   };
 

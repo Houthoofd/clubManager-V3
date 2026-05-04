@@ -1,0 +1,93 @@
+{
+  "page": {
+    "title": "Reservations",
+    "description": "Manage your club's course reservations",
+    "myTitle": "My reservations",
+    "myDescription": "View and manage your course reservations"
+  },
+  "fields": {
+    "id": "No.",
+    "course": "Course",
+    "courseType": "Course type",
+    "courseDate": "Date",
+    "courseTime": "Time",
+    "member": "Member",
+    "status": "Status",
+    "createdAt": "Reserved on",
+    "userId": "User ID"
+  },
+  "status": {
+    "confirmee": "Confirmed",
+    "annulee": "Cancelled",
+    "en_attente": "Pending",
+    "all": "All statuses"
+  },
+  "actions": {
+    "create": "New reservation",
+    "cancel": "Cancel",
+    "cancelReservation": "Cancel reservation",
+    "confirm": "Confirm",
+    "close": "Close",
+    "refresh": "Refresh",
+    "myReservations": "My reservations"
+  },
+  "modal": {
+    "createTitle": "New reservation",
+    "createSubtitle": "Book a course for a member",
+    "cancelTitle": "Cancel reservation",
+    "cancelSubtitle": "This action cannot be undone"
+  },
+  "placeholders": {
+    "courseId": "Course ID",
+    "userId": "User ID (optional)",
+    "searchStatus": "Filter by status",
+    "searchCourse": "Course ID",
+    "searchUser": "Member ID"
+  },
+  "filters": {
+    "title": "Filters",
+    "status": "Status",
+    "courseId": "Course (ID)",
+    "userId": "Member (ID)",
+    "clear": "Reset"
+  },
+  "messages": {
+    "success": {
+      "created": "Reservation created",
+      "createdDescription": "The reservation has been successfully created.",
+      "cancelled": "Reservation cancelled",
+      "cancelledDescription": "The reservation has been successfully cancelled."
+    },
+    "error": {
+      "loadError": "Failed to load reservations.",
+      "createError": "Error creating reservation.",
+      "cancelError": "Error cancelling reservation.",
+      "alreadyReserved": "You already have an active reservation for this course.",
+      "genericError": "An unexpected error occurred."
+    },
+    "empty": {
+      "title": "No reservations",
+      "description": "No reservations match your filters.",
+      "noReservations": "You have no reservations yet.",
+      "action": "Book a course"
+    },
+    "confirm": {
+      "cancelTitle": "Cancel this reservation?",
+      "cancelMessage": "Are you sure you want to cancel reservation #{{id}}? This action cannot be undone."
+    }
+  },
+  "validation": {
+    "courseIdRequired": "Course ID is required.",
+    "courseIdInvalid": "Course ID must be a valid number.",
+    "userIdInvalid": "User ID must be a valid number."
+  },
+  "states": {
+    "loading": "Loading reservations...",
+    "saving": "Creating...",
+    "cancelling": "Cancelling..."
+  },
+  "aria": {
+    "cancelReservation": "Cancel reservation #{{id}}",
+    "statusBadge": "Status: {{status}}"
+  }
+}
