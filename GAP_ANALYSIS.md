@@ -2,7 +2,7 @@
 **Database schema vs. Backend implementation vs. Frontend features**
 
 > **Generated:** 2025  
-> **Last updated:** 2025 — Sprint 1 completed (GAP-02, GAP-07 backend, GAP-08)  
+> **Last updated:** 2025 — Sprint 1 fully completed (GAP-02 ✅, GAP-07 ✅, GAP-08 ✅)
 > **Schema version:** v4.4 (43 tables)  
 > **Author:** Benoit Houthoofd (TFE project)
 
@@ -522,9 +522,9 @@ This entire domain has no backend module whatsoever. Required endpoints would in
 | File | Description | Status |
 |---|---|---|
 | `CoursesPage.tsx` | Single tabbed page — Planning (recurring), Sessions (instances), Attendance sheet | ✅ Admin/Prof view |
+| `MyCoursesPage.tsx` | Member view — own enrollment history with presence badges | ✅ |
 
 **Missing pages:**
-- No `MyCoursesPage` / `MemberCoursesPage` — Backend endpoint `GET /sessions/my-enrollments` is ✅ implemented — **frontend page still pending (GAP-07)**
 - No `CourseDetailPage` — No full-screen course detail/session view
 - No dedicated professor management page (embedded in CoursesPage tabs but not a standalone CRUD UI)
 
@@ -751,14 +751,14 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-07: Member Courses View (My Enrollments) — ⚠️ BACKEND DONE / FRONTEND PENDING
+#### ~~GAP-07: Member Courses View (My Enrollments)~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `inscriptions`, `cours`, `cours_recurrent` |
 | **Backend work** | ✅ `GET /api/courses/sessions/my-enrollments` — merged in `feature/gap07-courses-my-enrollments` |
-| **Frontend work** | ⏳ `MyCoursesPage` still needed in `courses` feature (member view: upcoming sessions, past attendance history) |
-| **Complexity remaining** | 🟢 **Small** — Backend done; 1 frontend page left |
+| **Frontend work** | ✅ `MyCoursesPage` created — route `/my-courses`, sidebar link, i18n FR/EN |
+| **Completed** | Sprint 1 — `feature/gap07-courses-my-enrollments` |
 
 ---
 
@@ -770,7 +770,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 |---|---|
 | **DB tables** | `professeurs`, `cours_recurrent_professeur` |
 | **Backend work** | ✅ `GET /professors/:id` + `DELETE /professors/:id` — merged in `feature/gap08-professors-complete-crud` |
-| **Frontend work** | ⏳ Professors tab in `CoursesPage` not yet updated to show delete button — minor UI enhancement pending |
+| **Frontend work** | ✅ Delete button + ConfirmDialog added to professors table in `CoursesPage` |
 | **Completed** | Sprint 1 — `feature/gap08-professors-complete-crud` |
 
 ---
@@ -926,11 +926,10 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | Sprint | Priority | Gap IDs | Estimated Effort | Status |
 |---|---|---|---|---|
 | **Sprint 1** | 🔴 Critical | GAP-02 (recovery submission) | 0.5 day | ✅ Done |
-| **Sprint 1** | 🔴 Critical | GAP-07 (member courses — backend) | 0.5 day | ✅ Done |
-| **Sprint 1** | 🟡 Medium | GAP-08 (professor CRUD) | 0.5 day | ✅ Done |
+| **Sprint 1** | 🔴 Critical | GAP-07 (my-enrollments full) | 1.5 days | ✅ Done |
+| **Sprint 1** | 🟡 Medium | GAP-08 (professor CRUD full) | 1 day | ✅ Done |
 | Sprint 2 | 🟠 High | GAP-03 (templates frontend) | 3 days | ⏳ Next |
 | Sprint 2 | 🟠 High | GAP-04 (GDPR/soft delete page) | 2 days | ⏳ Next |
-| Sprint 2 | 🟢 Small | GAP-07 frontend (MyCoursesPage) | 1 day | ⏳ Next |
 | Sprint 3 | 🟠 High | GAP-05 (member payments + Stripe) | 3 days | ⏳ |
 | Sprint 3 | 🟡 Medium | GAP-13 (subscription assignment) | 0.5 day | ⏳ |
 | Sprint 3 | 🟡 Medium | GAP-12 (schedule generation) | 1 day | ⏳ |
@@ -941,8 +940,8 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | Sprint 6 | 🟡 Medium | GAP-14 (security audit logs) | 1 day | ⏳ |
 | Sprint 7 | 🟢 Low | GAP-15 to GAP-19 (polish) | 3–4 days | ⏳ |
 
-**Completed Sprint 1:** 1.5 developer days — 3 gaps closed (GAP-02 ✅, GAP-07 backend ✅, GAP-08 ✅)  
-**Total estimated remaining work: ~25–28 developer days**
+**Completed Sprint 1:** 3 developer days — 3 gaps fully closed (GAP-02 ✅, GAP-07 ✅, GAP-08 ✅)  
+**Total estimated remaining work: ~24–27 developer days**
 
 ---
 
