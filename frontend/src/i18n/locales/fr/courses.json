@@ -121,6 +121,10 @@
     "deleteRecurrentCourse": "Supprimer le cours récurrent",
     "createProfessor": "Nouveau professeur",
     "editProfessor": "Modifier le professeur",
+    "confirmDeleteProfessor": {
+      "title": "Supprimer le professeur",
+      "message": "Voulez-vous vraiment supprimer {{name}} ? Cette action retirera également ce professeur de tous les cours récurrents auxquels il est assigné."
+    },
     "generateSessions": "Générer des séances depuis le planning",
     "createSession": "Nouvelle séance",
     "attendanceSheet": "Feuille d'appel"
@@ -132,6 +136,7 @@
       "recurrentCourseDeleted": "Cours récurrent supprimé avec succès",
       "professorCreated": "Professeur créé avec succès",
       "professorUpdated": "Professeur modifié avec succès",
+      "professorDeleted": "Professeur supprimé avec succès",
       "sessionCreated": "Séance créée avec succès",
       "sessionsGenerated": "{{count}} séance(s) générée(s) avec succès",
       "attendanceSaved": "Présences sauvegardées"
@@ -143,7 +148,8 @@
       "timeConflict": "Créneau déjà occupé par \"{{courseType}}\" ({{startTime}}–{{endTime}}).",
       "firstLastNameRequired": "Le prénom et le nom sont obligatoires.",
       "allFieldsRequired": "Veuillez remplir tous les champs.",
-      "savingAttendance": "Erreur lors de la sauvegarde."
+      "savingAttendance": "Erreur lors de la sauvegarde.",
+      "professorDeleteError": "Erreur lors de la suppression du professeur"
     },
     "confirm": {
       "deleteRecurrentCourse": "Êtes-vous sûr de vouloir supprimer \"{{courseType}}\" ({{day}} {{startTime}}-{{endTime}}) ?"
@@ -161,5 +167,22 @@
     "generating": "Génération…",
     "creating": "Création…",
     "savingAttendance": "Sauvegarde…"
+  },
+  "myCourses": {
+    "title": "Mes cours",
+    "description": "Historique de vos inscriptions et présences aux cours",
+    "empty": "Vous n'êtes inscrit à aucun cours pour le moment.",
+    "columns": {
+      "date": "Date",
+      "type": "Type de cours",
+      "time": "Horaire",
+      "presence": "Présence",
+      "status": "Statut"
+    },
+    "presence": {
+      "present": "Présent",
+      "absent": "Absent",
+      "pending": "Non marqué"
+    }
   }
 }

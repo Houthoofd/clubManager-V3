@@ -77,6 +77,7 @@ type ModalState =
   | { type: "deleteCourseRecurrent"; item: CourseRecurrentListItemDto }
   | { type: "createProfessor" }
   | { type: "editProfessor"; professor: ProfessorListItemDto }
+  | { type: "deleteProfessor"; professor: ProfessorListItemDto }
   | { type: "createSession" }
   | { type: "generateCourses" }
   | { type: "attendance"; session: CourseListItemDto };
@@ -130,6 +131,8 @@ export default function CoursesPage() {
     deleteCourseRecurrent,
     createProfessor,
     updateProfessor,
+    deleteProfessor,
+    deleteProfessorLoading,
     createSession,
     generateSessions,
     setSessionFilter,
@@ -152,6 +155,22 @@ export default function CoursesPage() {
       setModal({ type: "none" });
     } catch (error: any) {
       toast.error(error.response?.data?.message ?? t("messages.error.generic"));
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleConfirmDeleteProfessor = async () => {
+    if (modal.type !== "deleteProfessor") return;
+    setDeleteLoading(true);
+    try {
+      await deleteProfessor(modal.professor.id);
+      toast.success(t("messages.success.professorDeleted"));
+      setModal({ type: "none" });
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message ?? t("messages.error.professorDeleteError"),
+      );
     } finally {
       setDeleteLoading(false);
     }
@@ -594,16 +613,45 @@ export default function CoursesPage() {
                     label: t("columns.actions"),
                     className: "text-right",
                     render: (professor: ProfessorListItemDto) => (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        icon={<PencilIcon className="h-4 w-4" />}
-                        onClick={() =>
-                          setModal({ type: "editProfessor", professor })
-                        }
-                      >
-                        {t("buttons.modify")}
-                      </Button>
+                      <>
+                        {isAdmin && (
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              icon={<PencilIcon className="h-4 w-4" />}
+                              onClick={() =>
+                                setModal({ type: "editProfessor", professor })
+                              }
+                            >
+                              {t("buttons.modify")}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              icon={<TrashIcon className="h-4 w-4" />}
+                              onClick={() =>
+                                setModal({ type: "deleteProfessor", professor })
+                              }
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            >
+                              {t("buttons.delete")}
+                            </Button>
+                          </div>
+                        )}
+                        {!isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            icon={<PencilIcon className="h-4 w-4" />}
+                            onClick={() =>
+                              setModal({ type: "editProfessor", professor })
+                            }
+                          >
+                            {t("buttons.modify")}
+                          </Button>
+                        )}
+                      </>
                     ),
                   },
                 ]}
@@ -684,6 +732,24 @@ export default function CoursesPage() {
         confirmLabel={t("buttons.delete")}
         onConfirm={handleConfirmDelete}
         onClose={() => setModal({ type: "none" })}
+        isLoading={deleteLoading}
+      />
+
+      <ConfirmDialog
+        isOpen={modal.type === "deleteProfessor"}
+        onClose={() => setModal({ type: "none" })}
+        onConfirm={handleConfirmDeleteProfessor}
+        title={t("modals.confirmDeleteProfessor.title")}
+        message={
+          modal.type === "deleteProfessor"
+            ? t("modals.confirmDeleteProfessor.message", {
+                name: modal.professor.nom_complet,
+              })
+            : ""
+        }
+        variant="danger"
+        confirmLabel={t("buttons.delete")}
+        cancelLabel={t("buttons.cancel")}
         isLoading={deleteLoading}
       />
     </div>
