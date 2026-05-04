@@ -12,7 +12,10 @@ import type {
   PaginatedUsersResponseDto,
   UserListItemDto,
 } from "@clubmanager/types";
-import type { IUserRepository } from "../../domain/repositories/IUserRepository.js";
+import type {
+  IUserRepository,
+  DeletedUserDto,
+} from "../../domain/repositories/IUserRepository.js";
 import type {
   UpdateUserProfileDto,
   UserProfileDto,
@@ -66,6 +69,12 @@ interface UserListRow extends RowDataPacket {
   role_app: string | null;
   langue_preferee: string | null;
   date_inscription: Date;
+}
+
+interface DeletedUserRow extends UserListRow {
+  deleted_at: Date;
+  deleted_by: number | null;
+  deletion_reason: string | null;
 }
 
 interface CountRow extends RowDataPacket {
@@ -354,6 +363,62 @@ export class MySQLUserRepository implements IUserRepository {
     await pool.query(
       `UPDATE utilisateurs
        SET deleted_at = NULL, deleted_by = NULL, deletion_reason = NULL, active = TRUE, updated_at = NOW()
+       WHERE id = ?`,
+      [id],
+    );
+  }
+
+  /**
+   * Récupère la liste des utilisateurs supprimés (soft delete, non encore anonymisés)
+   */
+  async findDeleted(): Promise<DeletedUserDto[]> {
+    const [rows] = await pool.query<DeletedUserRow[]>(
+      `SELECT
+         u.id, u.userId, u.first_name, u.last_name,
+         u.nom_utilisateur, u.email, u.email_verified,
+         u.active, u.status_id, u.role_app, u.langue_preferee,
+         u.date_inscription, u.deleted_at, u.deleted_by, u.deletion_reason
+       FROM utilisateurs u
+       WHERE u.deleted_at IS NOT NULL AND u.anonymized = FALSE
+       ORDER BY u.deleted_at DESC`,
+    );
+
+    return rows.map((row) => ({
+      id: row.id,
+      userId: row.userId,
+      first_name: row.first_name,
+      last_name: row.last_name,
+      nom_utilisateur: row.nom_utilisateur ?? null,
+      email: row.email ?? "",
+      email_verified: Boolean(row.email_verified),
+      active: Boolean(row.active),
+      status_id: row.status_id,
+      role_app: row.role_app ?? undefined,
+      langue_preferee: row.langue_preferee ?? undefined,
+      date_inscription: new Date(row.date_inscription).toISOString(),
+      deleted_at: new Date(row.deleted_at).toISOString(),
+      deleted_by: row.deleted_by ?? null,
+      deletion_reason: row.deletion_reason ?? null,
+    }));
+  }
+
+  /**
+   * Anonymise un utilisateur : efface toutes les données personnelles (RGPD)
+   */
+  async anonymize(id: number): Promise<void> {
+    await pool.query(
+      `UPDATE utilisateurs SET
+         first_name = 'Anonymisé',
+         last_name = 'Anonymisé',
+         email = CONCAT('anon_', id, '@deleted.local'),
+         telephone = NULL,
+         adresse = NULL,
+         date_of_birth = '1900-01-01',
+         photo_url = NULL,
+         nom_utilisateur = NULL,
+         anonymized = TRUE,
+         active = FALSE,
+         updated_at = NOW()
        WHERE id = ?`,
       [id],
     );

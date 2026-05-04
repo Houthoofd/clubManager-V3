@@ -12,6 +12,8 @@ import { UpdateUserRoleUseCase } from "../../application/use-cases/UpdateUserRol
 import { UpdateUserStatusUseCase } from "../../application/use-cases/UpdateUserStatusUseCase.js";
 import { SoftDeleteUserUseCase } from "../../application/use-cases/SoftDeleteUserUseCase.js";
 import { RestoreUserUseCase } from "../../application/use-cases/RestoreUserUseCase.js";
+import { GetDeletedUsersUseCase } from "../../application/use-cases/GetDeletedUsersUseCase.js";
+import { AnonymizeUserUseCase } from "../../application/use-cases/AnonymizeUserUseCase.js";
 import { UpdateUserLanguageUseCase } from "../../application/use-cases/UpdateUserLanguageUseCase.js";
 import { MySQLUserRepository } from "../../infrastructure/repositories/MySQLUserRepository.js";
 import { NotifyUsersUseCase } from "../../application/use-cases/NotifyUsersUseCase.js";
@@ -25,6 +27,8 @@ const updateRoleUC = new UpdateUserRoleUseCase(repo);
 const updateStatusUC = new UpdateUserStatusUseCase(repo);
 const softDeleteUC = new SoftDeleteUserUseCase(repo);
 const restoreUC = new RestoreUserUseCase(repo);
+const getDeletedUsersUC = new GetDeletedUsersUseCase(repo);
+const anonymizeUC = new AnonymizeUserUseCase(repo);
 const updateLanguageUC = new UpdateUserLanguageUseCase(repo);
 const notifyUsersUC = new NotifyUsersUseCase(repo);
 const updateProfileUC = new UpdateUserProfileUseCase(repo);
@@ -217,6 +221,40 @@ export class UserController {
       const targetId = Number(req.params.id);
       await restoreUC.execute(targetId);
       res.json({ success: true, message: "Utilisateur restauré" });
+    } catch (error: any) {
+      const status = error.message.includes("introuvable") ? 404 : 400;
+      res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * GET /api/users/deleted
+   * Retourne la liste des utilisateurs supprimés (soft delete, non anonymisés) — admin seulement
+   */
+  async getDeletedUsers(_req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const users = await getDeletedUsersUC.execute();
+      res.json({ success: true, data: users });
+    } catch (error: any) {
+      res
+        .status(500)
+        .json({
+          success: false,
+          message: error.message,
+          error: "INTERNAL_ERROR",
+        });
+    }
+  }
+
+  /**
+   * POST /api/users/:id/anonymize
+   * Anonymise définitivement un utilisateur supprimé (RGPD) — admin seulement
+   */
+  async anonymize(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const targetId = Number(req.params.id);
+      await anonymizeUC.execute(targetId);
+      res.json({ success: true, message: "Utilisateur anonymisé" });
     } catch (error: any) {
       const status = error.message.includes("introuvable") ? 404 : 400;
       res.status(status).json({ success: false, message: error.message });

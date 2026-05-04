@@ -22,6 +22,7 @@ import {
   UserGroupIcon,
   CalendarDaysIcon,
   ClipboardDocumentListIcon,
+  DocumentTextIcon,
 } from "@heroicons/react/24/outline";
 import { UserRole } from "@clubmanager/types";
 import { INFORMATION_KEYS } from "@clubmanager/types";
@@ -274,6 +275,12 @@ const PrivateLayout: React.FC = () => {
       roles: [UserRole.ADMIN],
     },
     {
+      name: t("navigation.templates"),
+      path: "/templates",
+      icon: <DocumentTextIcon className="h-5 w-5" />,
+      roles: [UserRole.ADMIN, UserRole.PROFESSOR],
+    },
+    {
       name: t("navigation.reservations"),
       path: "/reservations",
       icon: <CalendarDaysIcon className="h-5 w-5" />,
@@ -309,6 +316,7 @@ const PrivateLayout: React.FC = () => {
     "/messages": "messages",
     "/statistics": "statistics",
     "/groups": "groups",
+    "/templates": "templates",
     "/reservations": "reservations",
     "/settings": "settings", // settings is always visible to admin
   };

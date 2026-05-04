@@ -10,6 +10,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { useRolesUtilisateur } from "../../../shared/hooks/useReferences";
 import { toast } from "sonner";
 import {
@@ -105,6 +106,7 @@ export function UsersPage() {
 
   const { hasRole } = useAuth();
   const isAdmin = hasRole(UserRole.ADMIN);
+  const navigate = useNavigate();
 
   // ── État local de la recherche (pour le debounce) ─────────────────────────
   const [searchInput, setSearchInput] = useState(filters.search);
@@ -263,6 +265,21 @@ export function UsersPage() {
         <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100">
           {t("common:common.total")} : {pagination.total}
         </span>
+      )}
+      {isAdmin && (
+        <button
+          type="button"
+          onClick={() => navigate("/users/deleted")}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-red-200
+                     bg-red-50 text-red-700 text-sm font-medium
+                     hover:bg-red-100 hover:border-red-300 transition-colors"
+          title={t("deleted.viewDeletedUsers")}
+        >
+          <TrashIcon className="h-4 w-4" />
+          <span className="hidden sm:inline">
+            {t("deleted.viewDeletedUsers")}
+          </span>
+        </button>
       )}
       {isAdmin && (
         <button

@@ -176,5 +176,23 @@
       "firstNameMin": "Le prénom doit contenir au moins 2 caractères",
       "lastNameMin": "Le nom doit contenir au moins 2 caractères"
     }
+  },
+  "deleted": {
+    "title": "Utilisateurs supprimés",
+    "description": "Liste des comptes supprimés (soft delete) — restauration ou anonymisation RGPD",
+    "backToUsers": "Retour aux utilisateurs",
+    "noDeleted": "Aucun utilisateur supprimé",
+    "deletedAt": "Supprimé le",
+    "deletedBy": "Supprimé par",
+    "deletionReason": "Raison",
+    "restore": "Restaurer",
+    "anonymize": "Anonymiser (RGPD)",
+    "anonymizeTitle": "Anonymiser cet utilisateur ?",
+    "anonymizeWarning": "Cette action est irréversible. Toutes les données personnelles (nom, email, téléphone, adresse) seront effacées définitivement conformément au RGPD.",
+    "anonymizeConfirm": "Confirmer l'anonymisation",
+    "userRestored": "Utilisateur restauré avec succès",
+    "userAnonymized": "Utilisateur anonymisé (RGPD)",
+    "loadError": "Impossible de charger les utilisateurs supprimés",
+    "viewDeletedUsers": "Utilisateurs supprimés"
   }
 }
