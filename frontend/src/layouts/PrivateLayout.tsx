@@ -253,6 +253,11 @@ const PrivateLayout: React.FC = () => {
       roles: [UserRole.ADMIN, UserRole.MEMBER],
     },
     {
+      name: t("navigation.myPayments"),
+      path: "/my-payments",
+      icon: <CreditCardIcon />,
+    },
+    {
       name: t("navigation.store"),
       path: "/store",
       icon: <ShoppingCartIcon />,
@@ -312,6 +317,7 @@ const PrivateLayout: React.FC = () => {
     "/users": "users",
     "/family": "families",
     "/payments": "payments",
+    "/my-payments": "payments",
     "/store": "store",
     "/messages": "messages",
     "/statistics": "statistics",

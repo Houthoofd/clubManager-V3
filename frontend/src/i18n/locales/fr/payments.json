@@ -371,5 +371,22 @@
     "generating": "Génération...",
     "created": "Échéance créée avec succès",
     "generatedSuccess": "échéance(s) générée(s)"
+  },
+  "myPayments": {
+    "title": "Mes paiements",
+    "description": "Votre historique de paiements et vos échéances à venir",
+    "tabPayments": "Mes paiements",
+    "tabSchedules": "Mes échéances",
+    "noPayments": "Aucun paiement enregistré",
+    "noSchedules": "Aucune échéance à venir",
+    "totalPaid": "Total payé",
+    "totalPending": "Total en attente",
+    "nextDueDate": "Prochain paiement",
+    "noDueDate": "Aucune échéance",
+    "payNow": "Payer par carte",
+    "paying": "Traitement...",
+    "paymentSuccess": "Paiement effectué avec succès",
+    "paymentError": "Erreur lors du paiement",
+    "loadError": "Impossible de charger vos paiements"
   }
 }

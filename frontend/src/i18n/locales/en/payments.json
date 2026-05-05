@@ -371,5 +371,22 @@
     "generating": "Generating...",
     "created": "Schedule created successfully",
     "generatedSuccess": "schedule(s) generated"
+  },
+  "myPayments": {
+    "title": "My Payments",
+    "description": "Your payment history and upcoming deadlines",
+    "tabPayments": "My Payments",
+    "tabSchedules": "My Schedules",
+    "noPayments": "No payments recorded",
+    "noSchedules": "No upcoming deadlines",
+    "totalPaid": "Total paid",
+    "totalPending": "Total pending",
+    "nextDueDate": "Next payment",
+    "noDueDate": "No deadline",
+    "payNow": "Pay by card",
+    "paying": "Processing...",
+    "paymentSuccess": "Payment successful",
+    "paymentError": "Payment error",
+    "loadError": "Unable to load your payments"
   }
 }

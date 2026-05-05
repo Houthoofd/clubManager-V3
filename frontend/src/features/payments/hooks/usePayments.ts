@@ -144,3 +144,32 @@ export const usePaymentSchedules = () => {
     refetch,
   };
 };
+
+// ─── useMyPayments / useMySchedules ──────────────────────────────────────────
+
+import { useQuery } from "@tanstack/react-query";
+import * as paymentsApi from "../api/paymentsApi";
+
+/**
+ * useMyPayments — Hook React Query pour les paiements du membre connecté.
+ */
+export const useMyPayments = (userId: number | undefined) => {
+  return useQuery({
+    queryKey: ["my-payments", userId],
+    queryFn: () => paymentsApi.getMyPayments(userId!),
+    enabled: !!userId,
+    staleTime: 30_000,
+  });
+};
+
+/**
+ * useMySchedules — Hook React Query pour les échéances du membre connecté.
+ */
+export const useMySchedules = (userId: number | undefined) => {
+  return useQuery({
+    queryKey: ["my-schedules", userId],
+    queryFn: () => paymentsApi.getMySchedules(userId!),
+    enabled: !!userId,
+    staleTime: 30_000,
+  });
+};

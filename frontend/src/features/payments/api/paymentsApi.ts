@@ -325,8 +325,33 @@ export const createSchedule = async (data: {
 export const generateSchedules = async (
   userId: number,
 ): Promise<{ generated: number; ids: number[] }> => {
-  const response = await apiClient.post<ApiResponse<{ generated: number; ids: number[] }>>(
-    `/payments/schedules/generate/${userId}`,
-  );
+  const response = await apiClient.post<
+    ApiResponse<{ generated: number; ids: number[] }>
+  >(`/payments/schedules/generate/${userId}`);
   return response.data.data!;
+};
+
+/**
+ * Récupère les paiements du membre connecté
+ */
+export const getMyPayments = async (
+  userId: number,
+): Promise<PaymentListItemDto[]> => {
+  return getUserPayments(userId);
+};
+
+/**
+ * Récupère les échéances du membre connecté
+ */
+export const getMySchedules = async (
+  userId: number,
+): Promise<ScheduleListItemDto[]> => {
+  return getUserSchedules(userId);
+};
+
+/**
+ * Rembourse un paiement (admin)
+ */
+export const refundPayment = async (id: number): Promise<void> => {
+  await apiClient.post(`/payments/${id}/refund`);
 };
