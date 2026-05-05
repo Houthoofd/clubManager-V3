@@ -353,5 +353,23 @@
     "error": "Error",
     "success": "Success",
     "required": "Required"
+  },
+  "schedule": {
+    "createButton": "Create schedule",
+    "generateButton": "Generate schedules",
+    "createTitle": "Create a schedule manually",
+    "generateTitle": "Generate schedules",
+    "generateDescription": "Automatically generates monthly schedules based on the user's assigned pricing plan.",
+    "userId": "User ID",
+    "amount": "Amount (€)",
+    "dueDate": "Due date",
+    "plan": "Pricing plan",
+    "noPlan": "— No plan —",
+    "create": "Create",
+    "creating": "Creating...",
+    "generate": "Generate",
+    "generating": "Generating...",
+    "created": "Schedule created successfully",
+    "generatedSuccess": "schedule(s) generated"
   }
 }

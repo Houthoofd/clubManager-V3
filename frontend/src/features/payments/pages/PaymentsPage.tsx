@@ -57,6 +57,7 @@ import {
 
 // ─── Composants tabs ──────────────────────────────────────────────────────────
 import { PaymentsTab, SchedulesTab, PlansTab } from "../components/tabs";
+import * as paymentsApi from "../api/paymentsApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -362,6 +363,15 @@ export function PaymentsPage() {
             handleMarkAsPaid={handlers.handleMarkAsPaid}
             markingScheduleId={markingScheduleId}
             isAdmin={isAdmin}
+            createSchedule={async (data) => {
+              await paymentsApi.createSchedule(data);
+              toast.success(t("schedule.created"));
+            }}
+            generateSchedules={async (userId) => {
+              const result = await paymentsApi.generateSchedules(userId);
+              toast.success(`${result.generated} ${t("schedule.generatedSuccess")}`);
+            }}
+            plans={plans}
           />
         )}
 

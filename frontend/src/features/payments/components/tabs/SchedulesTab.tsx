@@ -3,6 +3,9 @@
  * Affiche les échéances avec mise en évidence des retards
  */
 
+import { useState } from "react";
+import { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   CheckIcon,
@@ -47,6 +50,11 @@ interface SchedulesTabProps {
 
   // Permissions
   isAdmin: boolean;
+
+  // Create / Generate
+  createSchedule?: (data: { user_id: number; montant: number; date_echeance: string; plan_tarifaire_id?: number | null }) => Promise<void>;
+  generateSchedules?: (userId: number) => Promise<void>;
+  plans?: { id: number; nom: string; prix: number; duree_mois: number }[];
 }
 
 function formatCurrency(amount: number): string {
@@ -66,9 +74,26 @@ export function SchedulesTab({
   handleMarkAsPaid,
   markingScheduleId,
   isAdmin,
+  createSchedule,
+  generateSchedules,
+  plans,
 }: SchedulesTabProps) {
   const { t, i18n } = useTranslation("payments");
   const statutsEcheance = useStatutsEcheance();
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [showGenerate, setShowGenerate] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [newSchedule, setNewSchedule] = useState({ user_id: "", montant: "", date_echeance: "", plan_tarifaire_id: "" });
+  const [generateUserId, setGenerateUserId] = useState("");
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [showGenerate, setShowGenerate] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [newSchedule, setNewSchedule] = useState({ user_id: "", montant: "", date_echeance: "", plan_tarifaire_id: "" });
+  const [generateUserId, setGenerateUserId] = useState("");
 
   return (
     <div>
@@ -109,6 +134,21 @@ export function SchedulesTab({
             />
           </svg>
         </button>
+        {isAdmin && createSchedule && (
+          <>
+            <button type="button" onClick={() => setShowCreate(true)}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              {t("schedule.createButton")}
+            </button>
+            <button type="button" onClick={() => setShowGenerate(true)}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors">
+              {t("schedule.generateButton")}
+            </button>
+          </>
+        )}
       </div>
 
       {/* Filtre statut */}
@@ -254,6 +294,194 @@ export function SchedulesTab({
             pageSize={schedulesPagination.limit}
           />
         </>
+      )}
+    </div>
+      {showCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t("schedule.createTitle")}</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("schedule.userId")}</label>
+                <input type="number" value={newSchedule.user_id}
+                  onChange={e => setNewSchedule(s => ({ ...s, user_id: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="ID utilisateur" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("schedule.amount")}</label>
+                <input type="number" step="0.01" value={newSchedule.montant}
+                  onChange={e => setNewSchedule(s => ({ ...s, montant: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="0.00" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("schedule.dueDate")}</label>
+                <input type="date" value={newSchedule.date_echeance}
+                  onChange={e => setNewSchedule(s => ({ ...s, date_echeance: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              </div>
+              {plans && plans.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t("schedule.plan")}</label>
+                  <select value={newSchedule.plan_tarifaire_id}
+                    onChange={e => setNewSchedule(s => ({ ...s, plan_tarifaire_id: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="">{t("schedule.noPlan")}</option>
+                    {plans.map(p => <option key={p.id} value={p.id}>{p.nom}</option>)}
+                  </select>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end gap-3 mt-4">
+              <button type="button" onClick={() => setShowCreate(false)} disabled={creating}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                {t("common.cancel")}
+              </button>
+              <button type="button"
+                disabled={creating || !newSchedule.user_id || !newSchedule.montant || !newSchedule.date_echeance}
+                onClick={async () => {
+                  if (!createSchedule) return;
+                  setCreating(true);
+                  try {
+                    await createSchedule({ user_id: Number(newSchedule.user_id), montant: Number(newSchedule.montant), date_echeance: newSchedule.date_echeance, plan_tarifaire_id: newSchedule.plan_tarifaire_id ? Number(newSchedule.plan_tarifaire_id) : null });
+                    setShowCreate(false);
+                    setNewSchedule({ user_id: "", montant: "", date_echeance: "", plan_tarifaire_id: "" });
+                    refetchSchedules();
+                  } finally { setCreating(false); }
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                {creating ? t("schedule.creating") : t("schedule.create")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showGenerate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">{t("schedule.generateTitle")}</h2>
+            <p className="text-sm text-gray-500 mb-4">{t("schedule.generateDescription")}</p>
+            <input type="number" value={generateUserId} onChange={e => setGenerateUserId(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4"
+              placeholder={t("schedule.userId")} />
+            <div className="flex justify-end gap-3">
+              <button type="button" onClick={() => setShowGenerate(false)} disabled={generating}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                {t("common.cancel")}
+              </button>
+              <button type="button" disabled={generating || !generateUserId}
+                onClick={async () => {
+                  if (!generateSchedules) return;
+                  setGenerating(true);
+                  try {
+                    await generateSchedules(Number(generateUserId));
+                    setShowGenerate(false);
+                    setGenerateUserId("");
+                    refetchSchedules();
+                  } finally { setGenerating(false); }
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                {generating ? t("schedule.generating") : t("schedule.generate")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+      {showCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t("schedule.createTitle")}</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("schedule.userId")}</label>
+                <input type="number" value={newSchedule.user_id}
+                  onChange={e => setNewSchedule(s => ({ ...s, user_id: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="ID utilisateur" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("schedule.amount")}</label>
+                <input type="number" step="0.01" value={newSchedule.montant}
+                  onChange={e => setNewSchedule(s => ({ ...s, montant: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="0.00" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("schedule.dueDate")}</label>
+                <input type="date" value={newSchedule.date_echeance}
+                  onChange={e => setNewSchedule(s => ({ ...s, date_echeance: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              </div>
+              {plans && plans.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t("schedule.plan")}</label>
+                  <select value={newSchedule.plan_tarifaire_id}
+                    onChange={e => setNewSchedule(s => ({ ...s, plan_tarifaire_id: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="">{t("schedule.noPlan")}</option>
+                    {plans.map(p => <option key={p.id} value={p.id}>{p.nom}</option>)}
+                  </select>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end gap-3 mt-4">
+              <button type="button" onClick={() => setShowCreate(false)} disabled={creating}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                {t("common.cancel")}
+              </button>
+              <button type="button"
+                disabled={creating || !newSchedule.user_id || !newSchedule.montant || !newSchedule.date_echeance}
+                onClick={async () => {
+                  if (!createSchedule) return;
+                  setCreating(true);
+                  try {
+                    await createSchedule({ user_id: Number(newSchedule.user_id), montant: Number(newSchedule.montant), date_echeance: newSchedule.date_echeance, plan_tarifaire_id: newSchedule.plan_tarifaire_id ? Number(newSchedule.plan_tarifaire_id) : null });
+                    setShowCreate(false);
+                    setNewSchedule({ user_id: "", montant: "", date_echeance: "", plan_tarifaire_id: "" });
+                    refetchSchedules();
+                  } finally { setCreating(false); }
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                {creating ? t("schedule.creating") : t("schedule.create")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showGenerate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">{t("schedule.generateTitle")}</h2>
+            <p className="text-sm text-gray-500 mb-4">{t("schedule.generateDescription")}</p>
+            <input type="number" value={generateUserId} onChange={e => setGenerateUserId(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4"
+              placeholder={t("schedule.userId")} />
+            <div className="flex justify-end gap-3">
+              <button type="button" onClick={() => setShowGenerate(false)} disabled={generating}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                {t("common.cancel")}
+              </button>
+              <button type="button" disabled={generating || !generateUserId}
+                onClick={async () => {
+                  if (!generateSchedules) return;
+                  setGenerating(true);
+                  try {
+                    await generateSchedules(Number(generateUserId));
+                    setShowGenerate(false);
+                    setGenerateUserId("");
+                    refetchSchedules();
+                  } finally { setGenerating(false); }
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                {generating ? t("schedule.generating") : t("schedule.generate")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
