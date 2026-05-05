@@ -19,6 +19,7 @@ import { MySQLUserRepository } from "../../infrastructure/repositories/MySQLUser
 import { NotifyUsersUseCase } from "../../application/use-cases/NotifyUsersUseCase.js";
 import { UpdateUserProfileUseCase } from "../../application/use-cases/UpdateUserProfileUseCase.js";
 import { GetUserProfileUseCase } from "../../application/use-cases/GetUserProfileUseCase.js";
+import { AssignSubscriptionUseCase } from "../../application/use-cases/AssignSubscriptionUseCase.js";
 
 const repo = new MySQLUserRepository();
 const getUsersUC = new GetUsersUseCase(repo);
@@ -33,6 +34,7 @@ const updateLanguageUC = new UpdateUserLanguageUseCase(repo);
 const notifyUsersUC = new NotifyUsersUseCase(repo);
 const updateProfileUC = new UpdateUserProfileUseCase(repo);
 const getProfileUC = new GetUserProfileUseCase(repo);
+const assignSubscriptionUC = new AssignSubscriptionUseCase(repo);
 
 export class UserController {
   /**
@@ -297,6 +299,24 @@ export class UserController {
       });
     } catch (error: any) {
       res.status(400).json({ success: false, message: error.message });
+    }
+  }
+
+
+  /**
+   * PATCH /api/users/:id/subscription
+   * Assigne un plan tarifaire à un utilisateur (admin uniquement)
+   * Body : { abonnement_id: number | null }
+   */
+  async assignSubscription(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      const { abonnement_id } = req.body;
+      await assignSubscriptionUC.execute(id, abonnement_id ?? null);
+      res.json({ success: true, message: "Abonnement mis à jour" });
+    } catch (error: any) {
+      const status = error.message.includes("introuvable") ? 404 : 500;
+      res.status(status).json({ success: false, message: error.message });
     }
   }
 }

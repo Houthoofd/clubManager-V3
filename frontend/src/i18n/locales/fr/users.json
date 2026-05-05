@@ -194,5 +194,14 @@
     "userAnonymized": "Utilisateur anonymisé (RGPD)",
     "loadError": "Impossible de charger les utilisateurs supprimés",
     "viewDeletedUsers": "Utilisateurs supprimés"
+  },
+  "subscription": {
+    "assign": "Assigner un abonnement",
+    "title": "Assigner un plan tarifaire",
+    "noSubscription": "— Aucun abonnement —",
+    "loadingPlans": "Chargement des plans...",
+    "months": "mois",
+    "updated": "Abonnement mis à jour",
+    "error": "Erreur lors de la mise à jour de l'abonnement"
   }
 }

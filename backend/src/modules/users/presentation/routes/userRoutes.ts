@@ -63,6 +63,11 @@ router.patch("/:id/language", (req, res) =>
   ctrl.updateLanguage(req as any, res),
 );
 
+// PATCH /api/users/:id/subscription — admin : assigner un plan tarifaire
+router.patch("/:id/subscription", requireRole(UserRole.ADMIN), (req, res) =>
+  ctrl.assignSubscription(req as any, res),
+);
+
 // DELETE /api/users/:id — admin seulement
 router.delete("/:id", requireRole(UserRole.ADMIN), (req, res) =>
   ctrl.softDelete(req as any, res),

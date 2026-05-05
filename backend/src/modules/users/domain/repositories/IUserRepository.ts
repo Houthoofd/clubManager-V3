@@ -76,4 +76,6 @@ export interface IUserRepository {
   restore(id: number): Promise<void>;
   findDeleted(): Promise<DeletedUserDto[]>;
   anonymize(id: number): Promise<void>;
+  /** Met à jour l'abonnement (plan tarifaire) d'un utilisateur */
+  updateSubscription(id: number, abonnement_id: number | null): Promise<void>;
 }

@@ -194,5 +194,14 @@
     "userAnonymized": "User anonymized (GDPR)",
     "loadError": "Unable to load deleted users",
     "viewDeletedUsers": "Deleted users"
+  },
+  "subscription": {
+    "assign": "Assign subscription",
+    "title": "Assign pricing plan",
+    "noSubscription": "— No subscription —",
+    "loadingPlans": "Loading plans...",
+    "months": "months",
+    "updated": "Subscription updated",
+    "error": "Error updating subscription"
   }
 }
