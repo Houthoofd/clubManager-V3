@@ -308,3 +308,24 @@ export const markScheduleAsPaid = async (
   );
   return response.data.data!;
 };
+
+/**
+ * Récupère les paiements du membre connecté
+ */
+export const getMyPayments = async (userId: number): Promise<PaymentListItemDto[]> => {
+  return getUserPayments(userId);
+};
+
+/**
+ * Récupère les échéances du membre connecté
+ */
+export const getMySchedules = async (userId: number): Promise<ScheduleListItemDto[]> => {
+  return getUserSchedules(userId);
+};
+
+/**
+ * Rembourse un paiement (admin)
+ */
+export const refundPayment = async (id: number): Promise<void> => {
+  await apiClient.post(`/payments/${id}/refund`);
+};

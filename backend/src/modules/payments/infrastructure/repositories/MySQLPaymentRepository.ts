@@ -236,6 +236,16 @@ export class MySQLPaymentRepository implements IPaymentRepository {
     );
   }
 
+  /**
+   * Marque un paiement comme remboursé
+   */
+  async refund(id: number): Promise<void> {
+    await pool.query(
+      `UPDATE paiements SET statut = 'rembourse', updated_at = NOW() WHERE id = ?`,
+      [id],
+    );
+  }
+
   // ==================== HELPER METHODS ====================
 
   /**

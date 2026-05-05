@@ -80,4 +80,7 @@ export interface IPaymentRepository {
 
   /** Enregistre le PaymentIntent Stripe associé à un paiement */
   updateStripeIntent(id: number, paymentIntentId: string): Promise<void>;
+
+  /** Marque un paiement comme remboursé */
+  refund(id: number): Promise<void>;
 }

@@ -42,7 +42,8 @@
     "groups": "Groupes",
     "reservations": "Réservations",
     "templates": "Modèles",
-    "myCourses": "Mes cours"
+    "myCourses": "Mes cours",
+    "myPayments": "Mes paiements"
   },
   "footer": {
     "allRightsReserved": "Tous droits réservés",

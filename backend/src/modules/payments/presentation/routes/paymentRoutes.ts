@@ -169,6 +169,15 @@ router.patch(
 // ROUTE PARAMÉTRÉE — EN DERNIER (capte tout ce qui n'a pas matché)
 // ============================================================
 
+// POST /api/payments/:id/refund — rembourse un paiement (admin)
+// DOIT être AVANT GET /:id pour éviter une capture incorrecte
+router.post(
+  "/:id/refund",
+  authMiddleware,
+  requireRole(UserRole.ADMIN),
+  (req, res) => paymentCtrl.refund(req as any, res),
+);
+
 // GET /api/payments/:id — détail d'un paiement (admin + professor)
 router.get(
   "/:id",

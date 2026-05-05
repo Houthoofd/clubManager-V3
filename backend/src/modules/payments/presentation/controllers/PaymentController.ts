@@ -15,6 +15,7 @@ import { GetPaymentByIdUseCase } from "../../application/use-cases/payments/GetP
 import { GetUserPaymentsUseCase } from "../../application/use-cases/payments/GetUserPaymentsUseCase.js";
 import { CreatePaymentUseCase } from "../../application/use-cases/payments/CreatePaymentUseCase.js";
 import { CreateStripePaymentIntentUseCase } from "../../application/use-cases/payments/CreateStripePaymentIntentUseCase.js";
+import { RefundPaymentUseCase } from "../../application/use-cases/payments/RefundPaymentUseCase.js";
 
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 
@@ -37,6 +38,7 @@ const createStripeIntentUC = new CreateStripePaymentIntentUseCase(
   repo,
   stripeService,
 );
+const refundPaymentUC = new RefundPaymentUseCase(repo);
 
 // ==================== CONTROLLER ====================
 
@@ -182,6 +184,23 @@ export class PaymentController {
         message: error.message,
         error: "INTERNAL_ERROR",
       });
+    }
+  }
+
+  /**
+   * POST /api/payments/:id/refund
+   * Marque un paiement comme remboursé (admin uniquement)
+   */
+  async refund(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      await refundPaymentUC.execute(id);
+      res.json({ success: true, message: "Paiement remboursé" });
+    } catch (error: any) {
+      const status = error.message.includes("introuvable") ? 404
+        : error.message.includes("déjà") || error.message.includes("Impossible") ? 400
+        : 500;
+      res.status(status).json({ success: false, message: error.message });
     }
   }
 
