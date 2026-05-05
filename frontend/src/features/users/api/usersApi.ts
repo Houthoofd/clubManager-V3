@@ -134,3 +134,14 @@ export const notifyBulkUsers = async (
   );
   return response.data.data!;
 };
+/**
+ * Assigne un plan tarifaire (abonnement) à un utilisateur
+ * @param id - ID de l'utilisateur
+ * @param abonnement_id - ID du plan tarifaire, ou null pour retirer l'abonnement
+ */
+export const assignSubscription = async (
+  id: number,
+  abonnement_id: number | null,
+): Promise<void> => {
+  await apiClient.patch(`/users/${id}/subscription`, { abonnement_id });
+};

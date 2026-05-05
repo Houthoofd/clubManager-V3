@@ -341,6 +341,16 @@ export class MySQLUserRepository implements IUserRepository {
   }
 
   /**
+   * Met à jour l'abonnement (plan tarifaire) d'un utilisateur
+   */
+  async updateSubscription(id: number, abonnement_id: number | null): Promise<void> {
+    await pool.query(
+      "UPDATE utilisateurs SET abonnement_id = ?, updated_at = NOW() WHERE id = ?",
+      [abonnement_id, id],
+    );
+  }
+
+  /**
    * Suppression logique (soft delete) d'un utilisateur
    */
   async softDelete(

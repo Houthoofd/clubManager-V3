@@ -44,6 +44,8 @@ interface UserStore {
   clearError: () => void;
   fetchDeletedUsers: () => Promise<void>;
   anonymizeUser: (id: number) => Promise<void>;
+  assigningSubscription: boolean;
+  assignSubscription: (id: number, abonnement_id: number | null) => Promise<void>;
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -57,6 +59,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   error: null,
   deletedUsers: [],
   isLoadingDeleted: false,
+  assigningSubscription: false,
 
   // ── fetchUsers ────────────────────────────────────────────────────────────
   fetchUsers: async () => {
@@ -146,5 +149,16 @@ export const useUserStore = create<UserStore>((set, get) => ({
   anonymizeUser: async (id) => {
     await usersApi.anonymizeUser(id);
     await get().fetchDeletedUsers();
+  },
+
+  // ── assignSubscription ──────────────────────────────────────────────────────────────────────────
+  assignSubscription: async (id, abonnement_id) => {
+    set({ assigningSubscription: true });
+    try {
+      await usersApi.assignSubscription(id, abonnement_id);
+      await get().fetchUsers();
+    } finally {
+      set({ assigningSubscription: false });
+    }
   },
 }));

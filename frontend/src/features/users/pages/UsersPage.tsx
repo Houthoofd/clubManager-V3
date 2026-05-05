@@ -26,6 +26,8 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 
+import { getPlans } from "../../payments/api/paymentsApi";
+import type { PricingPlan } from "@clubmanager/types";
 import { useUsers } from "../hooks/useUsers";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { RecoveryRequestsPanel } from "../components/RecoveryRequestsPanel";
@@ -53,7 +55,8 @@ type ModalState =
   | { type: "editStatus"; user: UserListItemDto }
   | { type: "delete"; user: UserListItemDto }
   | { type: "sendEmail"; user: UserListItemDto }
-  | { type: "notifyBulk" };
+  | { type: "notifyBulk" }
+  | { type: "subscription"; user: UserListItemDto };
 
 // ─── Configuration des options ────────────────────────────────────────────────
 
@@ -101,6 +104,7 @@ export function UsersPage() {
     deleteUser,
     restoreUser,
     clearError,
+    assignSubscription,
     refetch,
   } = useUsers();
 
@@ -121,6 +125,11 @@ export function UsersPage() {
   const [deleteReason, setDeleteReason] = useState("");
   const [deleteReasonTouched, setDeleteReasonTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ── État de l'assignation d'abonnement ──────────────────────────────────
+  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<number | null>(null);
+  const [plans, setPlans] = useState<PricingPlan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(false);
 
   // ── Propagation de l'erreur du store vers le toast ────────────────────────
   useEffect(() => {
@@ -252,6 +261,20 @@ export function UsersPage() {
   };
 
   const closeModal = () => setModal({ type: "none" });
+
+  const handleSubscriptionSubmit = async () => {
+    if (modal.type !== "subscription") return;
+    setIsSubmitting(true);
+    try {
+      await assignSubscription(modal.user.id, selectedSubscriptionId);
+      toast.success(t("subscription.updated"));
+      closeModal();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message ?? t("subscription.error"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // ── Numéro de ligne absolu ────────────────────────────────────────────────
 
@@ -393,7 +416,31 @@ export function UsersPage() {
             <PencilIcon className="h-4 w-4" />
           </button>
 
-          {/* Envoyer un message — visible aux admins et professeurs */}
+          {/* Assigner un abonnement — admin uniquement */}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={async () => {
+                setPlansLoading(true);
+                try {
+                  const loadedPlans = await getPlans(true);
+                  setPlans(loadedPlans);
+                } catch {
+                  // ignore
+                } finally {
+                  setPlansLoading(false);
+                }
+                setSelectedSubscriptionId(null);
+                setModal({ type: "subscription", user: row });
+              }}
+              title={t("subscription.assign")}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400"
+            >
+              <TagIcon className="h-4 w-4" />
+            </button>
+          )}
+
+                    {/* Envoyer un message — visible aux admins et professeurs */}
           {row.status_id !== 5 && (
             <button
               type="button"
@@ -746,7 +793,64 @@ export function UsersPage() {
         onClose={closeModal}
       />
 
-      {/* ── Récupération de comptes (admin uniquement) ── */}
+      {/* ── Modal : Assigner un abonnement ── */}
+      {modal.type === "subscription" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">
+              {t("subscription.title")}
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              {modal.user.first_name} {modal.user.last_name}
+            </p>
+
+            {plansLoading ? (
+              <p className="text-sm text-gray-500">{t("subscription.loadingPlans")}</p>
+            ) : (
+              <select
+                value={selectedSubscriptionId ?? ""}
+                onChange={(e) =>
+                  setSelectedSubscriptionId(
+                    e.target.value ? Number(e.target.value) : null,
+                  )
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+              >
+                <option value="">{t("subscription.noSubscription")}</option>
+                {plans.map((plan) => (
+                  <option key={plan.id} value={plan.id}>
+                    {plan.nom} — {plan.prix}€ / {plan.duree_mois}{" "}
+                    {t("subscription.months")}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={isSubmitting}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                {t("modal.editRole.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={handleSubscriptionSubmit}
+                disabled={isSubmitting}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {isSubmitting
+                  ? t("modal.editRole.saving")
+                  : t("modal.editRole.confirm")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+            {/* ── Récupération de comptes (admin uniquement) ── */}
       {isAdmin && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <RecoveryRequestsPanel />
