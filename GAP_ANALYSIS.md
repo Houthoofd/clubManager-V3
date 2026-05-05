@@ -905,7 +905,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | Authentication / Security | ✅ ~90% | ✅ ~85% | ⚠️ 87% |
 | Users & Profiles | ✅ ~95% | ✅ ~95% | ✅ 95% |
 | Courses & Attendance | ✅ ~95% | ⚠️ ~65% | ⚠️ 80% |
-| Payments & Subscriptions | ✅ ~80% | ⚠️ ~60% | ⚠️ 70% |
+| Payments & Subscriptions | ✅ ~95% | ✅ ~85% | ✅ 90% |
 | Store (E-commerce) | ✅ 100% | ✅ 100% | ✅ 100% |
 | Messaging | ✅ ~85% | ✅ ~80% | ✅ 82% |
 | Notifications | ⚠️ ~70% | ✅ ~85% | ⚠️ 77% |
@@ -930,10 +930,10 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | **Sprint 1** | 🟡 Medium | GAP-08 (professor CRUD full) | 1 day | ✅ Done |
 | **Sprint 2** | 🟠 High | GAP-03 (templates frontend) | 3 days | ✅ Done |
 | **Sprint 2** | 🟠 High | GAP-04 (GDPR/soft delete page) | 2 days | ✅ Done |
-| Sprint 3 | 🟠 High | GAP-05 (member payments + Stripe) | 3 days | ⏳ Next |
-| Sprint 3 | 🟡 Medium | GAP-13 (subscription assignment) | 0.5 day | ⏳ |
-| Sprint 3 | 🟡 Medium | GAP-12 (schedule generation) | 1 day | ⏳ |
-| Sprint 4 | 🟠 High | GAP-06 (families admin) | 2 days | ⏳ |
+| **Sprint 3** | 🟠 High | GAP-05 (member payments + Stripe) | 3 days | ✅ Done |
+| **Sprint 3** | 🟡 Medium | GAP-13 (subscription assignment) | 0.5 day | ✅ Done |
+| **Sprint 3** | 🟡 Medium | GAP-12 (schedule generation) | 1 day | ✅ Done |
+| Sprint 4 | 🟠 High | GAP-06 (families admin) | 2 days | ⏳ Next |
 | Sprint 4 | 🟡 Medium | GAP-09+10 (notification admin) | 1 day | ⏳ |
 | Sprint 5 | 🔴 Critical | GAP-01 (alerts system — full) | 5–7 days | ⏳ |
 | Sprint 6 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days | ⏳ |
@@ -942,7 +942,8 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 **Completed Sprint 1:** 3 developer days — 3 gaps fully closed (GAP-02 ✅, GAP-07 ✅, GAP-08 ✅)  
 **Completed Sprint 2:** 2 developer days — 2 gaps fully closed (GAP-03 ✅, GAP-04 ✅)  
-**Total estimated remaining work: ~19–22 developer days**
+**Completed Sprint 3:** 4.5 developer days — 3 gaps fully closed (GAP-05 ✅, GAP-12 ✅, GAP-13 ✅)  
+**Total estimated remaining work: ~14–17 developer days**
 
 ---
 
