@@ -308,3 +308,25 @@ export const markScheduleAsPaid = async (
   );
   return response.data.data!;
 };
+
+export const createSchedule = async (data: {
+  user_id: number;
+  montant: number;
+  date_echeance: string;
+  plan_tarifaire_id?: number | null;
+}): Promise<{ id: number }> => {
+  const response = await apiClient.post<ApiResponse<{ id: number }>>(
+    "/payments/schedules",
+    data,
+  );
+  return response.data.data!;
+};
+
+export const generateSchedules = async (
+  userId: number,
+): Promise<{ generated: number; ids: number[] }> => {
+  const response = await apiClient.post<ApiResponse<{ generated: number; ids: number[] }>>(
+    `/payments/schedules/generate/${userId}`,
+  );
+  return response.data.data!;
+};

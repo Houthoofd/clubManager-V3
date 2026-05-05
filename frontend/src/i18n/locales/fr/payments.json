@@ -353,5 +353,23 @@
     "error": "Erreur",
     "success": "Succès",
     "required": "Requis"
+  },
+  "schedule": {
+    "createButton": "Créer une échéance",
+    "generateButton": "Générer les échéances",
+    "createTitle": "Créer une échéance manuellement",
+    "generateTitle": "Générer les échéances",
+    "generateDescription": "Génère automatiquement les échéances mensuelles selon le plan tarifaire assigné à l'utilisateur.",
+    "userId": "ID utilisateur",
+    "amount": "Montant (€)",
+    "dueDate": "Date d'échéance",
+    "plan": "Plan tarifaire",
+    "noPlan": "— Aucun plan —",
+    "create": "Créer",
+    "creating": "Création...",
+    "generate": "Générer",
+    "generating": "Génération...",
+    "created": "Échéance créée avec succès",
+    "generatedSuccess": "échéance(s) générée(s)"
   }
 }
