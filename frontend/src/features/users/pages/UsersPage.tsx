@@ -10,7 +10,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { useRolesUtilisateur } from "../../../shared/hooks/useReferences";
 import { toast } from "sonner";
 import {
@@ -118,7 +117,6 @@ export function UsersPage() {
 
   const { hasRole } = useAuth();
   const isAdmin = hasRole(UserRole.ADMIN);
-  const navigate = useNavigate();
 
   // ── Onglet actif ───────────────────────────────────────────────────────────────
   const [activeUserTab, setActiveUserTab] = useState<UserTabId>("active");
@@ -328,21 +326,6 @@ export function UsersPage() {
       {isAdmin && (
         <button
           type="button"
-          onClick={() => navigate("/users/deleted")}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-red-200
-                     bg-red-50 text-red-700 text-sm font-medium
-                     hover:bg-red-100 hover:border-red-300 transition-colors"
-          title={t("deleted.viewDeletedUsers")}
-        >
-          <TrashIcon className="h-4 w-4" />
-          <span className="hidden sm:inline">
-            {t("deleted.viewDeletedUsers")}
-          </span>
-        </button>
-      )}
-      {isAdmin && (
-        <button
-          type="button"
           onClick={() => setModal({ type: "notifyBulk" })}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-orange-200
                      bg-orange-50 text-orange-700 text-sm font-medium
@@ -531,84 +514,82 @@ export function UsersPage() {
   // ── Rendu ─────────────────────────────────────────────────────────────────
 
   return (
-    <>
-      {/* ── Tab navigation ── */}
+    <div className="space-y-6">
+      {/* ── En-tête ── */}
+      <PageHeader
+        icon={<UsersIcon className="h-8 w-8 text-blue-600" />}
+        title={t("title")}
+        description={t("description")}
+        actions={activeUserTab === "active" ? headerActions : undefined}
+      />
+
+      {/* ── Conteneur onglets ── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        {/* ── Navigation ── */}
         <TabGroup
           tabs={userTabs}
           activeTab={activeUserTab}
           onTabChange={(id) => setActiveUserTab(id as UserTabId)}
         />
-      </div>
 
-      {activeUserTab === "active" && (
-        <div>
-          <div className="space-y-6">
-            {/* ── En-tête ── */}
-            <PageHeader
-              icon={<UsersIcon className="h-8 w-8 text-blue-600" />}
-              title={t("title")}
-              description={t("description")}
-              actions={headerActions}
-            />
-
+        {/* ────────────────────────────────────── ONGLET 1 : Utilisateurs actifs */}
+        {activeUserTab === "active" && (
+          <div className="p-6 space-y-6">
             {/* ── Barre de filtres ── */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-              <div className="flex flex-col sm:flex-row gap-3">
-                {/* Recherche */}
-                <div className="flex-1 min-w-0">
-                  <Input
-                    type="search"
-                    placeholder={t("searchPlaceholder")}
-                    value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
-                    leftIcon={
-                      <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
-                    }
-                  />
-                </div>
-
-                {/* Filtre rôle */}
-                <select
-                  value={filters.role_app}
-                  onChange={(e) => setFilter("role_app", e.target.value)}
-                  className="px-3 py-3 border border-gray-300 rounded-lg text-sm bg-white
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                       transition-colors min-w-[140px]"
-                >
-                  <option value="">{t("allRoles")}</option>
-                  {rolesUtilisateur.length > 0 ? (
-                    rolesUtilisateur.map((r) => (
-                      <option key={r.code} value={r.code}>
-                        {i18n.language === "en" && r.nom_en ? r.nom_en : r.nom}
-                      </option>
-                    ))
-                  ) : (
-                    <>
-                      <option value="admin">{t("roles.admin")}</option>
-                      <option value="professor">{t("roles.professor")}</option>
-                      <option value="member">{t("roles.member")}</option>
-                      <option value="parent">{t("roles.parent")}</option>
-                    </>
-                  )}
-                </select>
-
-                {/* Filtre statut */}
-                <select
-                  value={filters.status_id}
-                  onChange={(e) => setFilter("status_id", e.target.value)}
-                  className="px-3 py-3 border border-gray-300 rounded-lg text-sm bg-white
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                       transition-colors min-w-[150px]"
-                >
-                  <option value="">{t("allStatuses")}</option>
-                  <option value="1">{t("statuses.active")}</option>
-                  <option value="2">{t("statuses.inactive")}</option>
-                  <option value="3">{t("statuses.suspended")}</option>
-                  <option value="4">{t("statuses.pending")}</option>
-                  <option value="5">{t("statuses.archived")}</option>
-                </select>
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Recherche */}
+              <div className="flex-1 min-w-0">
+                <Input
+                  type="search"
+                  placeholder={t("searchPlaceholder")}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  leftIcon={
+                    <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
+                  }
+                />
               </div>
+
+              {/* Filtre rôle */}
+              <select
+                value={filters.role_app}
+                onChange={(e) => setFilter("role_app", e.target.value)}
+                className="px-3 py-3 border border-gray-300 rounded-lg text-sm bg-white
+                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                     transition-colors min-w-[140px]"
+              >
+                <option value="">{t("allRoles")}</option>
+                {rolesUtilisateur.length > 0 ? (
+                  rolesUtilisateur.map((r) => (
+                    <option key={r.code} value={r.code}>
+                      {i18n.language === "en" && r.nom_en ? r.nom_en : r.nom}
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="admin">{t("roles.admin")}</option>
+                    <option value="professor">{t("roles.professor")}</option>
+                    <option value="member">{t("roles.member")}</option>
+                    <option value="parent">{t("roles.parent")}</option>
+                  </>
+                )}
+              </select>
+
+              {/* Filtre statut */}
+              <select
+                value={filters.status_id}
+                onChange={(e) => setFilter("status_id", e.target.value)}
+                className="px-3 py-3 border border-gray-300 rounded-lg text-sm bg-white
+                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                     transition-colors min-w-[150px]"
+              >
+                <option value="">{t("allStatuses")}</option>
+                <option value="1">{t("statuses.active")}</option>
+                <option value="2">{t("statuses.inactive")}</option>
+                <option value="3">{t("statuses.suspended")}</option>
+                <option value="4">{t("statuses.pending")}</option>
+                <option value="5">{t("statuses.archived")}</option>
+              </select>
             </div>
 
             {/* ── Table ── */}
@@ -652,277 +633,269 @@ export function UsersPage() {
               />
             )}
 
-            {/* ── Modals ── */}
-
-            {/* Modal : Modifier le rôle */}
-            <Modal
-              isOpen={modal.type === "editRole"}
-              onClose={closeModal}
-              size="sm"
-            >
-              <Modal.Header
-                title={t("modal.editRole.title")}
-                showCloseButton
-                onClose={closeModal}
-              />
-              <Modal.Body>
-                <SelectField
-                  id="role-select"
-                  label={t("modal.editRole.label")}
-                  options={roleOptions}
-                  value={selectedRole}
-                  onChange={(value) => setSelectedRole(String(value))}
-                  required
-                />
-              </Modal.Body>
-              <Modal.Footer align="right">
-                <Button
-                  variant="outline"
-                  onClick={closeModal}
-                  disabled={isSubmitting}
-                >
-                  {t("modal.editRole.cancel")}
-                </Button>
-                <SubmitButton
-                  isLoading={isSubmitting}
-                  loadingText={t("modal.editRole.saving")}
-                  onClick={handleRoleSubmit}
-                  type="button"
-                  disabled={
-                    isSubmitting ||
-                    (modal.type === "editRole" &&
-                      selectedRole === modal.user.role_app)
-                  }
-                >
-                  {t("modal.editRole.confirm")}
-                </SubmitButton>
-              </Modal.Footer>
-            </Modal>
-
-            {/* Modal : Modifier le statut */}
-            <Modal
-              isOpen={modal.type === "editStatus"}
-              onClose={closeModal}
-              size="sm"
-            >
-              <Modal.Header
-                title={t("modal.editStatus.title")}
-                showCloseButton
-                onClose={closeModal}
-              />
-              <Modal.Body>
-                <SelectField
-                  id="status-select"
-                  label={t("modal.editStatus.label")}
-                  options={statusOptions}
-                  value={selectedStatusId}
-                  onChange={(value) => setSelectedStatusId(Number(value))}
-                  required
-                />
-              </Modal.Body>
-              <Modal.Footer align="right">
-                <Button
-                  variant="outline"
-                  onClick={closeModal}
-                  disabled={isSubmitting}
-                >
-                  {t("modal.editStatus.cancel")}
-                </Button>
-                <SubmitButton
-                  isLoading={isSubmitting}
-                  loadingText={t("modal.editStatus.saving")}
-                  onClick={handleStatusSubmit}
-                  type="button"
-                  disabled={
-                    isSubmitting ||
-                    (modal.type === "editStatus" &&
-                      selectedStatusId === modal.user.status_id)
-                  }
-                >
-                  {t("modal.editStatus.confirm")}
-                </SubmitButton>
-              </Modal.Footer>
-            </Modal>
-
-            {/* Modal : Supprimer l'utilisateur */}
-            <Modal
-              isOpen={modal.type === "delete"}
-              onClose={closeModal}
-              size="md"
-            >
-              <Modal.Header
-                title={t("modal.delete.title")}
-                showCloseButton
-                onClose={closeModal}
-              />
-              <Modal.Body>
-                {/* Avertissement */}
-                <div className="mb-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
-                  <div className="flex items-start gap-3">
-                    <ExclamationTriangleIcon className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
-                    <div className="text-sm text-red-700 leading-relaxed">
-                      <p>
-                        {t("deleteWarningTitle")}{" "}
-                        <span className="font-semibold">
-                          {modal.type === "delete" &&
-                            `${modal.user.first_name} ${modal.user.last_name}`}
-                        </span>
-                        .
-                      </p>
-                      <p className="mt-1">
-                        {t("modal.delete.warningBody")}{" "}
-                        {t("deleteWarningNoAccess")}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Champ raison */}
-                <div>
-                  <label
-                    htmlFor="deleteReason"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    {t("deleteReason")} *
-                  </label>
-                  <textarea
-                    id="delete-reason"
-                    rows={3}
-                    value={deleteReason}
-                    onChange={(e) => setDeleteReason(e.target.value)}
-                    onBlur={() => setDeleteReasonTouched(true)}
-                    disabled={isSubmitting}
-                    placeholder={t("deleteReasonPlaceholder")}
-                    className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm resize-none
-                          placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors
-                          disabled:bg-gray-50 disabled:cursor-not-allowed
-                          ${
-                            showDeleteError
-                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                              : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                          }`}
-                  />
-                  {showDeleteError && (
-                    <p className="mt-1.5 text-xs text-red-600">
-                      {t("deleteReasonError")}
-                    </p>
-                  )}
-                  {!showDeleteError && (
-                    <p className="mt-1.5 text-xs text-gray-400">
-                      {t("deleteReasonMinChars", {
-                        count: trimmedDeleteReason.length,
-                      })}
-                    </p>
-                  )}
-                </div>
-              </Modal.Body>
-              <Modal.Footer align="right">
-                <Button
-                  variant="outline"
-                  onClick={closeModal}
-                  disabled={isSubmitting}
-                >
-                  {t("modal.delete.cancel")}
-                </Button>
-                <SubmitButton
-                  isLoading={isSubmitting}
-                  loadingText={t("modal.delete.deleting")}
-                  onClick={handleDeleteSubmit}
-                  type="button"
-                  variant="danger"
-                  disabled={isSubmitting}
-                >
-                  {t("modal.delete.confirm")}
-                </SubmitButton>
-              </Modal.Footer>
-            </Modal>
-
-            {/* Modal : Envoyer un email à un utilisateur */}
-            <SendToUserModal
-              user={modal.type === "sendEmail" ? modal.user : null}
-              isOpen={modal.type === "sendEmail"}
-              onClose={closeModal}
-            />
-
-            {/* Modal : Notification en masse */}
-            <NotifyUsersModal
-              isOpen={modal.type === "notifyBulk"}
-              onClose={closeModal}
-            />
-
-            {/* ── Modal : Assigner un abonnement ── */}
-            {modal.type === "subscription" && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-1">
-                    {t("subscription.title")}
-                  </h2>
-                  <p className="text-sm text-gray-500 mb-4">
-                    {modal.user.first_name} {modal.user.last_name}
-                  </p>
-
-                  {plansLoading ? (
-                    <p className="text-sm text-gray-500">
-                      {t("subscription.loadingPlans")}
-                    </p>
-                  ) : (
-                    <select
-                      value={selectedSubscriptionId ?? ""}
-                      onChange={(e) =>
-                        setSelectedSubscriptionId(
-                          e.target.value ? Number(e.target.value) : null,
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
-                    >
-                      <option value="">
-                        {t("subscription.noSubscription")}
-                      </option>
-                      {plans.map((plan) => (
-                        <option key={plan.id} value={plan.id}>
-                          {plan.nom} — {plan.prix}€ / {plan.duree_mois}{" "}
-                          {t("subscription.months")}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-
-                  <div className="flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      disabled={isSubmitting}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      {t("modal.editRole.cancel")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleSubscriptionSubmit}
-                      disabled={isSubmitting}
-                      className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                    >
-                      {isSubmitting
-                        ? t("modal.editRole.saving")
-                        : t("modal.editRole.confirm")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* ── Récupération de comptes (admin uniquement) ── */}
             {isAdmin && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className="rounded-xl border border-gray-100 p-6">
                 <RecoveryRequestsPanel />
               </div>
             )}
           </div>
+        )}
+
+        {/* ────────────────────────────────── ONGLET 2 : Utilisateurs supprimés */}
+        {activeUserTab === "deleted" && isAdmin && <DeletedUsersPage />}
+
+        {/* ────────────────────────────────────────── ONGLET 3 : Groupes */}
+        {activeUserTab === "groups" && isAdmin && <GroupsPage />}
+      </div>
+
+      {/* ── Modals (contrôlées par état, toujours dans le DOM) ────────────────────── */}
+
+      {/* Modal : Modifier le rôle */}
+      <Modal isOpen={modal.type === "editRole"} onClose={closeModal} size="sm">
+        <Modal.Header
+          title={t("modal.editRole.title")}
+          showCloseButton
+          onClose={closeModal}
+        />
+        <Modal.Body>
+          <SelectField
+            id="role-select"
+            label={t("modal.editRole.label")}
+            options={roleOptions}
+            value={selectedRole}
+            onChange={(value) => setSelectedRole(String(value))}
+            required
+          />
+        </Modal.Body>
+        <Modal.Footer align="right">
+          <Button
+            variant="outline"
+            onClick={closeModal}
+            disabled={isSubmitting}
+          >
+            {t("modal.editRole.cancel")}
+          </Button>
+          <SubmitButton
+            isLoading={isSubmitting}
+            loadingText={t("modal.editRole.saving")}
+            onClick={handleRoleSubmit}
+            type="button"
+            disabled={
+              isSubmitting ||
+              (modal.type === "editRole" &&
+                selectedRole === modal.user.role_app)
+            }
+          >
+            {t("modal.editRole.confirm")}
+          </SubmitButton>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal : Modifier le statut */}
+      <Modal
+        isOpen={modal.type === "editStatus"}
+        onClose={closeModal}
+        size="sm"
+      >
+        <Modal.Header
+          title={t("modal.editStatus.title")}
+          showCloseButton
+          onClose={closeModal}
+        />
+        <Modal.Body>
+          <SelectField
+            id="status-select"
+            label={t("modal.editStatus.label")}
+            options={statusOptions}
+            value={selectedStatusId}
+            onChange={(value) => setSelectedStatusId(Number(value))}
+            required
+          />
+        </Modal.Body>
+        <Modal.Footer align="right">
+          <Button
+            variant="outline"
+            onClick={closeModal}
+            disabled={isSubmitting}
+          >
+            {t("modal.editStatus.cancel")}
+          </Button>
+          <SubmitButton
+            isLoading={isSubmitting}
+            loadingText={t("modal.editStatus.saving")}
+            onClick={handleStatusSubmit}
+            type="button"
+            disabled={
+              isSubmitting ||
+              (modal.type === "editStatus" &&
+                selectedStatusId === modal.user.status_id)
+            }
+          >
+            {t("modal.editStatus.confirm")}
+          </SubmitButton>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal : Supprimer l'utilisateur */}
+      <Modal isOpen={modal.type === "delete"} onClose={closeModal} size="md">
+        <Modal.Header
+          title={t("modal.delete.title")}
+          showCloseButton
+          onClose={closeModal}
+        />
+        <Modal.Body>
+          {/* Avertissement */}
+          <div className="mb-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+            <div className="flex items-start gap-3">
+              <ExclamationTriangleIcon className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-red-700 leading-relaxed">
+                <p>
+                  {t("deleteWarningTitle")}{" "}
+                  <span className="font-semibold">
+                    {modal.type === "delete" &&
+                      `${modal.user.first_name} ${modal.user.last_name}`}
+                  </span>
+                  .
+                </p>
+                <p className="mt-1">
+                  {t("modal.delete.warningBody")} {t("deleteWarningNoAccess")}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Champ raison */}
+          <div>
+            <label
+              htmlFor="deleteReason"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              {t("deleteReason")} *
+            </label>
+            <textarea
+              id="delete-reason"
+              rows={3}
+              value={deleteReason}
+              onChange={(e) => setDeleteReason(e.target.value)}
+              onBlur={() => setDeleteReasonTouched(true)}
+              disabled={isSubmitting}
+              placeholder={t("deleteReasonPlaceholder")}
+              className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm resize-none
+                    placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors
+                    disabled:bg-gray-50 disabled:cursor-not-allowed
+                    ${
+                      showDeleteError
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    }`}
+            />
+            {showDeleteError && (
+              <p className="mt-1.5 text-xs text-red-600">
+                {t("deleteReasonError")}
+              </p>
+            )}
+            {!showDeleteError && (
+              <p className="mt-1.5 text-xs text-gray-400">
+                {t("deleteReasonMinChars", {
+                  count: trimmedDeleteReason.length,
+                })}
+              </p>
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer align="right">
+          <Button
+            variant="outline"
+            onClick={closeModal}
+            disabled={isSubmitting}
+          >
+            {t("modal.delete.cancel")}
+          </Button>
+          <SubmitButton
+            isLoading={isSubmitting}
+            loadingText={t("modal.delete.deleting")}
+            onClick={handleDeleteSubmit}
+            type="button"
+            variant="danger"
+            disabled={isSubmitting}
+          >
+            {t("modal.delete.confirm")}
+          </SubmitButton>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal : Envoyer un email à un utilisateur */}
+      <SendToUserModal
+        user={modal.type === "sendEmail" ? modal.user : null}
+        isOpen={modal.type === "sendEmail"}
+        onClose={closeModal}
+      />
+
+      {/* Modal : Notification en masse */}
+      <NotifyUsersModal
+        isOpen={modal.type === "notifyBulk"}
+        onClose={closeModal}
+      />
+
+      {/* Modal : Assigner un abonnement */}
+      {modal.type === "subscription" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">
+              {t("subscription.title")}
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              {modal.user.first_name} {modal.user.last_name}
+            </p>
+
+            {plansLoading ? (
+              <p className="text-sm text-gray-500">
+                {t("subscription.loadingPlans")}
+              </p>
+            ) : (
+              <select
+                value={selectedSubscriptionId ?? ""}
+                onChange={(e) =>
+                  setSelectedSubscriptionId(
+                    e.target.value ? Number(e.target.value) : null,
+                  )
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+              >
+                <option value="">{t("subscription.noSubscription")}</option>
+                {plans.map((plan) => (
+                  <option key={plan.id} value={plan.id}>
+                    {plan.nom} — {plan.prix}€ / {plan.duree_mois}{" "}
+                    {t("subscription.months")}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={isSubmitting}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                {t("modal.editRole.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={handleSubscriptionSubmit}
+                disabled={isSubmitting}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {isSubmitting
+                  ? t("modal.editRole.saving")
+                  : t("modal.editRole.confirm")}
+              </button>
+            </div>
+          </div>
         </div>
       )}
-
-      {activeUserTab === "deleted" && isAdmin && <DeletedUsersPage />}
-      {activeUserTab === "groups" && isAdmin && <GroupsPage />}
-    </>
+    </div>
   );
 }
