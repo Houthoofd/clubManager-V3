@@ -35,6 +35,7 @@ import {
   Squares2X2Icon,
   LanguageIcon,
   AcademicCapIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 
 // ─── Sections de paramètres ───────────────────────────────────────────────────
@@ -46,6 +47,7 @@ import {
   AppearanceSection,
   NavigationSection,
   LocalizationSection,
+  SecuritySection,
 } from "../components/sections";
 import { GradesManager } from "../components/GradesManager";
 
@@ -59,7 +61,8 @@ type TabId =
   | "apparence"
   | "navigation"
   | "localisation"
-  | "grades";
+  | "grades"
+  | "security";
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
@@ -304,6 +307,11 @@ export const SettingsPage = () => {
       label: t("tabs.grades"),
       icon: <AcademicCapIcon className="h-5 w-5" />,
     },
+    {
+      id: "security",
+      label: "Sécurité",
+      icon: <ShieldCheckIcon className="h-5 w-5" />,
+    },
   ];
 
   // ─── Rendu ─────────────────────────────────────────────────────────────────
@@ -400,12 +408,15 @@ export const SettingsPage = () => {
         />
       )}
 
-      {/* ─── Onglet: Grades / Ceintures ───────────────────────────────────── */}
+      {/* ─── Onglet: Grades / Ceintures ─────────────────────────────────────── */}
       {activeTab === "grades" && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <GradesManager />
         </div>
       )}
+
+      {/* ─── Onglet: Sécurité / Audit ─────────────────────────────────────── */}
+      {activeTab === "security" && <SecuritySection />}
     </div>
   );
 };

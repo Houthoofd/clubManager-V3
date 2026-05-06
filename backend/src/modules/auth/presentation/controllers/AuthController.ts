@@ -22,7 +22,9 @@ import { VerifyEmailUseCase } from "../../application/use-cases/VerifyEmailUseCa
 import { ResendVerificationEmailUseCase } from "../../application/use-cases/ResendVerificationEmailUseCase.js";
 import { RequestPasswordResetUseCase } from "../../application/use-cases/RequestPasswordResetUseCase.js";
 import { ResetPasswordUseCase } from "../../application/use-cases/ResetPasswordUseCase.js";
+import { GetLoginAttemptsUseCase } from "../../application/use-cases/GetLoginAttemptsUseCase.js";
 import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
+import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
 
 export class AuthController {
   private registerUseCase: RegisterUseCase;
@@ -33,6 +35,7 @@ export class AuthController {
   private resendVerificationEmailUseCase: ResendVerificationEmailUseCase;
   private requestPasswordResetUseCase: RequestPasswordResetUseCase;
   private resetPasswordUseCase: ResetPasswordUseCase;
+  private getLoginAttemptsUseCase: GetLoginAttemptsUseCase;
 
   constructor(authRepository: IAuthRepository) {
     this.registerUseCase = new RegisterUseCase(authRepository);
@@ -47,6 +50,7 @@ export class AuthController {
       authRepository,
     );
     this.resetPasswordUseCase = new ResetPasswordUseCase(authRepository);
+    this.getLoginAttemptsUseCase = new GetLoginAttemptsUseCase(authRepository);
   }
 
   /**
@@ -384,6 +388,52 @@ export class AuthController {
       });
     } catch (error) {
       next(error);
+    }
+  };
+
+  /**
+   * GET /api/auth/audit/login-attempts
+   * Admin only — retourne les tentatives de connexion paginées
+   */
+  getLoginAttempts = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      if (req.user!.role_app !== "admin") {
+        res
+          .status(403)
+          .json({
+            success: false,
+            message: "Accès réservé aux administrateurs",
+          });
+        return;
+      }
+
+      const page = Math.max(1, parseInt(req.query.page as string) || 1);
+      const limit = Math.min(
+        100,
+        Math.max(1, parseInt(req.query.limit as string) || 50),
+      );
+      const email = req.query.email as string | undefined;
+      const ip = req.query.ip as string | undefined;
+      const onlyFailed = req.query.onlyFailed === "true";
+
+      const result = await this.getLoginAttemptsUseCase.execute({
+        page,
+        limit,
+        email,
+        ip,
+        onlyFailed,
+      });
+
+      res.json({
+        success: true,
+        message: "Tentatives de connexion récupérées",
+        data: result,
+      });
+    } catch (error: any) {
+      console.error("[AuthController.getLoginAttempts]", error);
+      res
+        .status(500)
+        .json({ success: false, message: error.message ?? "Erreur interne" });
     }
   };
 }
