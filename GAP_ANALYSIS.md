@@ -144,7 +144,7 @@ Legend: ✅ Backend implemented | ⚠️ Partial | ❌ Not implemented
 **Base path:** `/api/auth`
 
 | Method | Route | Access | Status |
-|---|---|---|---|
+|---|---|---|-|
 | POST | `/register` | Public | ✅ |
 | POST | `/login` | Public | ✅ |
 | POST | `/refresh` | Public (refresh token) | ✅ |
@@ -156,12 +156,14 @@ Legend: ✅ Backend implemented | ⚠️ Partial | ❌ Not implemented
 | POST | `/reset-password` | Public | ✅ |
 | GET | `/me` | Private | ✅ |
 | GET | `/health` | Public | ✅ |
+| GET | `/sessions` | Private | ✅ Sprint 5 (GAP-18) |
+| DELETE | `/sessions/:id` | Private | ✅ Sprint 5 (GAP-18) |
+| GET | `/audit/login-attempts` | Admin | ✅ Sprint 5 (GAP-14) |
+| POST | `/change-email` | Private | ✅ Sprint 6 (GAP-15) |
+| POST | `/confirm-email-change` | Public | ✅ Sprint 6 (GAP-15) |
 
 **Missing endpoints:**
-- `PATCH /change-email` — Users cannot change their email address through the API (the DB has `change_email` token type ready)
-- `GET /sessions` (admin) — No way to list active refresh token sessions for a user
-- `DELETE /sessions/:id` (admin) — No way to revoke a specific session
-- `GET /login-attempts` (admin) — No audit endpoint over `login_attempts`/`auth_attempts` tables
+- `GET /export` — No CSV export of the member list
 
 ---
 
@@ -659,11 +661,12 @@ This entire domain has no backend module whatsoever. Required endpoints would in
 
 | File | Description | Status |
 |---|---|---|
-| `UsersPage.tsx` | Admin: paginated user list with CRUD, role change, status, soft delete | ✅ |
-| `ProfilePage.tsx` | User's own profile + edit form | ✅ |
+| `UsersPage.tsx` | Admin: liste paginiée + onglets (Actifs / Supprimés / Groupes) | ✅ |
+| `DeletedUsersPage.tsx` | Gestion comptes supprimés — onglet dans `UsersPage` | ✅ |
+| `GroupsPage.tsx` | Gestion des groupes — onglet dans `UsersPage` | ✅ |
+| `ProfilePage.tsx` | Profil utilisateur — layout tabulé (Mon profil / Sécurité) avec `PageHeader`, formulaire édition, changement d'email (GAP-15) et gestion sessions | ✅ |
 
 **Missing pages:**
-- No `DeletedUsersPage` — No admin page for managing soft-deleted users (restore / permanently anonymize)
 - No `GDPRManagementPage` — No GDPR compliance UI (right to erasure, anonymization, data export)
 
 ---
@@ -846,14 +849,17 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-15: Email Change Flow
+#### ~~GAP-15: Email Change Flow~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
-| **DB tables** | `email_validation_tokens` (type: `change_email`), `utilisateurs` |
-| **Backend work** | Add `POST /api/auth/change-email` (Private: request email change, sends verification token). The DB token type already supports this. |
-| **Frontend work** | Add "Change Email" section to `ProfilePage` with current email display + new email form. |
-| **Complexity** | 🟡 **Small–Medium** — 1 endpoint + email sending logic + ProfilePage section. |
+| **DB tables** | `email_validation_tokens` (`token_type = 'change_email'`), `utilisateurs` |
+| **Migration** | `010_add_email_change_support.sql` — ajout colonne `email` idempotent |
+| **Backend** | `POST /api/auth/change-email` (privé) + `POST /api/auth/confirm-email-change` (public) |
+| **Use-cases** | `RequestEmailChangeUseCase` + `ConfirmEmailChangeUseCase` |
+| **Email** | `EmailService.sendEmailChangeConfirmationEmail` — envoi au nouvel email avec lien 24h |
+| **Frontend** | `ChangeEmailSection` dans l'onglet Sécurité de `ProfilePage` + `ConfirmEmailChangePage` (`/confirm-email-change?token=xxx`) |
+| **Sprint** | Sprint 6 ✅ |
 
 ---
 
@@ -986,8 +992,8 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 | Domain | Backend | Frontend | Overall |
 |---|---|---|---|
-| Authentication / Security | ✅ ~98% | ✅ ~95% | ✅ 96% |
-| Users & Profiles | ✅ ~95% | ✅ ~97% | ✅ 96% |
+| Authentication / Security | ✅ ~100% | ✅ ~98% | ✅ 99% |
+| Users & Profiles | ✅ ~95% | ✅ ~99% | ✅ 97% |
 | Courses & Attendance | ✅ ~95% | ✅ ~90% | ✅ 92% |
 | Payments & Subscriptions | ✅ ~95% | ✅ ~90% | ✅ 92% |
 | Store (E-commerce) | ✅ 100% | ✅ 100% | ✅ 100% |
@@ -1024,8 +1030,11 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | **Sprint 5** | 🟡 Medium | GAP-14 (security audit logs) | 1 day | ✅ Done |
 | **Sprint 5** | 🟢 Small | GAP-18 (active sessions) | 1 day | ✅ Done |
 | **Sprint Hotfix** | 🔧 Tech Debt | Merge conflicts résolus (5 fichiers), restructuration navigation (6 pages → onglets), migrations DB appliquées, scan backend complet | ~1.5 days | ✅ Done |
+| **Sprint Style 1** | 🎨 UX | Icônes sur tous les `TabGroup` (PaymentsPage, StorePage, UsersPage, NotificationsPage) | 0.5 day | ✅ Done |
+| **Sprint Style 2** | 🎨 UX | `UsersPage` — migration nav bruts vers `TabGroup` + layout card cohrent | 0.5 day | ✅ Done |
+| **Sprint Style 3** | 🎨 UX | `ProfilePage` — refonte layout tabulé (`PageHeader` + onglets Mon profil / Sécurité) | 0.5 day | ✅ Done |
 | Sprint 6 | 🟠 High | GAP-06 (families admin) | 2 days | ⏳ |
-| Sprint 6 | 🟡 Medium | GAP-15 (email change) | 1.5 days | ⏳ |
+| ~~Sprint 6~~ | 🟡 Medium | ~~GAP-15 (email change)~~ | ~~1.5 days~~ | ✅ Done |
 | Sprint 7 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days | ⏳ |
 | Sprint 7 | 🟡 Medium | GAP-17 (attendance export) | 1.5 days | ⏳ |
 | Sprint 8 | 🔴 Critical | GAP-01 (alerts system — full) | 5–7 days | ⏳ |
@@ -1041,7 +1050,9 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 **Completed Sprint 4:** ~1.5 developer days — 3 gaps fully closed (GAP-10 ✅, GAP-16 ✅, GAP-19 ✅)  
 **Completed Sprint 5:** ~3 developer days — 3 gaps fully closed (GAP-09 ✅, GAP-14 ✅, GAP-18 ✅)  
 **Completed Sprint Hotfix:** ~1.5 developer days — dette technique résolue, navigation restructurée, codebase stable  
-**Total estimated remaining work: ~10–12 developer days (Sprints 6–9)**
+**Completed Sprint Style (1–3):** ~1.5 developer days — cohérence visuelle complète (icônes TabGroup, layouts UsersPage + ProfilePage)  
+**Completed Sprint 6 partiel:** ~1 developer day — GAP-15 (email change flow) ✅  
+**Total estimated remaining work: ~8–10 developer days (GAP-06 + Sprints 7–9)**
 
 ---
 
@@ -1088,9 +1099,9 @@ Des endpoints utiles mais **hors scope des 24 gaps** ne seront pas implémentés
 ---
 
 ### Niveau 3 — Finition UX Frontend (toutes les pages attendues)
-#### Résultat après Sprint Hotfix : ⚠️ ~88 %
+#### Résultat après Sprint Style : ⚠️ ~92 %
 
-> **Sprint Hotfix — Navigation restructurée :** 6 pages standalone incorrectement placées dans le menu principal ont été déplacées comme **onglets** dans leurs pages parentes. La sidebar est nettoyée.
+> **Sprint Style — Cohérence visuelle complète :** Icônes ajoutées sur tous les `TabGroup`, `UsersPage` migrée vers le pattern card+TabGroup, `ProfilePage` refondue avec `PageHeader` + onglets Mon profil / Sécurité.
 
 | Feature déplacée | Ancienne URL | Nouvel emplacement | Status |
 |---|---|---|---|
@@ -1121,17 +1132,17 @@ Plusieurs pages secondaires restent absentes et ne sont dans **aucun sprint plan
 ### Synthèse
 
 ```
-Après Sprint Hotfix (état actuel) :
+Après Sprint Style (state actuel) :
 
   Niveau 1 — DB Coverage     ████████████████████  ~100 %  ✅ Objectif atteint
-  Niveau 2 — API Coverage    ██████████████████░░   ~90 %  ⚠️ Endpoints confort manquants
-  Niveau 3 — Frontend UX     █████████████████░░░   ~88 %  ⚠️ Pages secondaires absentes
+  Niveau 2 — API Coverage    ██████████████████░░   ~92 %  ⚠️ Endpoints confort manquants
+  Niveau 3 — Frontend UX     ██████████████████░░   ~92 %  ⚠️ Pages secondaires absentes
 
 Après Sprint 9 (projection) :
 
   Niveau 1 — DB Coverage     ████████████████████  ~100 %  ✅
-  Niveau 2 — API Coverage    ███████████████████░   ~93 %  ✅ (GAP-20→24 résolus)
-  Niveau 3 — Frontend UX     █████████████████░░░   ~88 %  ⚠️ Pages secondaires toujours absentes
+  Niveau 2 — API Coverage    ███████████████████░   ~95 %  ✅ (GAP-20→24 résolus)
+  Niveau 3 — Frontend UX     ██████████████████░░   ~92 %  ⚠️ Pages secondaires toujours absentes
 ```
 
 **Ce qui est couvert à 100 % :** tous les **flux métier critiques** d'un club de sport — inscription, cours, présences, paiements, messagerie, notifications, familles, groupes, réservations, statistiques, paramètres. Navigation entièrement restructurée (sidebar épurée, fonctionnalités intégrées en onglets).
@@ -1173,4 +1184,33 @@ Après Sprint 9 (projection) :
 
 ---
 
-*End of Gap Analysis — ClubManager V3 — v4.4 schema — Last updated: Sprint Hotfix*
+### Sprint Style — Post-Sprint Hotfix
+
+#### 🎨 Cohérence visuelle — NavigationTab (3 branches)
+
+| Branche | Changement |
+|---|---|
+| `style/consistency-navigation-tabs` | Icônes Heroicons ajoutées sur tous les onglets sans icône : `PaymentsPage` (CreditCardIcon, ClockIcon, DocumentTextIcon, UserCircleIcon), `StorePage` (ShoppingBagIcon, ClipboardDocumentListIcon, ArchiveBoxIcon, ArrowsRightLeftIcon, Cog6ToothIcon), `UsersPage` (UsersIcon, TrashIcon, UserGroupIcon), `NotificationsPage` (BellIcon, EnvelopeOpenIcon + icônes PatternFly réutilisées) |
+| `style/users-page-tab-layout` | `UsersPage` migrée : boutons HTML bruts → `<TabGroup>` ; `PageHeader` au top level ; `TabGroup` + contenu dans un seul card blanc ; modals extraites hors du bloc tab |
+| `style/profile-page-layout` | `ProfilePage` refondue : `PageHeader` (UserCircleIcon) + `TabGroup` 2 onglets (Mon profil / Sécurité) dans un seul card ; panel info en `bg-gray-50` ; `bg-primary-*` remplacé par `bg-blue-*` ; `ChangeEmailSection` et `ActiveSessionsSection` en mode `flat` dans l'onglet Sécurité |
+
+#### ✨ GAP-15 complété (Sprint 6 partiel)
+
+| Fichier | Création / Modification |
+|---|---|
+| `010_add_email_change_support.sql` | Migration idempotente — `ADD COLUMN email` sur `email_validation_tokens` |
+| `IAuthRepository.ts` | +`updateEmail`, +`storeEmailChangeToken`, +`validateEmailChangeToken` |
+| `MySQLAuthRepository.ts` | Implémentation des 3 méthodes (`token_type = 'change_email'`) |
+| `EmailService.ts` | +`sendEmailChangeConfirmationEmail` (HTML + text + fallback dev console) |
+| `RequestEmailChangeUseCase.ts` | Validation → génération token 24h → envoi email de confirmation |
+| `ConfirmEmailChangeUseCase.ts` | Validation token → `UPDATE utilisateurs SET email = ?` |
+| `AuthController.ts` | +`requestEmailChange` (POST `/change-email`, privé) + `confirmEmailChange` (POST `/confirm-email-change`, public) |
+| `authRoutes.ts` | 2 nouvelles routes enregistrées |
+| `ChangeEmailSection.tsx` | Composant formulaire (prop `flat` pour mode inline dans onglet) |
+| `ConfirmEmailChangePage.tsx` | Page publique `/confirm-email-change?token=xxx` (loading / succès / erreur) |
+| `ProfilePage.tsx` | Monte `ChangeEmailSection` dans l'onglet Sécurité |
+| `App.tsx` | Route publique `/confirm-email-change` enregistrée |
+
+---
+
+*End of Gap Analysis — ClubManager V3 — v4.4 schema — Last updated: Sprint 6 (GAP-15 ✅) + Sprint Style (cohérence visuelle ✅)*
