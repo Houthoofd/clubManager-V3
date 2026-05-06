@@ -21,3 +21,17 @@ export interface CreateNotificationDto {
   titre: string;
   contenu: string;
 }
+
+// ─── Broadcast ────────────────────────────────────────────────────────────────
+
+export interface BroadcastNotificationDto {
+  titre: string;
+  contenu: string;
+  type: NotificationKind;
+  cible: 'tous' | 'admin' | 'professor' | 'member';
+}
+
+export interface BroadcastResultDto {
+  sent: number;
+  skipped: number;
+}

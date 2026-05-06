@@ -13,7 +13,11 @@ import {
   CheckCircleIcon,
   TrashIcon,
   BellSlashIcon,
+  BullhornIcon,
 } from "@patternfly/react-icons";
+import { useAuth } from "../../../shared/hooks/useAuth";
+import { UserRole } from "@clubmanager/types";
+import { BroadcastNotificationModal } from "../components/BroadcastNotificationModal";
 import {
   useNotifications,
   useMarkAsRead,
@@ -242,6 +246,10 @@ function NotificationItem({
 export function NotificationsPage() {
   const { t } = useTranslation("common");
   const [activeTab, setActiveTab] = useState<TabKey>("all");
+  const [isBroadcastOpen, setIsBroadcastOpen] = useState(false);
+
+  const { user } = useAuth();
+  const isAdmin = user?.role_app === UserRole.ADMIN;
 
   // Always fetch all 50 most recent; filter client-side for snappy tab switches
   const {
@@ -320,6 +328,18 @@ export function NotificationsPage() {
                       : ""
                   }`}
             </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <button
+              onClick={() => setIsBroadcastOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              <BullhornIcon className="w-4 h-4" />
+              Broadcast
+            </button>
           )}
         </div>
 
@@ -511,6 +531,12 @@ export function NotificationsPage() {
         )}
       </div>
     </div>
+
+    {/* Broadcast modal — admin only */}
+    <BroadcastNotificationModal
+      isOpen={isBroadcastOpen}
+      onClose={() => setIsBroadcastOpen(false)}
+    />
   );
 }
 

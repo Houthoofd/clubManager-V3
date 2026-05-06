@@ -13,6 +13,7 @@ import { MarkAsReadUseCase } from '../../application/use-cases/MarkAsReadUseCase
 import { MarkAllAsReadUseCase } from '../../application/use-cases/MarkAllAsReadUseCase.js';
 import { DeleteNotificationUseCase } from '../../application/use-cases/DeleteNotificationUseCase.js';
 import { DeleteAllNotificationsUseCase } from '../../application/use-cases/DeleteAllNotificationsUseCase.js';
+import { BroadcastNotificationUseCase } from '../../application/use-cases/BroadcastNotificationUseCase.js';
 
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 
@@ -23,6 +24,7 @@ const markAsReadUC = new MarkAsReadUseCase(repo);
 const markAllAsReadUC = new MarkAllAsReadUseCase(repo);
 const deleteNotificationUC = new DeleteNotificationUseCase(repo);
 const deleteAllNotificationsUC = new DeleteAllNotificationsUseCase(repo);
+const broadcastUC = new BroadcastNotificationUseCase(repo);
 
 // ==================== CONTROLLER ====================
 
@@ -176,6 +178,46 @@ export class NotificationController {
         message: error.message ?? 'Erreur interne du serveur',
         error: 'INTERNAL_ERROR',
       });
+    }
+  }
+
+  /**
+   * POST /api/notifications/broadcast
+   * Admin only — envoie une notification à un groupe d'utilisateurs
+   */
+  async broadcast(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      // Vérification du rôle admin
+      if (req.user!.role_app !== 'admin') {
+        res.status(403).json({ success: false, message: 'Accès réservé aux administrateurs' });
+        return;
+      }
+
+      const { titre, contenu, type, cible } = req.body;
+
+      if (!titre || !contenu || !type || !cible) {
+        res.status(400).json({ success: false, message: 'titre, contenu, type et cible sont requis' });
+        return;
+      }
+
+      const validTypes = ['info', 'warning', 'error', 'success'];
+      const validCibles = ['tous', 'admin', 'professor', 'member'];
+
+      if (!validTypes.includes(type) || !validCibles.includes(cible)) {
+        res.status(400).json({ success: false, message: 'type ou cible invalide' });
+        return;
+      }
+
+      const result = await broadcastUC.execute({ titre, contenu, type, cible });
+
+      res.json({
+        success: true,
+        message: `Broadcast envoyé à ${result.sent} utilisateur(s)`,
+        data: result,
+      });
+    } catch (error: any) {
+      console.error('[NotificationController.broadcast]', error);
+      res.status(500).json({ success: false, message: error.message ?? 'Erreur interne' });
     }
   }
 
