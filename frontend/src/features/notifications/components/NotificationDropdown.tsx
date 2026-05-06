@@ -3,14 +3,22 @@
  * Dropdown de notifications in-app pour le header
  */
 
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { Link } from "react-router-dom";
+import type React from "react";
+import { useTranslation } from "react-i18next";
+import {
+  InfoCircleIcon,
+  ExclamationTriangleIcon,
+  OutlinedTimesCircleIcon,
+  CheckCircleIcon,
+  BellSlashIcon,
+} from "@patternfly/react-icons";
 import {
   useNotifications,
   useMarkAsRead,
   useMarkAllAsRead,
-} from '../hooks/useNotifications';
-import type { NotificationDto } from '../api/notificationsApi';
+} from "../hooks/useNotifications";
+import type { NotificationDto } from "../api/notificationsApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -30,10 +38,10 @@ function relativeTime(dateStr: string): string {
   const then = new Date(dateStr).getTime();
   const diffMs = now - then;
 
-  if (diffMs < 0) return 'à l\'instant';
+  if (diffMs < 0) return "à l'instant";
 
   const diffSec = Math.floor(diffMs / 1000);
-  if (diffSec < 60) return 'il y a quelques secondes';
+  if (diffSec < 60) return "il y a quelques secondes";
 
   const diffMin = Math.floor(diffSec / 60);
   if (diffMin < 60) return `il y a ${diffMin} min`;
@@ -48,35 +56,43 @@ function relativeTime(dateStr: string): string {
   if (diffM < 12) return `il y a ${diffM} mois`;
 
   const diffY = Math.floor(diffM / 12);
-  return `il y a ${diffY} an${diffY > 1 ? 's' : ''}`;
+  return `il y a ${diffY} an${diffY > 1 ? "s" : ""}`;
 }
 
 /**
  * Config visuelle par type de notification
  */
-const TYPE_CONFIG: Record<
-  NotificationDto['type'],
-  { borderColor: string; icon: string; label: string }
-> = {
+interface DropdownTypeConfig {
+  borderColor: string;
+  iconColor: string;
+  Icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}
+
+const TYPE_CONFIG: Record<NotificationDto["type"], DropdownTypeConfig> = {
   info: {
-    borderColor: 'border-l-blue-500',
-    icon: 'ℹ️',
-    label: 'Info',
+    borderColor: "border-l-blue-500",
+    iconColor: "text-blue-500",
+    Icon: InfoCircleIcon,
+    label: "Info",
   },
   warning: {
-    borderColor: 'border-l-yellow-500',
-    icon: '⚠️',
-    label: 'Attention',
+    borderColor: "border-l-yellow-500",
+    iconColor: "text-yellow-500",
+    Icon: ExclamationTriangleIcon,
+    label: "Attention",
   },
   error: {
-    borderColor: 'border-l-red-500',
-    icon: '❌',
-    label: 'Erreur',
+    borderColor: "border-l-red-500",
+    iconColor: "text-red-500",
+    Icon: OutlinedTimesCircleIcon,
+    label: "Erreur",
   },
   success: {
-    borderColor: 'border-l-green-500',
-    icon: '✅',
-    label: 'Succès',
+    borderColor: "border-l-green-500",
+    iconColor: "text-green-500",
+    Icon: CheckCircleIcon,
+    label: "Succès",
   },
 };
 
@@ -107,31 +123,17 @@ function SpinnerIcon() {
   );
 }
 
-function EmptyBellIcon() {
-  return (
-    <svg
-      className="h-10 w-10 text-gray-300"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-      />
-    </svg>
-  );
-}
-
 interface NotificationItemProps {
   notification: NotificationDto;
   onRead: (id: number) => void;
   isMarkingRead: boolean;
 }
 
-function NotificationItem({ notification, onRead, isMarkingRead }: NotificationItemProps) {
+function NotificationItem({
+  notification,
+  onRead,
+  isMarkingRead,
+}: NotificationItemProps) {
   const config = TYPE_CONFIG[notification.type] ?? TYPE_CONFIG.info;
 
   const handleClick = () => {
@@ -148,15 +150,16 @@ function NotificationItem({ notification, onRead, isMarkingRead }: NotificationI
         w-full text-left px-4 py-3 border-l-4 transition-colors
         hover:bg-gray-50 focus:outline-none focus:bg-gray-50
         ${config.borderColor}
-        ${notification.lu ? 'bg-white' : 'bg-blue-50'}
-        ${isMarkingRead ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+        ${notification.lu ? "bg-white" : "bg-blue-50"}
+        ${isMarkingRead ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
       `}
     >
       <div className="flex items-start gap-2">
         {/* Type icon */}
-        <span className="text-base leading-none mt-0.5 flex-shrink-0" aria-label={config.label}>
-          {config.icon}
-        </span>
+        <config.Icon
+          className={`w-4 h-4 flex-shrink-0 mt-0.5 ${config.iconColor}`}
+          aria-label={config.label}
+        />
 
         {/* Content */}
         <div className="flex-1 min-w-0">
@@ -187,8 +190,11 @@ function NotificationItem({ notification, onRead, isMarkingRead }: NotificationI
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function NotificationDropdown({ isOpen, onClose }: NotificationDropdownProps) {
-  const { t } = useTranslation('common');
+export function NotificationDropdown({
+  isOpen,
+  onClose,
+}: NotificationDropdownProps) {
+  const { t } = useTranslation("common");
   const { data: notifications = [], isLoading } = useNotifications();
   const { mutate: markAsRead, isPending: isMarkingOne } = useMarkAsRead();
   const { mutate: markAllAsRead, isPending: isMarkingAll } = useMarkAllAsRead();
@@ -211,13 +217,13 @@ export function NotificationDropdown({ isOpen, onClose }: NotificationDropdownPr
     <div
       className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white rounded-lg shadow-xl border border-gray-200 z-50"
       role="dialog"
-      aria-label={t('navigation.notifications')}
+      aria-label={t("navigation.notifications")}
     >
       {/* Header */}
       <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between z-10">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold text-gray-900">
-            {t('navigation.notifications')}
+            {t("navigation.notifications")}
           </h3>
           {hasUnread && (
             <span className="bg-blue-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none font-bold">
@@ -232,7 +238,7 @@ export function NotificationDropdown({ isOpen, onClose }: NotificationDropdownPr
             disabled={isMarkingAll}
             className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isMarkingAll ? 'En cours...' : 'Tout marquer comme lu'}
+            {isMarkingAll ? "En cours..." : "Tout marquer comme lu"}
           </button>
         )}
       </div>
@@ -242,12 +248,12 @@ export function NotificationDropdown({ isOpen, onClose }: NotificationDropdownPr
         /* Loading state */
         <div className="flex flex-col items-center justify-center py-10 gap-3">
           <SpinnerIcon />
-          <p className="text-sm text-gray-400">{t('common.loading')}</p>
+          <p className="text-sm text-gray-400">{t("common.loading")}</p>
         </div>
       ) : displayed.length === 0 ? (
         /* Empty state */
         <div className="flex flex-col items-center justify-center py-10 gap-3">
-          <EmptyBellIcon />
+          <BellSlashIcon className="w-10 h-10 text-gray-300" />
           <p className="text-sm text-gray-400">Aucune notification</p>
         </div>
       ) : (

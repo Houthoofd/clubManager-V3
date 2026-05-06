@@ -28,6 +28,7 @@ import {
   PaperPlaneIcon,
   PencilAltIcon,
   PficonTemplateIcon,
+  ArchiveIcon,
 } from "@patternfly/react-icons";
 
 // Composants reutilisables
@@ -121,11 +122,7 @@ export const MessagesPage = () => {
 
   // Donnees courantes selon l'onglet actif
   const currentMessages =
-    activeTab === "sent"
-      ? sent
-      : activeTab === "archived"
-        ? archived
-        : inbox;
+    activeTab === "sent" ? sent : activeTab === "archived" ? archived : inbox;
 
   const currentPagination =
     activeTab === "sent"
@@ -151,7 +148,7 @@ export const MessagesPage = () => {
     {
       id: "archived",
       label: t("tabs.archived", { defaultValue: "Archives" }),
-      icon: <span style={{ fontSize: "16px" }}>📦</span>,
+      icon: <ArchiveIcon style={{ fontSize: "18px" }} />,
     },
   ];
 
@@ -291,7 +288,9 @@ export const MessagesPage = () => {
                     activeTab === "inbox"
                       ? t("inbox.empty")
                       : activeTab === "archived"
-                        ? t("archived.empty", { defaultValue: "Aucun message archive" })
+                        ? t("archived.empty", {
+                            defaultValue: "Aucun message archive",
+                          })
                         : t("sent.empty")
                   }
                   description={
@@ -314,7 +313,9 @@ export const MessagesPage = () => {
                     isSelected={selectedMessage?.id === message.id}
                     isInbox={activeTab === "inbox"}
                     onClick={() => handleSelectMessage(message.id)}
-                    onArchive={activeTab === "inbox" ? handleArchive : undefined}
+                    onArchive={
+                      activeTab === "inbox" ? handleArchive : undefined
+                    }
                   />
                 ))
               )}

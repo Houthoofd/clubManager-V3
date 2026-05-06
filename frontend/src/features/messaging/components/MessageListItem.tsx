@@ -5,7 +5,7 @@
 
 import { useTranslation } from "react-i18next";
 import type { MessageWithDetails } from "../api/messagingApi";
-import { EnvelopeIcon } from "@patternfly/react-icons";
+import { EnvelopeIcon, ArchiveIcon } from "@patternfly/react-icons";
 
 // -- Props -----------------------------------------------------------------------
 
@@ -181,11 +181,11 @@ export const MessageListItem = ({
             "absolute right-2 top-1/2 -translate-y-1/2",
             "opacity-0 group-hover:opacity-100 transition-opacity",
             "text-gray-400 hover:text-amber-600",
-            "p-1 rounded text-sm",
+            "p-1 rounded",
           ].join(" ")}
           aria-label="Archiver ce message"
         >
-          📦
+          <ArchiveIcon style={{ fontSize: "14px" }} />
         </button>
       )}
     </div>

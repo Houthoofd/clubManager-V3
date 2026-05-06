@@ -3,16 +3,25 @@
  * Page complète de gestion des notifications in-app
  */
 
-import { useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useState, useMemo } from "react";
+import type React from "react";
+import { useTranslation } from "react-i18next";
+import {
+  InfoCircleIcon,
+  ExclamationTriangleIcon,
+  OutlinedTimesCircleIcon,
+  CheckCircleIcon,
+  TrashIcon,
+  BellSlashIcon,
+} from "@patternfly/react-icons";
 import {
   useNotifications,
   useMarkAsRead,
   useMarkAllAsRead,
   useDeleteNotification,
   useDeleteAllNotifications,
-} from '../hooks/useNotifications';
-import type { NotificationDto } from '../api/notificationsApi';
+} from "../hooks/useNotifications";
+import type { NotificationDto } from "../api/notificationsApi";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -27,7 +36,7 @@ function relativeTime(dateStr: string): string {
   if (diffMs < 0) return "à l'instant";
 
   const diffSec = Math.floor(diffMs / 1000);
-  if (diffSec < 60) return 'il y a quelques secondes';
+  if (diffSec < 60) return "il y a quelques secondes";
 
   const diffMin = Math.floor(diffSec / 60);
   if (diffMin < 60) return `il y a ${diffMin} min`;
@@ -42,48 +51,58 @@ function relativeTime(dateStr: string): string {
   if (diffM < 12) return `il y a ${diffM} mois`;
 
   const diffY = Math.floor(diffM / 12);
-  return `il y a ${diffY} an${diffY > 1 ? 's' : ''}`;
+  return `il y a ${diffY} an${diffY > 1 ? "s" : ""}`;
 }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const TYPE_CONFIG: Record<
-  NotificationDto['type'],
-  { borderColor: string; bgColor: string; badgeColor: string; icon: string; label: string }
-> = {
+interface TypeConfig {
+  borderColor: string;
+  bgColor: string;
+  badgeColor: string;
+  iconColor: string;
+  Icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}
+
+const TYPE_CONFIG: Record<NotificationDto["type"], TypeConfig> = {
   info: {
-    borderColor: 'border-l-blue-500',
-    bgColor: 'bg-blue-50',
-    badgeColor: 'bg-blue-100 text-blue-700',
-    icon: 'ℹ️',
-    label: 'Info',
+    borderColor: "border-l-blue-500",
+    bgColor: "bg-blue-50",
+    badgeColor: "bg-blue-100 text-blue-700",
+    iconColor: "text-blue-500",
+    Icon: InfoCircleIcon,
+    label: "Info",
   },
   warning: {
-    borderColor: 'border-l-yellow-500',
-    bgColor: 'bg-yellow-50',
-    badgeColor: 'bg-yellow-100 text-yellow-700',
-    icon: '⚠️',
-    label: 'Attention',
+    borderColor: "border-l-yellow-500",
+    bgColor: "bg-yellow-50",
+    badgeColor: "bg-yellow-100 text-yellow-700",
+    iconColor: "text-yellow-500",
+    Icon: ExclamationTriangleIcon,
+    label: "Attention",
   },
   error: {
-    borderColor: 'border-l-red-500',
-    bgColor: 'bg-red-50',
-    badgeColor: 'bg-red-100 text-red-700',
-    icon: '❌',
-    label: 'Erreur',
+    borderColor: "border-l-red-500",
+    bgColor: "bg-red-50",
+    badgeColor: "bg-red-100 text-red-700",
+    iconColor: "text-red-500",
+    Icon: OutlinedTimesCircleIcon,
+    label: "Erreur",
   },
   success: {
-    borderColor: 'border-l-green-500',
-    bgColor: 'bg-green-50',
-    badgeColor: 'bg-green-100 text-green-700',
-    icon: '✅',
-    label: 'Succès',
+    borderColor: "border-l-green-500",
+    bgColor: "bg-green-50",
+    badgeColor: "bg-green-100 text-green-700",
+    iconColor: "text-green-500",
+    Icon: CheckCircleIcon,
+    label: "Succès",
   },
 };
 
 // ─── Tab definition ───────────────────────────────────────────────────────────
 
-type TabKey = 'all' | 'unread' | NotificationDto['type'];
+type TabKey = "all" | "unread" | NotificationDto["type"];
 
 interface Tab {
   key: TabKey;
@@ -91,12 +110,12 @@ interface Tab {
 }
 
 const TABS: Tab[] = [
-  { key: 'all', label: 'Tous' },
-  { key: 'unread', label: 'Non lus' },
-  { key: 'info', label: 'Info' },
-  { key: 'warning', label: 'Attention' },
-  { key: 'error', label: 'Erreur' },
-  { key: 'success', label: 'Succès' },
+  { key: "all", label: "Tous" },
+  { key: "unread", label: "Non lus" },
+  { key: "info", label: "Info" },
+  { key: "warning", label: "Attention" },
+  { key: "error", label: "Erreur" },
+  { key: "success", label: "Succès" },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -126,24 +145,6 @@ function SpinnerIcon() {
   );
 }
 
-function EmptyBellIcon() {
-  return (
-    <svg
-      className="h-16 w-16 text-gray-300"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-      />
-    </svg>
-  );
-}
-
 interface NotificationItemProps {
   notification: NotificationDto;
   onRead: (id: number) => void;
@@ -152,7 +153,13 @@ interface NotificationItemProps {
   isDeletingOne: boolean;
 }
 
-function NotificationItem({ notification, onRead, isMarkingRead, onDelete, isDeletingOne }: NotificationItemProps) {
+function NotificationItem({
+  notification,
+  onRead,
+  isMarkingRead,
+  onDelete,
+  isDeletingOne,
+}: NotificationItemProps) {
   const config = TYPE_CONFIG[notification.type] ?? TYPE_CONFIG.info;
 
   const handleClick = () => {
@@ -166,13 +173,14 @@ function NotificationItem({ notification, onRead, isMarkingRead, onDelete, isDel
       className={`
         flex items-start gap-4 px-6 py-4 border-l-4 transition-colors
         ${config.borderColor}
-        ${notification.lu ? 'bg-white' : config.bgColor}
+        ${notification.lu ? "bg-white" : config.bgColor}
       `}
     >
       {/* Type icon */}
-      <span className="text-xl leading-none mt-0.5 flex-shrink-0" aria-label={config.label}>
-        {config.icon}
-      </span>
+      <config.Icon
+        className={`w-5 h-5 flex-shrink-0 mt-0.5 ${config.iconColor}`}
+        aria-label={config.label}
+      />
 
       {/* Content */}
       <div className="flex-1 min-w-0">
@@ -222,7 +230,7 @@ function NotificationItem({ notification, onRead, isMarkingRead, onDelete, isDel
         className="flex-shrink-0 flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-0.5"
         title="Supprimer cette notification"
       >
-        <span>🗑️</span>
+        <TrashIcon className="w-3.5 h-3.5" />
         <span className="hidden sm:inline">Supprimer</span>
       </button>
     </div>
@@ -232,24 +240,31 @@ function NotificationItem({ notification, onRead, isMarkingRead, onDelete, isDel
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function NotificationsPage() {
-  const { t } = useTranslation('common');
-  const [activeTab, setActiveTab] = useState<TabKey>('all');
+  const { t } = useTranslation("common");
+  const [activeTab, setActiveTab] = useState<TabKey>("all");
 
   // Always fetch all 50 most recent; filter client-side for snappy tab switches
-  const { data: notifications = [], isLoading, isError, refetch } = useNotifications();
+  const {
+    data: notifications = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useNotifications();
   const { mutate: markAsRead, isPending: isMarkingOne } = useMarkAsRead();
   const { mutate: markAllAsRead, isPending: isMarkingAll } = useMarkAllAsRead();
-  const { mutate: deleteNotification, isPending: isDeletingOne } = useDeleteNotification();
-  const { mutate: deleteAllNotifications, isPending: isDeletingAll } = useDeleteAllNotifications();
+  const { mutate: deleteNotification, isPending: isDeletingOne } =
+    useDeleteNotification();
+  const { mutate: deleteAllNotifications, isPending: isDeletingAll } =
+    useDeleteAllNotifications();
 
   // Limit to 50 most recent then apply tab filter
   const base = useMemo(() => notifications.slice(0, 50), [notifications]);
 
   const filtered = useMemo(() => {
     switch (activeTab) {
-      case 'all':
+      case "all":
         return base;
-      case 'unread':
+      case "unread":
         return base.filter((n) => !n.lu);
       default:
         return base.filter((n) => n.type === activeTab);
@@ -260,13 +275,16 @@ export function NotificationsPage() {
   const hasUnread = unreadCount > 0;
 
   // Tab badge counts
-  const tabCounts = useMemo<Partial<Record<TabKey, number>>>(() => ({
-    unread: base.filter((n) => !n.lu).length,
-    info: base.filter((n) => n.type === 'info').length,
-    warning: base.filter((n) => n.type === 'warning').length,
-    error: base.filter((n) => n.type === 'error').length,
-    success: base.filter((n) => n.type === 'success').length,
-  }), [base]);
+  const tabCounts = useMemo<Partial<Record<TabKey, number>>>(
+    () => ({
+      unread: base.filter((n) => !n.lu).length,
+      info: base.filter((n) => n.type === "info").length,
+      warning: base.filter((n) => n.type === "warning").length,
+      error: base.filter((n) => n.type === "error").length,
+      success: base.filter((n) => n.type === "success").length,
+    }),
+    [base],
+  );
 
   const handleMarkAsRead = (id: number) => {
     markAsRead(id);
@@ -289,13 +307,17 @@ export function NotificationsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mes notifications</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Mes notifications
+          </h1>
           {!isLoading && (
             <p className="text-sm text-gray-500 mt-1">
               {base.length === 0
-                ? 'Aucune notification'
-                : `${base.length} notification${base.length > 1 ? 's' : ''}${
-                    hasUnread ? ` · ${unreadCount} non lue${unreadCount > 1 ? 's' : ''}` : ''
+                ? "Aucune notification"
+                : `${base.length} notification${base.length > 1 ? "s" : ""}${
+                    hasUnread
+                      ? ` · ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}`
+                      : ""
                   }`}
             </p>
           )}
@@ -311,17 +333,30 @@ export function NotificationsPage() {
               >
                 {isMarkingAll ? (
                   <>
-                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    <svg
+                      className="animate-spin h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
                     </svg>
                     En cours...
                   </>
                 ) : (
                   <>
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
+                    <CheckCircleIcon className="w-4 h-4" />
                     Tout marquer comme lu
                   </>
                 )}
@@ -334,14 +369,32 @@ export function NotificationsPage() {
             >
               {isDeletingAll ? (
                 <>
-                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
                   </svg>
                   Suppression...
                 </>
               ) : (
-                <>🗑️ Tout supprimer</>
+                <>
+                  <TrashIcon className="w-4 h-4" />
+                  Tout supprimer
+                </>
               )}
             </button>
           </div>
@@ -364,18 +417,18 @@ export function NotificationsPage() {
                     relative flex-shrink-0 flex items-center gap-1.5 px-4 py-3.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap
                     ${
                       isActive
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? "border-blue-600 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }
                   `}
-                  aria-current={isActive ? 'page' : undefined}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   {tab.label}
                   {count !== undefined && count > 0 && (
                     <span
                       className={`
                         text-xs rounded-full px-1.5 py-0.5 leading-none font-semibold
-                        ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}
+                        ${isActive ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"}
                       `}
                     >
                       {count}
@@ -392,12 +445,12 @@ export function NotificationsPage() {
           /* Loading state */
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <SpinnerIcon />
-            <p className="text-sm text-gray-400">{t('common.loading')}</p>
+            <p className="text-sm text-gray-400">{t("common.loading")}</p>
           </div>
         ) : isError ? (
           /* Error state */
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <span className="text-4xl">⚠️</span>
+            <ExclamationTriangleIcon className="w-12 h-12 text-yellow-400" />
             <p className="text-sm text-gray-600 font-medium">
               Impossible de charger les notifications
             </p>
@@ -411,18 +464,20 @@ export function NotificationsPage() {
         ) : filtered.length === 0 ? (
           /* Empty state */
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <EmptyBellIcon />
+            <BellSlashIcon className="w-16 h-16 text-gray-300" />
             <div className="text-center">
-              <p className="text-sm font-medium text-gray-600">Aucune notification</p>
-              {activeTab !== 'all' && (
+              <p className="text-sm font-medium text-gray-600">
+                Aucune notification
+              </p>
+              {activeTab !== "all" && (
                 <p className="text-xs text-gray-400 mt-1">
                   Aucune notification dans cette catégorie
                 </p>
               )}
             </div>
-            {activeTab !== 'all' && (
+            {activeTab !== "all" && (
               <button
-                onClick={() => setActiveTab('all')}
+                onClick={() => setActiveTab("all")}
                 className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
               >
                 Voir toutes les notifications
