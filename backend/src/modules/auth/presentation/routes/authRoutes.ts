@@ -90,14 +90,34 @@ router.get("/me", authMiddleware, authController.me);
  * @desc    Sessions actives de l'utilisateur
  * @access  Private
  */
-router.get('/sessions', authMiddleware, (req, res) => authController.getSessions(req as any, res));
+router.get("/sessions", authMiddleware, (req, res) =>
+  authController.getSessions(req as any, res),
+);
 
 /**
  * @route   DELETE /api/auth/sessions/:id
  * @desc    Révoque une session spécifique
  * @access  Private
  */
-router.delete('/sessions/:id', authMiddleware, (req, res) => authController.revokeSession(req as any, res));
+router.delete("/sessions/:id", authMiddleware, (req, res) =>
+  authController.revokeSession(req as any, res),
+);
+
+/**
+ * @route   POST /api/auth/change-email
+ * @desc    Demande de changement d'email (envoie un token au nouvel email)
+ * @access  Private
+ */
+router.post("/change-email", authMiddleware, (req, res) =>
+  authController.requestEmailChange(req as any, res),
+);
+
+/**
+ * @route   POST /api/auth/confirm-email-change
+ * @desc    Confirme le changement d'email via token
+ * @access  Public
+ */
+router.post("/confirm-email-change", authController.confirmEmailChange);
 
 /**
  * @route   GET /api/auth/health

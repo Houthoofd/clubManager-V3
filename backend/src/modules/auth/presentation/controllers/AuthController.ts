@@ -26,6 +26,8 @@ import { GetLoginAttemptsUseCase } from "../../application/use-cases/GetLoginAtt
 import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
 import { GetActiveSessionsUseCase } from "../../application/use-cases/GetActiveSessionsUseCase.js";
 import { RevokeSessionUseCase } from "../../application/use-cases/RevokeSessionUseCase.js";
+import { RequestEmailChangeUseCase } from "../../application/use-cases/RequestEmailChangeUseCase.js";
+import { ConfirmEmailChangeUseCase } from "../../application/use-cases/ConfirmEmailChangeUseCase.js";
 import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
 
 export class AuthController {
@@ -40,6 +42,8 @@ export class AuthController {
   private getLoginAttemptsUseCase: GetLoginAttemptsUseCase;
   private getActiveSessionsUseCase: GetActiveSessionsUseCase;
   private revokeSessionUseCase: RevokeSessionUseCase;
+  private requestEmailChangeUseCase: RequestEmailChangeUseCase;
+  private confirmEmailChangeUseCase: ConfirmEmailChangeUseCase;
 
   constructor(authRepository: IAuthRepository) {
     this.registerUseCase = new RegisterUseCase(authRepository);
@@ -55,8 +59,16 @@ export class AuthController {
     );
     this.resetPasswordUseCase = new ResetPasswordUseCase(authRepository);
     this.getLoginAttemptsUseCase = new GetLoginAttemptsUseCase(authRepository);
-    this.getActiveSessionsUseCase = new GetActiveSessionsUseCase(authRepository);
+    this.getActiveSessionsUseCase = new GetActiveSessionsUseCase(
+      authRepository,
+    );
     this.revokeSessionUseCase = new RevokeSessionUseCase(authRepository);
+    this.requestEmailChangeUseCase = new RequestEmailChangeUseCase(
+      authRepository,
+    );
+    this.confirmEmailChangeUseCase = new ConfirmEmailChangeUseCase(
+      authRepository,
+    );
   }
 
   /**
@@ -398,19 +410,16 @@ export class AuthController {
   };
 
   /**
-<<<<<<< HEAD
    * GET /api/auth/audit/login-attempts
    * Admin only — retourne les tentatives de connexion paginées
    */
   getLoginAttempts = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
       if (req.user!.role_app !== "admin") {
-        res
-          .status(403)
-          .json({
-            success: false,
-            message: "Accès réservé aux administrateurs",
-          });
+        res.status(403).json({
+          success: false,
+          message: "Accès réservé aux administrateurs",
+        });
         return;
       }
 
@@ -441,7 +450,10 @@ export class AuthController {
       res
         .status(500)
         .json({ success: false, message: error.message ?? "Erreur interne" });
-=======
+    }
+  };
+
+  /**
    * GET /api/auth/sessions
    * Retourne les sessions actives de l'utilisateur connecté
    */
@@ -449,10 +461,16 @@ export class AuthController {
     try {
       const userId = req.user!.userId;
       const sessions = await this.getActiveSessionsUseCase.execute(userId);
-      res.json({ success: true, message: 'Sessions récupérées', data: sessions });
+      res.json({
+        success: true,
+        message: "Sessions récupérées",
+        data: sessions,
+      });
     } catch (error: any) {
-      console.error('[AuthController.getSessions]', error);
-      res.status(500).json({ success: false, message: error.message ?? 'Erreur interne' });
+      console.error("[AuthController.getSessions]", error);
+      res
+        .status(500)
+        .json({ success: false, message: error.message ?? "Erreur interne" });
     }
   };
 
@@ -466,22 +484,119 @@ export class AuthController {
       const userId = req.user!.userId;
 
       if (isNaN(sessionId) || sessionId <= 0) {
-        res.status(400).json({ success: false, message: 'Identifiant de session invalide' });
+        res
+          .status(400)
+          .json({ success: false, message: "Identifiant de session invalide" });
         return;
       }
 
-      const revoked = await this.revokeSessionUseCase.execute(sessionId, userId);
+      const revoked = await this.revokeSessionUseCase.execute(
+        sessionId,
+        userId,
+      );
 
       if (!revoked) {
-        res.status(404).json({ success: false, message: 'Session introuvable ou déjà révoquée' });
+        res.status(404).json({
+          success: false,
+          message: "Session introuvable ou déjà révoquée",
+        });
         return;
       }
 
-      res.json({ success: true, message: 'Session révoquée avec succès' });
+      res.json({ success: true, message: "Session révoquée avec succès" });
     } catch (error: any) {
-      console.error('[AuthController.revokeSession]', error);
-      res.status(500).json({ success: false, message: error.message ?? 'Erreur interne' });
->>>>>>> feature/gap18-active-sessions
+      console.error("[AuthController.revokeSession]", error);
+      res
+        .status(500)
+        .json({ success: false, message: error.message ?? "Erreur interne" });
+    }
+  };
+
+  // ── GAP-15 : Email change ────────────────────────────────────────────────────
+
+  /**
+   * POST /api/auth/change-email
+   * Demande de changement d'email (privé)
+   * Body : { newEmail: string }
+   */
+  requestEmailChange = async (
+    req: AuthRequest,
+    res: Response,
+  ): Promise<void> => {
+    try {
+      const userId = req.user!.userId;
+      const { newEmail } = req.body as { newEmail?: string };
+
+      if (!newEmail || typeof newEmail !== "string") {
+        res.status(400).json({ success: false, message: "newEmail requis" });
+        return;
+      }
+
+      await this.requestEmailChangeUseCase.execute(userId, newEmail);
+
+      res.json({
+        success: true,
+        message:
+          "Email de confirmation envoyé. Vérifiez votre nouvelle adresse.",
+      });
+    } catch (error: any) {
+      console.error("[AuthController.requestEmailChange]", error);
+
+      const errorMap: Record<string, { status: number; message: string }> = {
+        USER_NOT_FOUND: { status: 404, message: "Utilisateur introuvable" },
+        EMAIL_SAME_AS_CURRENT: {
+          status: 400,
+          message: "Le nouvel email est identique à l'actuel",
+        },
+        EMAIL_ALREADY_TAKEN: {
+          status: 409,
+          message: "Cet email est déjà utilisé",
+        },
+      };
+
+      const mapped = errorMap[error.message];
+      if (mapped) {
+        res
+          .status(mapped.status)
+          .json({ success: false, message: mapped.message });
+      } else {
+        res.status(500).json({ success: false, message: "Erreur interne" });
+      }
+    }
+  };
+
+  /**
+   * POST /api/auth/confirm-email-change
+   * Confirmation du changement d'email via token (public)
+   * Body : { token: string }
+   */
+  confirmEmailChange = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { token } = req.body as { token?: string };
+
+      if (!token || typeof token !== "string") {
+        res.status(400).json({ success: false, message: "token requis" });
+        return;
+      }
+
+      const { newEmail } = await this.confirmEmailChangeUseCase.execute(token);
+
+      res.json({
+        success: true,
+        message: "Adresse email mise à jour avec succès",
+        newEmail,
+      });
+    } catch (error: any) {
+      console.error("[AuthController.confirmEmailChange]", error);
+
+      if (error.message === "TOKEN_INVALID_OR_EXPIRED") {
+        res.status(400).json({
+          success: false,
+          message: "Token invalide ou expiré",
+        });
+      } else {
+        res.status(500).json({ success: false, message: "Erreur interne" });
+      }
     }
   };
 }

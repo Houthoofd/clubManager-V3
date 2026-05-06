@@ -17,51 +17,24 @@ import { MySQLPricingPlanRepository } from "../../infrastructure/repositories/My
 import { MySQLUserRepository } from "../../../users/infrastructure/repositories/MySQLUserRepository.js";
 import { CreateScheduleUseCase } from "../../application/use-cases/schedules/CreateScheduleUseCase.js";
 import { GenerateSchedulesUseCase } from "../../application/use-cases/schedules/GenerateSchedulesUseCase.js";
-import { MySQLPricingPlanRepository } from "../../infrastructure/repositories/MySQLPricingPlanRepository.js";
-import { MySQLUserRepository } from "../../../users/infrastructure/repositories/MySQLUserRepository.js";
-import { CreateScheduleUseCase } from "../../application/use-cases/schedules/CreateScheduleUseCase.js";
-import { GenerateSchedulesUseCase } from "../../application/use-cases/schedules/GenerateSchedulesUseCase.js";
-import { MySQLPricingPlanRepository } from "../../infrastructure/repositories/MySQLPricingPlanRepository.js";
-import { MySQLUserRepository } from "../../../users/infrastructure/repositories/MySQLUserRepository.js";
-import { CreateScheduleUseCase } from "../../application/use-cases/schedules/CreateScheduleUseCase.js";
-import { GenerateSchedulesUseCase } from "../../application/use-cases/schedules/GenerateSchedulesUseCase.js";
-import { MySQLPricingPlanRepository } from "../../infrastructure/repositories/MySQLPricingPlanRepository.js";
-import { MySQLUserRepository } from "../../../users/infrastructure/repositories/MySQLUserRepository.js";
-import { CreateScheduleUseCase } from "../../application/use-cases/schedules/CreateScheduleUseCase.js";
-import { GenerateSchedulesUseCase } from "../../application/use-cases/schedules/GenerateSchedulesUseCase.js";
-import { MySQLPricingPlanRepository } from "../../infrastructure/repositories/MySQLPricingPlanRepository.js";
-import { MySQLUserRepository } from "../../../users/infrastructure/repositories/MySQLUserRepository.js";
-import { CreateScheduleUseCase } from "../../application/use-cases/schedules/CreateScheduleUseCase.js";
-import { GenerateSchedulesUseCase } from "../../application/use-cases/schedules/GenerateSchedulesUseCase.js";
 
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 
 const scheduleRepo = new MySQLPaymentScheduleRepository();
 const paymentRepo = new MySQLPaymentRepository();
+const planRepo = new MySQLPricingPlanRepository();
+const userRepo = new MySQLUserRepository();
+
 const getSchedulesUC = new GetSchedulesUseCase(scheduleRepo);
 const getUserSchedulesUC = new GetUserSchedulesUseCase(scheduleRepo);
 const getOverdueSchedulesUC = new GetOverdueSchedulesUseCase(scheduleRepo);
 const markAsPaidUC = new MarkScheduleAsPaidUseCase(scheduleRepo, paymentRepo);
-const planRepo = new MySQLPricingPlanRepository();
-const userRepo = new MySQLUserRepository();
 const createScheduleUC = new CreateScheduleUseCase(scheduleRepo);
-const generateSchedulesUC = new GenerateSchedulesUseCase(scheduleRepo, planRepo, userRepo);
-const planRepo = new MySQLPricingPlanRepository();
-const userRepo = new MySQLUserRepository();
-const createScheduleUC = new CreateScheduleUseCase(scheduleRepo);
-const generateSchedulesUC = new GenerateSchedulesUseCase(scheduleRepo, planRepo, userRepo);
-const planRepo = new MySQLPricingPlanRepository();
-const userRepo = new MySQLUserRepository();
-const createScheduleUC = new CreateScheduleUseCase(scheduleRepo);
-const generateSchedulesUC = new GenerateSchedulesUseCase(scheduleRepo, planRepo, userRepo);
-const planRepo = new MySQLPricingPlanRepository();
-const userRepo = new MySQLUserRepository();
-const createScheduleUC = new CreateScheduleUseCase(scheduleRepo);
-const generateSchedulesUC = new GenerateSchedulesUseCase(scheduleRepo, planRepo, userRepo);
-const planRepo = new MySQLPricingPlanRepository();
-const userRepo = new MySQLUserRepository();
-const createScheduleUC = new CreateScheduleUseCase(scheduleRepo);
-const generateSchedulesUC = new GenerateSchedulesUseCase(scheduleRepo, planRepo, userRepo);
+const generateSchedulesUC = new GenerateSchedulesUseCase(
+  scheduleRepo,
+  planRepo,
+  userRepo,
+);
 
 // ==================== CONTROLLER ====================
 
@@ -168,6 +141,11 @@ export class PaymentScheduleController {
     }
   }
 
+  /**
+   * POST /api/payments/schedules
+   * Crée manuellement une nouvelle échéance (admin)
+   * Body : { user_id, montant, date_echeance, plan_tarifaire_id? }
+   */
   async createSchedule(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { user_id, montant, date_echeance, plan_tarifaire_id } = req.body;
@@ -177,13 +155,22 @@ export class PaymentScheduleController {
         date_echeance,
         plan_tarifaire_id: plan_tarifaire_id ? Number(plan_tarifaire_id) : null,
       });
-      res.status(201).json({ success: true, message: "Échéance créée", data: { id } });
+      res
+        .status(201)
+        .json({ success: true, message: "Échéance créée", data: { id } });
     } catch (error: any) {
-      const status = error.message.includes("requis") || error.message.includes("supérieur") ? 400 : 500;
+      const status =
+        error.message.includes("requis") || error.message.includes("supérieur")
+          ? 400
+          : 500;
       res.status(status).json({ success: false, message: error.message });
     }
   }
 
+  /**
+   * POST /api/payments/schedules/generate/:userId
+   * Génère automatiquement les échéances d'un utilisateur selon son plan tarifaire
+   */
   async generateSchedules(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = Number(req.params.userId);
@@ -194,141 +181,11 @@ export class PaymentScheduleController {
         data: { generated: ids.length, ids },
       });
     } catch (error: any) {
-      const status = error.message.includes("introuvable") ? 404
-        : error.message.includes("pas de plan") ? 400
-        : 500;
-      res.status(status).json({ success: false, message: error.message });
-    }
-  }
-
-  async createSchedule(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      const { user_id, montant, date_echeance, plan_tarifaire_id } = req.body;
-      const id = await createScheduleUC.execute({
-        user_id: Number(user_id),
-        montant: Number(montant),
-        date_echeance,
-        plan_tarifaire_id: plan_tarifaire_id ? Number(plan_tarifaire_id) : null,
-      });
-      res.status(201).json({ success: true, message: "Échéance créée", data: { id } });
-    } catch (error: any) {
-      const status = error.message.includes("requis") || error.message.includes("supérieur") ? 400 : 500;
-      res.status(status).json({ success: false, message: error.message });
-    }
-  }
-
-  async generateSchedules(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      const userId = Number(req.params.userId);
-      const ids = await generateSchedulesUC.execute(userId);
-      res.status(201).json({
-        success: true,
-        message: `${ids.length} échéance(s) générée(s)`,
-        data: { generated: ids.length, ids },
-      });
-    } catch (error: any) {
-      const status = error.message.includes("introuvable") ? 404
-        : error.message.includes("pas de plan") ? 400
-        : 500;
-      res.status(status).json({ success: false, message: error.message });
-    }
-  }
-
-  async createSchedule(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      const { user_id, montant, date_echeance, plan_tarifaire_id } = req.body;
-      const id = await createScheduleUC.execute({
-        user_id: Number(user_id),
-        montant: Number(montant),
-        date_echeance,
-        plan_tarifaire_id: plan_tarifaire_id ? Number(plan_tarifaire_id) : null,
-      });
-      res.status(201).json({ success: true, message: "Échéance créée", data: { id } });
-    } catch (error: any) {
-      const status = error.message.includes("requis") || error.message.includes("supérieur") ? 400 : 500;
-      res.status(status).json({ success: false, message: error.message });
-    }
-  }
-
-  async generateSchedules(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      const userId = Number(req.params.userId);
-      const ids = await generateSchedulesUC.execute(userId);
-      res.status(201).json({
-        success: true,
-        message: `${ids.length} échéance(s) générée(s)`,
-        data: { generated: ids.length, ids },
-      });
-    } catch (error: any) {
-      const status = error.message.includes("introuvable") ? 404
-        : error.message.includes("pas de plan") ? 400
-        : 500;
-      res.status(status).json({ success: false, message: error.message });
-    }
-  }
-
-  async createSchedule(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      const { user_id, montant, date_echeance, plan_tarifaire_id } = req.body;
-      const id = await createScheduleUC.execute({
-        user_id: Number(user_id),
-        montant: Number(montant),
-        date_echeance,
-        plan_tarifaire_id: plan_tarifaire_id ? Number(plan_tarifaire_id) : null,
-      });
-      res.status(201).json({ success: true, message: "Échéance créée", data: { id } });
-    } catch (error: any) {
-      const status = error.message.includes("requis") || error.message.includes("supérieur") ? 400 : 500;
-      res.status(status).json({ success: false, message: error.message });
-    }
-  }
-
-  async generateSchedules(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      const userId = Number(req.params.userId);
-      const ids = await generateSchedulesUC.execute(userId);
-      res.status(201).json({
-        success: true,
-        message: `${ids.length} échéance(s) générée(s)`,
-        data: { generated: ids.length, ids },
-      });
-    } catch (error: any) {
-      const status = error.message.includes("introuvable") ? 404
-        : error.message.includes("pas de plan") ? 400
-        : 500;
-      res.status(status).json({ success: false, message: error.message });
-    }
-  }
-
-  async createSchedule(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      const { user_id, montant, date_echeance, plan_tarifaire_id } = req.body;
-      const id = await createScheduleUC.execute({
-        user_id: Number(user_id),
-        montant: Number(montant),
-        date_echeance,
-        plan_tarifaire_id: plan_tarifaire_id ? Number(plan_tarifaire_id) : null,
-      });
-      res.status(201).json({ success: true, message: "Échéance créée", data: { id } });
-    } catch (error: any) {
-      const status = error.message.includes("requis") || error.message.includes("supérieur") ? 400 : 500;
-      res.status(status).json({ success: false, message: error.message });
-    }
-  }
-
-  async generateSchedules(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      const userId = Number(req.params.userId);
-      const ids = await generateSchedulesUC.execute(userId);
-      res.status(201).json({
-        success: true,
-        message: `${ids.length} échéance(s) générée(s)`,
-        data: { generated: ids.length, ids },
-      });
-    } catch (error: any) {
-      const status = error.message.includes("introuvable") ? 404
-        : error.message.includes("pas de plan") ? 400
-        : 500;
+      const status = error.message.includes("introuvable")
+        ? 404
+        : error.message.includes("pas de plan")
+          ? 400
+          : 500;
       res.status(status).json({ success: false, message: error.message });
     }
   }

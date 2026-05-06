@@ -34,23 +34,17 @@ import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 import { RecoveryRequestPage } from "./features/auth/pages/RecoveryRequestPage";
 import { FamilyPage } from "./features/families/pages";
-import {
-  UsersPage,
-  ProfilePage,
-  DeletedUsersPage,
-} from "./features/users/pages";
+import { UsersPage, ProfilePage } from "./features/users/pages";
+import { ConfirmEmailChangePage } from "./features/users/pages/ConfirmEmailChangePage";
 import { MessagesPage } from "./features/messaging/pages";
 import { SettingsPage } from "./features/settings/pages";
-import { PaymentsPage, MyPaymentsPage } from "./features/payments/pages";
+import { PaymentsPage } from "./features/payments/pages";
 import { CoursesPage } from "./features/courses/pages";
-import { MyCoursesPage } from "./features/courses/pages";
+
 import { StorePage } from "./features/store/pages";
 import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
 import { NotificationsPage } from "./features/notifications/pages";
 import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
-import { GroupsPage } from "./features/groups/pages";
-import { ReservationsPage } from "./features/reservations/pages";
-import { TemplatesPage } from "./features/templates/pages";
 
 /**
  * AuthenticatedLayout Component
@@ -185,6 +179,10 @@ function App() {
               }
             />
             <Route path="/recovery-request" element={<RecoveryRequestPage />} />
+            <Route
+              path="/confirm-email-change"
+              element={<ConfirmEmailChangePage />}
+            />
           </Route>
 
           {/* Private Routes */}
@@ -204,28 +202,7 @@ function App() {
                 </RoleGuard>
               }
             />
-            <Route
-              path="/my-courses"
-              element={
-                <RoleGuard
-                  allowedRoles={[
-                    UserRole.ADMIN,
-                    UserRole.PROFESSOR,
-                    UserRole.MEMBER,
-                  ]}
-                >
-                  <MyCoursesPage />
-                </RoleGuard>
-              }
-            />
-            <Route
-              path="/users/deleted"
-              element={
-                <RoleGuard allowedRoles={[UserRole.ADMIN]}>
-                  <DeletedUsersPage />
-                </RoleGuard>
-              }
-            />
+
             <Route
               path="/users"
               element={
@@ -242,20 +219,7 @@ function App() {
                 </RoleGuard>
               }
             />
-            <Route
-              path="/my-payments"
-              element={
-                <RoleGuard
-                  allowedRoles={[
-                    UserRole.ADMIN,
-                    UserRole.PROFESSOR,
-                    UserRole.MEMBER,
-                  ]}
-                >
-                  <MyPaymentsPage />
-                </RoleGuard>
-              }
-            />
+
             <Route path="/store" element={<StorePage />} />
             <Route path="/messages" element={<MessagesPage />} />
             <Route
@@ -269,36 +233,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/family" element={<FamilyPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
-            <Route
-              path="/groups"
-              element={
-                <RoleGuard allowedRoles={[UserRole.ADMIN]}>
-                  <GroupsPage />
-                </RoleGuard>
-              }
-            />
-            <Route
-              path="/reservations"
-              element={
-                <RoleGuard
-                  allowedRoles={[
-                    UserRole.ADMIN,
-                    UserRole.PROFESSOR,
-                    UserRole.MEMBER,
-                  ]}
-                >
-                  <ReservationsPage />
-                </RoleGuard>
-              }
-            />
-            <Route
-              path="/templates"
-              element={
-                <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.PROFESSOR]}>
-                  <TemplatesPage />
-                </RoleGuard>
-              }
-            />
+
             <Route
               path="/settings"
               element={

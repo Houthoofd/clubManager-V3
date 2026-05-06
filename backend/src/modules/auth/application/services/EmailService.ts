@@ -188,6 +188,68 @@ export class EmailService {
     }
   }
 
+  // ── GAP-15 : Email change ──────────────────────────────────────────────────
+
+  /**
+   * Envoie un email de confirmation de changement d'email
+   * Envoyé au NOUVEL email pour valider le changement
+   */
+  async sendEmailChangeConfirmationEmail(
+    to: string,
+    firstName: string,
+    confirmUrl: string,
+  ): Promise<void> {
+    const recipient = this.devEmailOverride ?? to;
+
+    if (!this.resend) {
+      console.log(
+        `[EmailService DEV] Email change confirmation → ${recipient}\n  Lien : ${confirmUrl}`,
+      );
+      return;
+    }
+
+    const subject = "Confirmez votre nouvelle adresse email — ClubManager";
+    const html = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <h2 style="color:#1d4ed8;">Changement d'adresse email</h2>
+        <p>Bonjour ${this.escapeHtml(firstName)},</p>
+        <p>Une demande de changement d'email a été effectuée sur votre compte ClubManager.
+           Votre nouvelle adresse sera : <strong>${this.escapeHtml(to)}</strong>.</p>
+        <p>Cliquez sur le bouton ci-dessous pour confirmer ce changement
+           (lien valable <strong>24 heures</strong>) :</p>
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${confirmUrl}"
+             style="background:#1d4ed8;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;"
+          >Confirmer le changement</a>
+        </div>
+        <p style="color:#6b7280;font-size:13px;">
+          Si vous n'avez pas fait cette demande, ignorez cet email —
+          votre adresse actuelle restera inchangée.
+        </p>
+      </div>`;
+
+    const text =
+      `Bonjour ${firstName},\n\n` +
+      `Confirmez votre nouvelle adresse email (${to}) en visitant :\n${confirmUrl}\n\n` +
+      `Lien valable 24 heures. Si vous n'avez pas fait cette demande, ignorez cet email.`;
+
+    try {
+      await this.resend.emails.send({
+        from: this.fromEmail,
+        to: recipient,
+        subject,
+        html,
+        text,
+      });
+    } catch (error) {
+      console.error(
+        "[EmailService] sendEmailChangeConfirmationEmail failed:",
+        error,
+      );
+      throw error;
+    }
+  }
+
   /**
    * Send password changed confirmation email
    */

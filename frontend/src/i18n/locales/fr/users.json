@@ -1,4 +1,9 @@
 {
+  "tabs": {
+    "active": "Utilisateurs actifs",
+    "deleted": "Supprimés",
+    "groups": "Groupes"
+  },
   "title": "Gestion des utilisateurs",
   "description": "Gérez les comptes, rôles et statuts des utilisateurs",
   "firstName": "Prénom & Nom",

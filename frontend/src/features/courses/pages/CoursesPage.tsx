@@ -22,10 +22,12 @@ import { useTypesCours } from "../../../shared/hooks/useReferences";
 import type { TypeCours } from "../../../shared/hooks/useReferences";
 import {
   CalendarIcon,
+  CalendarDaysIcon,
   PencilIcon,
   TrashIcon,
   PlusIcon,
   ClipboardDocumentIcon,
+  ClipboardDocumentListIcon,
   SparklesIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
@@ -48,6 +50,8 @@ import {
   CreateSessionModal,
   AttendanceModal,
 } from "../components/modals";
+import { MyCoursesPage } from "./MyCoursesPage";
+import { ReservationsPage } from "../../reservations/pages/ReservationsPage";
 import type {
   CourseRecurrentListItemDto,
   ProfessorListItemDto,
@@ -68,7 +72,12 @@ const DAYS_KEYS = [
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type TabId = "planning" | "sessions" | "professeurs";
+type TabId =
+  | "planning"
+  | "sessions"
+  | "professeurs"
+  | "myEnrollments"
+  | "reservations";
 
 type ModalState =
   | { type: "none" }
@@ -195,6 +204,16 @@ export default function CoursesPage() {
       id: "professeurs" as const,
       label: t("tabs.professors"),
       icon: <EnvelopeIcon className="h-5 w-5" />,
+    },
+    {
+      id: "myEnrollments" as const,
+      label: t("tabs.myEnrollments"),
+      icon: <ClipboardDocumentListIcon className="h-5 w-5" />,
+    },
+    {
+      id: "reservations" as const,
+      label: t("tabs.reservations"),
+      icon: <CalendarDaysIcon className="h-5 w-5" />,
     },
   ];
 
@@ -661,6 +680,12 @@ export default function CoursesPage() {
             )}
           </div>
         )}
+
+        {/* ──────────────────────────────── TAB 4 : Mes inscriptions */}
+        {activeTab === "myEnrollments" && <MyCoursesPage />}
+
+        {/* ──────────────────────────────── TAB 5 : Réservations */}
+        {activeTab === "reservations" && <ReservationsPage />}
       </div>
 
       {/* ───────────────────────────────────────────────────────────── */}
