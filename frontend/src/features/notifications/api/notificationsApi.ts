@@ -53,4 +53,19 @@ export const notificationsApi = {
   markAllAsRead: async (): Promise<void> => {
     await apiClient.post('/notifications/read-all');
   },
+
+  /**
+   * Supprime une notification specifique.
+   * @param id - L'identifiant de la notification
+   */
+  deleteOne: async (id: number): Promise<void> => {
+    await apiClient.delete(`/notifications/${id}`);
+  },
+
+  /**
+   * Supprime toutes les notifications de l'utilisateur connecte.
+   */
+  deleteAll: async (): Promise<void> => {
+    await apiClient.delete('/notifications/all');
+  },
 };

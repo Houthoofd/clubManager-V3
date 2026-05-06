@@ -38,4 +38,11 @@ router.post('/read-all', (req, res) => ctrl.markAllAsRead(req as any, res));
 // PATCH /api/notifications/:id/read — marque une notification spécifique comme lue
 router.patch('/:id/read', (req, res) => ctrl.markAsRead(req as any, res));
 
+// DELETE /api/notifications/all — supprime toutes les notifications de l'utilisateur courant
+// Doit etre AVANT /:id pour que "all" ne soit pas capture comme id
+router.delete('/all', (req, res) => ctrl.deleteAll(req as any, res));
+
+// DELETE /api/notifications/:id — supprime une notification specifique
+router.delete('/:id', (req, res) => ctrl.deleteOne(req as any, res));
+
 export default router;
