@@ -98,4 +98,13 @@ router.get("/health", (req, res) => {
   });
 });
 
+/**
+ * @route   GET /api/auth/audit/login-attempts
+ * @desc    Liste les tentatives de connexion (admin)
+ * @access  Private + Admin
+ */
+router.get("/audit/login-attempts", authMiddleware, (req, res) =>
+  authController.getLoginAttempts(req as any, res),
+);
+
 export default router;

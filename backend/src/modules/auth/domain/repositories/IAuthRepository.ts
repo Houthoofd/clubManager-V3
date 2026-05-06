@@ -6,6 +6,16 @@
 
 import type { User, UserPublic } from "@clubmanager/types";
 
+export interface LoginAttemptDto {
+  id: number;
+  email: string;
+  ip_address: string;
+  success: boolean;
+  user_agent: string | null;
+  failure_reason: string | null;
+  created_at: string;
+}
+
 /**
  * Interface du repository d'authentification
  */
@@ -185,4 +195,20 @@ export interface IAuthRepository {
    * @returns Promise<void>
    */
   cleanupExpiredTokens(): Promise<void>;
+
+  // ==================== AUDIT ====================
+
+  /**
+   * Retourne les tentatives de connexion, paginées, filtrables
+   */
+  getLoginAttempts(params: {
+    page: number;
+    limit: number;
+    email?: string;
+    ip?: string;
+    onlyFailed?: boolean;
+  }): Promise<{
+    attempts: LoginAttemptDto[];
+    total: number;
+  }>;
 }
