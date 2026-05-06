@@ -14,6 +14,8 @@ import { GetSentUseCase } from "../../application/use-cases/GetSentUseCase.js";
 import { GetMessageUseCase } from "../../application/use-cases/GetMessageUseCase.js";
 import { GetUnreadCountUseCase } from "../../application/use-cases/GetUnreadCountUseCase.js";
 import { DeleteMessageUseCase } from "../../application/use-cases/DeleteMessageUseCase.js";
+import { ArchiveMessageUseCase } from "../../application/use-cases/ArchiveMessageUseCase.js";
+import { GetArchivedMessagesUseCase } from "../../application/use-cases/GetArchivedMessagesUseCase.js";
 
 // ==================== SINGLETONS ====================
 
@@ -24,6 +26,8 @@ const getSentUC = new GetSentUseCase(repo);
 const getMessageUC = new GetMessageUseCase(repo);
 const getUnreadCountUC = new GetUnreadCountUseCase(repo);
 const deleteMessageUC = new DeleteMessageUseCase(repo);
+const archiveMessageUC = new ArchiveMessageUseCase(repo);
+const getArchivedMessagesUC = new GetArchivedMessagesUseCase(repo);
 
 // ==================== HELPER ROW INTERFACES ====================
 
@@ -37,7 +41,7 @@ interface UserEmailRow extends RowDataPacket {
 export class MessagingController {
   /**
    * GET /api/messages/inbox?page=&limit=&lu=
-   * Retourne la boîte de réception paginée de l'utilisateur connecté
+   * Retourne la boite de reception paginee de l'utilisateur connecte
    */
   async getInbox(req: AuthRequest, res: Response): Promise<void> {
     try {
@@ -55,7 +59,7 @@ export class MessagingController {
 
       res.json({
         success: true,
-        message: "Boîte de réception récupérée",
+        message: "Boite de reception recuperee",
         data: result,
       });
     } catch (error: any) {
@@ -70,7 +74,7 @@ export class MessagingController {
 
   /**
    * GET /api/messages/sent?page=&limit=
-   * Retourne la boîte d'envoi paginée de l'utilisateur connecté
+   * Retourne la boite d'envoi paginee de l'utilisateur connecte
    */
   async getSent(req: AuthRequest, res: Response): Promise<void> {
     try {
@@ -82,7 +86,7 @@ export class MessagingController {
 
       res.json({
         success: true,
-        message: "Boîte d'envoi récupérée",
+        message: "Boite d'envoi recuperee",
         data: result,
       });
     } catch (error: any) {
@@ -98,7 +102,7 @@ export class MessagingController {
   /**
    * GET /api/messages/:id
    * Retourne un message par son ID et le marque automatiquement comme lu
-   * si l'utilisateur connecté est le destinataire
+   * si l'utilisateur connecte est le destinataire
    */
   async getMessage(req: AuthRequest, res: Response): Promise<void> {
     try {
@@ -118,12 +122,12 @@ export class MessagingController {
 
       res.json({
         success: true,
-        message: "Message récupéré",
+        message: "Message recupere",
         data: message,
       });
     } catch (error: any) {
       const isNotFound =
-        error.message === "Message introuvable ou accès refusé";
+        error.message === "Message introuvable ou acces refuse";
       res.status(isNotFound ? 404 : 500).json({
         success: false,
         message: error.message ?? "Erreur interne",
@@ -134,7 +138,7 @@ export class MessagingController {
 
   /**
    * GET /api/messages/unread-count
-   * Retourne le nombre de messages non lus pour l'utilisateur connecté
+   * Retourne le nombre de messages non lus pour l'utilisateur connecte
    */
   async getUnreadCount(req: AuthRequest, res: Response): Promise<void> {
     try {
@@ -143,7 +147,7 @@ export class MessagingController {
 
       res.json({
         success: true,
-        message: "Compteur de messages non lus récupéré",
+        message: "Compteur de messages non lus recupere",
         data: { unread: count },
       });
     } catch (error: any) {
@@ -158,14 +162,7 @@ export class MessagingController {
 
   /**
    * POST /api/messages/send
-   * Envoie un message individuel ou groupé (broadcast)
-   *
-   * Body:
-   *   - destinataire_id? : number   → message individuel
-   *   - cible?           : 'tous' | 'admin' | 'professor' | 'member'  → broadcast
-   *   - sujet?           : string
-   *   - contenu          : string   (obligatoire)
-   *   - envoye_par_email : boolean
+   * Envoie un message individuel ou groupe (broadcast)
    */
   async send(req: AuthRequest, res: Response): Promise<void> {
     try {
@@ -190,7 +187,7 @@ export class MessagingController {
         return;
       }
 
-      // Validation contenu présent
+      // Validation contenu present
       if (!contenu || String(contenu).trim().length === 0) {
         res.status(400).json({
           success: false,
@@ -203,7 +200,7 @@ export class MessagingController {
       let destinataire_email: string | undefined;
       let destinataire_nom: string | undefined;
 
-      // Si message individuel → récupérer email et nom du destinataire en DB
+      // Si message individuel -> recuperer email et nom du destinataire en DB
       if (destinataire_id) {
         const [rows] = await pool.query<UserEmailRow[]>(
           `SELECT email, CONCAT(first_name, ' ', last_name) AS nom
@@ -242,13 +239,13 @@ export class MessagingController {
 
       res.status(201).json({
         success: true,
-        message: "Message envoyé avec succès",
+        message: "Message envoye avec succes",
         data: result,
       });
     } catch (error: any) {
       console.error("[MessagingController.send]", error);
 
-      // Erreurs métier connues → 400
+      // Erreurs metier connues -> 400
       const businessErrors = [
         "Le contenu du message est requis",
         "Le message est trop long",
@@ -271,7 +268,7 @@ export class MessagingController {
 
   /**
    * DELETE /api/messages/:id
-   * Supprime définitivement un message pour le destinataire connecté
+   * Supprime definitivement un message pour le destinataire connecte
    */
   async delete(req: AuthRequest, res: Response): Promise<void> {
     try {
@@ -291,15 +288,77 @@ export class MessagingController {
 
       res.json({
         success: true,
-        message: "Message supprimé",
+        message: "Message supprime",
       });
     } catch (error: any) {
       const isNotFound =
-        error.message === "Message introuvable ou accès refusé";
+        error.message === "Message introuvable ou acces refuse";
       res.status(isNotFound ? 404 : 500).json({
         success: false,
         message: error.message ?? "Erreur interne",
         error: isNotFound ? "NOT_FOUND" : "INTERNAL_ERROR",
+      });
+    }
+  }
+
+  /**
+   * POST /api/messages/:id/archive
+   * Archive un message pour le destinataire connecte
+   */
+  async archiveMessage(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.user!.userId;
+      const messageId = Number(req.params.id);
+
+      if (isNaN(messageId) || messageId <= 0) {
+        res.status(400).json({
+          success: false,
+          message: "ID de message invalide",
+          error: "INVALID_ID",
+        });
+        return;
+      }
+
+      await archiveMessageUC.execute(messageId, userId);
+
+      res.json({
+        success: true,
+        message: "Message archive",
+      });
+    } catch (error: any) {
+      const isNotFound =
+        error.message === "Message introuvable ou acces refuse";
+      res.status(isNotFound ? 404 : 500).json({
+        success: false,
+        message: error.message ?? "Erreur interne",
+        error: isNotFound ? "NOT_FOUND" : "INTERNAL_ERROR",
+      });
+    }
+  }
+
+  /**
+   * GET /api/messages/archived?page=&limit=
+   * Retourne les messages archives pagines de l'utilisateur connecte
+   */
+  async getArchived(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.user!.userId;
+      const page = req.query.page ? Number(req.query.page) : 1;
+      const limit = req.query.limit ? Number(req.query.limit) : 20;
+
+      const result = await getArchivedMessagesUC.execute(userId, page, limit);
+
+      res.json({
+        success: true,
+        message: "Messages archives recuperes",
+        data: result,
+      });
+    } catch (error: any) {
+      console.error("[MessagingController.getArchived]", error);
+      res.status(500).json({
+        success: false,
+        message: error.message ?? "Erreur interne",
+        error: "INTERNAL_ERROR",
       });
     }
   }

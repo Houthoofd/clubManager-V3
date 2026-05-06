@@ -45,7 +45,7 @@ export interface BroadcastParams {
   expediteur_id: number;
   sujet?: string;
   contenu: string;
-  cible: 'tous' | 'admin' | 'professor' | 'member';
+  cible: "tous" | "admin" | "professor" | "member";
   envoye_par_email: boolean;
 }
 
@@ -106,6 +106,12 @@ export interface IMessagingRepository {
    * Compte le nombre de messages non lus d'un utilisateur
    */
   getUnreadCount(userId: number): Promise<number>;
+
+  /** Archive un message pour le destinataire */
+  archiveMessage(messageId: number, userId: number): Promise<void>;
+
+  /** Retourne les messages archivés paginés d'un utilisateur */
+  getArchived(userId: number, page: number, limit: number): Promise<PaginatedMessages>;
 
   /**
    * Retourne les destinataires éligibles à un broadcast selon la cible

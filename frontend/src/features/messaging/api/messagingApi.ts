@@ -109,3 +109,24 @@ export const sendMessage = async (
 export const deleteMessage = async (id: number): Promise<void> => {
   await apiClient.delete(`/messages/${id}`);
 };
+
+/**
+ * Archive un message (destinataire)
+ */
+export const archiveMessage = async (id: number): Promise<void> => {
+  await apiClient.post(`/messages/${id}/archive`);
+};
+
+/**
+ * Recupere les messages archives pagines
+ */
+export const getArchived = async (
+  page = 1,
+  limit = 20,
+): Promise<PaginatedMessages> => {
+  const res = await apiClient.get<ApiResponse<PaginatedMessages>>(
+    '/messages/archived',
+    { params: { page, limit } },
+  );
+  return res.data.data!;
+};

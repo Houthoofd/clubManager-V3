@@ -1,33 +1,35 @@
 /**
  * MessageListItem.tsx
- * Composant d'un élément dans la liste des messages
+ * Composant d'un element dans la liste des messages
  */
 
 import { useTranslation } from "react-i18next";
 import type { MessageWithDetails } from "../api/messagingApi";
 import { EnvelopeIcon } from "@patternfly/react-icons";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+// -- Props -----------------------------------------------------------------------
 
 interface MessageListItemProps {
   message: MessageWithDetails;
   isSelected: boolean;
   isInbox: boolean;
   onClick: () => void;
+  /** Callback optionnel pour archiver le message (visible uniquement dans inbox) */
+  onArchive?: (id: number) => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// -- Helpers ---------------------------------------------------------------------
 
 /**
- * Tronque une chaîne à maxLength caractères
+ * Tronque une chaine a maxLength caracteres
  */
 const truncate = (str: string, maxLength: number): string => {
   if (str.length <= maxLength) return str;
-  return str.slice(0, maxLength) + "…";
+  return str.slice(0, maxLength) + "...";
 };
 
 /**
- * Calcule les différences temporelles pour le formatage relatif
+ * Calcule les differences temporelles pour le formatage relatif
  */
 export const getRelativeDateValues = (dateStr: string) => {
   const now = Date.now();
@@ -53,13 +55,14 @@ export const getRelativeDateValues = (dateStr: string) => {
   };
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// -- Component -------------------------------------------------------------------
 
 export const MessageListItem = ({
   message,
   isSelected,
   isInbox,
   onClick,
+  onArchive,
 }: MessageListItemProps) => {
   const { t } = useTranslation("messages");
   const isUnread = isInbox && !message.lu;
@@ -91,75 +94,101 @@ export const MessageListItem = ({
     }
   }
 
+  const handleArchiveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onArchive?.(message.id);
+  };
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <div
       className={[
-        "w-full text-left px-4 py-3 border-b border-gray-100 transition-colors",
-        "hover:bg-gray-50 focus:outline-none focus:bg-gray-50",
-        isSelected ? "bg-blue-50" : "bg-white",
+        "relative w-full text-left border-b border-gray-100 transition-colors group",
+        isSelected ? "bg-blue-50" : "bg-white hover:bg-gray-50",
       ].join(" ")}
     >
-      {/* Ligne 1 : nom + icônes + date */}
-      <div className="flex items-center gap-2 min-w-0">
-        {/* Point bleu non-lu */}
-        <span
-          className={[
-            "flex-shrink-0 w-2 h-2 rounded-full",
-            isUnread ? "bg-blue-500" : "bg-transparent",
-          ].join(" ")}
-          aria-hidden="true"
-        />
-
-        {/* Nom expéditeur / destinataire */}
-        <span
-          className={[
-            "flex-1 truncate text-sm text-gray-900",
-            isUnread ? "font-semibold" : "font-normal",
-          ].join(" ")}
-        >
-          {displayName}
-        </span>
-
-        {/* Icône email */}
-        {message.envoye_par_email && (
+      <button
+        type="button"
+        onClick={onClick}
+        className="w-full text-left px-4 py-3 focus:outline-none focus:bg-gray-50"
+      >
+        {/* Ligne 1 : nom + icones + date */}
+        <div className="flex items-center gap-2 min-w-0">
+          {/* Point bleu non-lu */}
           <span
-            className="flex-shrink-0 text-blue-400"
-            title={t("badges.email")}
+            className={[
+              "flex-shrink-0 w-2 h-2 rounded-full",
+              isUnread ? "bg-blue-500" : "bg-transparent",
+            ].join(" ")}
+            aria-hidden="true"
+          />
+
+          {/* Nom expediteur / destinataire */}
+          <span
+            className={[
+              "flex-1 truncate text-sm text-gray-900",
+              isUnread ? "font-semibold" : "font-normal",
+            ].join(" ")}
           >
-            <EnvelopeIcon
-              className="inline-block align-middle"
-              style={{ fontSize: "12px" }}
-            />
+            {displayName}
           </span>
-        )}
 
-        {/* Badge groupé */}
-        {message.broadcast_id !== null && (
-          <span className="flex-shrink-0 text-xs bg-purple-100 text-purple-700 rounded-full px-1.5 py-0.5 leading-none">
-            {t("badges.grouped")}
+          {/* Icone email */}
+          {message.envoye_par_email && (
+            <span
+              className="flex-shrink-0 text-blue-400"
+              title={t("badges.email")}
+            >
+              <EnvelopeIcon
+                className="inline-block align-middle"
+                style={{ fontSize: "12px" }}
+              />
+            </span>
+          )}
+
+          {/* Badge groupe */}
+          {message.broadcast_id !== null && (
+            <span className="flex-shrink-0 text-xs bg-purple-100 text-purple-700 rounded-full px-1.5 py-0.5 leading-none">
+              {t("badges.grouped")}
+            </span>
+          )}
+
+          {/* Date relative */}
+          <span className="flex-shrink-0 text-xs text-gray-400 whitespace-nowrap">
+            {relativeDate}
           </span>
-        )}
+        </div>
 
-        {/* Date relative */}
-        <span className="flex-shrink-0 text-xs text-gray-400 whitespace-nowrap">
-          {relativeDate}
-        </span>
-      </div>
+        {/* Ligne 2 : apercu sujet / contenu */}
+        <div className="mt-0.5 pl-4">
+          <p
+            className={[
+              "text-xs truncate",
+              isUnread ? "text-gray-700 font-medium" : "text-gray-500",
+            ].join(" ")}
+          >
+            {preview}
+          </p>
+        </div>
+      </button>
 
-      {/* Ligne 2 : prévisualisation sujet / contenu */}
-      <div className="mt-0.5 pl-4">
-        <p
+      {/* Bouton Archiver — visible au survol, uniquement dans inbox */}
+      {isInbox && onArchive && (
+        <button
+          type="button"
+          onClick={handleArchiveClick}
+          title="Archiver"
           className={[
-            "text-xs truncate",
-            isUnread ? "text-gray-700 font-medium" : "text-gray-500",
+            "absolute right-2 top-1/2 -translate-y-1/2",
+            "opacity-0 group-hover:opacity-100 transition-opacity",
+            "text-gray-400 hover:text-amber-600",
+            "p-1 rounded text-sm",
           ].join(" ")}
+          aria-label="Archiver ce message"
         >
-          {preview}
-        </p>
-      </div>
-    </button>
+          📦
+        </button>
+      )}
+    </div>
   );
 };
 
