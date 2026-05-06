@@ -15,6 +15,7 @@ import {
   BellSlashIcon,
   BullhornIcon,
 } from "@patternfly/react-icons";
+import { BellIcon, EnvelopeOpenIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { UserRole } from "@clubmanager/types";
 import { BroadcastNotificationModal } from "../components/BroadcastNotificationModal";
@@ -111,15 +112,36 @@ type TabKey = "all" | "unread" | NotificationDto["type"];
 interface Tab {
   key: TabKey;
   label: string;
+  icon?: React.ReactNode;
 }
 
 const TABS: Tab[] = [
-  { key: "all", label: "Tous" },
-  { key: "unread", label: "Non lus" },
-  { key: "info", label: "Info" },
-  { key: "warning", label: "Attention" },
-  { key: "error", label: "Erreur" },
-  { key: "success", label: "Succès" },
+  { key: "all", label: "Tous", icon: <BellIcon className="h-4 w-4" /> },
+  {
+    key: "unread",
+    label: "Non lus",
+    icon: <EnvelopeOpenIcon className="h-4 w-4" />,
+  },
+  {
+    key: "info",
+    label: "Info",
+    icon: <InfoCircleIcon style={{ fontSize: "16px" }} />,
+  },
+  {
+    key: "warning",
+    label: "Attention",
+    icon: <ExclamationTriangleIcon style={{ fontSize: "16px" }} />,
+  },
+  {
+    key: "error",
+    label: "Erreur",
+    icon: <OutlinedTimesCircleIcon style={{ fontSize: "16px" }} />,
+  },
+  {
+    key: "success",
+    label: "Succès",
+    icon: <CheckCircleIcon style={{ fontSize: "16px" }} />,
+  },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -311,47 +333,84 @@ export function NotificationsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Mes notifications
-          </h1>
-          {!isLoading && (
-            <p className="text-sm text-gray-500 mt-1">
-              {base.length === 0
-                ? "Aucune notification"
-                : `${base.length} notification${base.length > 1 ? "s" : ""}${
-                    hasUnread
-                      ? ` · ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}`
-                      : ""
-                  }`}
-            </p>
-          )}
-        </div>
+    <>
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Page header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Mes notifications
+            </h1>
+            {!isLoading && (
+              <p className="text-sm text-gray-500 mt-1">
+                {base.length === 0
+                  ? "Aucune notification"
+                  : `${base.length} notification${base.length > 1 ? "s" : ""}${
+                      hasUnread
+                        ? ` · ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}`
+                        : ""
+                    }`}
+              </p>
+            )}
+          </div>
 
-        <div className="flex items-center gap-2">
-          {isAdmin && (
-            <button
-              onClick={() => setIsBroadcastOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition-colors"
-            >
-              <BullhornIcon className="w-4 h-4" />
-              Broadcast
-            </button>
-          )}
-        </div>
-
-        {base.length > 0 && (
           <div className="flex items-center gap-2">
-            {hasUnread && (
+            {isAdmin && (
               <button
-                onClick={handleMarkAllAsRead}
-                disabled={isMarkingAll}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setIsBroadcastOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition-colors"
               >
-                {isMarkingAll ? (
+                <BullhornIcon className="w-4 h-4" />
+                Broadcast
+              </button>
+            )}
+          </div>
+
+          {base.length > 0 && (
+            <div className="flex items-center gap-2">
+              {hasUnread && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  disabled={isMarkingAll}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isMarkingAll ? (
+                    <>
+                      <svg
+                        className="animate-spin h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                        />
+                      </svg>
+                      En cours...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircleIcon className="w-4 h-4" />
+                      Tout marquer comme lu
+                    </>
+                  )}
+                </button>
+              )}
+              <button
+                onClick={handleDeleteAll}
+                disabled={isDeletingAll}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeletingAll ? (
                   <>
                     <svg
                       className="animate-spin h-4 w-4"
@@ -372,68 +431,32 @@ export function NotificationsPage() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                       />
                     </svg>
-                    En cours...
+                    Suppression...
                   </>
                 ) : (
                   <>
-                    <CheckCircleIcon className="w-4 h-4" />
-                    Tout marquer comme lu
+                    <TrashIcon className="w-4 h-4" />
+                    Tout supprimer
                   </>
                 )}
               </button>
-            )}
-            <button
-              onClick={handleDeleteAll}
-              disabled={isDeletingAll}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isDeletingAll ? (
-                <>
-                  <svg
-                    className="animate-spin h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                  Suppression...
-                </>
-              ) : (
-                <>
-                  <TrashIcon className="w-4 h-4" />
-                  Tout supprimer
-                </>
-              )}
-            </button>
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
 
-      {/* Main card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        {/* Tab bar */}
-        <div className="border-b border-gray-200 overflow-x-auto">
-          <nav className="flex" aria-label="Filtres de notifications">
-            {TABS.map((tab) => {
-              const count = tabCounts[tab.key];
-              const isActive = activeTab === tab.key;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`
+        {/* Main card */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          {/* Tab bar */}
+          <div className="border-b border-gray-200 overflow-x-auto">
+            <nav className="flex" aria-label="Filtres de notifications">
+              {TABS.map((tab) => {
+                const count = tabCounts[tab.key];
+                const isActive = activeTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`
                     relative flex-shrink-0 flex items-center gap-1.5 px-4 py-3.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap
                     ${
                       isActive
@@ -441,102 +464,106 @@ export function NotificationsPage() {
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }
                   `}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  {tab.label}
-                  {count !== undefined && count > 0 && (
-                    <span
-                      className={`
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    {tab.icon && (
+                      <span className="flex-shrink-0">{tab.icon}</span>
+                    )}
+                    {tab.label}
+                    {count !== undefined && count > 0 && (
+                      <span
+                        className={`
                         text-xs rounded-full px-1.5 py-0.5 leading-none font-semibold
                         ${isActive ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"}
                       `}
-                    >
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
 
-        {/* Content */}
-        {isLoading ? (
-          /* Loading state */
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <SpinnerIcon />
-            <p className="text-sm text-gray-400">{t("common.loading")}</p>
-          </div>
-        ) : isError ? (
-          /* Error state */
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <ExclamationTriangleIcon className="w-12 h-12 text-yellow-400" />
-            <p className="text-sm text-gray-600 font-medium">
-              Impossible de charger les notifications
-            </p>
-            <button
-              onClick={() => refetch()}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
-            >
-              Réessayer
-            </button>
-          </div>
-        ) : filtered.length === 0 ? (
-          /* Empty state */
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <BellSlashIcon className="w-16 h-16 text-gray-300" />
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-600">
-                Aucune notification
-              </p>
-              {activeTab !== "all" && (
-                <p className="text-xs text-gray-400 mt-1">
-                  Aucune notification dans cette catégorie
-                </p>
-              )}
+          {/* Content */}
+          {isLoading ? (
+            /* Loading state */
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <SpinnerIcon />
+              <p className="text-sm text-gray-400">{t("common.loading")}</p>
             </div>
-            {activeTab !== "all" && (
+          ) : isError ? (
+            /* Error state */
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <ExclamationTriangleIcon className="w-12 h-12 text-yellow-400" />
+              <p className="text-sm text-gray-600 font-medium">
+                Impossible de charger les notifications
+              </p>
               <button
-                onClick={() => setActiveTab("all")}
+                onClick={() => refetch()}
                 className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
               >
-                Voir toutes les notifications
+                Réessayer
               </button>
-            )}
-          </div>
-        ) : (
-          /* Notification list */
-          <ul className="divide-y divide-gray-100">
-            {filtered.map((notification) => (
-              <li key={notification.id}>
-                <NotificationItem
-                  notification={notification}
-                  onRead={handleMarkAsRead}
-                  isMarkingRead={isMarkingOne}
-                  onDelete={handleDeleteOne}
-                  isDeletingOne={isDeletingOne}
-                />
-              </li>
-            ))}
-          </ul>
-        )}
+            </div>
+          ) : filtered.length === 0 ? (
+            /* Empty state */
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <BellSlashIcon className="w-16 h-16 text-gray-300" />
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-600">
+                  Aucune notification
+                </p>
+                {activeTab !== "all" && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    Aucune notification dans cette catégorie
+                  </p>
+                )}
+              </div>
+              {activeTab !== "all" && (
+                <button
+                  onClick={() => setActiveTab("all")}
+                  className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                >
+                  Voir toutes les notifications
+                </button>
+              )}
+            </div>
+          ) : (
+            /* Notification list */
+            <ul className="divide-y divide-gray-100">
+              {filtered.map((notification) => (
+                <li key={notification.id}>
+                  <NotificationItem
+                    notification={notification}
+                    onRead={handleMarkAsRead}
+                    isMarkingRead={isMarkingOne}
+                    onDelete={handleDeleteOne}
+                    isDeletingOne={isDeletingOne}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
 
-        {/* Footer info */}
-        {!isLoading && !isError && base.length >= 50 && (
-          <div className="border-t border-gray-100 px-6 py-3 bg-gray-50">
-            <p className="text-xs text-gray-400 text-center">
-              Affichage des 50 notifications les plus récentes
-            </p>
-          </div>
-        )}
+          {/* Footer info */}
+          {!isLoading && !isError && base.length >= 50 && (
+            <div className="border-t border-gray-100 px-6 py-3 bg-gray-50">
+              <p className="text-xs text-gray-400 text-center">
+                Affichage des 50 notifications les plus récentes
+              </p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
 
-    {/* Broadcast modal — admin only */}
-    <BroadcastNotificationModal
-      isOpen={isBroadcastOpen}
-      onClose={() => setIsBroadcastOpen(false)}
-    />
+      {/* Broadcast modal — admin only */}
+      <BroadcastNotificationModal
+        isOpen={isBroadcastOpen}
+        onClose={() => setIsBroadcastOpen(false)}
+      />
+    </>
   );
 }
 

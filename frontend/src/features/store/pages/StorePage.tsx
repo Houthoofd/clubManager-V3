@@ -15,6 +15,13 @@ import { useTranslation } from "react-i18next";
 import { UserRole } from "@clubmanager/types";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { useStoreUI } from "../stores/storeStore";
+import {
+  ShoppingBagIcon,
+  ClipboardDocumentListIcon,
+  ArchiveBoxIcon,
+  ArrowsRightLeftIcon,
+  Cog6ToothIcon,
+} from "@heroicons/react/24/outline";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // IMPORTS DES COMPOSANTS RÉUTILISABLES
@@ -68,15 +75,43 @@ export function StorePage() {
   // MIGRATION : TabGroup - Définition des onglets
   const tabs = canManageStore
     ? [
-        { id: "catalogue", label: t("tabs.catalogue") },
-        { id: "commandes", label: t("tabs.orders") },
-        { id: "stocks", label: t("tabs.stocks") },
-        { id: "mouvements", label: t("tabs.movements", "Mouvements") },
-        { id: "configuration", label: t("tabs.configuration") },
+        {
+          id: "catalogue",
+          label: t("tabs.catalogue"),
+          icon: <ShoppingBagIcon className="h-4 w-4" />,
+        },
+        {
+          id: "commandes",
+          label: t("tabs.orders"),
+          icon: <ClipboardDocumentListIcon className="h-4 w-4" />,
+        },
+        {
+          id: "stocks",
+          label: t("tabs.stocks"),
+          icon: <ArchiveBoxIcon className="h-4 w-4" />,
+        },
+        {
+          id: "mouvements",
+          label: t("tabs.movements", "Mouvements"),
+          icon: <ArrowsRightLeftIcon className="h-4 w-4" />,
+        },
+        {
+          id: "configuration",
+          label: t("tabs.configuration"),
+          icon: <Cog6ToothIcon className="h-4 w-4" />,
+        },
       ]
     : [
-        { id: "boutique", label: t("tabs.shop") },
-        { id: "mes_commandes", label: t("tabs.myOrders") },
+        {
+          id: "boutique",
+          label: t("tabs.shop"),
+          icon: <ShoppingBagIcon className="h-4 w-4" />,
+        },
+        {
+          id: "mes_commandes",
+          label: t("tabs.myOrders"),
+          icon: <ClipboardDocumentListIcon className="h-4 w-4" />,
+        },
       ];
 
   return (
