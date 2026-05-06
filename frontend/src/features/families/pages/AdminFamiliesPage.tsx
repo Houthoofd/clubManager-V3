@@ -40,9 +40,18 @@ type ModalState =
   | { type: "delete"; family: FamilyWithCount }
   | { type: "members"; family: FamilyWithCount };
 
+export interface AdminFamiliesPageProps {
+  /**
+   * Mode embarqué : masque le PageHeader et s'intègre dans un onglet parent.
+   * Le contenu est rendu avec padding `p-6` sans carte blanche propre.
+   * @default false
+   */
+  flat?: boolean;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AdminFamiliesPage() {
+export function AdminFamiliesPage({ flat = false }: AdminFamiliesPageProps) {
   const { t } = useTranslation("families");
 
   // ── Pagination & filters ────────────────────────────────────────────────────
@@ -265,50 +274,68 @@ export function AdminFamiliesPage() {
 
   // ── JSX ─────────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6">
-      {/* PageHeader */}
-      <PageHeader
-        icon={<UserGroupIcon className="h-8 w-8 text-blue-600" />}
-        title={t("admin.page.title")}
-        description={t("admin.page.description")}
-      />
-
-      {/* Search bar */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <Input
-          type="text"
-          placeholder={t("admin.placeholders.search")}
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          iconLeft={<MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />}
-          className="max-w-sm"
-        />
-      </div>
-
-      {/* DataTable */}
-      <DataTable
-        columns={columns}
-        data={families}
-        rowKey="id"
-        loading={isLoading}
-        emptyMessage={
-          searchInput
-            ? t("admin.messages.empty.description")
-            : t("admin.messages.empty.noFamilies")
-        }
-      />
-
-      {/* Pagination */}
-      {!isLoading && pagination.totalPages > 1 && (
-        <PaginationBar
-          currentPage={pagination.page}
-          totalPages={pagination.totalPages}
-          onPageChange={(p) => setParams((prev) => ({ ...prev, page: p }))}
-          showResultsCount
-          total={pagination.total}
-          pageSize={pagination.limit}
+    <div className={flat ? "" : "space-y-6"}>
+      {/* PageHeader — masqué en mode flat (onglet embarqué) */}
+      {!flat && (
+        <PageHeader
+          icon={<UserGroupIcon className="h-8 w-8 text-blue-600" />}
+          title={t("admin.page.title")}
+          description={t("admin.page.description")}
         />
       )}
+
+      {/* Contenu principal */}
+      <div className={flat ? "p-6 space-y-4" : "space-y-6"}>
+        {/* Search bar */}
+        {flat ? (
+          <Input
+            type="text"
+            placeholder={t("admin.placeholders.search")}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            iconLeft={<MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />}
+            className="max-w-sm"
+          />
+        ) : (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <Input
+              type="text"
+              placeholder={t("admin.placeholders.search")}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              iconLeft={
+                <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
+              }
+              className="max-w-sm"
+            />
+          </div>
+        )}
+
+        {/* DataTable */}
+        <DataTable
+          columns={columns}
+          data={families}
+          rowKey="id"
+          loading={isLoading}
+          emptyMessage={
+            searchInput
+              ? t("admin.messages.empty.description")
+              : t("admin.messages.empty.noFamilies")
+          }
+        />
+
+        {/* Pagination */}
+        {!isLoading && pagination.totalPages > 1 && (
+          <PaginationBar
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={(p) => setParams((prev) => ({ ...prev, page: p }))}
+            showResultsCount
+            total={pagination.total}
+            pageSize={pagination.limit}
+          />
+        )}
+      </div>
 
       {/* ── Modal: Rename ──────────────────────────────────────────────────────── */}
       <Modal isOpen={modal.type === "edit"} onClose={closeModal} size="md">

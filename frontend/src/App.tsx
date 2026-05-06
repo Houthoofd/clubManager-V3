@@ -33,7 +33,7 @@ import { EmailVerificationPage } from "./features/auth/pages/EmailVerificationPa
 import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 import { RecoveryRequestPage } from "./features/auth/pages/RecoveryRequestPage";
-import { FamilyPage, AdminFamiliesPage } from "./features/families/pages";
+import { FamilyPage } from "./features/families/pages";
 import { UsersPage, ProfilePage } from "./features/users/pages";
 import { ConfirmEmailChangePage } from "./features/users/pages/ConfirmEmailChangePage";
 import { MessagesPage } from "./features/messaging/pages";
@@ -232,14 +232,6 @@ function App() {
             />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/family" element={<FamilyPage />} />
-            <Route
-              path="/admin/families"
-              element={
-                <RoleGuard allowedRoles={[UserRole.ADMIN]}>
-                  <AdminFamiliesPage />
-                </RoleGuard>
-              }
-            />
             <Route path="/notifications" element={<NotificationsPage />} />
 
             <Route
