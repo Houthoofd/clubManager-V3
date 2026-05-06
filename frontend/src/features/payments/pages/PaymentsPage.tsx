@@ -15,9 +15,10 @@ import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
-  CheckIcon,
   CreditCardIcon,
-  ExclamationTriangleIcon,
+  ClockIcon,
+  DocumentTextIcon,
+  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { PageHeader } from "@/shared/components/Layout/PageHeader";
 import { useAuth } from "../../../shared/hooks/useAuth";
@@ -57,11 +58,12 @@ import {
 
 // ─── Composants tabs ──────────────────────────────────────────────────────────
 import { PaymentsTab, SchedulesTab, PlansTab } from "../components/tabs";
+import { MyPaymentsPage } from "./MyPaymentsPage";
 import * as paymentsApi from "../api/paymentsApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type TabId = "payments" | "schedules" | "plans";
+type TabId = "payments" | "schedules" | "plans" | "myPayments";
 
 interface UserOption {
   id: number;
@@ -282,13 +284,35 @@ export function PaymentsPage() {
 
   // ── Configuration TabGroup ────────────────────────────────────────────────
   const tabs: Tab[] = [
-    { id: "payments", label: t("tabs.payments") },
+    {
+      id: "payments",
+      label: t("tabs.payments"),
+      icon: <CreditCardIcon className="h-4 w-4" />,
+    },
     {
       id: "schedules",
       label: t("tabs.pending"),
+      icon: <ClockIcon className="h-4 w-4" />,
       badge: overdueSchedules.length > 0 ? overdueSchedules.length : undefined,
     },
-    ...(isAdmin ? [{ id: "plans" as const, label: t("tabs.plans") }] : []),
+    ...(isAdmin
+      ? [
+          {
+            id: "plans" as const,
+            label: t("tabs.plans"),
+            icon: <DocumentTextIcon className="h-4 w-4" />,
+          },
+        ]
+      : []),
+    ...(!isAdmin
+      ? [
+          {
+            id: "myPayments" as const,
+            label: t("tabs.myPayments"),
+            icon: <UserCircleIcon className="h-4 w-4" />,
+          },
+        ]
+      : []),
   ];
 
   // ── Configuration colonnes DataTable ──────────────────────────────────────
@@ -369,7 +393,9 @@ export function PaymentsPage() {
             }}
             generateSchedules={async (userId) => {
               const result = await paymentsApi.generateSchedules(userId);
-              toast.success(`${result.generated} ${t("schedule.generatedSuccess")}`);
+              toast.success(
+                `${result.generated} ${t("schedule.generatedSuccess")}`,
+              );
             }}
             plans={plans}
           />
@@ -391,6 +417,11 @@ export function PaymentsPage() {
             setDeletingPlanId={setDeletingPlanId}
           />
         )}
+
+        {/* ════════════════════════════════════════════════════════════════════
+            ONGLET 4 : MES PAIEMENTS (non-admin uniquement)
+            ════════════════════════════════════════════════════════════════ */}
+        {activeTab === "myPayments" && <MyPaymentsPage />}
       </div>
 
       {/* ════════════════════════════════════════════════════════════════════════
