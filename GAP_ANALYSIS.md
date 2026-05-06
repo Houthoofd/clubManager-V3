@@ -786,14 +786,15 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-10: Notification Deletion by User
+#### ~~GAP-10: Notification Deletion by User~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `notifications` |
-| **Backend work** | Add `DELETE /api/notifications/:id`. Add `DELETE /api/notifications/all`. |
-| **Frontend work** | Add delete button and "clear all" button in `NotificationsPage`. |
+| **Backend work** | ✅ `DELETE /api/notifications/:id` + `DELETE /api/notifications/all` — use-cases + repository methods added. |
+| **Frontend work** | ✅ 🗑️ delete button per notification item + red "Tout supprimer" button in page header. |
 | **Complexity** | 🟢 **Small** — 2 endpoints + minor UI changes. |
+| **Sprint** | Sprint 4 ✅ |
 
 ---
 
@@ -854,14 +855,15 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ### 🟢 LOW PRIORITY — Nice-to-Have / Polish
 
-#### GAP-16: Message Archiving
+#### ~~GAP-16: Message Archiving~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
-| **DB tables** | `messages`, `message_status` |
-| **Backend work** | Add `POST /api/messages/:id/archive`. Add `GET /api/messages/archived`. |
-| **Frontend work** | Add "Archived" inbox tab to `MessagesPage`. |
+| **DB tables** | `messages` (+ migration `003_add_messages_archived.sql` for `archived` column) |
+| **Backend work** | ✅ `POST /api/messages/:id/archive` + `GET /api/messages/archived` — use-cases + repository. Inbox query excludes archived messages. |
+| **Frontend work** | ✅ 📦 Archive button on inbox items + "Archives" tab in `MessagesPage`. |
 | **Complexity** | 🟢 **Small** |
+| **Sprint** | Sprint 4 ✅ |
 
 ---
 
@@ -910,8 +912,8 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | Courses & Attendance | ✅ ~95% | ⚠️ ~65% | ⚠️ 80% |
 | Payments & Subscriptions | ✅ ~95% | ✅ ~85% | ✅ 90% |
 | Store (E-commerce) | ✅ 100% | ✅ 100% | ✅ 100% |
-| Messaging | ✅ ~85% | ✅ ~80% | ✅ 82% |
-| Notifications | ⚠️ ~70% | ✅ ~85% | ⚠️ 77% |
+| Messaging | ✅ ~95% | ✅ ~90% | ✅ 92% |
+| Notifications | ✅ ~85% | ✅ ~95% | ✅ 90% |
 | **Alerts** | ❌ **0%** | ❌ **0%** | ❌ **0%** |
 | Groups | ✅ 100% | ✅ 100% | ✅ 100% |
 | Families | ⚠️ ~60% | ⚠️ ~50% | ⚠️ 55% |
@@ -936,17 +938,23 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | **Sprint 3** | 🟠 High | GAP-05 (member payments + Stripe) | 3 days | ✅ Done |
 | **Sprint 3** | 🟡 Medium | GAP-13 (subscription assignment) | 0.5 day | ✅ Done |
 | **Sprint 3** | 🟡 Medium | GAP-12 (schedule generation) | 1 day | ✅ Done |
-| Sprint 4 | 🟠 High | GAP-06 (families admin) | 2 days | ⏳ Next |
-| Sprint 4 | 🟡 Medium | GAP-09+10 (notification admin) | 1 day | ⏳ |
-| Sprint 5 | 🔴 Critical | GAP-01 (alerts system — full) | 5–7 days | ⏳ |
-| Sprint 6 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days | ⏳ |
-| Sprint 6 | 🟡 Medium | GAP-14 (security audit logs) | 1 day | ⏳ |
-| Sprint 7 | 🟢 Low | GAP-15 to GAP-18 (polish) + ~~GAP-19~~ ✅ | 3–4 days | ⏳ (GAP-19 ✅ Done) |
+| **Sprint 4** | 🟢 Low/Small | GAP-10 (notification delete) | 0.5 day | ✅ Done |
+| **Sprint 4** | 🟢 Small | GAP-16 (message archiving) | 0.5 day | ✅ Done |
+| **Sprint 4** | 🟢 Low | GAP-19 (validation_tokens audit) | 0.5 day | ✅ Done |
+| Sprint 5 | 🟡 Medium | GAP-09 (broadcast notifications) | 1 day | ⏳ Next |
+| Sprint 5 | 🟡 Medium | GAP-14 (security audit logs) | 1 day | ⏳ Next |
+| Sprint 5 | 🟢 Small | GAP-18 (active sessions) | 1 day | ⏳ Next |
+| Sprint 6 | 🟠 High | GAP-06 (families admin) | 2 days | ⏳ |
+| Sprint 6 | 🟡 Medium | GAP-15 (email change) | 1.5 days | ⏳ |
+| Sprint 7 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days | ⏳ |
+| Sprint 7 | 🟡 Medium | GAP-17 (attendance export) | 1.5 days | ⏳ |
+| Sprint 8 | 🔴 Critical | GAP-01 (alerts system — full) | 5–7 days | ⏳ |
 
 **Completed Sprint 1:** 3 developer days — 3 gaps fully closed (GAP-02 ✅, GAP-07 ✅, GAP-08 ✅)  
 **Completed Sprint 2:** 2 developer days — 2 gaps fully closed (GAP-03 ✅, GAP-04 ✅)  
 **Completed Sprint 3:** 4.5 developer days — 3 gaps fully closed (GAP-05 ✅, GAP-12 ✅, GAP-13 ✅)  
-**Total estimated remaining work: ~14–17 developer days**
+**Completed Sprint 4:** ~1.5 developer days — 3 gaps fully closed (GAP-10 ✅, GAP-16 ✅, GAP-19 ✅)  
+**Total estimated remaining work: ~12–14 developer days**
 
 ---
 
