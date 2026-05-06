@@ -9,6 +9,8 @@ import {
   useNotifications,
   useMarkAsRead,
   useMarkAllAsRead,
+  useDeleteNotification,
+  useDeleteAllNotifications,
 } from '../hooks/useNotifications';
 import type { NotificationDto } from '../api/notificationsApi';
 
@@ -146,9 +148,11 @@ interface NotificationItemProps {
   notification: NotificationDto;
   onRead: (id: number) => void;
   isMarkingRead: boolean;
+  onDelete: (id: number) => void;
+  isDeletingOne: boolean;
 }
 
-function NotificationItem({ notification, onRead, isMarkingRead }: NotificationItemProps) {
+function NotificationItem({ notification, onRead, isMarkingRead, onDelete, isDeletingOne }: NotificationItemProps) {
   const config = TYPE_CONFIG[notification.type] ?? TYPE_CONFIG.info;
 
   const handleClick = () => {
@@ -210,6 +214,17 @@ function NotificationItem({ notification, onRead, isMarkingRead }: NotificationI
           <span className="hidden sm:inline">Lu</span>
         </button>
       )}
+
+      {/* Delete button */}
+      <button
+        onClick={() => onDelete(notification.id)}
+        disabled={isDeletingOne}
+        className="flex-shrink-0 flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-0.5"
+        title="Supprimer cette notification"
+      >
+        <span>🗑️</span>
+        <span className="hidden sm:inline">Supprimer</span>
+      </button>
     </div>
   );
 }
@@ -224,6 +239,8 @@ export function NotificationsPage() {
   const { data: notifications = [], isLoading, isError, refetch } = useNotifications();
   const { mutate: markAsRead, isPending: isMarkingOne } = useMarkAsRead();
   const { mutate: markAllAsRead, isPending: isMarkingAll } = useMarkAllAsRead();
+  const { mutate: deleteNotification, isPending: isDeletingOne } = useDeleteNotification();
+  const { mutate: deleteAllNotifications, isPending: isDeletingAll } = useDeleteAllNotifications();
 
   // Limit to 50 most recent then apply tab filter
   const base = useMemo(() => notifications.slice(0, 50), [notifications]);
@@ -259,6 +276,14 @@ export function NotificationsPage() {
     markAllAsRead();
   };
 
+  const handleDeleteOne = (id: number) => {
+    deleteNotification(id);
+  };
+
+  const handleDeleteAll = () => {
+    deleteAllNotifications();
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Page header */}
@@ -276,29 +301,50 @@ export function NotificationsPage() {
           )}
         </div>
 
-        {hasUnread && (
-          <button
-            onClick={handleMarkAllAsRead}
-            disabled={isMarkingAll}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isMarkingAll ? (
-              <>
-                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                En cours...
-              </>
-            ) : (
-              <>
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
-                Tout marquer comme lu
-              </>
+        {base.length > 0 && (
+          <div className="flex items-center gap-2">
+            {hasUnread && (
+              <button
+                onClick={handleMarkAllAsRead}
+                disabled={isMarkingAll}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isMarkingAll ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    En cours...
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                    Tout marquer comme lu
+                  </>
+                )}
+              </button>
             )}
-          </button>
+            <button
+              onClick={handleDeleteAll}
+              disabled={isDeletingAll}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isDeletingAll ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Suppression...
+                </>
+              ) : (
+                <>🗑️ Tout supprimer</>
+              )}
+            </button>
+          </div>
         )}
       </div>
 
@@ -392,6 +438,8 @@ export function NotificationsPage() {
                   notification={notification}
                   onRead={handleMarkAsRead}
                   isMarkingRead={isMarkingOne}
+                  onDelete={handleDeleteOne}
+                  isDeletingOne={isDeletingOne}
                 />
               </li>
             ))}

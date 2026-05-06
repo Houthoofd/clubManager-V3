@@ -68,3 +68,31 @@ export function useMarkAllAsRead() {
     },
   });
 }
+
+/**
+ * Mutation pour supprimer une notification specifique.
+ * Invalide toutes les queries de notifications apres succes.
+ */
+export function useDeleteNotification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: notificationsApi.deleteOne,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: notificationKeys.all });
+    },
+  });
+}
+
+/**
+ * Mutation pour supprimer toutes les notifications.
+ * Invalide toutes les queries de notifications apres succes.
+ */
+export function useDeleteAllNotifications() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: notificationsApi.deleteAll,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: notificationKeys.all });
+    },
+  });
+}

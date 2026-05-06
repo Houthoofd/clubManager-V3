@@ -11,6 +11,8 @@ import { GetNotificationsUseCase } from '../../application/use-cases/GetNotifica
 import { GetUnreadCountUseCase } from '../../application/use-cases/GetUnreadCountUseCase.js';
 import { MarkAsReadUseCase } from '../../application/use-cases/MarkAsReadUseCase.js';
 import { MarkAllAsReadUseCase } from '../../application/use-cases/MarkAllAsReadUseCase.js';
+import { DeleteNotificationUseCase } from '../../application/use-cases/DeleteNotificationUseCase.js';
+import { DeleteAllNotificationsUseCase } from '../../application/use-cases/DeleteAllNotificationsUseCase.js';
 
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 
@@ -19,6 +21,8 @@ const getNotificationsUC = new GetNotificationsUseCase(repo);
 const getUnreadCountUC = new GetUnreadCountUseCase(repo);
 const markAsReadUC = new MarkAsReadUseCase(repo);
 const markAllAsReadUC = new MarkAllAsReadUseCase(repo);
+const deleteNotificationUC = new DeleteNotificationUseCase(repo);
+const deleteAllNotificationsUC = new DeleteAllNotificationsUseCase(repo);
 
 // ==================== CONTROLLER ====================
 
@@ -125,6 +129,74 @@ export class NotificationController {
       });
     } catch (error: any) {
       console.error('[NotificationController.markAllAsRead]', error);
+      res.status(500).json({
+        success: false,
+        message: error.message ?? 'Erreur interne du serveur',
+        error: 'INTERNAL_ERROR',
+      });
+    }
+  }
+
+  /**
+   * DELETE /api/notifications/:id
+   * Supprime une notification specifique appartenant a l'utilisateur authentifie
+   * Retourne 404 si la notification n'existe pas ou n'appartient pas a l'utilisateur
+   */
+  async deleteOne(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      const userId = req.user!.userId;
+
+      if (isNaN(id) || id <= 0) {
+        res.status(400).json({
+          success: false,
+          message: "L'identifiant de la notification est invalide",
+        });
+        return;
+      }
+
+      const deleted = await deleteNotificationUC.execute(id, userId);
+
+      if (!deleted) {
+        res.status(404).json({
+          success: false,
+          message: 'Notification introuvable ou non autorisee',
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        message: 'Notification supprimee',
+      });
+    } catch (error: any) {
+      console.error('[NotificationController.deleteOne]', error);
+      res.status(500).json({
+        success: false,
+        message: error.message ?? 'Erreur interne du serveur',
+        error: 'INTERNAL_ERROR',
+      });
+    }
+  }
+
+  /**
+   * DELETE /api/notifications/all
+   * Supprime toutes les notifications de l'utilisateur authentifie
+   * Retourne le nombre de notifications supprimees
+   */
+  async deleteAll(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.user!.userId;
+
+      const deleted = await deleteAllNotificationsUC.execute(userId);
+
+      res.json({
+        success: true,
+        message: `${deleted} notification${deleted !== 1 ? 's' : '' } supprimee${deleted !== 1 ? 's' : '' }`,
+        data: { deleted },
+      });
+    } catch (error: any) {
+      console.error('[NotificationController.deleteAll]', error);
       res.status(500).json({
         success: false,
         message: error.message ?? 'Erreur interne du serveur',

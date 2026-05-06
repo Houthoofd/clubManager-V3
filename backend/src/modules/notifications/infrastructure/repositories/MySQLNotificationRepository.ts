@@ -111,6 +111,32 @@ export class MySQLNotificationRepository implements INotificationRepository {
     return result.affectedRows;
   }
 
+  /**
+   * Supprime une notification specifique appartenant a un utilisateur
+   * La clause user_id garantit qu'un utilisateur ne peut supprimer que ses propres notifications
+   * Retourne true si une ligne a ete supprimee, false sinon (id inexistant ou n'appartient pas)
+   */
+  async deleteById(id: number, userId: number): Promise<boolean> {
+    const [result] = await pool.query<ResultSetHeader>(
+      `DELETE FROM notifications WHERE id = ? AND user_id = ?`,
+      [id, userId],
+    );
+
+    return result.affectedRows > 0;
+  }
+
+  /**
+   * Supprime toutes les notifications d'un utilisateur
+   * Retourne le nombre de lignes supprimees
+   */
+  async deleteAll(userId: number): Promise<number> {
+    const [result] = await pool.query<ResultSetHeader>(
+      `DELETE FROM notifications WHERE user_id = ?`,
+      [userId],
+    );
+
+    return result.affectedRows;
+  }
   // ==================== HELPER METHODS ====================
 
   /**
