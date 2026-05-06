@@ -23,6 +23,9 @@ import { ResendVerificationEmailUseCase } from "../../application/use-cases/Rese
 import { RequestPasswordResetUseCase } from "../../application/use-cases/RequestPasswordResetUseCase.js";
 import { ResetPasswordUseCase } from "../../application/use-cases/ResetPasswordUseCase.js";
 import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
+import { GetActiveSessionsUseCase } from "../../application/use-cases/GetActiveSessionsUseCase.js";
+import { RevokeSessionUseCase } from "../../application/use-cases/RevokeSessionUseCase.js";
+import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
 
 export class AuthController {
   private registerUseCase: RegisterUseCase;
@@ -33,6 +36,8 @@ export class AuthController {
   private resendVerificationEmailUseCase: ResendVerificationEmailUseCase;
   private requestPasswordResetUseCase: RequestPasswordResetUseCase;
   private resetPasswordUseCase: ResetPasswordUseCase;
+  private getActiveSessionsUseCase: GetActiveSessionsUseCase;
+  private revokeSessionUseCase: RevokeSessionUseCase;
 
   constructor(authRepository: IAuthRepository) {
     this.registerUseCase = new RegisterUseCase(authRepository);
@@ -47,6 +52,8 @@ export class AuthController {
       authRepository,
     );
     this.resetPasswordUseCase = new ResetPasswordUseCase(authRepository);
+    this.getActiveSessionsUseCase = new GetActiveSessionsUseCase(authRepository);
+    this.revokeSessionUseCase = new RevokeSessionUseCase(authRepository);
   }
 
   /**
@@ -384,6 +391,49 @@ export class AuthController {
       });
     } catch (error) {
       next(error);
+    }
+  };
+
+  /**
+   * GET /api/auth/sessions
+   * Retourne les sessions actives de l'utilisateur connecté
+   */
+  getSessions = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      const userId = req.user!.userId;
+      const sessions = await this.getActiveSessionsUseCase.execute(userId);
+      res.json({ success: true, message: 'Sessions récupérées', data: sessions });
+    } catch (error: any) {
+      console.error('[AuthController.getSessions]', error);
+      res.status(500).json({ success: false, message: error.message ?? 'Erreur interne' });
+    }
+  };
+
+  /**
+   * DELETE /api/auth/sessions/:id
+   * Révoque une session spécifique de l'utilisateur connecté
+   */
+  revokeSession = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      const sessionId = Number(req.params.id);
+      const userId = req.user!.userId;
+
+      if (isNaN(sessionId) || sessionId <= 0) {
+        res.status(400).json({ success: false, message: 'Identifiant de session invalide' });
+        return;
+      }
+
+      const revoked = await this.revokeSessionUseCase.execute(sessionId, userId);
+
+      if (!revoked) {
+        res.status(404).json({ success: false, message: 'Session introuvable ou déjà révoquée' });
+        return;
+      }
+
+      res.json({ success: true, message: 'Session révoquée avec succès' });
+    } catch (error: any) {
+      console.error('[AuthController.revokeSession]', error);
+      res.status(500).json({ success: false, message: error.message ?? 'Erreur interne' });
     }
   };
 }
