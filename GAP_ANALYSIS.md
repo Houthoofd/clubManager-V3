@@ -15,6 +15,7 @@
 2. [Backend Modules Status](#section-2-backend-modules-status)
 3. [Frontend Features Status](#section-3-frontend-features-status)
 4. [Gap Summary — What Remains To Be Done](#section-4-gap-summary--what-remains-to-be-done)
+5. [Coverage Analysis — What Remains After Sprint 9](#section-5-coverage-analysis--what-remains-after-sprint-9)
 
 ---
 
@@ -1039,6 +1040,84 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 **Completed Sprint 4:** ~1.5 developer days — 3 gaps fully closed (GAP-10 ✅, GAP-16 ✅, GAP-19 ✅)  
 **Completed Sprint 5:** ~3 developer days — 3 gaps fully closed (GAP-09 ✅, GAP-14 ✅, GAP-18 ✅)  
 **Total estimated remaining work: ~10–12 developer days (Sprints 6–9)**
+
+---
+
+## Section 5: Coverage Analysis — What Remains After Sprint 9
+
+> Cette section répond à la question : **« Après tous les sprints, a-t-on 100 % des fonctionnalités ? »**  
+> La réponse dépend du niveau d’analyse : couverture DB, complétude API, ou finition UX frontend.
+
+---
+
+### Niveau 1 — Couverture DB (tables accessibles via API)
+#### Résultat après Sprint 9 : ✅ ~100 %
+
+Chaque table active du schéma dispose d’au moins un endpoint de lecture et d’écriture après l’exécution des 24 gaps (GAP-01 → GAP-24). C’est l’objectif principal du plan de sprint.
+
+```
+Tables actives   : 42  (1 dépréciée : validation_tokens)
+Couvertes ✅      : 42
+Partielles ⚠️     : 0  (toutes résolues par GAP-20 → GAP-24)
+Non couvertes ❌  : 0
+```
+
+---
+
+### Niveau 2 — Complétude API (endpoints logiquement attendus)
+#### Résultat après Sprint 9 : ⚠️ ~90 %
+
+Des endpoints utiles mais **hors scope des 24 gaps** ne seront pas implémentés. Ils ne correspondent pas à des tables manquantes mais à des opérations secondaires sur des ressources existantes.
+
+| Endpoint absent | Module | Raison du non-gap |
+|---|---|---|
+| `GET /courses/sessions/:id/presence` | courses | Seul `PATCH` existe — lecture de la feuille de présence non exposée |
+| `GET /payments/export` (CSV/PDF) | payments | Génération de fichier, lib externe nécessaire |
+| `GET /users/export` (CSV) | users | Export liste membres, hors scope TFE |
+| `POST /users/import` (bulk) | users | Import en masse, hors scope TFE |
+| `GET /messages/search` | messaging | Recherche full-text, index DB spécifique nécessaire |
+| `DELETE /reservations/:id` (hard) | reservations | Seulement annulation douce disponible |
+| `PATCH /reservations/course/:id/cancel-all` | reservations | Annulation groupée admin, hors scope |
+| Stripe Customer Portal URL | payments | Self-service abonnement Stripe, hors scope |
+| Lien `professeurs` ↔ `utilisateurs` | courses | Les profs sont une entité séparée des comptes user |
+
+> **Impact réel :** ces endpoints manquants ne bloquent aucun flux métier quotidien. Ils représentent des fonctionnalités de **confort admin** ou d’**intégration externe** (Stripe, exports).
+
+---
+
+### Niveau 3 — Finition UX Frontend (toutes les pages attendues)
+#### Résultat après Sprint 9 : ⚠️ ~82 %
+
+Plusieurs pages listées dans la Section 3 comme manquantes ne sont dans **aucun sprint planifié**.
+
+| Page absente | Feature | Situation actuelle |
+|---|---|---|
+| `CourseDetailPage` | courses | Vue plénière par session — tout est dans des onglets inline |
+| Page CRUD standalone Professeurs | courses | Embedé dans `CoursesPage`, pas de page dédiée |
+| `SubscriptionPage` membre | payments | Aucune page pour qu’un membre gère son abonnement |
+| `FinancialExportPage` | statistics | Pas d’export CSV/PDF des stats financières |
+| `AttendanceReportPage` imprimable | courses | GAP-17 ajoute l’export, pas une page dédiée |
+| `GDPRManagementPage` complète | users | GAP-04 a fait `DeletedUsersPage`, pas de page RGPD globale |
+| Page de préférences notifications | notifications | Aucun réglage de notif. par utilisateur |
+| `MessageDetailPage` (plein écran) | messaging | Messages lus en modal, pas en page dédiée |
+
+> **Contexte TFE :** ces pages sont typiques d’un **Sprint 10** si le projet devait passer en production. Elles ne bloquent pas la démonstration ni l’évaluation académique du projet.
+
+---
+
+### Synthèse
+
+```
+Après Sprint 9 :
+
+  Niveau 1 — DB Coverage     ████████████████████  ~100 %  ✅ Objectif atteint
+  Niveau 2 — API Coverage    ██████████████████░░   ~90 %  ⚠️ Endpoints confort manquants
+  Niveau 3 — Frontend UX     ████████████████░░░░   ~82 %  ⚠️ Pages secondaires absentes
+```
+
+**Ce qui est couvert à 100 % :** tous les **flux métier critiques** d’un club de sport — inscription, cours, présences, paiements, messagerie, notifications, familles, groupes, réservations, alertes, statistiques, paramètres.
+
+**Ce qui manquera encore :** fonctionnalités de confort admin (exports, imports, recherche), quelques pages UX secondaires, et les intégrations externes (Stripe Portal, impression PDF). Ce sont les priorités d’un **Sprint 10 production-ready** hypothétique.
 
 ---
 
