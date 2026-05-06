@@ -2,9 +2,10 @@
 **Database schema vs. Backend implementation vs. Frontend features**
 
 > **Generated:** 2025  
-> **Last updated:** 2025 — Sprint 1 fully completed (GAP-02 ✅, GAP-07 ✅, GAP-08 ✅)
-> **Schema version:** v4.4 (43 tables)  
+> **Last updated:** 2025 — Sprint 5 fully completed (GAP-09 ✅, GAP-14 ✅, GAP-18 ✅)
+> **Schema version:** v4.4 (43 tables — 1 deprecated)  
 > **Author:** Benoit Houthoofd (TFE project)
+> **DB coverage after Sprint 8:** ~93% — 5 partial zones documented as GAP-20 → GAP-24 (Sprint 9)
 
 ---
 
@@ -903,6 +904,80 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | **Audit result** | ❌ Table NOT referenced in `backend/src/` (0 TS occurrences). Only `email_validation_tokens` and `password_reset_tokens` are actively used. |
 | **Action taken** | Created `db/migrations/009_deprecate_validation_tokens.sql` — drops table after production row-count safety check. |
 | **Doc** | See `docs/gap19-validation-tokens-audit.md` for full audit details. |
+| **Sprint** | Sprint 4 ✅ |
+
+---
+
+### ⚪ SCHEMA COVERAGE — Zones de couverture partielle (Sprint 9)
+
+> Ces 5 gaps ont été identifiés par analyse croisée post-Sprint 5 entre le schéma DB et les endpoints implémentés.
+> Chacun correspond à une table active du schéma dont la surface API est **incomplète** malgré les sprints 1–8.
+> Regroupement recommandé en un **Sprint 9 — Polish** d’environ 1 jour.
+
+---
+
+#### GAP-20: `auth_attempts` — Pas de lecture admin
+
+| Aspect | Detail |
+|---|---|
+| **DB tables** | `auth_attempts` |
+| **Problème** | La table est écrite par le système d’auth mais n’a aucun endpoint de lecture. GAP-14 a couvert `login_attempts` uniquement. |
+| **Backend work** | Étendre `GET /api/auth/audit/login-attempts` pour interroger aussi `auth_attempts`, ou ajouter `GET /api/auth/audit/auth-attempts` séparément. |
+| **Frontend work** | Ajouter un deuxième tableau dans `SecuritySection` ou un onglet secondaire. |
+| **Complexity** | 🟢 **Small** — ~0.5j. Structure identique à `login_attempts`, code quasi-dupliqué. |
+| **Priority** | 🟢 Low |
+
+---
+
+#### GAP-21: `cours_recurrent_professeur` — Pas d’endpoint dédié d’assignation
+
+| Aspect | Detail |
+|---|---|
+| **DB tables** | `cours_recurrent_professeur` |
+| **Problème** | La table de liaison cours ↔ professeurs est écrite implicitement à la création de cours mais il n’existe pas d’endpoint pour gérer ces assignations indépendamment. |
+| **Backend work** | Ajouter `POST /api/courses/:id/professors` (assigner un prof) et `DELETE /api/courses/:id/professors/:professorId` (désassigner). |
+| **Frontend work** | Ajouter un panneau d’assignation dans la vue de détail d’un cours récurrent dans `CoursesPage`. |
+| **Complexity** | 🟢 **Small** — ~0.5j. 2 endpoints simples + UI inline. |
+| **Priority** | 🟡 Medium — bloque la gestion fine des emplois du temps. |
+
+---
+
+#### GAP-22: `message_status` — Statut `supprime` jamais écrit
+
+| Aspect | Detail |
+|---|---|
+| **DB tables** | `message_status` |
+| **Problème** | La table est conçue pour tracer tout le cycle de vie d’un message (`envoye` → `lu` → `archive` → `supprime`). Le statut `archive` est écrit depuis GAP-16 ✅, mais `supprime` n’est jamais inséré lors d’une suppression, et l’historique n’est pas exposé via API. |
+| **Backend work** | Écrire un enregistrement `supprime` dans `message_status` lors du `DELETE /messages/:id`. Ajouter optionnellement `GET /api/messages/:id/status-history`. |
+| **Frontend work** | Aucune (interne/audit). |
+| **Complexity** | 🟢 **Small** — ~0.25j. Modification d’un use-case existant. |
+| **Priority** | 🟢 Low — table d’audit interne, pas visible côté utilisateur. |
+
+---
+
+#### GAP-23: `echeances_paiements` — Pas de `DELETE`
+
+| Aspect | Detail |
+|---|---|
+| **DB tables** | `echeances_paiements` |
+| **Problème** | Les échéances peuvent être créées (GAP-12 ✅) et marquées comme payées, mais aucun endpoint ne permet de les supprimer (ex : erreur de saisie, annulation d’un plan). |
+| **Backend work** | Ajouter `DELETE /api/payments/schedules/:id` (admin only, avec vérification que le statut n’est pas `paye`). |
+| **Frontend work** | Ajouter un bouton supprimer dans la vue Schedules de `PaymentsPage` (admin uniquement). |
+| **Complexity** | 🟢 **Small** — ~0.25j. 1 endpoint + 1 bouton UI. |
+| **Priority** | 🟢 Low — cas d’usage rare (correction d’erreur admin). |
+
+---
+
+#### GAP-24: `statistiques` — Role guards manquants sur les stats financières
+
+| Aspect | Detail |
+|---|---|
+| **DB tables** | `statistiques` (+ toutes les tables source des agrégats) |
+| **Problème** | Les endpoints `GET /api/statistics/financial` et `GET /api/statistics/dashboard` sont accessibles à tous les rôles authentifiés. Un membre normal peut donc lire le CA, les revenus et les paiements du club. |
+| **Backend work** | Restreindre `GET /api/statistics/financial` au rôle `admin` uniquement. Garder `members`, `courses`, `store`, `trends` accessibles à `admin + professor`. Garder `dashboard` accessible à tous avec une réponse filtrée selon le rôle. |
+| **Frontend work** | Masquer l’onglet Finances dans `StatisticsPage` pour les membres. |
+| **Complexity** | 🟢 **Small** — ~0.25j. Ajout de middleware ou vérification `req.user.role_app` en haut de chaque handler concerné. |
+| **Priority** | 🟡 **Medium** — fuite de données financières sensibles vers les membres. |
 
 ---
 
@@ -952,13 +1027,18 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | Sprint 7 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days | ⏳ |
 | Sprint 7 | 🟡 Medium | GAP-17 (attendance export) | 1.5 days | ⏳ |
 | Sprint 8 | 🔴 Critical | GAP-01 (alerts system — full) | 5–7 days | ⏳ |
+| Sprint 9 | 🟢 Low/Medium | GAP-20 (auth_attempts read) | 0.5 day | ⏳ |
+| Sprint 9 | 🟡 Medium | GAP-21 (cours_recurrent_professeur endpoints) | 0.5 day | ⏳ |
+| Sprint 9 | 🟢 Low | GAP-22 (message_status supprime) | 0.25 day | ⏳ |
+| Sprint 9 | 🟢 Low | GAP-23 (echeances_paiements DELETE) | 0.25 day | ⏳ |
+| Sprint 9 | 🟡 Medium | GAP-24 (statistics role guards) | 0.25 day | ⏳ |
 
 **Completed Sprint 1:** 3 developer days — 3 gaps fully closed (GAP-02 ✅, GAP-07 ✅, GAP-08 ✅)  
 **Completed Sprint 2:** 2 developer days — 2 gaps fully closed (GAP-03 ✅, GAP-04 ✅)  
 **Completed Sprint 3:** 4.5 developer days — 3 gaps fully closed (GAP-05 ✅, GAP-12 ✅, GAP-13 ✅)  
 **Completed Sprint 4:** ~1.5 developer days — 3 gaps fully closed (GAP-10 ✅, GAP-16 ✅, GAP-19 ✅)  
 **Completed Sprint 5:** ~3 developer days — 3 gaps fully closed (GAP-09 ✅, GAP-14 ✅, GAP-18 ✅)  
-**Total estimated remaining work: ~9–11 developer days**
+**Total estimated remaining work: ~10–12 developer days (Sprints 6–9)**
 
 ---
 
