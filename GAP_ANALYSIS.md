@@ -887,14 +887,17 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-19: Validation Tokens Table Cleanup
+#### ~~GAP-19: Validation Tokens Table Cleanup~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `validation_tokens` |
-| **Backend work** | Audit whether this table is actually used. If not, deprecate and remove it to avoid confusion with the specific token tables. |
+| **Backend work** | ✅ Audit completed — table confirmed unused in all TypeScript backend code. |
 | **Frontend work** | None |
 | **Complexity** | 🟢 **Small** — Audit + potential migration. |
+| **Audit result** | ❌ Table NOT referenced in `backend/src/` (0 TS occurrences). Only `email_validation_tokens` and `password_reset_tokens` are actively used. |
+| **Action taken** | Created `db/migrations/009_deprecate_validation_tokens.sql` — drops table after production row-count safety check. |
+| **Doc** | See `docs/gap19-validation-tokens-audit.md` for full audit details. |
 
 ---
 
@@ -938,7 +941,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | Sprint 5 | 🔴 Critical | GAP-01 (alerts system — full) | 5–7 days | ⏳ |
 | Sprint 6 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days | ⏳ |
 | Sprint 6 | 🟡 Medium | GAP-14 (security audit logs) | 1 day | ⏳ |
-| Sprint 7 | 🟢 Low | GAP-15 to GAP-19 (polish) | 3–4 days | ⏳ |
+| Sprint 7 | 🟢 Low | GAP-15 to GAP-18 (polish) + ~~GAP-19~~ ✅ | 3–4 days | ⏳ (GAP-19 ✅ Done) |
 
 **Completed Sprint 1:** 3 developer days — 3 gaps fully closed (GAP-02 ✅, GAP-07 ✅, GAP-08 ✅)  
 **Completed Sprint 2:** 2 developer days — 2 gaps fully closed (GAP-03 ✅, GAP-04 ✅)  
