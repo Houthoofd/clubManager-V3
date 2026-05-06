@@ -207,14 +207,15 @@ Legend: ✅ Backend implemented | ⚠️ Partial | ❌ Not implemented
 | POST | `/members` | Private | ✅ Add child/member to own family |
 | GET | `/my-family` | Private | ✅ Get own family with all members |
 | DELETE | `/members/:userId` | Private | ✅ Remove member from own family |
+| GET | `/` | ADMIN | ✅ List all families (paginated + search) |
+| GET | `/:id` | ADMIN | ✅ Get family by ID with member count |
+| PUT | `/:id` | ADMIN | ✅ Rename family |
+| DELETE | `/:id` | ADMIN | ✅ Delete family (CASCADE membres) |
+| GET | `/:id/members` | ADMIN | ✅ List members of a family |
+| POST | `/:id/members` | ADMIN | ✅ Add existing user to a family |
+| DELETE | `/:id/members/:userId` | ADMIN | ✅ Remove user from a family |
 
-**Missing endpoints:**
-- `GET /` (admin) — No way to list all families in the system
-- `GET /:id` (admin) — No way to view a specific family as admin
-- `PUT /:id` (admin) — No way to rename a family
-- `DELETE /:id` (admin) — No way to delete a family
-- `GET /:id/members` (admin) — No admin endpoint to inspect a family's members
-- `POST /:id/members` (admin) — Admin cannot add a member to any family
+**All endpoints implemented — module 100% complete.** ✅
 
 ---
 
@@ -548,11 +549,12 @@ This entire domain has no backend module whatsoever. Required endpoints would in
 
 | File | Description | Status |
 |---|---|---|
-| `FamilyPage.tsx` | View own family, add/remove members | ✅ Member view |
+| `FamilyPage.tsx` | Page unifiée avec `TabGroup` conditionnel | ✅ |
+| ↳ onglet *Ma famille* | Vue membre — voir/gérer ses propres membres de famille | ✅ |
+| ↳ onglet *Administration* (ADMIN) | `AdminFamiliesPage flat` — liste toutes les familles, renommer, supprimer, gérer membres | ✅ |
+| `AdminFamiliesPage.tsx` | Composant admin embarquable (prop `flat`) — table paginée + modals | ✅ |
 
-**Missing pages:**
-- No `AdminFamiliesPage` — No admin view of all families in the club
-- No `FamilyDetailPage` — No admin detail view for a specific family
+**Tous les cas d'usage couverts.** Le module familles est complet — aucune page manquante.
 
 ---
 
@@ -745,14 +747,14 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-06: Families — Admin Management
+#### ~~GAP-06: Families — Admin Management~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `familles`, `membres_famille` |
-| **Backend work** | Add admin endpoints: `GET /api/families`, `GET /api/families/:id`, `PUT /api/families/:id`, `DELETE /api/families/:id`, `GET /api/families/:id/members`, `POST /api/families/:id/members`. |
-| **Frontend work** | Add `AdminFamiliesPage` in `families` feature showing all families with counts. Add `FamilyDetailPage`. |
-| **Complexity** | 🟡 **Small–Medium** — Pattern is identical to groups module; can be adapted. |
+| **Backend work** | ✅ 7 nouveaux endpoints ADMIN : `GET /`, `GET /:id`, `PUT /:id`, `DELETE /:id`, `GET /:id/members`, `POST /:id/members`, `DELETE /:id/members/:userId`. 6 use-cases créés. `IFamilyRepository` + `MySQLFamilyRepository` étendus. |
+| **Frontend work** | ✅ `FamilyPage` refondue avec `TabGroup` conditionnel (Ma famille + Administration). `AdminFamiliesPage` avec prop `flat` pour intégration embarquée. API layer + React Query hooks. i18n FR/EN. |
+| **Completed** | Sprint 6 — `feature/gap06-families-admin` mergé dans `develop` |
 
 ---
 
@@ -1001,7 +1003,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | Notifications | ✅ ~97% | ✅ ~100% | ✅ 98% |
 | **Alerts** | ❌ **0%** | ❌ **0%** | ❌ **0%** |
 | Groups | ✅ 100% | ✅ 100% | ✅ 100% |
-| Families | ⚠️ ~60% | ⚠️ ~50% | ⚠️ 55% |
+| **Families** | ✅ **100%** | ✅ **100%** | ✅ **100%** |
 | Statistics | ✅ ~90% | ✅ 100% | ✅ 95% |
 | Settings | ✅ 100% | ✅ 100% | ✅ 100% |
 | Templates | ✅ 100% | ✅ **100%** | ✅ **100%** |
@@ -1033,7 +1035,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | **Sprint Style 1** | 🎨 UX | Icônes sur tous les `TabGroup` (PaymentsPage, StorePage, UsersPage, NotificationsPage) | 0.5 day | ✅ Done |
 | **Sprint Style 2** | 🎨 UX | `UsersPage` — migration nav bruts vers `TabGroup` + layout card cohrent | 0.5 day | ✅ Done |
 | **Sprint Style 3** | 🎨 UX | `ProfilePage` — refonte layout tabulé (`PageHeader` + onglets Mon profil / Sécurité) | 0.5 day | ✅ Done |
-| Sprint 6 | 🟠 High | GAP-06 (families admin) | 2 days | ⏳ |
+| **Sprint 6** | 🟠 High | **GAP-06 (families admin)** | **2 days** | ✅ **Done** |
 | ~~Sprint 6~~ | 🟡 Medium | ~~GAP-15 (email change)~~ | ~~1.5 days~~ | ✅ Done |
 | Sprint 7 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days | ⏳ |
 | Sprint 7 | 🟡 Medium | GAP-17 (attendance export) | 1.5 days | ⏳ |
@@ -1051,8 +1053,8 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 **Completed Sprint 5:** ~3 developer days — 3 gaps fully closed (GAP-09 ✅, GAP-14 ✅, GAP-18 ✅)  
 **Completed Sprint Hotfix:** ~1.5 developer days — dette technique résolue, navigation restructurée, codebase stable  
 **Completed Sprint Style (1–3):** ~1.5 developer days — cohérence visuelle complète (icônes TabGroup, layouts UsersPage + ProfilePage)  
-**Completed Sprint 6 partiel:** ~1 developer day — GAP-15 (email change flow) ✅  
-**Total estimated remaining work: ~8–10 developer days (GAP-06 + Sprints 7–9)**
+**Completed Sprint 6:** ~3 developer days — 2 gaps fully closed (GAP-06 ✅, GAP-15 ✅)  
+**Total estimated remaining work: ~6–8 developer days (Sprints 7–9)**
 
 ---
 
@@ -1111,6 +1113,7 @@ Des endpoints utiles mais **hors scope des 24 gaps** ne seront pas implémentés
 | Utilisateurs supprimés | `/users/deleted` | Onglet dans `UsersPage` | ✅ |
 | Groupes | `/groups` | Onglet dans `UsersPage` | ✅ |
 | Modèles | `/templates` | Onglet dans `MessagesPage` (déjà présent via `TemplatesTab`) | ✅ |
+| **Familles admin** | `/admin/families` | **Onglet *Administration* dans `FamilyPage`** | ✅ |
 
 Plusieurs pages secondaires restent absentes et ne sont dans **aucun sprint planifié**.
 
@@ -1132,17 +1135,17 @@ Plusieurs pages secondaires restent absentes et ne sont dans **aucun sprint plan
 ### Synthèse
 
 ```
-Après Sprint Style (state actuel) :
+Après Sprint 6 (état actuel) :
 
   Niveau 1 — DB Coverage     ████████████████████  ~100 %  ✅ Objectif atteint
-  Niveau 2 — API Coverage    ██████████████████░░   ~92 %  ⚠️ Endpoints confort manquants
-  Niveau 3 — Frontend UX     ██████████████████░░   ~92 %  ⚠️ Pages secondaires absentes
+  Niveau 2 — API Coverage    ████████████████████   ~95 %  ✅ (module families complet)
+  Niveau 3 — Frontend UX     ██████████████████░░   ~94 %  ⚠️ Pages secondaires absentes
 
 Après Sprint 9 (projection) :
 
   Niveau 1 — DB Coverage     ████████████████████  ~100 %  ✅
-  Niveau 2 — API Coverage    ███████████████████░   ~95 %  ✅ (GAP-20→24 résolus)
-  Niveau 3 — Frontend UX     ██████████████████░░   ~92 %  ⚠️ Pages secondaires toujours absentes
+  Niveau 2 — API Coverage    ███████████████████░   ~97 %  ✅ (GAP-20→24 résolus)
+  Niveau 3 — Frontend UX     ██████████████████░░   ~94 %  ⚠️ Pages secondaires toujours absentes
 ```
 
 **Ce qui est couvert à 100 % :** tous les **flux métier critiques** d'un club de sport — inscription, cours, présences, paiements, messagerie, notifications, familles, groupes, réservations, statistiques, paramètres. Navigation entièrement restructurée (sidebar épurée, fonctionnalités intégrées en onglets).
@@ -1213,4 +1216,59 @@ Après Sprint 9 (projection) :
 
 ---
 
-*End of Gap Analysis — ClubManager V3 — v4.4 schema — Last updated: Sprint 6 (GAP-15 ✅) + Sprint Style (cohérence visuelle ✅)*
+### Sprint 6 — GAP-06 Families Admin
+
+#### ✅ GAP-06 completé
+
+**Backend — nouveaux fichiers créés :**
+
+| Fichier | Rôle |
+|---|---|
+| `families/domain/adminTypes.ts` | `FamilyWithCount`, `GetFamiliesQuery`, `PaginatedFamiliesResponse`, `UpdateFamilyDto`, `AdminAddMemberDto` |
+| `use-cases/GetFamiliesUseCase.ts` | Liste paginée + clamp page/limit |
+| `use-cases/AdminGetFamilyByIdUseCase.ts` | Get by ID, throws 404 si absent |
+| `use-cases/UpdateFamilyUseCase.ts` | Renommer, validation 2–100 chars |
+| `use-cases/DeleteFamilyUseCase.ts` | Suppression avec garde d'existence |
+| `use-cases/AdminGetFamilyMembersUseCase.ts` | Liste membres, 404-guard famille |
+| `use-cases/AdminAddFamilyMemberUseCase.ts` | Ajoute user existant, vérifie `isMembre` |
+
+**Backend — fichiers modifiés :**
+
+| Fichier | Modification |
+|---|---|
+| `IFamilyRepository.ts` | +5 méthodes admin : `findAll`, `findById`, `update`, `delete`, `adminAddMembre` |
+| `MySQLFamilyRepository.ts` | Implémentation des 5 méthodes + `mapRowToFamilyWithCount` |
+| `FamilyController.ts` | +7 handlers admin (GET `/`, GET `/:id`, PUT `/:id`, DELETE `/:id`, GET `/:id/members`, POST `/:id/members`, DELETE `/:id/members/:userId`) |
+| `familyRoutes.ts` | 7 routes ADMIN ajoutées aux 3 routes membre existantes |
+
+**Frontend — nouveaux fichiers créés :**
+
+| Fichier | Rôle |
+|---|---|
+| `families/hooks/useFamilies.ts` | `familyKeys` + 7 hooks React Query (list, detail, members, update, delete, addMember, removeMember) |
+| `families/pages/AdminFamiliesPage.tsx` | Page admin embarquable — DataTable paginée + 3 modals (rename, delete, members) + prop `flat` |
+
+**Frontend — fichiers modifiés :**
+
+| Fichier | Modification |
+|---|---|
+| `familyApi.ts` | +7 fonctions admin + DTOs locaux (`FamilyWithCount`, `PaginatedFamiliesResult`, etc.) |
+| `FamilyPage.tsx` | Refondue : `TabGroup` conditionnel ADMIN — onglet *Ma famille* + onglet *Administration* (`<AdminFamiliesPage flat />`) |
+| `families/pages/index.ts` | +export `AdminFamiliesPage` |
+| `i18n/fr/families.json` | +namespace `admin` complet (page, fields, modal, messages, validation, aria) |
+| `i18n/en/families.json` | Idem EN |
+| `i18n/fr/common.json` + `en/common.json` | +`navigation.adminFamilies` (clé retirée du nav après fusion en onglet) |
+
+#### 🔄 Refactoring UX — Une seule page familles
+
+Après implémentation, la route `/admin/families` et le nav item dédié ont été supprimés pour revenir à **une seule entrée `/family`** dans la navigation, conformément au pattern de `UsersPage` (groupes en onglet) et `ProfilePage` (sécurité en onglet).
+
+| Fichier | Action |
+|---|---|
+| `App.tsx` | Route `/admin/families` supprimée |
+| `PrivateLayout.tsx` | Nav item *Familles (Admin)* supprimé ; import `UserGroupIcon` orphelin nettoyé |
+| `AdminFamiliesPage.tsx` | Prop `flat?: boolean` ajouté — masque `PageHeader` + retire la carte blanche de recherche quand embarqué dans un onglet |
+
+---
+
+*End of Gap Analysis — ClubManager V3 — v4.4 schema — Last updated: Sprint 6 complet (GAP-06 ✅ + GAP-15 ✅) — 14 gaps fermés sur 24*
