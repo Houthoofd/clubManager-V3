@@ -31,6 +31,10 @@ router.get('/unread-count', (req, res) => ctrl.getUnreadCount(req as any, res));
 // Doit être AVANT /:id pour que "read-all" ne soit pas capturé comme id
 router.post('/read-all', (req, res) => ctrl.markAllAsRead(req as any, res));
 
+// POST /api/notifications/broadcast — admin seulement
+// Doit être AVANT /:id pour que "broadcast" ne soit pas capturé comme id
+router.post('/broadcast', (req, res) => ctrl.broadcast(req as any, res));
+
 // ============================================================
 // ROUTES PARAMÉTRÉES — en dernier
 // ============================================================

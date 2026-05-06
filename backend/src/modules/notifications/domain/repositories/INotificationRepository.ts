@@ -30,4 +30,10 @@ export interface INotificationRepository {
 
   /** Supprime toutes les notifications d'un utilisateur, retourne le nombre supprime */
   deleteAll(userId: number): Promise<number>;
+
+  /** Retourne la liste des user_id selon la cible */
+  getUserIdsByCible(cible: 'tous' | 'admin' | 'professor' | 'member'): Promise<number[]>;
+
+  /** Crée plusieurs notifications en bulk (INSERT batch), retourne le nb créé */
+  createBulk(data: CreateNotificationDto[]): Promise<number>;
 }

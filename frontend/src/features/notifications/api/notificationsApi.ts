@@ -17,6 +17,13 @@ export interface NotificationDto {
   created_at: string;
 }
 
+export interface BroadcastNotificationPayload {
+  titre: string;
+  contenu: string;
+  type: 'info' | 'warning' | 'error' | 'success';
+  cible: 'tous' | 'admin' | 'professor' | 'member';
+}
+
 // ─── API ──────────────────────────────────────────────────────────────────────
 
 export const notificationsApi = {
@@ -67,5 +74,13 @@ export const notificationsApi = {
    */
   deleteAll: async (): Promise<void> => {
     await apiClient.delete('/notifications/all');
+  },
+
+  /**
+   * Envoie une notification broadcast à un groupe d'utilisateurs (admin only).
+   */
+  broadcastNotification: async (payload: BroadcastNotificationPayload): Promise<{ sent: number; skipped: number }> => {
+    const res = await apiClient.post('/notifications/broadcast', payload);
+    return res.data.data;
   },
 };

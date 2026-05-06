@@ -137,6 +137,38 @@ export class MySQLNotificationRepository implements INotificationRepository {
 
     return result.affectedRows;
   }
+  /**
+   * Retourne la liste des user_id filtrés par cible
+   */
+  async getUserIdsByCible(cible: string): Promise<number[]> {
+    let sql: string;
+    const params: any[] = [];
+
+    if (cible === 'tous') {
+      sql = `SELECT id FROM utilisateurs WHERE deleted_at IS NULL AND anonymized = FALSE AND active = TRUE`;
+    } else {
+      sql = `SELECT id FROM utilisateurs WHERE deleted_at IS NULL AND anonymized = FALSE AND active = TRUE AND role_app = ?`;
+      params.push(cible);
+    }
+
+    const [rows] = await pool.query<RowDataPacket[]>(sql, params);
+    return rows.map((r) => r.id as number);
+  }
+
+  /**
+   * Crée plusieurs notifications en bulk via INSERT batch
+   * Retourne le nombre de lignes insérées
+   */
+  async createBulk(data: CreateNotificationDto[]): Promise<number> {
+    if (data.length === 0) return 0;
+    const values = data.map((d) => [d.user_id, d.type, d.titre, d.contenu]);
+    const [result] = await pool.query<ResultSetHeader>(
+      `INSERT INTO notifications (user_id, type, titre, contenu) VALUES ?`,
+      [values],
+    );
+    return result.affectedRows;
+  }
+
   // ==================== HELPER METHODS ====================
 
   /**
