@@ -43,7 +43,8 @@
     "reservations": "Réservations",
     "templates": "Modèles",
     "myCourses": "Mes cours",
-    "myPayments": "Mes paiements"
+    "myPayments": "Mes paiements",
+    "adminFamilies": "Familles (Admin)"
   },
   "footer": {
     "allRightsReserved": "Tous droits réservés",

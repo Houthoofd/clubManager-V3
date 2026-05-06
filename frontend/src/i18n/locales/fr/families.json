@@ -14,7 +14,8 @@
     "role": "Rôle",
     "age": "Âge :",
     "grade": "Grade :",
-    "userId": "Identifiant"
+    "userId": "Identifiant",
+    "memberCount": "{{count}} membre(s)"
   },
   "roles": {
     "parent": "Parent",
@@ -99,5 +100,69 @@
   },
   "aria": {
     "removeMember": "Retirer {{firstName}} {{lastName}} de la famille"
+  },
+  "admin": {
+    "page": {
+      "title": "Familles",
+      "description": "Gérez toutes les familles du club et leurs membres"
+    },
+    "fields": {
+      "name": "Nom de la famille",
+      "unnamed": "Famille #{{id}}",
+      "memberCount": "Membres",
+      "createdAt": "Créée le"
+    },
+    "actions": {
+      "edit": "Renommer",
+      "delete": "Supprimer",
+      "viewMembers": "Voir les membres"
+    },
+    "modal": {
+      "editTitle": "Renommer la famille",
+      "editSubtitle": "Modifier le nom de : {{name}}",
+      "editHint": "Laissez vide pour supprimer le nom de la famille.",
+      "deleteTitle": "Supprimer la famille",
+      "membersTitle": "Membres de la famille",
+      "membersSubtitle": "{{name}} — {{count}} membre(s)"
+    },
+    "placeholders": {
+      "name": "Ex : Famille Dupont",
+      "search": "Rechercher une famille...",
+      "userId": "ID utilisateur (numérique)"
+    },
+    "messages": {
+      "success": {
+        "updated": "Famille mise à jour",
+        "deleted": "Famille supprimée",
+        "memberAdded": "Membre ajouté à la famille.",
+        "memberRemoved": "Membre retiré de la famille."
+      },
+      "error": {
+        "loadError": "Impossible de charger les familles.",
+        "updateError": "Erreur lors de la mise à jour.",
+        "deleteError": "Erreur lors de la suppression.",
+        "memberAddError": "Erreur lors de l'ajout du membre.",
+        "memberRemoveError": "Erreur lors du retrait du membre."
+      },
+      "empty": {
+        "title": "Aucune famille",
+        "description": "Aucune famille ne correspond à votre recherche.",
+        "noFamilies": "Aucune famille n'existe encore.",
+        "noMembers": "Cette famille n'a aucun membre."
+      },
+      "confirm": {
+        "deleteMessage": "Voulez-vous vraiment supprimer la famille \"{{name}}\" et retirer tous ses membres ? Cette action est irréversible."
+      }
+    },
+    "validation": {
+      "nameTooShort": "Le nom doit contenir au moins 2 caractères.",
+      "nameTooLong": "Le nom ne peut pas dépasser 100 caractères."
+    },
+    "aria": {
+      "editFamily": "Renommer la famille #{{id}}",
+      "deleteFamily": "Supprimer la famille #{{id}}",
+      "viewMembers": "Voir les membres de la famille #{{id}}",
+      "removeMember": "Retirer {{name}} de la famille"
+    }
   }
 }
