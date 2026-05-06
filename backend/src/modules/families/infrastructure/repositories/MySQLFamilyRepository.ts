@@ -13,6 +13,13 @@ import type {
   FamilyMemberRole,
 } from "@clubmanager/types";
 import type { IFamilyRepository } from "../../domain/repositories/IFamilyRepository.js";
+import type {
+  FamilyWithCount,
+  GetFamiliesQuery,
+  PaginatedFamiliesResponse,
+  UpdateFamilyDto,
+  AdminAddMemberDto,
+} from "../../domain/adminTypes.js";
 
 // ==================== ROW INTERFACES ====================
 
@@ -52,6 +59,18 @@ interface FamilleRow extends RowDataPacket {
   nom: string | null;
   created_at: Date;
   updated_at: Date | null;
+}
+
+interface FamilyWithCountRow extends RowDataPacket {
+  id: number;
+  nom: string | null;
+  created_at: Date;
+  updated_at: Date | null;
+  membre_count: number;
+}
+
+interface CountRow extends RowDataPacket {
+  total: number;
 }
 
 interface MembreRow extends RowDataPacket {
@@ -240,6 +259,155 @@ export class MySQLFamilyRepository implements IFamilyRepository {
     );
 
     return (rows[0] as { count: number }).count > 0;
+  }
+
+  // ==================== ADMIN METHODS ====================
+
+  /**
+   * [ADMIN] Retourne la liste paginée de toutes les familles avec leur nombre de membres.
+   * Filtre optionnel sur le nom (LIKE).
+   */
+  async findAll(query: GetFamiliesQuery): Promise<PaginatedFamiliesResponse> {
+    const { search, page = 1, limit = 20 } = query;
+
+    const conditions: string[] = [];
+    const params: (string | number)[] = [];
+
+    if (search) {
+      conditions.push("f.nom LIKE ?");
+      params.push(`%${search}%`);
+    }
+
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    // COUNT pour la pagination
+    const [countRows] = await pool.query<CountRow[]>(
+      `SELECT COUNT(*) AS total FROM familles f ${whereClause}`,
+      params,
+    );
+
+    const total = countRows[0]?.total ?? 0;
+    const offset = (page - 1) * limit;
+    const dataParams: (string | number)[] = [...params, limit, offset];
+
+    const [rows] = await pool.query<FamilyWithCountRow[]>(
+      `SELECT
+         f.id,
+         f.nom,
+         f.created_at,
+         f.updated_at,
+         COUNT(mf.id) AS membre_count
+       FROM familles f
+       LEFT JOIN membres_famille mf ON mf.famille_id = f.id
+       ${whereClause}
+       GROUP BY f.id
+       ORDER BY f.id ASC
+       LIMIT ? OFFSET ?`,
+      dataParams,
+    );
+
+    return {
+      families: rows.map((row) => this.mapRowToFamilyWithCount(row)),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * [ADMIN] Trouve une famille par son ID avec le nombre de membres, ou null si inexistante.
+   */
+  async findById(id: number): Promise<FamilyWithCount | null> {
+    const [rows] = await pool.query<FamilyWithCountRow[]>(
+      `SELECT
+         f.id,
+         f.nom,
+         f.created_at,
+         f.updated_at,
+         COUNT(mf.id) AS membre_count
+       FROM familles f
+       LEFT JOIN membres_famille mf ON mf.famille_id = f.id
+       WHERE f.id = ?
+       GROUP BY f.id
+       LIMIT 1`,
+      [id],
+    );
+
+    if (rows.length === 0) return null;
+    return this.mapRowToFamilyWithCount(rows[0]!);
+  }
+
+  /**
+   * [ADMIN] Renomme une famille.
+   */
+  async update(data: UpdateFamilyDto): Promise<FamilyWithCount> {
+    if (data.nom !== undefined) {
+      await pool.query<ResultSetHeader>(
+        `UPDATE familles SET nom = ? WHERE id = ?`,
+        [data.nom ?? null, data.id],
+      );
+    }
+
+    const updated = await this.findById(data.id);
+    if (!updated) {
+      throw new Error("Famille introuvable");
+    }
+    return updated;
+  }
+
+  /**
+   * [ADMIN] Supprime une famille (CASCADE sur membres_famille).
+   */
+  async delete(id: number): Promise<void> {
+    await pool.query<ResultSetHeader>(`DELETE FROM familles WHERE id = ?`, [
+      id,
+    ]);
+  }
+
+  /**
+   * [ADMIN] Ajoute un utilisateur existant à une famille.
+   * Lance une erreur si contrainte UNIQUE violée (déjà membre).
+   */
+  async adminAddMembre(dto: AdminAddMemberDto): Promise<void> {
+    try {
+      await pool.query<ResultSetHeader>(
+        `INSERT INTO membres_famille (famille_id, user_id, role, est_responsable, est_tuteur_legal, date_ajout)
+         VALUES (?, ?, ?, ?, ?, NOW())`,
+        [
+          dto.familleId,
+          dto.userId,
+          dto.role,
+          dto.estResponsable,
+          dto.estTuteurLegal,
+        ],
+      );
+    } catch (error: any) {
+      if (error?.code === "ER_DUP_ENTRY" || error?.errno === 1062) {
+        throw new Error("Cet utilisateur est déjà membre de cette famille");
+      }
+      throw error;
+    }
+  }
+
+  // ==================== PRIVATE HELPER ====================
+
+  /**
+   * Convertit une FamilyWithCountRow en objet FamilyWithCount
+   */
+  private mapRowToFamilyWithCount(row: FamilyWithCountRow): FamilyWithCount {
+    return {
+      id: row.id,
+      nom: row.nom ?? null,
+      membre_count: Number(row.membre_count),
+      created_at: new Date(row.created_at).toISOString(),
+      updated_at: row.updated_at
+        ? new Date(row.updated_at).toISOString()
+        : new Date(row.created_at).toISOString(),
+    };
   }
 
   // ==================== COMPTE ENFANT ====================

@@ -10,7 +10,14 @@ import type {
   FamilyMember,
   FamilyMemberWithUser,
   FamilyMemberRole,
-} from '@clubmanager/types'
+} from "@clubmanager/types";
+import type {
+  FamilyWithCount,
+  GetFamiliesQuery,
+  PaginatedFamiliesResponse,
+  UpdateFamilyDto,
+  AdminAddMemberDto,
+} from "../adminTypes.js";
 
 /**
  * Interface du repository familles
@@ -23,14 +30,14 @@ export interface IFamilyRepository {
    * @param nom - Nom optionnel de la famille
    * @returns Promise<Family> - Famille créée
    */
-  createFamille(nom?: string): Promise<Family>
+  createFamille(nom?: string): Promise<Family>;
 
   /**
    * Trouve la famille d'un utilisateur
    * @param userId - ID numérique de l'utilisateur
    * @returns Promise<Family | null> - Famille trouvée ou null
    */
-  findFamilleByUserId(userId: number): Promise<Family | null>
+  findFamilleByUserId(userId: number): Promise<Family | null>;
 
   // ==================== MEMBRES ====================
 
@@ -40,19 +47,19 @@ export interface IFamilyRepository {
    * @returns Promise<FamilyMember> - Membre créé
    */
   addMembre(params: {
-    familleId: number
-    userId: number
-    role: FamilyMemberRole
-    estResponsable: boolean
-    estTuteurLegal: boolean
-  }): Promise<FamilyMember>
+    familleId: number;
+    userId: number;
+    role: FamilyMemberRole;
+    estResponsable: boolean;
+    estTuteurLegal: boolean;
+  }): Promise<FamilyMember>;
 
   /**
    * Récupère tous les membres d'une famille avec leurs informations utilisateur
    * @param familleId - ID de la famille
    * @returns Promise<FamilyMemberWithUser[]> - Liste des membres avec données utilisateur
    */
-  getMembresByFamilleId(familleId: number): Promise<FamilyMemberWithUser[]>
+  getMembresByFamilleId(familleId: number): Promise<FamilyMemberWithUser[]>;
 
   /**
    * Retire un membre d'une famille
@@ -60,7 +67,7 @@ export interface IFamilyRepository {
    * @param userId - ID numérique de l'utilisateur à retirer
    * @returns Promise<void>
    */
-  removeMembre(familleId: number, userId: number): Promise<void>
+  removeMembre(familleId: number, userId: number): Promise<void>;
 
   /**
    * Vérifie si un utilisateur est membre d'une famille
@@ -68,7 +75,35 @@ export interface IFamilyRepository {
    * @param userId - ID numérique de l'utilisateur
    * @returns Promise<boolean> - true si l'utilisateur est membre
    */
-  isMembre(familleId: number, userId: number): Promise<boolean>
+  isMembre(familleId: number, userId: number): Promise<boolean>;
+
+  // ==================== ADMIN ====================
+
+  /**
+   * [ADMIN] Retourne la liste paginée de toutes les familles avec leur nombre de membres
+   */
+  findAll(query: GetFamiliesQuery): Promise<PaginatedFamiliesResponse>;
+
+  /**
+   * [ADMIN] Trouve une famille par son ID avec le nombre de membres
+   */
+  findById(id: number): Promise<FamilyWithCount | null>;
+
+  /**
+   * [ADMIN] Renomme une famille
+   */
+  update(data: UpdateFamilyDto): Promise<FamilyWithCount>;
+
+  /**
+   * [ADMIN] Supprime une famille (CASCADE sur membres_famille)
+   */
+  delete(id: number): Promise<void>;
+
+  /**
+   * [ADMIN] Ajoute un utilisateur existant à une famille
+   * Lance une erreur si contrainte UNIQUE violée (déjà membre)
+   */
+  adminAddMembre(dto: AdminAddMemberDto): Promise<void>;
 
   // ==================== COMPTE ENFANT ====================
 
@@ -79,12 +114,12 @@ export interface IFamilyRepository {
    * @returns Promise<User> - Utilisateur enfant créé
    */
   createChildUser(data: {
-    first_name: string
-    last_name: string
-    date_of_birth: Date
-    genre_id: number
-    tuteur_id: number        // ID numérique du parent/tuteur
-    est_mineur: boolean      // toujours true pour un enfant
-    peut_se_connecter: boolean // toujours false pour un compte enfant
-  }): Promise<User>
+    first_name: string;
+    last_name: string;
+    date_of_birth: Date;
+    genre_id: number;
+    tuteur_id: number; // ID numérique du parent/tuteur
+    est_mineur: boolean; // toujours true pour un enfant
+    peut_se_connecter: boolean; // toujours false pour un compte enfant
+  }): Promise<User>;
 }

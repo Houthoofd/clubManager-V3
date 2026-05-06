@@ -26,6 +26,7 @@ import { useUnreadCount } from "../features/messaging/hooks/useMessaging";
 import { useSettingsStore } from "../features/settings/stores/settingsStore";
 import { useNotificationCount } from "../features/notifications/hooks/useNotifications";
 import { NotificationDropdown } from "../features/notifications/components/NotificationDropdown";
+import { UserGroupIcon } from "@heroicons/react/24/outline";
 
 // ─── SVG Icon Components ──────────────────────────────────────────────────────
 
@@ -237,6 +238,12 @@ const PrivateLayout: React.FC = () => {
       icon: <UsersIcon />,
     },
     {
+      name: t("navigation.adminFamilies"),
+      path: "/admin/families",
+      icon: <UserGroupIcon className="h-5 w-5" />,
+      roles: [UserRole.ADMIN],
+    },
+    {
       name: t("navigation.payments"),
       path: "/payments",
       icon: <CreditCardIcon />,
@@ -285,6 +292,7 @@ const PrivateLayout: React.FC = () => {
 
     "/users": "users",
     "/family": "families",
+    "/admin/families": "families",
     "/payments": "payments",
 
     "/store": "store",

@@ -14,7 +14,8 @@
     "role": "Role",
     "age": "Age:",
     "grade": "Grade:",
-    "userId": "User ID"
+    "userId": "User ID",
+    "memberCount": "{{count}} member(s)"
   },
   "roles": {
     "parent": "Parent",
@@ -99,5 +100,69 @@
   },
   "aria": {
     "removeMember": "Remove {{firstName}} {{lastName}} from the family"
+  },
+  "admin": {
+    "page": {
+      "title": "Families",
+      "description": "Manage all club families and their members"
+    },
+    "fields": {
+      "name": "Family name",
+      "unnamed": "Family #{{id}}",
+      "memberCount": "Members",
+      "createdAt": "Created on"
+    },
+    "actions": {
+      "edit": "Rename",
+      "delete": "Delete",
+      "viewMembers": "View members"
+    },
+    "modal": {
+      "editTitle": "Rename family",
+      "editSubtitle": "Rename: {{name}}",
+      "editHint": "Leave blank to remove the family name.",
+      "deleteTitle": "Delete family",
+      "membersTitle": "Family members",
+      "membersSubtitle": "{{name}} — {{count}} member(s)"
+    },
+    "placeholders": {
+      "name": "E.g. Smith family",
+      "search": "Search families...",
+      "userId": "User ID (numeric)"
+    },
+    "messages": {
+      "success": {
+        "updated": "Family updated",
+        "deleted": "Family deleted",
+        "memberAdded": "Member added to family.",
+        "memberRemoved": "Member removed from family."
+      },
+      "error": {
+        "loadError": "Failed to load families.",
+        "updateError": "Error updating family.",
+        "deleteError": "Error deleting family.",
+        "memberAddError": "Error adding member.",
+        "memberRemoveError": "Error removing member."
+      },
+      "empty": {
+        "title": "No families",
+        "description": "No families match your search.",
+        "noFamilies": "No families exist yet.",
+        "noMembers": "This family has no members."
+      },
+      "confirm": {
+        "deleteMessage": "Are you sure you want to delete the family \"{{name}}\" and remove all its members? This action cannot be undone."
+      }
+    },
+    "validation": {
+      "nameTooShort": "Name must be at least 2 characters.",
+      "nameTooLong": "Name cannot exceed 100 characters."
+    },
+    "aria": {
+      "editFamily": "Rename family #{{id}}",
+      "deleteFamily": "Delete family #{{id}}",
+      "viewMembers": "View members of family #{{id}}",
+      "removeMember": "Remove {{name}} from family"
+    }
   }
 }
