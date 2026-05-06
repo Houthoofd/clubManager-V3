@@ -107,7 +107,7 @@ export class MySQLMessagingRepository implements IMessagingRepository {
     limit: number,
     lu?: boolean,
   ): Promise<PaginatedMessages> {
-    const conditions: string[] = ["m.destinataire_id = ?"];
+    const conditions: string[] = ["m.destinataire_id = ?", "(m.archived = FALSE OR m.archived IS NULL)"];
     const params: (number | boolean)[] = [userId];
 
     if (lu !== undefined) {
@@ -287,7 +287,7 @@ export class MySQLMessagingRepository implements IMessagingRepository {
     const [rows] = await pool.query<CountRow[]>(
       `SELECT COUNT(*) AS total
        FROM messages
-       WHERE destinataire_id = ? AND lu = FALSE`,
+       WHERE destinataire_id = ? AND lu = FALSE AND (archived = FALSE OR archived IS NULL)`,
       [userId],
     );
 
@@ -332,6 +332,72 @@ export class MySQLMessagingRepository implements IMessagingRepository {
       first_name: row.first_name,
       last_name: row.last_name,
     }));
+  }
+
+  /**
+   * Archive un message pour le destinataire
+   */
+  async archiveMessage(messageId: number, userId: number): Promise<void> {
+    await pool.query(
+      `UPDATE messages
+       SET archived = TRUE
+       WHERE id = ? AND destinataire_id = ?`,
+      [messageId, userId],
+    );
+  }
+
+  /**
+   * Retourne les messages archivés paginés d'un utilisateur
+   */
+  async getArchived(
+    userId: number,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedMessages> {
+    // Compter le total pour la pagination
+    const [countRows] = await pool.query<CountRow[]>(
+      `SELECT COUNT(*) AS total
+       FROM messages m
+       WHERE m.destinataire_id = ? AND m.archived = TRUE`,
+      [userId],
+    );
+
+    const total = countRows[0]?.total ?? 0;
+    const offset = (page - 1) * limit;
+
+    const [rows] = await pool.query<MessageRow[]>(
+      `SELECT
+         m.id,
+         m.expediteur_id,
+         m.destinataire_id,
+         m.sujet,
+         m.contenu,
+         m.lu,
+         m.date_lecture,
+         m.envoye_par_email,
+         m.broadcast_id,
+         m.created_at,
+         CONCAT(u_exp.first_name, ' ', u_exp.last_name)  AS expediteur_nom,
+         u_exp.userId                                     AS expediteur_userId,
+         CONCAT(u_dest.first_name, ' ', u_dest.last_name) AS destinataire_nom
+       FROM messages m
+       JOIN utilisateurs u_exp  ON m.expediteur_id   = u_exp.id
+       JOIN utilisateurs u_dest ON m.destinataire_id = u_dest.id
+       WHERE m.destinataire_id = ? AND m.archived = TRUE
+       ORDER BY m.created_at DESC
+       LIMIT ? OFFSET ?`,
+      [userId, limit, offset],
+    );
+
+    return {
+      messages: rows.map((row) => this.mapRowToMessage(row)),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   // ==================== HELPER METHODS ====================

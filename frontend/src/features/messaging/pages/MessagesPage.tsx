@@ -1,14 +1,16 @@
 /**
  * MessagesPage.tsx
- * Page principale de messagerie — layout responsive avec onglets
+ * Page principale de messagerie -- layout responsive avec onglets
  *
- * MIGRATION COMPLÉTÉE : Utilise les composants réutilisables :
+ * MIGRATION COMPLETEE : Utilise les composants reutilisables :
  * - TabGroup (Navigation) : Remplace la sidebar verticale
  * - Button (Button) : Bouton "Nouveau message"
  * - ErrorBanner (Feedback) : Affichage des erreurs
  * - PaginationBar (Navigation) : Pagination
- * - EmptyState (Layout) : États vides
+ * - EmptyState (Layout) : Etats vides
  * - LoadingSpinner (Layout) : Chargement
+ *
+ * GAP-16 : Onglet "Archives" + bouton Archiver sur les messages inbox
  */
 
 import { useState } from "react";
@@ -28,7 +30,7 @@ import {
   PficonTemplateIcon,
 } from "@patternfly/react-icons";
 
-// Composants réutilisables
+// Composants reutilisables
 import { TabGroup, Tab } from "../../../shared/components/Navigation/TabGroup";
 import { Button } from "../../../shared/components/Button/Button";
 import { AlertBanner } from "../../../shared/components/Feedback/AlertBanner";
@@ -36,7 +38,7 @@ import { PaginationBar } from "../../../shared/components/Navigation/PaginationB
 import { EmptyState } from "../../../shared/components/Layout/EmptyState";
 import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// -- Main Component ---------------------------------------------------------------
 
 export const MessagesPage = () => {
   const { t } = useTranslation("messages");
@@ -45,6 +47,8 @@ export const MessagesPage = () => {
     inboxPagination,
     sent,
     sentPagination,
+    archived,
+    archivedPagination,
     selectedMessage,
     unreadCount,
     activeTab,
@@ -55,8 +59,10 @@ export const MessagesPage = () => {
     selectMessage,
     clearSelectedMessage,
     deleteMessage,
+    archiveMessage,
     fetchInbox,
     fetchSent,
+    fetchArchived,
   } = useMessaging();
 
   const { user } = useAuth();
@@ -66,10 +72,10 @@ export const MessagesPage = () => {
 
   const [isComposeOpen, setIsComposeOpen] = useState(false);
 
-  // Sur mobile, on affiche soit la liste soit le détail
+  // Sur mobile, on affiche soit la liste soit le detail
   const [mobileView, setMobileView] = useState<"list" | "detail">("list");
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
+  // -- Handlers -----------------------------------------------------------------
 
   const handleSelectMessage = (id: number) => {
     selectMessage(id);
@@ -88,12 +94,12 @@ export const MessagesPage = () => {
   };
 
   const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId as "inbox" | "sent" | "templates");
+    setActiveTab(tabId as "inbox" | "sent" | "templates" | "archived");
     setMobileView("list");
   };
 
   const handleComposeSent = () => {
-    // Recharger les envoyés si on est sur cet onglet
+    // Recharger les envoyes si on est sur cet onglet
     if (activeTab === "sent") {
       fetchSent();
     }
@@ -104,14 +110,31 @@ export const MessagesPage = () => {
       fetchInbox(page);
     } else if (activeTab === "sent") {
       fetchSent(page);
+    } else if (activeTab === "archived") {
+      fetchArchived(page);
     }
   };
 
-  const currentMessages = activeTab === "sent" ? sent : inbox;
-  const currentPagination =
-    activeTab === "sent" ? sentPagination : inboxPagination;
+  const handleArchive = async (id: number) => {
+    await archiveMessage(id);
+  };
 
-  // ── Configuration des onglets ───────────────────────────────────────────────
+  // Donnees courantes selon l'onglet actif
+  const currentMessages =
+    activeTab === "sent"
+      ? sent
+      : activeTab === "archived"
+        ? archived
+        : inbox;
+
+  const currentPagination =
+    activeTab === "sent"
+      ? sentPagination
+      : activeTab === "archived"
+        ? archivedPagination
+        : inboxPagination;
+
+  // -- Configuration des onglets -----------------------------------------------
 
   const tabs: Tab[] = [
     {
@@ -125,6 +148,11 @@ export const MessagesPage = () => {
       label: t("tabs.sent"),
       icon: <PaperPlaneIcon style={{ fontSize: "18px" }} />,
     },
+    {
+      id: "archived",
+      label: t("tabs.archived", { defaultValue: "Archives" }),
+      icon: <span style={{ fontSize: "16px" }}>📦</span>,
+    },
   ];
 
   // Ajouter l'onglet Templates si l'utilisateur a les permissions
@@ -136,13 +164,13 @@ export const MessagesPage = () => {
     });
   }
 
-  // ── Render ───────────────────────────────────────────────────────────────────
+  // -- Render ------------------------------------------------------------------
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem-3rem)] bg-white rounded-xl shadow overflow-hidden border border-gray-200">
-      {/* ════════════════════════════════════════════════════
-          Header — Onglets + Bouton Nouveau message
-      ════════════════════════════════════════════════════ */}
+      {/* ================================================================
+          Header -- Onglets + Bouton Nouveau message
+      ================================================================ */}
       <div className="flex-shrink-0 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center justify-between gap-4 px-4 py-3">
           {/* Onglets de navigation */}
@@ -183,30 +211,37 @@ export const MessagesPage = () => {
             <span>
               {t("sent.messageCount", { count: sentPagination.total })}
             </span>
+          ) : activeTab === "archived" ? (
+            <span>
+              {t("archived.messageCount", {
+                defaultValue: "{{count}} message(s) archive(s)",
+                count: archivedPagination.total,
+              })}
+            </span>
           ) : (
             <span>{t("templates.description")}</span>
           )}
         </div>
       </div>
 
-      {/* ════════════════════════════════════════════════════
-          Contenu — Templates (pleine largeur)
-      ════════════════════════════════════════════════════ */}
+      {/* ================================================================
+          Contenu -- Templates (pleine largeur)
+      ================================================================ */}
       {activeTab === "templates" && (
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           <TemplatesTab />
         </div>
       )}
 
-      {/* ════════════════════════════════════════════════════
-          Contenu — Inbox/Sent (2 colonnes : liste + détail)
-      ════════════════════════════════════════════════════ */}
+      {/* ================================================================
+          Contenu -- Inbox/Sent/Archived (2 colonnes : liste + detail)
+      ================================================================ */}
       {activeTab !== "templates" && (
         <div className="flex-1 flex min-h-0 overflow-hidden">
-          {/* ────────────────────────────────────────────────
-              Colonne 1 — Liste des messages (400px fixe)
-              Sur mobile : cachée si on est en vue détail
-          ──────────────────────────────────────────────── */}
+          {/* ---------------------------------------------------------------
+              Colonne 1 -- Liste des messages (400px fixe)
+              Sur mobile : cachee si on est en vue detail
+          --------------------------------------------------------------- */}
           <div
             className={[
               "w-96 flex-shrink-0 border-r border-gray-200 flex flex-col bg-white",
@@ -216,7 +251,11 @@ export const MessagesPage = () => {
             {/* Titre de l'onglet */}
             <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2 flex-shrink-0">
               <h2 className="text-sm font-semibold text-gray-800">
-                {activeTab === "inbox" ? t("inbox.title") : t("sent.title")}
+                {activeTab === "inbox"
+                  ? t("inbox.title")
+                  : activeTab === "archived"
+                    ? t("archived.title", { defaultValue: "Archives" })
+                    : t("sent.title")}
               </h2>
             </div>
 
@@ -237,22 +276,32 @@ export const MessagesPage = () => {
                   className="py-16"
                 />
               ) : currentMessages.length === 0 ? (
-                // État vide
+                // Etat vide
                 <EmptyState
                   icon={
                     activeTab === "inbox" ? (
                       <InboxIcon style={{ fontSize: "48px" }} />
+                    ) : activeTab === "archived" ? (
+                      <span style={{ fontSize: "48px" }}>📦</span>
                     ) : (
                       <PaperPlaneIcon style={{ fontSize: "48px" }} />
                     )
                   }
                   title={
-                    activeTab === "inbox" ? t("inbox.empty") : t("sent.empty")
+                    activeTab === "inbox"
+                      ? t("inbox.empty")
+                      : activeTab === "archived"
+                        ? t("archived.empty", { defaultValue: "Aucun message archive" })
+                        : t("sent.empty")
                   }
                   description={
                     activeTab === "inbox"
                       ? t("inbox.emptyDescription")
-                      : t("sent.emptyDescription")
+                      : activeTab === "archived"
+                        ? t("archived.emptyDescription", {
+                            defaultValue: "Vous n'avez archive aucun message.",
+                          })
+                        : t("sent.emptyDescription")
                   }
                   variant="default"
                   className="border-0 bg-transparent"
@@ -265,6 +314,7 @@ export const MessagesPage = () => {
                     isSelected={selectedMessage?.id === message.id}
                     isInbox={activeTab === "inbox"}
                     onClick={() => handleSelectMessage(message.id)}
+                    onArchive={activeTab === "inbox" ? handleArchive : undefined}
                   />
                 ))
               )}
@@ -281,10 +331,10 @@ export const MessagesPage = () => {
             )}
           </div>
 
-          {/* ────────────────────────────────────────────────
-              Colonne 2 — Détail du message (flex-1)
+          {/* ---------------------------------------------------------------
+              Colonne 2 -- Detail du message (flex-1)
               Sur mobile : visible uniquement si mobileView === 'detail'
-          ──────────────────────────────────────────────── */}
+          --------------------------------------------------------------- */}
           <div
             className={[
               "flex-1 flex flex-col min-w-0 bg-white",
@@ -305,7 +355,7 @@ export const MessagesPage = () => {
                 onBack={handleBack}
               />
             ) : (
-              // Aucun message sélectionné
+              // Aucun message selectionne
               <EmptyState
                 icon={<EnvelopeIcon style={{ fontSize: "48px" }} />}
                 title={t("detail.selectMessage")}
@@ -318,9 +368,9 @@ export const MessagesPage = () => {
         </div>
       )}
 
-      {/* ════════════════════════════════════════════════════
+      {/* ================================================================
           Modal de composition
-      ════════════════════════════════════════════════════ */}
+      ================================================================ */}
       <ComposeModal
         isOpen={isComposeOpen}
         onClose={() => setIsComposeOpen(false)}
