@@ -6,7 +6,9 @@
   "tabs": {
     "planning": "Recurring Schedule",
     "sessions": "Sessions",
-    "professors": "Professors"
+    "professors": "Professors",
+    "myEnrollments": "My Enrollments",
+    "reservations": "Reservations"
   },
   "days": {
     "monday": "Monday",

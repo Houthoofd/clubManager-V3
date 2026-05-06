@@ -18,12 +18,7 @@ import {
   ChartBarIcon,
   CogIcon,
 } from "@patternfly/react-icons";
-import {
-  UserGroupIcon,
-  CalendarDaysIcon,
-  ClipboardDocumentListIcon,
-  DocumentTextIcon,
-} from "@heroicons/react/24/outline";
+
 import { UserRole } from "@clubmanager/types";
 import { INFORMATION_KEYS } from "@clubmanager/types";
 import { useAuth } from "../shared/hooks/useAuth";
@@ -229,12 +224,7 @@ const PrivateLayout: React.FC = () => {
       path: "/courses",
       icon: <GraduationCapIcon />,
     },
-    {
-      name: t("navigation.myCourses"),
-      path: "/my-courses",
-      icon: <ClipboardDocumentListIcon className="h-5 w-5" />,
-      // Visible to all roles
-    },
+
     {
       name: t("navigation.users"),
       path: "/users",
@@ -252,11 +242,7 @@ const PrivateLayout: React.FC = () => {
       icon: <CreditCardIcon />,
       roles: [UserRole.ADMIN, UserRole.MEMBER],
     },
-    {
-      name: t("navigation.myPayments"),
-      path: "/my-payments",
-      icon: <CreditCardIcon />,
-    },
+
     {
       name: t("navigation.store"),
       path: "/store",
@@ -273,24 +259,7 @@ const PrivateLayout: React.FC = () => {
       icon: <ChartBarIcon />,
       roles: [UserRole.ADMIN, UserRole.PROFESSOR],
     },
-    {
-      name: t("navigation.groups"),
-      path: "/groups",
-      icon: <UserGroupIcon className="h-5 w-5" />,
-      roles: [UserRole.ADMIN],
-    },
-    {
-      name: t("navigation.templates"),
-      path: "/templates",
-      icon: <DocumentTextIcon className="h-5 w-5" />,
-      roles: [UserRole.ADMIN, UserRole.PROFESSOR],
-    },
-    {
-      name: t("navigation.reservations"),
-      path: "/reservations",
-      icon: <CalendarDaysIcon className="h-5 w-5" />,
-      // No roles restriction — all authenticated users can see their reservations
-    },
+
     {
       name: t("navigation.settings"),
       path: "/settings",
@@ -313,17 +282,15 @@ const PrivateLayout: React.FC = () => {
   const pathToModuleKey: Record<string, string> = {
     "/dashboard": "dashboard",
     "/courses": "courses",
-    "/my-courses": "courses",
+
     "/users": "users",
     "/family": "families",
     "/payments": "payments",
-    "/my-payments": "payments",
+
     "/store": "store",
     "/messages": "messages",
     "/statistics": "statistics",
-    "/groups": "groups",
-    "/templates": "templates",
-    "/reservations": "reservations",
+
     "/settings": "settings", // settings is always visible to admin
   };
 

@@ -5,24 +5,25 @@
  * Layout : deux colonnes (info card à gauche, formulaire d'édition à droite)
  */
 
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
-import { useAuth } from '@/shared/hooks/useAuth';
-import { useGenres } from '@/shared/hooks/useReferences';
-import { profileApi } from '../api/profileApi';
-import type { UpdateUserProfileDto } from '../api/profileApi';
+import { useAuth } from "@/shared/hooks/useAuth";
+import { useGenres } from "@/shared/hooks/useReferences";
+import { profileApi } from "../api/profileApi";
+import type { UpdateUserProfileDto } from "../api/profileApi";
 
-import { ActiveSessionsSection } from '../components/ActiveSessionsSection';
-import { Card } from '@/shared/components/Card/Card';
-import { Badge } from '@/shared/components/Badge/Badge';
-import { Button } from '@/shared/components/Button/Button';
-import { AlertBanner } from '@/shared/components/Feedback/AlertBanner';
-import { FormField } from '@/shared/components/Forms/FormField';
-import { SelectField } from '@/shared/components/Forms/SelectField';
-import { cn, INPUT } from '@/shared/styles/designTokens';
+import { ActiveSessionsSection } from "../components/ActiveSessionsSection";
+import { ChangeEmailSection } from "../components/ChangeEmailSection";
+import { Card } from "@/shared/components/Card/Card";
+import { Badge } from "@/shared/components/Badge/Badge";
+import { Button } from "@/shared/components/Button/Button";
+import { AlertBanner } from "@/shared/components/Feedback/AlertBanner";
+import { FormField } from "@/shared/components/Forms/FormField";
+import { SelectField } from "@/shared/components/Forms/SelectField";
+import { cn, INPUT } from "@/shared/styles/designTokens";
 
 // ─── Local types ──────────────────────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ interface FormErrors {
 
 /** Extracts YYYY-MM-DD from any ISO date string (for <input type="date">) */
 function toDateInputValue(dateStr: string | null | undefined): string {
-  if (!dateStr) return '';
+  if (!dateStr) return "";
   return dateStr.substring(0, 10);
 }
 
@@ -57,9 +58,9 @@ function formatDisplayDate(
   if (!dateStr) return fallback;
   try {
     return new Date(dateStr).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   } catch {
     return dateStr;
@@ -69,18 +70,18 @@ function formatDisplayDate(
 /** Maps a role_app string to a Badge variant */
 function getRoleBadgeVariant(
   role: string,
-): 'info' | 'purple' | 'neutral' | 'success' | 'warning' {
+): "info" | "purple" | "neutral" | "success" | "warning" {
   switch (role) {
-    case 'admin':
-      return 'info';
-    case 'professor':
-      return 'purple';
-    case 'member':
-      return 'neutral';
-    case 'parent':
-      return 'success';
+    case "admin":
+      return "info";
+    case "professor":
+      return "purple";
+    case "member":
+      return "neutral";
+    case "parent":
+      return "success";
     default:
-      return 'neutral';
+      return "neutral";
   }
 }
 
@@ -162,7 +163,7 @@ function ProfileSkeleton() {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ProfilePage() {
-  const { t } = useTranslation('users');
+  const { t } = useTranslation("users");
   const { user: authUser } = useAuth();
   const queryClient = useQueryClient();
   const genres = useGenres();
@@ -175,7 +176,7 @@ export function ProfilePage() {
     isLoading,
     error: fetchError,
   } = useQuery({
-    queryKey: ['user-profile', userId],
+    queryKey: ["user-profile", userId],
     queryFn: () => profileApi.getProfile(userId),
     enabled: userId > 0,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -183,13 +184,13 @@ export function ProfilePage() {
 
   // ── Form state ───────────────────────────────────────────────────────────
   const [formValues, setFormValues] = useState<FormValues>({
-    first_name: '',
-    last_name: '',
-    telephone: '',
-    adresse: '',
-    date_of_birth: '',
-    genre_id: '',
-    photo_url: '',
+    first_name: "",
+    last_name: "",
+    telephone: "",
+    adresse: "",
+    date_of_birth: "",
+    genre_id: "",
+    photo_url: "",
   });
 
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -200,12 +201,12 @@ export function ProfilePage() {
       setFormValues({
         first_name: profile.first_name,
         last_name: profile.last_name,
-        telephone: profile.telephone ?? '',
-        adresse: profile.adresse ?? '',
+        telephone: profile.telephone ?? "",
+        adresse: profile.adresse ?? "",
         date_of_birth: toDateInputValue(profile.date_of_birth),
         genre_id:
-          profile.genre?.id !== undefined ? String(profile.genre.id) : '',
-        photo_url: profile.photo_url ?? '',
+          profile.genre?.id !== undefined ? String(profile.genre.id) : "",
+        photo_url: profile.photo_url ?? "",
       });
     }
   }, [profile]);
@@ -215,8 +216,8 @@ export function ProfilePage() {
     mutationFn: (data: UpdateUserProfileDto) =>
       profileApi.updateProfile(userId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-profile', userId] });
-      toast.success(t('profile.saved', 'Profil mis à jour'));
+      queryClient.invalidateQueries({ queryKey: ["user-profile", userId] });
+      toast.success(t("profile.saved", "Profil mis à jour"));
     },
     onError: (error: Error) => {
       // Axios errors expose the API message via error.message or response.data.message
@@ -230,16 +231,16 @@ export function ProfilePage() {
   function validate(): boolean {
     const errors: FormErrors = {};
 
-    if ((formValues.first_name ?? '').trim().length < 2) {
+    if ((formValues.first_name ?? "").trim().length < 2) {
       errors.first_name = t(
-        'profile.fields.firstNameMin',
-        'Le prénom doit contenir au moins 2 caractères',
+        "profile.fields.firstNameMin",
+        "Le prénom doit contenir au moins 2 caractères",
       );
     }
-    if ((formValues.last_name ?? '').trim().length < 2) {
+    if ((formValues.last_name ?? "").trim().length < 2) {
       errors.last_name = t(
-        'profile.fields.lastNameMin',
-        'Le nom doit contenir au moins 2 caractères',
+        "profile.fields.lastNameMin",
+        "Le nom doit contenir au moins 2 caractères",
       );
     }
 
@@ -271,12 +272,11 @@ export function ProfilePage() {
     setFormValues({
       first_name: profile.first_name,
       last_name: profile.last_name,
-      telephone: profile.telephone ?? '',
-      adresse: profile.adresse ?? '',
+      telephone: profile.telephone ?? "",
+      adresse: profile.adresse ?? "",
       date_of_birth: toDateInputValue(profile.date_of_birth),
-      genre_id:
-        profile.genre?.id !== undefined ? String(profile.genre.id) : '',
-      photo_url: profile.photo_url ?? '',
+      genre_id: profile.genre?.id !== undefined ? String(profile.genre.id) : "",
+      photo_url: profile.photo_url ?? "",
     });
     setFormErrors({});
   }
@@ -307,10 +307,10 @@ export function ProfilePage() {
       <div className="max-w-4xl mx-auto px-4 py-6">
         <AlertBanner
           variant="danger"
-          title={t('profile.loadError', 'Erreur de chargement')}
+          title={t("profile.loadError", "Erreur de chargement")}
           message={
             (fetchError as Error).message ||
-            t('profile.loadErrorGeneric', 'Impossible de charger le profil.')
+            t("profile.loadErrorGeneric", "Impossible de charger le profil.")
           }
         />
       </div>
@@ -321,18 +321,18 @@ export function ProfilePage() {
 
   // ── Derived display values ────────────────────────────────────────────────
   const fullName = `${profile.first_name} ${profile.last_name}`;
-  const initials = `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`.toUpperCase();
-  const neverLabel = t('profile.never', 'Jamais');
+  const initials =
+    `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`.toUpperCase();
+  const neverLabel = t("profile.never", "Jamais");
 
   // ── Render: main ──────────────────────────────────────────────────────────
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-
       {/* ── Page header ──────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            {t('profile.title', 'Mon profil')}
+            {t("profile.title", "Mon profil")}
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
             @{profile.nom_utilisateur}
@@ -342,11 +342,9 @@ export function ProfilePage() {
 
       {/* ── Two-column layout ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-
         {/* ══ LEFT COLUMN — Info card ══════════════════════════════════════ */}
         <div className="space-y-4">
           <Card variant="standard">
-
             {/* Avatar + name + role */}
             <div className="flex flex-col items-center text-center pb-6 border-b border-gray-100">
               <Avatar
@@ -366,7 +364,7 @@ export function ProfilePage() {
                 {profile.email_verified ? (
                   <span
                     className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-full px-2 py-0.5"
-                    title={t('profile.emailVerified', 'Email vérifié')}
+                    title={t("profile.emailVerified", "Email vérifié")}
                   >
                     <svg
                       className="h-3 w-3 flex-shrink-0"
@@ -380,12 +378,12 @@ export function ProfilePage() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {t('profile.emailVerified', 'Email vérifié')}
+                    {t("profile.emailVerified", "Email vérifié")}
                   </span>
                 ) : (
                   <span
                     className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5"
-                    title={t('profile.emailNotVerified', 'Email non vérifié')}
+                    title={t("profile.emailNotVerified", "Email non vérifié")}
                   >
                     <svg
                       className="h-3 w-3 flex-shrink-0"
@@ -399,7 +397,7 @@ export function ProfilePage() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {t('profile.emailNotVerified', 'Non vérifié')}
+                    {t("profile.emailNotVerified", "Non vérifié")}
                   </span>
                 )}
               </div>
@@ -437,9 +435,9 @@ export function ProfilePage() {
                 <div className="flex items-center justify-between gap-2">
                   <Badge variant="info">{profile.abonnement.nom}</Badge>
                   <span className="text-sm font-semibold text-gray-700">
-                    {new Intl.NumberFormat('fr-FR', {
-                      style: 'currency',
-                      currency: 'EUR',
+                    {new Intl.NumberFormat("fr-FR", {
+                      style: "currency",
+                      currency: "EUR",
                     }).format(profile.abonnement.prix)}
                   </span>
                 </div>
@@ -449,7 +447,7 @@ export function ProfilePage() {
             {/* Status */}
             <div className="py-4 border-b border-gray-100">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                {t('status', 'Statut')}
+                {t("status", "Statut")}
               </p>
               <Badge variant="neutral" dot>
                 {profile.status.nom}
@@ -477,7 +475,7 @@ export function ProfilePage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs text-gray-500">
-                    {t('profile.memberSince', 'Membre depuis')}
+                    {t("profile.memberSince", "Membre depuis")}
                   </p>
                   <p className="text-sm font-medium text-gray-800 mt-0.5">
                     {formatDisplayDate(profile.date_inscription, neverLabel)}
@@ -504,7 +502,7 @@ export function ProfilePage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs text-gray-500">
-                    {t('profile.lastLogin', 'Dernière connexion')}
+                    {t("profile.lastLogin", "Dernière connexion")}
                   </p>
                   <p className="text-sm font-medium text-gray-800 mt-0.5">
                     {formatDisplayDate(profile.derniere_connexion, neverLabel)}
@@ -518,7 +516,6 @@ export function ProfilePage() {
         {/* ══ RIGHT COLUMN — Edit form ══════════════════════════════════════ */}
         <div className="lg:col-span-2">
           <Card variant="standard">
-
             {/* Form header */}
             <div className="flex items-center gap-3 pb-5 border-b border-gray-100 mb-6">
               <div className="h-9 w-9 rounded-lg bg-primary-50 flex items-center justify-center flex-shrink-0">
@@ -539,24 +536,23 @@ export function ProfilePage() {
               </div>
               <div>
                 <h2 className="text-base font-semibold text-gray-900">
-                  {t('profile.editForm', 'Modifier le profil')}
+                  {t("profile.editForm", "Modifier le profil")}
                 </h2>
                 <p className="text-xs text-gray-500 mt-0.5">
                   {t(
-                    'profile.editFormSubtitle',
-                    'Mettez à jour vos informations personnelles',
+                    "profile.editFormSubtitle",
+                    "Mettez à jour vos informations personnelles",
                   )}
                 </p>
               </div>
             </div>
 
             <form onSubmit={handleSubmit} noValidate>
-
               {/* ── Row 1 : Prénom / Nom ─────────────────────────────────── */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <FormField
                   id="first_name"
-                  label={t('profile.fields.firstName', 'Prénom')}
+                  label={t("profile.fields.firstName", "Prénom")}
                   required
                   error={formErrors.first_name}
                 >
@@ -566,14 +562,14 @@ export function ProfilePage() {
                     value={formValues.first_name}
                     onChange={(e) =>
                       handleTextChange(
-                        'first_name',
+                        "first_name",
                         e.target.value,
-                        'first_name',
+                        "first_name",
                       )
                     }
                     className={cn(
                       INPUT.base,
-                      formErrors.first_name ? INPUT.error : '',
+                      formErrors.first_name ? INPUT.error : "",
                     )}
                     autoComplete="given-name"
                     aria-required="true"
@@ -584,7 +580,7 @@ export function ProfilePage() {
 
                 <FormField
                   id="last_name"
-                  label={t('profile.fields.lastName', 'Nom')}
+                  label={t("profile.fields.lastName", "Nom")}
                   required
                   error={formErrors.last_name}
                 >
@@ -593,15 +589,11 @@ export function ProfilePage() {
                     type="text"
                     value={formValues.last_name}
                     onChange={(e) =>
-                      handleTextChange(
-                        'last_name',
-                        e.target.value,
-                        'last_name',
-                      )
+                      handleTextChange("last_name", e.target.value, "last_name")
                     }
                     className={cn(
                       INPUT.base,
-                      formErrors.last_name ? INPUT.error : '',
+                      formErrors.last_name ? INPUT.error : "",
                     )}
                     autoComplete="family-name"
                     aria-required="true"
@@ -615,7 +607,7 @@ export function ProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <FormField
                   id="telephone"
-                  label={t('profile.fields.phone', 'Téléphone')}
+                  label={t("profile.fields.phone", "Téléphone")}
                   optional
                 >
                   <input
@@ -623,7 +615,7 @@ export function ProfilePage() {
                     type="tel"
                     value={formValues.telephone}
                     onChange={(e) =>
-                      handleTextChange('telephone', e.target.value)
+                      handleTextChange("telephone", e.target.value)
                     }
                     className={INPUT.base}
                     autoComplete="tel"
@@ -634,7 +626,7 @@ export function ProfilePage() {
 
                 <FormField
                   id="date_of_birth"
-                  label={t('profile.fields.dateOfBirth', 'Date de naissance')}
+                  label={t("profile.fields.dateOfBirth", "Date de naissance")}
                   optional
                 >
                   <input
@@ -642,10 +634,10 @@ export function ProfilePage() {
                     type="date"
                     value={formValues.date_of_birth}
                     onChange={(e) =>
-                      handleTextChange('date_of_birth', e.target.value)
+                      handleTextChange("date_of_birth", e.target.value)
                     }
                     className={INPUT.base}
-                    max={new Date().toISOString().split('T')[0]}
+                    max={new Date().toISOString().split("T")[0]}
                     disabled={mutation.isPending}
                   />
                 </FormField>
@@ -655,23 +647,21 @@ export function ProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <SelectField
                   id="genre_id"
-                  label={t('profile.fields.genre', 'Genre')}
+                  label={t("profile.fields.genre", "Genre")}
                   options={genreOptions}
                   value={formValues.genre_id}
-                  onChange={(val) =>
-                    handleTextChange('genre_id', String(val))
-                  }
-                  placeholder={t('profile.fields.genreNone', 'Non renseigné')}
+                  onChange={(val) => handleTextChange("genre_id", String(val))}
+                  placeholder={t("profile.fields.genreNone", "Non renseigné")}
                   disabled={mutation.isPending}
                 />
 
                 <FormField
                   id="photo_url"
-                  label={t('profile.fields.photoUrl', 'Photo (URL)')}
+                  label={t("profile.fields.photoUrl", "Photo (URL)")}
                   optional
                   helpText={t(
-                    'profile.fields.photoUrlHelp',
-                    'Lien vers une image en ligne (jpg, png…)',
+                    "profile.fields.photoUrlHelp",
+                    "Lien vers une image en ligne (jpg, png…)",
                   )}
                 >
                   <input
@@ -679,7 +669,7 @@ export function ProfilePage() {
                     type="url"
                     value={formValues.photo_url}
                     onChange={(e) =>
-                      handleTextChange('photo_url', e.target.value)
+                      handleTextChange("photo_url", e.target.value)
                     }
                     className={INPUT.base}
                     placeholder="https://example.com/photo.jpg"
@@ -693,7 +683,7 @@ export function ProfilePage() {
               <div className="mb-6">
                 <FormField
                   id="adresse"
-                  label={t('profile.fields.address', 'Adresse')}
+                  label={t("profile.fields.address", "Adresse")}
                   optional
                 >
                   <textarea
@@ -701,13 +691,13 @@ export function ProfilePage() {
                     rows={3}
                     value={formValues.adresse}
                     onChange={(e) =>
-                      handleTextChange('adresse', e.target.value)
+                      handleTextChange("adresse", e.target.value)
                     }
-                    className={cn(INPUT.base, 'resize-none')}
+                    className={cn(INPUT.base, "resize-none")}
                     autoComplete="street-address"
                     placeholder={t(
-                      'profile.fields.addressPlaceholder',
-                      'Votre adresse complète…',
+                      "profile.fields.addressPlaceholder",
+                      "Votre adresse complète…",
                     )}
                     disabled={mutation.isPending}
                   />
@@ -722,7 +712,7 @@ export function ProfilePage() {
                   onClick={handleCancel}
                   disabled={mutation.isPending}
                 >
-                  {t('profile.cancel', 'Annuler')}
+                  {t("profile.cancel", "Annuler")}
                 </Button>
 
                 <Button
@@ -749,8 +739,8 @@ export function ProfilePage() {
                   }
                 >
                   {mutation.isPending
-                    ? t('profile.saving', 'Enregistrement…')
-                    : t('profile.save', 'Enregistrer')}
+                    ? t("profile.saving", "Enregistrement…")
+                    : t("profile.save", "Enregistrer")}
                 </Button>
               </div>
             </form>
@@ -760,6 +750,9 @@ export function ProfilePage() {
 
       {/* Sessions actives */}
       <ActiveSessionsSection />
+
+      {/* Changement d'email (GAP-15) */}
+      {profile?.email && <ChangeEmailSection currentEmail={profile.email} />}
     </div>
   );
 }

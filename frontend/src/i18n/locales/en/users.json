@@ -1,4 +1,9 @@
 {
+  "tabs": {
+    "active": "Active Users",
+    "deleted": "Deleted",
+    "groups": "Groups"
+  },
   "title": "User Management",
   "description": "Manage user accounts, roles and statuses",
   "firstName": "First & Last Name",

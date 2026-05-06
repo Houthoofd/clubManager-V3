@@ -541,7 +541,79 @@ export class MySQLAuthRepository implements IAuthRepository {
     return result.affectedRows > 0;
   }
 
-  // ==================== HELPER METHODS ====================
+  // ==================== EMAIL CHANGE ====================
+
+  /**
+   * Met à jour l'email d'un utilisateur (après confirmation du token)
+   */
+  async updateEmail(userId: number, newEmail: string): Promise<void> {
+    await pool.query(
+      `UPDATE utilisateurs
+       SET email = ?, email_verified = TRUE, updated_at = NOW()
+       WHERE id = ?`,
+      [newEmail, userId],
+    );
+  }
+
+  /**
+   * Stocke un token de changement d'email (type = 'change_email')
+   */
+  async storeEmailChangeToken(
+    userId: number,
+    token: string,
+    newEmail: string,
+    expiresAt: Date,
+  ): Promise<void> {
+    const tokenHash = this.hashToken(token);
+
+    // Invalider tout token change_email précédent pour cet utilisateur
+    await pool.query(
+      `DELETE FROM email_validation_tokens
+       WHERE user_id = ? AND token_type = 'change_email'`,
+      [userId],
+    );
+
+    await pool.query(
+      `INSERT INTO email_validation_tokens
+         (user_id, token_hash, token_type, email, expires_at)
+       VALUES (?, ?, 'change_email', ?, ?)`,
+      [userId, tokenHash, newEmail, expiresAt],
+    );
+  }
+
+  /**
+   * Valide un token change_email et retourne { userId, newEmail }
+   * Supprime le token après lecture (usage unique)
+   */
+  async validateEmailChangeToken(
+    token: string,
+  ): Promise<{ userId: number; newEmail: string } | null> {
+    const tokenHash = this.hashToken(token);
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT user_id, email
+       FROM email_validation_tokens
+       WHERE token_hash = ?
+         AND token_type = 'change_email'
+         AND expires_at > NOW()
+         AND used = FALSE
+       LIMIT 1`,
+      [tokenHash],
+    );
+
+    if (rows.length === 0 || !rows[0].email) return null;
+
+    // Marquer comme utilisé (single-use)
+    await pool.query(
+      `UPDATE email_validation_tokens SET used = TRUE WHERE token_hash = ?`,
+      [tokenHash],
+    );
+
+    return {
+      userId: rows[0].user_id as number,
+      newEmail: rows[0].email as string,
+    };
+  }
 
   /**
    * Hash un token avec SHA-256

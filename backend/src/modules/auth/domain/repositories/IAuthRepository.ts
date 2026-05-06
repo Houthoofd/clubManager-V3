@@ -219,6 +219,38 @@ export interface IAuthRepository {
 
   /** Révoque une session spécifique par son ID (vérifie l'ownership) */
   revokeSession(sessionId: number, userId: number): Promise<boolean>;
+
+  // ==================== EMAIL CHANGE ====================
+
+  /**
+   * Met à jour l'adresse email d'un utilisateur
+   * @param userId - ID de l'utilisateur
+   * @param newEmail - Nouvelle adresse email
+   */
+  updateEmail(userId: number, newEmail: string): Promise<void>;
+
+  /**
+   * Stocke un token de changement d'email
+   * @param userId - ID de l'utilisateur
+   * @param token - Token brut (sera hashé)
+   * @param newEmail - Nouvel email cible
+   * @param expiresAt - Date d'expiration
+   */
+  storeEmailChangeToken(
+    userId: number,
+    token: string,
+    newEmail: string,
+    expiresAt: Date,
+  ): Promise<void>;
+
+  /**
+   * Valide un token de changement d'email et retourne userId + nouvel email
+   * @param token - Token brut à valider
+   * @returns { userId, newEmail } ou null si token invalide/expiré
+   */
+  validateEmailChangeToken(
+    token: string,
+  ): Promise<{ userId: number; newEmail: string } | null>;
 }
 
 export interface ActiveSessionDto {

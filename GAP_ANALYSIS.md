@@ -986,12 +986,12 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 | Domain | Backend | Frontend | Overall |
 |---|---|---|---|
-| Authentication / Security | ✅ ~98% | ✅ ~92% | ✅ 95% |
-| Users & Profiles | ✅ ~95% | ✅ ~95% | ✅ 95% |
-| Courses & Attendance | ✅ ~95% | ⚠️ ~65% | ⚠️ 80% |
-| Payments & Subscriptions | ✅ ~95% | ✅ ~85% | ✅ 90% |
+| Authentication / Security | ✅ ~98% | ✅ ~95% | ✅ 96% |
+| Users & Profiles | ✅ ~95% | ✅ ~97% | ✅ 96% |
+| Courses & Attendance | ✅ ~95% | ✅ ~90% | ✅ 92% |
+| Payments & Subscriptions | ✅ ~95% | ✅ ~90% | ✅ 92% |
 | Store (E-commerce) | ✅ 100% | ✅ 100% | ✅ 100% |
-| Messaging | ✅ ~95% | ✅ ~90% | ✅ 92% |
+| Messaging | ✅ ~95% | ✅ ~95% | ✅ 95% |
 | Notifications | ✅ ~97% | ✅ ~100% | ✅ 98% |
 | **Alerts** | ❌ **0%** | ❌ **0%** | ❌ **0%** |
 | Groups | ✅ 100% | ✅ 100% | ✅ 100% |
@@ -1023,6 +1023,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | **Sprint 5** | 🟡 Medium | GAP-09 (broadcast notifications) | 1 day | ✅ Done |
 | **Sprint 5** | 🟡 Medium | GAP-14 (security audit logs) | 1 day | ✅ Done |
 | **Sprint 5** | 🟢 Small | GAP-18 (active sessions) | 1 day | ✅ Done |
+| **Sprint Hotfix** | 🔧 Tech Debt | Merge conflicts résolus (5 fichiers), restructuration navigation (6 pages → onglets), migrations DB appliquées, scan backend complet | ~1.5 days | ✅ Done |
 | Sprint 6 | 🟠 High | GAP-06 (families admin) | 2 days | ⏳ |
 | Sprint 6 | 🟡 Medium | GAP-15 (email change) | 1.5 days | ⏳ |
 | Sprint 7 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days | ⏳ |
@@ -1039,6 +1040,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 **Completed Sprint 3:** 4.5 developer days — 3 gaps fully closed (GAP-05 ✅, GAP-12 ✅, GAP-13 ✅)  
 **Completed Sprint 4:** ~1.5 developer days — 3 gaps fully closed (GAP-10 ✅, GAP-16 ✅, GAP-19 ✅)  
 **Completed Sprint 5:** ~3 developer days — 3 gaps fully closed (GAP-09 ✅, GAP-14 ✅, GAP-18 ✅)  
+**Completed Sprint Hotfix:** ~1.5 developer days — dette technique résolue, navigation restructurée, codebase stable  
 **Total estimated remaining work: ~10–12 developer days (Sprints 6–9)**
 
 ---
@@ -1086,39 +1088,89 @@ Des endpoints utiles mais **hors scope des 24 gaps** ne seront pas implémentés
 ---
 
 ### Niveau 3 — Finition UX Frontend (toutes les pages attendues)
-#### Résultat après Sprint 9 : ⚠️ ~82 %
+#### Résultat après Sprint Hotfix : ⚠️ ~88 %
 
-Plusieurs pages listées dans la Section 3 comme manquantes ne sont dans **aucun sprint planifié**.
+> **Sprint Hotfix — Navigation restructurée :** 6 pages standalone incorrectement placées dans le menu principal ont été déplacées comme **onglets** dans leurs pages parentes. La sidebar est nettoyée.
+
+| Feature déplacée | Ancienne URL | Nouvel emplacement | Status |
+|---|---|---|---|
+| Mes inscriptions | `/my-courses` | Onglet dans `CoursesPage` | ✅ |
+| Réservations | `/reservations` | Onglet dans `CoursesPage` | ✅ |
+| Mes paiements | `/my-payments` | Onglet dans `PaymentsPage` | ✅ |
+| Utilisateurs supprimés | `/users/deleted` | Onglet dans `UsersPage` | ✅ |
+| Groupes | `/groups` | Onglet dans `UsersPage` | ✅ |
+| Modèles | `/templates` | Onglet dans `MessagesPage` (déjà présent via `TemplatesTab`) | ✅ |
+
+Plusieurs pages secondaires restent absentes et ne sont dans **aucun sprint planifié**.
 
 | Page absente | Feature | Situation actuelle |
 |---|---|---|
 | `CourseDetailPage` | courses | Vue plénière par session — tout est dans des onglets inline |
 | Page CRUD standalone Professeurs | courses | Embedé dans `CoursesPage`, pas de page dédiée |
-| `SubscriptionPage` membre | payments | Aucune page pour qu’un membre gère son abonnement |
-| `FinancialExportPage` | statistics | Pas d’export CSV/PDF des stats financières |
-| `AttendanceReportPage` imprimable | courses | GAP-17 ajoute l’export, pas une page dédiée |
-| `GDPRManagementPage` complète | users | GAP-04 a fait `DeletedUsersPage`, pas de page RGPD globale |
+| `SubscriptionPage` membre | payments | Aucune page pour qu'un membre gère son abonnement |
+| `FinancialExportPage` | statistics | Pas d'export CSV/PDF des stats financières |
+| `AttendanceReportPage` imprimable | courses | GAP-17 ajoute l'export, pas une page dédiée |
+| `GDPRManagementPage` complète | users | GAP-04 a fait `DeletedUsersPage` (onglet Users), pas de page RGPD globale |
 | Page de préférences notifications | notifications | Aucun réglage de notif. par utilisateur |
 | `MessageDetailPage` (plein écran) | messaging | Messages lus en modal, pas en page dédiée |
 
-> **Contexte TFE :** ces pages sont typiques d’un **Sprint 10** si le projet devait passer en production. Elles ne bloquent pas la démonstration ni l’évaluation académique du projet.
+> **Contexte TFE :** ces pages sont typiques d'un **Sprint 10** si le projet devait passer en production. Elles ne bloquent pas la démonstration ni l'évaluation académique du projet.
 
 ---
 
 ### Synthèse
 
 ```
-Après Sprint 9 :
+Après Sprint Hotfix (état actuel) :
 
   Niveau 1 — DB Coverage     ████████████████████  ~100 %  ✅ Objectif atteint
   Niveau 2 — API Coverage    ██████████████████░░   ~90 %  ⚠️ Endpoints confort manquants
-  Niveau 3 — Frontend UX     ████████████████░░░░   ~82 %  ⚠️ Pages secondaires absentes
+  Niveau 3 — Frontend UX     █████████████████░░░   ~88 %  ⚠️ Pages secondaires absentes
+
+Après Sprint 9 (projection) :
+
+  Niveau 1 — DB Coverage     ████████████████████  ~100 %  ✅
+  Niveau 2 — API Coverage    ███████████████████░   ~93 %  ✅ (GAP-20→24 résolus)
+  Niveau 3 — Frontend UX     █████████████████░░░   ~88 %  ⚠️ Pages secondaires toujours absentes
 ```
 
-**Ce qui est couvert à 100 % :** tous les **flux métier critiques** d’un club de sport — inscription, cours, présences, paiements, messagerie, notifications, familles, groupes, réservations, alertes, statistiques, paramètres.
+**Ce qui est couvert à 100 % :** tous les **flux métier critiques** d'un club de sport — inscription, cours, présences, paiements, messagerie, notifications, familles, groupes, réservations, statistiques, paramètres. Navigation entièrement restructurée (sidebar épurée, fonctionnalités intégrées en onglets).
 
-**Ce qui manquera encore :** fonctionnalités de confort admin (exports, imports, recherche), quelques pages UX secondaires, et les intégrations externes (Stripe Portal, impression PDF). Ce sont les priorités d’un **Sprint 10 production-ready** hypothétique.
+**Ce qui manquera encore :** fonctionnalités de confort admin (exports, imports, recherche), quelques pages UX secondaires, et les intégrations externes (Stripe Portal, impression PDF). Ce sont les priorités d'un **Sprint 10 production-ready** hypothétique.
 
 ---
 
-*End of Gap Analysis — ClubManager V3 — v4.4 schema*
+## Section 6: Technical Debt Log
+
+> Journal des corrections de dette technique effectuées hors gaps fonctionnels.
+
+### Sprint Hotfix — Post-Sprint 5
+
+#### 🔧 Merge Conflicts résolus (5 fichiers)
+
+| Fichier | Type de problème | Résolution |
+|---|---|---|
+| `AuthController.ts` | Marqueurs git `<<<<<<`/`>>>>>>>` non résolus — méthode `getLoginAttempts` (GAP-14) vs `getSessions`+`revokeSession` (GAP-18) | Les deux méthodes conservées |
+| `SchedulesTab.tsx` | State `useState` × 3 imports dupliqués, state × 2, modales `showCreate`/`showGenerate` × 2 | Imports et JSX dédupliqués |
+| `NotificationsPage.tsx` | `<BroadcastNotificationModal>` hors du root JSX | Enveloppé dans Fragment `<>` |
+| `PaymentScheduleController.ts` | Imports × 5 + déclarations module-level × 5 + méthodes `createSchedule`/`generateSchedules` × 5 | Fichier réécrit proprement |
+| `003_add_messages_archived.sql` | Syntaxe `ADD COLUMN IF NOT EXISTS` invalide en MySQL (MariaDB only) | Réécriture avec pattern `INFORMATION_SCHEMA` |
+
+#### 🗄️ Migrations DB appliquées
+
+| Migration | Action | Résultat |
+|---|---|---|
+| `003_add_messages_archived.sql` | `ALTER TABLE messages ADD COLUMN archived` + index | ✅ Appliquée |
+| `DROP TABLE IF EXISTS validation_tokens` | Suppression table inutilisée (GAP-19) | ✅ Appliquée (0 lignes confirmées) |
+
+#### 🧭 Navigation restructurée
+
+6 pages standalone supprimées du menu lateral et intégrées comme onglets dans leurs pages parentes. Voir tableau complet en Section 5 Niveau 3.
+
+#### 🔍 Scan backend complet
+
+38 fichiers analysés (22 controllers + 15 routes + `app.ts`) — 4 patterns de duplication vérifiés. Résultat : **100% clean** après les corrections ci-dessus.
+
+---
+
+*End of Gap Analysis — ClubManager V3 — v4.4 schema — Last updated: Sprint Hotfix*
