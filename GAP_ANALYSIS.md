@@ -775,14 +775,15 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-09: Admin Notification Broadcast
+#### ~~GAP-09: Admin Notification Broadcast~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
-| **DB tables** | `notifications` |
-| **Backend work** | Add `POST /api/notifications` (admin: create notification for specific user). Add `POST /api/notifications/broadcast` (admin: send to all members or a group). |
-| **Frontend work** | Add notification creation section to admin dashboard or notification admin page. |
-| **Complexity** | 🟡 **Small–Medium** — Backend: 2 endpoints. Frontend: modal/form in existing notifications page. |
+| **DB tables** | `notifications`, `utilisateurs` |
+| **Backend work** | ✅ `POST /api/notifications/broadcast` — `BroadcastNotificationUseCase` + bulk INSERT par cible (`tous`/`admin`/`professor`/`member`). |
+| **Frontend work** | ✅ `BroadcastNotificationModal` admin + bouton violet `BullhornIcon` dans `NotificationsPage` (visible admin uniquement). |
+| **Complexity** | 🟡 **Small–Medium** — Backend : 2 endpoints. Frontend : modal/form in existing notifications page. |
+| **Sprint** | Sprint 5 ✅ |
 
 ---
 
@@ -831,14 +832,15 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-14: Security Audit Logs (Admin)
+#### ~~GAP-14: Security Audit Logs (Admin)~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
-| **DB tables** | `login_attempts`, `auth_attempts` |
-| **Backend work** | Add `GET /api/auth/audit/login-attempts` (admin: paginated log viewer with filters). |
-| **Frontend work** | Add "Security" tab to `SettingsPage` or admin-only security audit page. |
-| **Complexity** | 🟡 **Small–Medium** — 1 endpoint; simple table UI. |
+| **DB tables** | `login_attempts` |
+| **Backend work** | ✅ `GET /api/auth/audit/login-attempts` — paginé, filtrable par email/IP/échecs, admin only. |
+| **Frontend work** | ✅ `SecuritySection` + onglet "Sécurité" (`ShieldCheckIcon`) dans `SettingsPage` avec tableau filtrable et pagination. |
+| **Complexity** | 🟡 **Small–Medium** — 1 endpoint ; simple table UI. |
+| **Sprint** | Sprint 5 ✅ |
 
 ---
 
@@ -878,14 +880,15 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-18: Active Sessions / Device Management
+#### ~~GAP-18: Active Sessions / Device Management~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `refresh_tokens` |
-| **Backend work** | Add `GET /api/auth/sessions` (list own active sessions). Add `DELETE /api/auth/sessions/:id` (revoke specific session). |
-| **Frontend work** | Add "Active Sessions" section to `ProfilePage`. |
+| **Backend work** | ✅ `GET /api/auth/sessions` + `DELETE /api/auth/sessions/:id` — ownership garanti (`user_id`). |
+| **Frontend work** | ✅ `ActiveSessionsSection` dans `ProfilePage` — liste sessions avec IP/UA/dates + bouton Révoquer. |
 | **Complexity** | 🟢 **Small** — 2 endpoints + ProfilePage section. |
+| **Sprint** | Sprint 5 ✅ |
 
 ---
 
@@ -907,13 +910,13 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 | Domain | Backend | Frontend | Overall |
 |---|---|---|---|
-| Authentication / Security | ✅ ~90% | ✅ ~85% | ⚠️ 87% |
+| Authentication / Security | ✅ ~98% | ✅ ~92% | ✅ 95% |
 | Users & Profiles | ✅ ~95% | ✅ ~95% | ✅ 95% |
 | Courses & Attendance | ✅ ~95% | ⚠️ ~65% | ⚠️ 80% |
 | Payments & Subscriptions | ✅ ~95% | ✅ ~85% | ✅ 90% |
 | Store (E-commerce) | ✅ 100% | ✅ 100% | ✅ 100% |
 | Messaging | ✅ ~95% | ✅ ~90% | ✅ 92% |
-| Notifications | ✅ ~85% | ✅ ~95% | ✅ 90% |
+| Notifications | ✅ ~97% | ✅ ~100% | ✅ 98% |
 | **Alerts** | ❌ **0%** | ❌ **0%** | ❌ **0%** |
 | Groups | ✅ 100% | ✅ 100% | ✅ 100% |
 | Families | ⚠️ ~60% | ⚠️ ~50% | ⚠️ 55% |
@@ -941,9 +944,9 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | **Sprint 4** | 🟢 Low/Small | GAP-10 (notification delete) | 0.5 day | ✅ Done |
 | **Sprint 4** | 🟢 Small | GAP-16 (message archiving) | 0.5 day | ✅ Done |
 | **Sprint 4** | 🟢 Low | GAP-19 (validation_tokens audit) | 0.5 day | ✅ Done |
-| Sprint 5 | 🟡 Medium | GAP-09 (broadcast notifications) | 1 day | ⏳ Next |
-| Sprint 5 | 🟡 Medium | GAP-14 (security audit logs) | 1 day | ⏳ Next |
-| Sprint 5 | 🟢 Small | GAP-18 (active sessions) | 1 day | ⏳ Next |
+| **Sprint 5** | 🟡 Medium | GAP-09 (broadcast notifications) | 1 day | ✅ Done |
+| **Sprint 5** | 🟡 Medium | GAP-14 (security audit logs) | 1 day | ✅ Done |
+| **Sprint 5** | 🟢 Small | GAP-18 (active sessions) | 1 day | ✅ Done |
 | Sprint 6 | 🟠 High | GAP-06 (families admin) | 2 days | ⏳ |
 | Sprint 6 | 🟡 Medium | GAP-15 (email change) | 1.5 days | ⏳ |
 | Sprint 7 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days | ⏳ |
@@ -954,7 +957,8 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 **Completed Sprint 2:** 2 developer days — 2 gaps fully closed (GAP-03 ✅, GAP-04 ✅)  
 **Completed Sprint 3:** 4.5 developer days — 3 gaps fully closed (GAP-05 ✅, GAP-12 ✅, GAP-13 ✅)  
 **Completed Sprint 4:** ~1.5 developer days — 3 gaps fully closed (GAP-10 ✅, GAP-16 ✅, GAP-19 ✅)  
-**Total estimated remaining work: ~12–14 developer days**
+**Completed Sprint 5:** ~3 developer days — 3 gaps fully closed (GAP-09 ✅, GAP-14 ✅, GAP-18 ✅)  
+**Total estimated remaining work: ~9–11 developer days**
 
 ---
 
