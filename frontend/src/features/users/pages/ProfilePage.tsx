@@ -15,6 +15,7 @@ import { useGenres } from '@/shared/hooks/useReferences';
 import { profileApi } from '../api/profileApi';
 import type { UpdateUserProfileDto } from '../api/profileApi';
 
+import { ActiveSessionsSection } from '../components/ActiveSessionsSection';
 import { Card } from '@/shared/components/Card/Card';
 import { Badge } from '@/shared/components/Badge/Badge';
 import { Button } from '@/shared/components/Button/Button';
@@ -151,6 +152,9 @@ function ProfileSkeleton() {
           </div>
         </div>
       </div>
+
+      {/* ─── Sessions actives ────────────────────────────────────────────── */}
+      <ActiveSessionsSection />
     </div>
   );
 }
@@ -753,6 +757,9 @@ export function ProfilePage() {
           </Card>
         </div>
       </div>
+
+      {/* Sessions actives */}
+      <ActiveSessionsSection />
     </div>
   );
 }

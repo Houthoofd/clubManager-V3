@@ -86,6 +86,20 @@ router.post("/reset-password", authController.resetPassword);
 router.get("/me", authMiddleware, authController.me);
 
 /**
+ * @route   GET /api/auth/sessions
+ * @desc    Sessions actives de l'utilisateur
+ * @access  Private
+ */
+router.get('/sessions', authMiddleware, (req, res) => authController.getSessions(req as any, res));
+
+/**
+ * @route   DELETE /api/auth/sessions/:id
+ * @desc    Révoque une session spécifique
+ * @access  Private
+ */
+router.delete('/sessions/:id', authMiddleware, (req, res) => authController.revokeSession(req as any, res));
+
+/**
  * @route   GET /api/auth/health
  * @desc    Health check pour l'API d'authentification
  * @access  Public

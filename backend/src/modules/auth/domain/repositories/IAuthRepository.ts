@@ -211,4 +211,20 @@ export interface IAuthRepository {
     attempts: LoginAttemptDto[];
     total: number;
   }>;
+
+  // ==================== SESSIONS ====================
+
+  /** Retourne les sessions actives (non révoquées, non expirées) d'un utilisateur */
+  getActiveSessions(userId: number): Promise<ActiveSessionDto[]>;
+
+  /** Révoque une session spécifique par son ID (vérifie l'ownership) */
+  revokeSession(sessionId: number, userId: number): Promise<boolean>;
+}
+
+export interface ActiveSessionDto {
+  id: number;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: string;
+  expires_at: string;
 }

@@ -5,8 +5,11 @@
 
 import type { User } from "@clubmanager/types";
 import { UserRole } from "@clubmanager/types";
-import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
-import type { LoginAttemptDto } from "../../domain/repositories/IAuthRepository.js";
+import type {
+  IAuthRepository,
+  LoginAttemptDto,
+  ActiveSessionDto,
+} from "../../domain/repositories/IAuthRepository.js";
 import { pool } from "@/core/database/connection.js";
 import type { RowDataPacket, ResultSetHeader } from "mysql2/promise";
 import crypto from "crypto";
@@ -495,6 +498,47 @@ export class MySQLAuthRepository implements IAuthRepository {
             : new Date(r.created_at).toISOString(),
       })),
     };
+  }
+
+  // ==================== SESSIONS ====================
+
+  /**
+   * Retourne les sessions actives (non révoquées, non expirées) d'un utilisateur
+   */
+  async getActiveSessions(userId: number): Promise<ActiveSessionDto[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT id, ip_address, user_agent, created_at, expires_at
+       FROM refresh_tokens
+       WHERE user_id = ? AND revoked = FALSE AND expires_at > NOW()
+       ORDER BY created_at DESC`,
+      [userId],
+    );
+
+    return rows.map((r) => ({
+      id: r.id,
+      ip_address: r.ip_address ?? null,
+      user_agent: r.user_agent ?? null,
+      created_at:
+        r.created_at instanceof Date
+          ? r.created_at.toISOString()
+          : new Date(r.created_at).toISOString(),
+      expires_at:
+        r.expires_at instanceof Date
+          ? r.expires_at.toISOString()
+          : new Date(r.expires_at).toISOString(),
+    }));
+  }
+
+  /**
+   * Révoque une session spécifique par son ID (vérifie l'ownership)
+   */
+  async revokeSession(sessionId: number, userId: number): Promise<boolean> {
+    const [result] = await pool.query<ResultSetHeader>(
+      `UPDATE refresh_tokens SET revoked = TRUE
+       WHERE id = ? AND user_id = ? AND revoked = FALSE`,
+      [sessionId, userId],
+    );
+    return result.affectedRows > 0;
   }
 
   // ==================== HELPER METHODS ====================
