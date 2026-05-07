@@ -34,7 +34,9 @@
     "save": "Save",
     "attendance": "Attendance",
     "saveAttendance": "Save Attendance",
-    "exportCsv": "Export CSV"
+    "exportCsv": "Export CSV",
+    "assignProfessor": "Assign",
+    "unassignProfessor": "Remove"
   },
   "loading": {
     "planning": "Loading schedule...",
@@ -143,7 +145,9 @@
       "sessionCreated": "Session created successfully",
       "sessionsGenerated": "{{count}} session(s) generated successfully",
       "attendanceSaved": "Attendance saved",
-      "attendanceExported": "Attendance sheet exported"
+      "attendanceExported": "Attendance sheet exported",
+      "professorAssigned": "Professor assigned successfully",
+      "professorUnassigned": "Professor removed successfully"
     },
     "error": {
       "generic": "An error occurred.",
@@ -154,7 +158,9 @@
       "allFieldsRequired": "Please fill in all fields.",
       "savingAttendance": "Error saving attendance.",
       "exportFailed": "Export failed",
-      "professorDeleteError": "Error deleting professor"
+      "professorDeleteError": "Error deleting professor",
+      "assignProfessorError": "Error assigning professor",
+      "unassignProfessorError": "Error removing professor"
     },
     "confirm": {
       "deleteRecurrentCourse": "Are you sure you want to delete \"{{courseType}}\" ({{day}} {{startTime}}-{{endTime}})?"

@@ -97,6 +97,11 @@ export interface ICourseRepository {
     professeur_id: number,
   ): Promise<void>;
 
+  /**
+   * Retourne la liste des IDs de professeurs assignés à un cours récurrent
+   */
+  getProfessorsForCourse(coursRecurrentId: number): Promise<number[]>;
+
   // ==================== PROFESSEURS ====================
 
   /**

@@ -34,7 +34,9 @@
     "save": "Sauvegarder",
     "attendance": "Appel",
     "saveAttendance": "Sauvegarder les présences",
-    "exportCsv": "Exporter CSV"
+    "exportCsv": "Exporter CSV",
+    "assignProfessor": "Assigner",
+    "unassignProfessor": "Retirer"
   },
   "loading": {
     "planning": "Chargement du planning...",
@@ -143,7 +145,9 @@
       "sessionCreated": "Séance créée avec succès",
       "sessionsGenerated": "{{count}} séance(s) générée(s) avec succès",
       "attendanceSaved": "Présences sauvegardées",
-      "attendanceExported": "Feuille d'appel exportée"
+      "attendanceExported": "Feuille d'appel exportée",
+      "professorAssigned": "Professeur assigné avec succès",
+      "professorUnassigned": "Professeur retiré avec succès"
     },
     "error": {
       "generic": "Une erreur est survenue.",
@@ -154,7 +158,9 @@
       "allFieldsRequired": "Veuillez remplir tous les champs.",
       "savingAttendance": "Erreur lors de la sauvegarde.",
       "exportFailed": "Erreur lors de l'export",
-      "professorDeleteError": "Erreur lors de la suppression du professeur"
+      "professorDeleteError": "Erreur lors de la suppression du professeur",
+      "assignProfessorError": "Erreur lors de l'assignation du professeur",
+      "unassignProfessorError": "Erreur lors du retrait du professeur"
     },
     "confirm": {
       "deleteRecurrentCourse": "Êtes-vous sûr de vouloir supprimer \"{{courseType}}\" ({{day}} {{startTime}}-{{endTime}}) ?"
