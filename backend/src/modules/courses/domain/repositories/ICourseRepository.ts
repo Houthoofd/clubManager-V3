@@ -173,6 +173,26 @@ export interface ICourseRepository {
   deleteInscription(id: number): Promise<void>;
 
   /**
+   * Récupère les données de présence d'une séance pour export CSV
+   */
+  getAttendanceForExport(sessionId: number): Promise<{
+    session: {
+      id: number;
+      type_cours: string;
+      date_cours: string;
+      heure_debut: string;
+      heure_fin: string;
+    };
+    professeurs: string[];
+    inscriptions: Array<{
+      nom_complet: string;
+      grade?: string;
+      present: boolean | null;
+      commentaire?: string | null;
+    }>;
+  } | null>;
+
+  /**
    * Récupère toutes les inscriptions d'un utilisateur avec les détails du cours
    * Retourne les inscriptions triées par date de cours décroissante
    */

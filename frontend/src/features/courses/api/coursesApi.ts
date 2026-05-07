@@ -257,3 +257,39 @@ export const getMyEnrollments = async (): Promise<MyEnrollmentDto[]> => {
   );
   return response.data.data!;
 };
+
+/**
+ * Exporte la feuille d'appel d'une séance en CSV et déclenche le téléchargement
+ */
+export const exportSessionAttendance = async (
+  sessionId: number,
+): Promise<void> => {
+  const response = await apiClient.get(
+    `/courses/sessions/${sessionId}/export`,
+    {
+      responseType: "blob",
+    },
+  );
+
+  // Extract filename from Content-Disposition header
+  const contentDisposition = response.headers["content-disposition"] as
+    | string
+    | undefined;
+  let filename = `appel_session_${sessionId}.csv`;
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename="?([^"]+)"?/);
+    if (match?.[1]) filename = match[1];
+  }
+
+  // Trigger browser download
+  const url = window.URL.createObjectURL(
+    new Blob([response.data], { type: "text/csv;charset=utf-8;" }),
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};

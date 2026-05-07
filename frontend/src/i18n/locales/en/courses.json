@@ -33,7 +33,8 @@
     "generate": "Generate",
     "save": "Save",
     "attendance": "Attendance",
-    "saveAttendance": "Save Attendance"
+    "saveAttendance": "Save Attendance",
+    "exportCsv": "Export CSV"
   },
   "loading": {
     "planning": "Loading schedule...",
@@ -141,7 +142,8 @@
       "professorDeleted": "Professor successfully deleted",
       "sessionCreated": "Session created successfully",
       "sessionsGenerated": "{{count}} session(s) generated successfully",
-      "attendanceSaved": "Attendance saved"
+      "attendanceSaved": "Attendance saved",
+      "attendanceExported": "Attendance sheet exported"
     },
     "error": {
       "generic": "An error occurred.",
@@ -151,6 +153,7 @@
       "firstLastNameRequired": "First name and last name are required.",
       "allFieldsRequired": "Please fill in all fields.",
       "savingAttendance": "Error saving attendance.",
+      "exportFailed": "Export failed",
       "professorDeleteError": "Error deleting professor"
     },
     "confirm": {
@@ -168,7 +171,8 @@
     "saving": "Saving…",
     "generating": "Generating…",
     "creating": "Creating…",
-    "savingAttendance": "Saving…"
+    "savingAttendance": "Saving…",
+    "exporting": "Exporting…"
   },
   "myCourses": {
     "title": "My courses",

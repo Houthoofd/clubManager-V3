@@ -102,6 +102,13 @@ router.patch(
   (req, res) => ctrl.bulkUpdatePresence(req as any, res),
 );
 
+// Export attendance sheet as CSV
+router.get(
+  "/sessions/:id/export",
+  requireRole(UserRole.ADMIN, UserRole.PROFESSOR),
+  (req, res, next) => ctrl.exportSessionAttendance(req as any, res, next),
+);
+
 router.get(
   "/sessions/:id",
   requireRole(UserRole.ADMIN, UserRole.PROFESSOR, UserRole.MEMBER),
