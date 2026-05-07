@@ -19,6 +19,15 @@ export interface LoginAttemptDto {
 /**
  * Interface du repository d'authentification
  */
+
+export interface AuthAttemptDto {
+  id: number;
+  email: string;
+  ip_address: string;
+  success: boolean;
+  user_agent: string | null;
+  created_at: string;
+}
 export interface IAuthRepository {
   // ==================== USER OPERATIONS ====================
 
@@ -209,6 +218,21 @@ export interface IAuthRepository {
     onlyFailed?: boolean;
   }): Promise<{
     attempts: LoginAttemptDto[];
+    total: number;
+  }>;
+
+
+  /**
+   * Retourne les tentatives d'authentification générales, paginées et filtrables
+   */
+  getAuthAttempts(params: {
+    page: number;
+    limit: number;
+    email?: string;
+    ip?: string;
+    onlyFailed?: boolean;
+  }): Promise<{
+    attempts: AuthAttemptDto[];
     total: number;
   }>;
 

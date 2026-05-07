@@ -8,6 +8,7 @@ import { UserRole } from "@clubmanager/types";
 import type {
   IAuthRepository,
   LoginAttemptDto,
+  AuthAttemptDto,
   ActiveSessionDto,
 } from "../../domain/repositories/IAuthRepository.js";
 import { pool } from "@/core/database/connection.js";
@@ -492,6 +493,68 @@ export class MySQLAuthRepository implements IAuthRepository {
         success: Boolean(r.success),
         user_agent: r.user_agent ?? null,
         failure_reason: r.failure_reason ?? null,
+        created_at:
+          r.created_at instanceof Date
+            ? r.created_at.toISOString()
+            : new Date(r.created_at).toISOString(),
+      })),
+    };
+  }
+
+
+    // ==================== AUDIT (auth_attempts) ====================
+
+  /**
+   * Récupère les tentatives d'authentification générales, paginées et filtrables
+   */
+  async getAuthAttempts(params: {
+    page: number;
+    limit: number;
+    email?: string;
+    ip?: string;
+    onlyFailed?: boolean;
+  }): Promise<{ attempts: AuthAttemptDto[]; total: number }> {
+    const conditions: string[] = [];
+    const queryParams: any[] = [];
+
+    if (params.email) {
+      conditions.push("email LIKE ?");
+      queryParams.push(`%${params.email}%`);
+    }
+    if (params.ip) {
+      conditions.push("ip_address LIKE ?");
+      queryParams.push(`%${params.ip}%`);
+    }
+    if (params.onlyFailed) {
+      conditions.push("success = FALSE");
+    }
+
+    const where =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+    const offset = (params.page - 1) * params.limit;
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM auth_attempts ${where}`,
+      queryParams,
+    );
+    const total = (countRows[0] as { total: number }).total;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT id, email, ip_address, success, user_agent, created_at
+       FROM auth_attempts ${where}
+       ORDER BY created_at DESC
+       LIMIT ? OFFSET ?`,
+      [...queryParams, params.limit, offset],
+    );
+
+    return {
+      total,
+      attempts: rows.map((r) => ({
+        id: r.id,
+        email: r.email,
+        ip_address: r.ip_address,
+        success: Boolean(r.success),
+        user_agent: r.user_agent ?? null,
         created_at:
           r.created_at instanceof Date
             ? r.created_at.toISOString()

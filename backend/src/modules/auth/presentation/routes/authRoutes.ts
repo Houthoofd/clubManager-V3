@@ -141,4 +141,13 @@ router.get("/audit/login-attempts", authMiddleware, (req, res) =>
   authController.getLoginAttempts(req as any, res),
 );
 
+/**
+ * @route   GET /api/auth/audit/auth-attempts
+ * @desc    Liste les tentatives d'authentification générales (admin)
+ * @access  Private + Admin
+ */
+router.get("/audit/auth-attempts", authMiddleware, (req, res) =>
+  authController.getAuthAttempts(req as any, res),
+);
+
 export default router;
