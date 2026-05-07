@@ -100,7 +100,7 @@ export function LocalizationSection({
             onChange={(val) => handleLanguageChange(val.toString())}
             options={availableLanguages.map((lang) => ({
               value: lang.code,
-              label: `${lang.flag} ${lang.label}`,
+              label: lang.label,
             }))}
             disabled={isChangingLanguage}
           />

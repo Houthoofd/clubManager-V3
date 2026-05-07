@@ -279,7 +279,7 @@ export const MessagesPage = () => {
                     activeTab === "inbox" ? (
                       <InboxIcon style={{ fontSize: "48px" }} />
                     ) : activeTab === "archived" ? (
-                      <span style={{ fontSize: "48px" }}>📦</span>
+                      <ArchiveIcon style={{ fontSize: "48px" }} />
                     ) : (
                       <PaperPlaneIcon style={{ fontSize: "48px" }} />
                     )

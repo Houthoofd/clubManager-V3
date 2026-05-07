@@ -72,8 +72,8 @@ export type Namespace = (typeof namespaces)[number];
  * Langues supportées par l'application
  */
 export const supportedLanguages = [
-  { code: "fr", label: "Français", flag: "🇫🇷" },
-  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "fr", label: "Français", flag: "FR" },
+  { code: "en", label: "English", flag: "EN" },
   // Langues futures extensibles
   // { code: 'nl', label: 'Nederlands', flag: '🇳🇱' },
   // { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
