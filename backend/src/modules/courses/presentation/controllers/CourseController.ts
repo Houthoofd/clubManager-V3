@@ -36,6 +36,11 @@ import { DeleteInscriptionUseCase } from "../../application/use-cases/DeleteInsc
 import { GetMyEnrollmentsUseCase } from "../../application/use-cases/GetMyEnrollmentsUseCase.js";
 import { ExportSessionAttendanceUseCase } from "../../application/use-cases/ExportSessionAttendanceUseCase.js";
 
+// Use Cases — assignation professeurs à un cours récurrent
+import { AssignProfessorToCourseUseCase } from "../../application/use-cases/AssignProfessorToCourseUseCase.js";
+import { UnassignProfessorFromCourseUseCase } from "../../application/use-cases/UnassignProfessorFromCourseUseCase.js";
+import { GetCourseProfessorsUseCase } from "../../application/use-cases/GetCourseProfessorsUseCase.js";
+
 // ==================== INSTANTIATION ====================
 
 const repo = new MySQLCourseRepository();
@@ -67,6 +72,11 @@ const bulkUpdatePresenceUC = new BulkUpdatePresenceUseCase(repo);
 const deleteInscriptionUC = new DeleteInscriptionUseCase(repo);
 const getMyEnrollmentsUC = new GetMyEnrollmentsUseCase(repo);
 const exportSessionAttendanceUC = new ExportSessionAttendanceUseCase(repo);
+
+// Assignation professeurs à un cours récurrent
+const assignProfessorUC = new AssignProfessorToCourseUseCase(repo);
+const unassignProfessorUC = new UnassignProfessorFromCourseUseCase(repo);
+const getCourseProfessorsUC = new GetCourseProfessorsUseCase(repo);
 
 // ==================== CONTROLLER ====================
 
@@ -559,4 +569,96 @@ export class CourseController {
       next(error);
     }
   }
+
+  // ==================== ASSIGNATION PROFESSEURS À UN COURS RÉCURRENT ====================
+
+  /**
+   * GET /api/courses/:id/professors
+   * Retourne la liste des IDs de professeurs assignés à un cours récurrent
+   */
+  getCourseProfessors = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const id = Number(req.params.id);
+      if (isNaN(id)) {
+        res.status(400).json({ success: false, message: "ID invalide" });
+        return;
+      }
+      const professorIds = await getCourseProfessorsUC.execute(id);
+      res.status(200).json({ success: true, data: professorIds });
+    } catch (error: any) {
+      if (error.message.includes("introuvable")) {
+        res.status(404).json({ success: false, message: error.message });
+        return;
+      }
+      next(error);
+    }
+  };
+
+  /**
+   * POST /api/courses/:id/professors
+   * Assigne un professeur à un cours récurrent
+   */
+  assignProfessorToCourse = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const courseId = Number(req.params.id);
+      if (isNaN(courseId)) {
+        res.status(400).json({ success: false, message: "ID invalide" });
+        return;
+      }
+      const { professor_id } = req.body;
+      if (!professor_id) {
+        res
+          .status(400)
+          .json({ success: false, message: "professor_id requis" });
+        return;
+      }
+      await assignProfessorUC.execute(courseId, Number(professor_id));
+      res
+        .status(201)
+        .json({ success: true, message: "Professeur assigné avec succès" });
+    } catch (error: any) {
+      if (error.message.includes("introuvable")) {
+        res.status(404).json({ success: false, message: error.message });
+        return;
+      }
+      next(error);
+    }
+  };
+
+  /**
+   * DELETE /api/courses/:id/professors/:professorId
+   * Retire un professeur d'un cours récurrent
+   */
+  unassignProfessorFromCourse = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const courseId = Number(req.params.id);
+      const professorId = Number(req.params.professorId);
+      if (isNaN(courseId) || isNaN(professorId)) {
+        res.status(400).json({ success: false, message: "ID invalide" });
+        return;
+      }
+      await unassignProfessorUC.execute(courseId, professorId);
+      res
+        .status(200)
+        .json({ success: true, message: "Professeur retiré avec succès" });
+    } catch (error: any) {
+      if (error.message.includes("introuvable")) {
+        res.status(404).json({ success: false, message: error.message });
+        return;
+      }
+      next(error);
+    }
+  };
 }

@@ -535,6 +535,17 @@ export class MySQLCourseRepository implements ICourseRepository {
     );
   }
 
+  /**
+   * Retourne la liste des IDs de professeurs assignés à un cours récurrent
+   */
+  async getProfessorsForCourse(coursRecurrentId: number): Promise<number[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT professeur_id FROM cours_recurrent_professeur WHERE cours_recurrent_id = ?`,
+      [coursRecurrentId],
+    );
+    return rows.map((r: any) => r.professeur_id);
+  }
+
   // ==================== PROFESSEURS ====================
 
   /**

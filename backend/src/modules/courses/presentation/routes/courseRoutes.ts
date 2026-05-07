@@ -126,6 +126,24 @@ router.delete(
 // These must come last — /:id would otherwise shadow every fixed
 // path segment defined above.
 
+// --- Assignation professeurs à un cours récurrent ---
+// Placées avant /:id (GET/PUT/DELETE) car elles ont plus de segments.
+router.get(
+  "/:id/professors",
+  requireRole(UserRole.ADMIN, UserRole.PROFESSOR),
+  (req, res, next) => ctrl.getCourseProfessors(req as any, res, next),
+);
+
+router.post("/:id/professors", requireRole(UserRole.ADMIN), (req, res, next) =>
+  ctrl.assignProfessorToCourse(req as any, res, next),
+);
+
+router.delete(
+  "/:id/professors/:professorId",
+  requireRole(UserRole.ADMIN),
+  (req, res, next) => ctrl.unassignProfessorFromCourse(req as any, res, next),
+);
+
 router.post("/", requireRole(UserRole.ADMIN), (req, res) =>
   ctrl.createCourseRecurrent(req as any, res),
 );

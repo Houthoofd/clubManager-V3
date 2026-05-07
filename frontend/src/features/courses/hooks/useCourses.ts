@@ -362,3 +362,58 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
     clearError: () => {},
   };
 };
+
+// ─── Professor Assignment Hooks ────────────────────────────────────────────────────────────────────────
+
+/**
+ * Récupère les IDs de professeurs assignés à un cours récurrent.
+ * Désactivé automatiquement si courseId est null.
+ */
+export const useCourseProfessors = (courseId: number | null) =>
+  useQuery({
+    queryKey: ["courses", courseId, "professors"],
+    queryFn: () => coursesApi.getCourseProfessors(courseId!),
+    enabled: !!courseId,
+  });
+
+/**
+ * Mutation pour assigner un professeur à un cours récurrent.
+ * Invalide le cache du cours et de ses professeurs après succès.
+ */
+export const useAssignProfessor = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      courseId,
+      professorId,
+    }: {
+      courseId: number;
+      professorId: number;
+    }) => coursesApi.assignProfessorToCourse(courseId, professorId),
+    onSuccess: (_data, { courseId }) => {
+      qc.invalidateQueries({ queryKey: ["courses", courseId] });
+      qc.invalidateQueries({ queryKey: ["courses", courseId, "professors"] });
+    },
+  });
+};
+
+/**
+ * Mutation pour retirer un professeur d'un cours récurrent.
+ * Invalide le cache du cours et de ses professeurs après succès.
+ */
+export const useUnassignProfessor = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      courseId,
+      professorId,
+    }: {
+      courseId: number;
+      professorId: number;
+    }) => coursesApi.unassignProfessorFromCourse(courseId, professorId),
+    onSuccess: (_data, { courseId }) => {
+      qc.invalidateQueries({ queryKey: ["courses", courseId] });
+      qc.invalidateQueries({ queryKey: ["courses", courseId, "professors"] });
+    },
+  });
+};

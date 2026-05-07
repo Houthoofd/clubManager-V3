@@ -293,3 +293,39 @@ export const exportSessionAttendance = async (
   link.remove();
   window.URL.revokeObjectURL(url);
 };
+
+// ─── Professor Assignment (cours récurrent) ───────────────────────────────────
+
+/**
+ * Récupère les IDs de professeurs assignés à un cours récurrent
+ */
+export const getCourseProfessors = async (
+  courseId: number,
+): Promise<number[]> => {
+  const response = await apiClient.get<ApiResponse<number[]>>(
+    `/courses/${courseId}/professors`,
+  );
+  return response.data.data!;
+};
+
+/**
+ * Assigne un professeur à un cours récurrent
+ */
+export const assignProfessorToCourse = async (
+  courseId: number,
+  professorId: number,
+): Promise<void> => {
+  await apiClient.post(`/courses/${courseId}/professors`, {
+    professor_id: professorId,
+  });
+};
+
+/**
+ * Retire un professeur d'un cours récurrent
+ */
+export const unassignProfessorFromCourse = async (
+  courseId: number,
+  professorId: number,
+): Promise<void> => {
+  await apiClient.delete(`/courses/${courseId}/professors/${professorId}`);
+};
