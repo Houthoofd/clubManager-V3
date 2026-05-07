@@ -806,14 +806,15 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-11: Statistics — Snapshot Persistence (statistiques table)
+#### ~~GAP-11: Statistics — Snapshot Persistence (statistiques table)~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `statistiques` |
-| **Backend work** | Add a cron job or admin-triggered `POST /api/statistics/snapshot` that writes current computed stats to the `statistiques` table. Add `GET /api/statistics/history` to read historical snapshots. |
-| **Frontend work** | Add historical view/chart in `FinanceStatsPage` and `MembersStatsPage` using snapshots instead of live data. |
-| **Complexity** | 🟠 **Medium** — Requires cron/scheduler setup; non-trivial DB aggregation writes. |
+| **Backend work** | ✅ `POST /api/statistics/snapshot` (admin) — collecte 9 métriques via `Promise.all` + `INSERT INTO statistiques`. `GET /api/statistics/history` (admin) — lecture paginée, filtrable par `?type=`. |
+| **Frontend work** | ✅ `SnapshotHistoryTable` component — bouton « Prendre un snapshot », filtre par domaine, groupement par timestamp, badges colorés. Intégré dans `FinanceStatsPage` et `MembersStatsPage`. |
+| **Complexity** | 🟠 **Medium** |
+| **Sprint** | Sprint 7 ✅ |
 
 ---
 
@@ -879,14 +880,15 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-17: Attendance Report Export
+#### ~~GAP-17: Attendance Report Export~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `inscriptions`, `cours`, `utilisateurs` |
-| **Backend work** | Add `GET /api/courses/sessions/:id/export` (returns CSV/PDF of attendance). |
-| **Frontend work** | Add Export button to the attendance sheet view in `CoursesPage`. |
-| **Complexity** | 🟡 **Small–Medium** — PDF generation library needed. |
+| **Backend work** | ✅ `GET /api/courses/sessions/:id/export` (admin + professor) — CSV avec BOM pour Excel FR, `Content-Disposition` attachment, `ExportSessionAttendanceUseCase`. |
+| **Frontend work** | ✅ Bouton « Exporter CSV » dans `AttendanceModal` footer — téléchargement blob navigateur, i18n FR/EN. |
+| **Complexity** | 🟡 **Small–Medium** |
+| **Sprint** | Sprint 7 ✅ |
 
 ---
 
@@ -1037,8 +1039,8 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | **Sprint Style 3** | 🎨 UX | `ProfilePage` — refonte layout tabulé (`PageHeader` + onglets Mon profil / Sécurité) | 0.5 day | ✅ Done |
 | **Sprint 6** | 🟠 High | **GAP-06 (families admin)** | **2 days** | ✅ **Done** |
 | ~~Sprint 6~~ | 🟡 Medium | ~~GAP-15 (email change)~~ | ~~1.5 days~~ | ✅ Done |
-| Sprint 7 | 🟡 Medium | GAP-11 (stats snapshots) | 2 days | ⏳ |
-| Sprint 7 | 🟡 Medium | GAP-17 (attendance export) | 1.5 days | ⏳ |
+| **Sprint 7** | 🟡 Medium | **GAP-11 (stats snapshots)** | **2 days** | ✅ **Done** |
+| **Sprint 7** | 🟡 Medium | **GAP-17 (attendance export)** | **1.5 days** | ✅ **Done** |
 | Sprint 8 | 🔴 Critical | GAP-01 (alerts system — full) | 5–7 days | ⏳ |
 | Sprint 9 | 🟢 Low/Medium | GAP-20 (auth_attempts read) | 0.5 day | ⏳ |
 | Sprint 9 | 🟡 Medium | GAP-21 (cours_recurrent_professeur endpoints) | 0.5 day | ⏳ |
@@ -1054,7 +1056,8 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 **Completed Sprint Hotfix:** ~1.5 developer days — dette technique résolue, navigation restructurée, codebase stable  
 **Completed Sprint Style (1–3):** ~1.5 developer days — cohérence visuelle complète (icônes TabGroup, layouts UsersPage + ProfilePage)  
 **Completed Sprint 6:** ~3 developer days — 2 gaps fully closed (GAP-06 ✅, GAP-15 ✅)  
-**Total estimated remaining work: ~6–8 developer days (Sprints 7–9)**
+**Completed Sprint 7:** ~3.5 developer days — 2 gaps fully closed (GAP-11 ✅, GAP-17 ✅)  
+**Total estimated remaining work: ~6–8 developer days (Sprint 8–9)**
 
 ---
 
