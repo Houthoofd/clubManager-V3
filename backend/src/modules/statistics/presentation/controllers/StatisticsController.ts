@@ -14,6 +14,10 @@ import { GetCourseAnalytics } from '../../application/usecases/GetCourseAnalytic
 import { GetFinancialAnalytics } from '../../application/usecases/GetFinancialAnalytics.js';
 import { GetStoreAnalytics } from '../../application/usecases/GetStoreAnalytics.js';
 import { GetTrendAnalytics } from '../../application/usecases/GetTrendAnalytics.js';
+import { CreateStatisticsSnapshot } from '../../application/usecases/CreateStatisticsSnapshot.js';
+import { GetStatisticsHistory } from '../../application/usecases/GetStatisticsHistory.js';
+import { CreateStatisticsSnapshot } from '../../application/usecases/CreateStatisticsSnapshot.js';
+import { GetStatisticsHistory } from '../../application/usecases/GetStatisticsHistory.js';
 
 /**
  * Statistics Controller
@@ -339,6 +343,38 @@ export class StatisticsController {
           timestamp: new Date(),
         });
       }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Create a statistics snapshot
+   * POST /api/statistics/snapshot
+   */
+  createSnapshot = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const useCase = new CreateStatisticsSnapshot(this.statisticsRepository);
+      const result = await useCase.execute();
+      res.status(201).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Get statistics snapshot history
+   * GET /api/statistics/history?type=membres&limit=50
+   */
+  getHistory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { type, limit } = req.query;
+      const useCase = new GetStatisticsHistory(this.statisticsRepository);
+      const history = await useCase.execute(
+        type as string | undefined,
+        limit ? parseInt(limit as string, 10) : undefined
+      );
+      res.status(200).json({ success: true, data: history });
     } catch (error) {
       next(error);
     }

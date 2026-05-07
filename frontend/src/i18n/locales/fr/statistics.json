@@ -273,5 +273,14 @@
       "noAlerts": "Aucune alerte",
       "noAlertsDescription": "Tous les articles ont un stock suffisant."
     }
+  },
+  "snapshot": {
+    "title": "Historique des Snapshots",
+    "description": "Captures ponctuelles des statistiques clés du club",
+    "take": "Prendre un snapshot",
+    "taking": "Capture en cours…",
+    "success": "{{count}} métriques sauvegardées avec succès",
+    "error": "Erreur lors de la création du snapshot",
+    "empty": "Aucun snapshot disponible. Cliquez sur \"Prendre un snapshot\" pour en créer un."
   }
 }

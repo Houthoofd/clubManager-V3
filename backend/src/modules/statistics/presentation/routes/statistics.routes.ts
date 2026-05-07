@@ -7,6 +7,8 @@
  */
 
 import { Router } from 'express';
+import { authMiddleware, requireRole } from '@/shared/middleware/authMiddleware.js';
+import { UserRole } from '@clubmanager/types';
 import type { IStatisticsRepository } from '../../domain/repositories/StatisticsRepository.js';
 import { StatisticsController } from '../controllers/StatisticsController.js';
 
@@ -151,6 +153,14 @@ export const createStatisticsRouter = (
    * - Single metric value with metadata
    */
   router.get('/metrics/:metric', controller.getMetric);
+
+  // ============================================================================
+  // SNAPSHOT MANAGEMENT (admin only)
+  // ============================================================================
+
+  router.use(authMiddleware);
+  router.post('/snapshot', requireRole(UserRole.ADMIN), controller.createSnapshot);
+  router.get('/history', requireRole(UserRole.ADMIN), controller.getHistory);
 
   return router;
 };
