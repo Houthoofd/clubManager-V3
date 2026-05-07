@@ -23,6 +23,7 @@ import { ResendVerificationEmailUseCase } from "../../application/use-cases/Rese
 import { RequestPasswordResetUseCase } from "../../application/use-cases/RequestPasswordResetUseCase.js";
 import { ResetPasswordUseCase } from "../../application/use-cases/ResetPasswordUseCase.js";
 import { GetLoginAttemptsUseCase } from "../../application/use-cases/GetLoginAttemptsUseCase.js";
+import { GetAuthAttemptsUseCase } from "../../application/use-cases/GetAuthAttemptsUseCase.js";
 import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
 import { GetActiveSessionsUseCase } from "../../application/use-cases/GetActiveSessionsUseCase.js";
 import { RevokeSessionUseCase } from "../../application/use-cases/RevokeSessionUseCase.js";
@@ -40,6 +41,7 @@ export class AuthController {
   private requestPasswordResetUseCase: RequestPasswordResetUseCase;
   private resetPasswordUseCase: ResetPasswordUseCase;
   private getLoginAttemptsUseCase: GetLoginAttemptsUseCase;
+  private getAuthAttemptsUseCase: GetAuthAttemptsUseCase;
   private getActiveSessionsUseCase: GetActiveSessionsUseCase;
   private revokeSessionUseCase: RevokeSessionUseCase;
   private requestEmailChangeUseCase: RequestEmailChangeUseCase;
@@ -59,6 +61,7 @@ export class AuthController {
     );
     this.resetPasswordUseCase = new ResetPasswordUseCase(authRepository);
     this.getLoginAttemptsUseCase = new GetLoginAttemptsUseCase(authRepository);
+    this.getAuthAttemptsUseCase = new GetAuthAttemptsUseCase(authRepository);
     this.getActiveSessionsUseCase = new GetActiveSessionsUseCase(
       authRepository,
     );
@@ -447,6 +450,50 @@ export class AuthController {
       });
     } catch (error: any) {
       console.error("[AuthController.getLoginAttempts]", error);
+      res
+        .status(500)
+        .json({ success: false, message: error.message ?? "Erreur interne" });
+    }
+  };
+
+  /**
+   * GET /api/auth/audit/auth-attempts
+   * Admin only — retourne les tentatives d'authentification générales paginées
+   */
+  getAuthAttempts = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      if (req.user!.role_app !== "admin") {
+        res.status(403).json({
+          success: false,
+          message: "Accès réservé aux administrateurs",
+        });
+        return;
+      }
+
+      const page = Math.max(1, parseInt(req.query.page as string) || 1);
+      const limit = Math.min(
+        100,
+        Math.max(1, parseInt(req.query.limit as string) || 50),
+      );
+      const email = req.query.email as string | undefined;
+      const ip = req.query.ip as string | undefined;
+      const onlyFailed = req.query.onlyFailed === "true";
+
+      const result = await this.getAuthAttemptsUseCase.execute({
+        page,
+        limit,
+        email,
+        ip,
+        onlyFailed,
+      });
+
+      res.json({
+        success: true,
+        message: "Tentatives d'authentification récupérées",
+        data: result,
+      });
+    } catch (error: any) {
+      console.error("[AuthController.getAuthAttempts]", error);
       res
         .status(500)
         .json({ success: false, message: error.message ?? "Erreur interne" });
