@@ -89,6 +89,7 @@ interface PaymentStore {
   setSchedulesFilter: (key: keyof SchedulesFilters, value: string) => void;
   setSchedulesPage: (page: number) => void;
   markAsPaid: (id: number, paiementId?: number) => Promise<void>;
+  deleteSchedule: (id: number) => Promise<void>;
   clearSchedulesError: () => void;
 }
 
@@ -277,6 +278,13 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
   markAsPaid: async (id, paiementId) => {
     await paymentsApi.markScheduleAsPaid(id, paiementId);
     // Rafraîchit à la fois la liste et les retards
+    await Promise.all([get().fetchSchedules(), get().fetchOverdueSchedules()]);
+  },
+
+
+  // ── deleteSchedule ────────────────────────────────────────────────────────
+  deleteSchedule: async (id) => {
+    await paymentsApi.deleteSchedule(id);
     await Promise.all([get().fetchSchedules(), get().fetchOverdueSchedules()]);
   },
 

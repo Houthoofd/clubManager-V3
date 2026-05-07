@@ -17,6 +17,7 @@ import { MySQLPricingPlanRepository } from "../../infrastructure/repositories/My
 import { MySQLUserRepository } from "../../../users/infrastructure/repositories/MySQLUserRepository.js";
 import { CreateScheduleUseCase } from "../../application/use-cases/schedules/CreateScheduleUseCase.js";
 import { GenerateSchedulesUseCase } from "../../application/use-cases/schedules/GenerateSchedulesUseCase.js";
+import { DeleteScheduleUseCase } from "../../application/use-cases/schedules/DeleteScheduleUseCase.js";
 
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 
@@ -35,6 +36,7 @@ const generateSchedulesUC = new GenerateSchedulesUseCase(
   planRepo,
   userRepo,
 );
+const deleteScheduleUC = new DeleteScheduleUseCase(scheduleRepo);
 
 // ==================== CONTROLLER ====================
 
@@ -184,6 +186,25 @@ export class PaymentScheduleController {
       const status = error.message.includes("introuvable")
         ? 404
         : error.message.includes("pas de plan")
+          ? 400
+          : 500;
+      res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * DELETE /api/payments/schedules/:id
+   * Supprime une échéance (admin, statut != paye)
+   */
+  async deleteSchedule(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      await deleteScheduleUC.execute(id);
+      res.json({ success: true, message: "Échéance supprimée" });
+    } catch (error: any) {
+      const status = error.message.includes("introuvable")
+        ? 404
+        : error.message.includes("payée")
           ? 400
           : 500;
       res.status(status).json({ success: false, message: error.message });

@@ -140,6 +140,7 @@ export const usePaymentSchedules = () => {
     setSchedulesFilter: store.setSchedulesFilter,
     setSchedulesPage: store.setSchedulesPage,
     markAsPaid: store.markAsPaid,
+    deleteSchedule: store.deleteSchedule,
     clearSchedulesError: store.clearSchedulesError,
     refetch,
   };

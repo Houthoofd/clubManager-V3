@@ -76,4 +76,7 @@ export interface IPaymentScheduleRepository {
 
   /** Crée une nouvelle échéance et retourne son ID généré */
   create(data: CreateScheduleInput): Promise<number>;
+
+  /** Supprime une échéance par son ID */
+  delete(id: number): Promise<void>;
 }

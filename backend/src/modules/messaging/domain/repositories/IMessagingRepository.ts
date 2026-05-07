@@ -119,4 +119,13 @@ export interface IMessagingRepository {
    * cible = 'admin' | 'professor' | 'member' → filtre par role_app
    */
   getRecipientsForBroadcast(cible: string): Promise<RecipientInfo[]>;
+
+  /**
+   * Enregistre un statut dans message_status (audit trail)
+   */
+  recordMessageStatus(params: {
+    message_id: number;
+    user_id: number;
+    statut: 'envoye' | 'lu' | 'archive' | 'supprime';
+  }): Promise<void>;
 }

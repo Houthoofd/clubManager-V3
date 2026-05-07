@@ -46,6 +46,10 @@ interface SchedulesTabProps {
   // État
   markingScheduleId: number | null;
 
+  // Suppression
+  onDeleteSchedule?: (id: number) => void;
+  deletingScheduleId?: number | null;
+
   // Permissions
   isAdmin: boolean;
 
@@ -76,6 +80,8 @@ export function SchedulesTab({
   refetchSchedules,
   handleMarkAsPaid,
   markingScheduleId,
+  onDeleteSchedule,
+  deletingScheduleId,
   isAdmin,
   createSchedule,
   generateSchedules,

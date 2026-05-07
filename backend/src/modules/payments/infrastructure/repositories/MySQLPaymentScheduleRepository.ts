@@ -207,6 +207,14 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
     return result.insertId;
   }
 
+  /**
+   * Supprime définitivement une échéance par son ID
+   */
+  async delete(id: number): Promise<void> {
+    const sql = 'DELETE FROM echeances_paiements WHERE id = ?';
+    await pool.query(sql, [id]);
+  }
+
   // ==================== HELPER METHODS ====================
 
   /**

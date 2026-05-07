@@ -350,6 +350,13 @@ export const getMySchedules = async (
 };
 
 /**
+ * Supprime une échéance (admin, statut != paye)
+ */
+export const deleteSchedule = async (scheduleId: number): Promise<void> => {
+  await apiClient.delete(`/payments/schedules/${scheduleId}`);
+};
+
+/**
  * Rembourse un paiement (admin)
  */
 export const refundPayment = async (id: number): Promise<void> => {

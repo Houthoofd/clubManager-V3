@@ -53,7 +53,7 @@ export const createStatisticsRouter = (
    * Returns:
    * - Complete dashboard analytics combining all modules
    */
-  router.get('/dashboard', controller.getDashboard);
+  router.get('/dashboard', authMiddleware, requireRole(UserRole.ADMIN, UserRole.PROFESSOR), controller.getDashboard);
 
   // ============================================================================
   // MODULE-SPECIFIC ANALYTICS
@@ -70,7 +70,7 @@ export const createStatisticsRouter = (
    * Returns:
    * - Member statistics including overview, by grade, by gender, by age group
    */
-  router.get('/members', controller.getMemberAnalytics);
+  router.get('/members', authMiddleware, requireRole(UserRole.ADMIN, UserRole.PROFESSOR), controller.getMemberAnalytics);
 
   /**
    * Get course analytics
@@ -83,7 +83,7 @@ export const createStatisticsRouter = (
    * Returns:
    * - Course statistics including attendance, by type, popular courses, by day
    */
-  router.get('/courses', controller.getCourseAnalytics);
+  router.get('/courses', authMiddleware, requireRole(UserRole.ADMIN, UserRole.PROFESSOR), controller.getCourseAnalytics);
 
   /**
    * Get financial analytics
@@ -96,7 +96,7 @@ export const createStatisticsRouter = (
    * Returns:
    * - Financial statistics including revenue, payments, late payments
    */
-  router.get('/financial', controller.getFinancialAnalytics);
+  router.get('/financial', authMiddleware, requireRole(UserRole.ADMIN), controller.getFinancialAnalytics);
 
   /**
    * Get store analytics
@@ -109,7 +109,7 @@ export const createStatisticsRouter = (
    * Returns:
    * - Store statistics including sales, popular products, categories, low stock
    */
-  router.get('/store', controller.getStoreAnalytics);
+  router.get('/store', authMiddleware, requireRole(UserRole.ADMIN, UserRole.PROFESSOR), controller.getStoreAnalytics);
 
   /**
    * Get trend analytics
@@ -123,7 +123,7 @@ export const createStatisticsRouter = (
    * Returns:
    * - Trend analytics for members, attendance, and revenue over time
    */
-  router.get('/trends', controller.getTrendAnalytics);
+  router.get('/trends', authMiddleware, requireRole(UserRole.ADMIN, UserRole.PROFESSOR), controller.getTrendAnalytics);
 
   // ============================================================================
   // SPECIFIC METRICS
@@ -152,7 +152,7 @@ export const createStatisticsRouter = (
    * Returns:
    * - Single metric value with metadata
    */
-  router.get('/metrics/:metric', controller.getMetric);
+  router.get('/metrics/:metric', authMiddleware, requireRole(UserRole.ADMIN, UserRole.PROFESSOR), controller.getMetric);
 
   // ============================================================================
   // SNAPSHOT MANAGEMENT (admin only)

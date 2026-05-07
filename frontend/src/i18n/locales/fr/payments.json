@@ -371,7 +371,10 @@
     "generate": "Générer",
     "generating": "Génération...",
     "created": "Échéance créée avec succès",
-    "generatedSuccess": "échéance(s) générée(s)"
+    "generatedSuccess": "échéance(s) générée(s)",
+    "deleteButton": "Supprimer",
+    "deleteScheduleConfirm": "Êtes-vous sûr de vouloir supprimer cette échéance ?",
+    "scheduleDeleted": "Échéance supprimée"
   },
   "myPayments": {
     "title": "Mes paiements",

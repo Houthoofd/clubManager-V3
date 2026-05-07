@@ -132,6 +132,7 @@ export function PaymentsPage() {
     setSchedulesFilter,
     setSchedulesPage,
     markAsPaid,
+    deleteSchedule,
     clearSchedulesError,
     refetch: refetchSchedules,
   } = usePaymentSchedules();
@@ -214,6 +215,8 @@ export function PaymentsPage() {
   const [deletingPlanId, setDeletingPlanId] = useState<number | null>(null);
   const [markingScheduleId, setMarkingScheduleId] = useState<number | null>(
     null,
+  const [deletingScheduleId, setDeletingScheduleId] = useState<number | null>(null);
+
   );
 
   // ── Propagation des erreurs du store vers les toasts ──────────────────────
@@ -318,15 +321,31 @@ export function PaymentsPage() {
   // ── Configuration colonnes DataTable ──────────────────────────────────────
   const paymentsColumns = useMemo(() => createPaymentsColumns(t), [t]);
 
+  // ── Handler suppression échéance ──────────────────────────────────────────────
+  const handleDeleteSchedule = async (id: number) => {
+    if (!confirm(t("schedule.deleteScheduleConfirm"))) return;
+    setDeletingScheduleId(id);
+    try {
+      await deleteSchedule(id);
+      toast.success(t("schedule.scheduleDeleted"));
+    } catch (err: any) {
+      toast.error(err.response?.data?.message ?? err.message ?? t("messages.error"));
+    } finally {
+      setDeletingScheduleId(null);
+    }
+  };
+
   const schedulesColumns = useMemo(
     () =>
       createSchedulesColumns({
         isAdmin,
         markingScheduleId,
         onMarkAsPaid: handlers.handleMarkAsPaid,
+        onDelete: handleDeleteSchedule,
+        deletingScheduleId,
         t,
       }),
-    [isAdmin, markingScheduleId, handlers.handleMarkAsPaid, t],
+    [isAdmin, markingScheduleId, handlers.handleMarkAsPaid, deletingScheduleId, t],
   );
 
   // ── Rendu ─────────────────────────────────────────────────────────────────
@@ -386,6 +405,8 @@ export function PaymentsPage() {
             refetchSchedules={refetchSchedules}
             handleMarkAsPaid={handlers.handleMarkAsPaid}
             markingScheduleId={markingScheduleId}
+            onDeleteSchedule={handleDeleteSchedule}
+            deletingScheduleId={deletingScheduleId}
             isAdmin={isAdmin}
             createSchedule={async (data) => {
               await paymentsApi.createSchedule(data);
