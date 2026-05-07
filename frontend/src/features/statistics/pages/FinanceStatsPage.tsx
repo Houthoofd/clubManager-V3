@@ -28,6 +28,7 @@ import { PeriodSelector } from "../components/PeriodSelector";
 import { FinanceStats } from "../components/FinanceStats";
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { IconButton } from "../../../shared/components/Button/IconButton";
+import { SnapshotHistoryTable } from "../components/SnapshotHistoryTable";
 
 /**
  * FinanceStatsPage Component
@@ -167,6 +168,9 @@ export const FinanceStatsPage: React.FC = () => {
 
       {/* Main Content */}
       <FinanceStats data={data} isLoading={isLoading} error={error} />
+
+      {/* Snapshot History */}
+      <SnapshotHistoryTable />
     </div>
   );
 };

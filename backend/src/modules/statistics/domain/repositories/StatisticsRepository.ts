@@ -242,6 +242,29 @@ export interface IStatisticsRepository {
   ): Promise<DashboardAnalytics>;
 
   // ============================================================================
+  // SNAPSHOT PERSISTENCE
+  // ============================================================================
+
+  /**
+   * Create a snapshot of all current statistics.
+   * Computes current stats and persists them to the `statistiques` table.
+   * @returns Number of rows inserted and snapshot date
+   */
+  createSnapshot(): Promise<{ inserted: number; date_stat: Date }>;
+
+  /**
+   * Retrieve snapshot history from the `statistiques` table.
+   * @param type   - Optional domain filter ('membres' | 'cours' | 'finance' | 'store')
+   * @param limit  - Max rows to return (default 100)
+   */
+  getSnapshotHistory(type?: string, limit?: number): Promise<Array<{
+    type: string;
+    cle: string;
+    valeur: string;
+    date_stat: Date;
+  }>>;
+
+  // ============================================================================
   // HEALTH & UTILITY
   // ============================================================================
 

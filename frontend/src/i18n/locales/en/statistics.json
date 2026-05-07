@@ -273,5 +273,14 @@
       "noAlerts": "No alerts",
       "noAlertsDescription": "All items have sufficient stock."
     }
+  },
+  "snapshot": {
+    "title": "Snapshot History",
+    "description": "Point-in-time captures of key club statistics",
+    "take": "Take a Snapshot",
+    "taking": "Capturing…",
+    "success": "{{count}} metrics saved successfully",
+    "error": "Error creating snapshot",
+    "empty": "No snapshots yet. Click \"Take a Snapshot\" to create one."
   }
 }

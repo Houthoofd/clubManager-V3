@@ -1153,6 +1153,89 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   }
 
   // ============================================================================
+  // SNAPSHOT PERSISTENCE
+  // ============================================================================
+
+  /**
+   * Create a snapshot of all current statistics into the `statistiques` table.
+   */
+  async createSnapshot(): Promise<{ inserted: number; date_stat: Date }> {
+    const date_stat = new Date();
+
+    // Collect all current metrics in parallel
+    const [
+      totalMembres,
+      membresActifs,
+      totalCours,
+      tauxPresence,
+      totalRevenus,
+      tauxPaiement,
+      echeancesRetard,
+      totalCommandes,
+      revenusStore,
+    ] = await Promise.all([
+      this.getTotalMembers(),
+      this.getTotalMembers(true),
+      this.getTotalCourses(),
+      this.getAttendanceRate(),
+      this.getTotalRevenue(),
+      this.getPaymentSuccessRate(),
+      this.getLatePaymentsCount(),
+      this.getTotalOrders(),
+      this.getStoreRevenue(),
+    ]);
+
+    const rows: Array<[string, string, string]> = [
+      ['membres', 'total_membres',    String(totalMembres)],
+      ['membres', 'membres_actifs',   String(membresActifs)],
+      ['cours',   'total_cours',      String(totalCours)],
+      ['cours',   'taux_presence',    String(tauxPresence)],
+      ['finance', 'total_revenus',    String(totalRevenus)],
+      ['finance', 'taux_paiement',    String(tauxPaiement)],
+      ['finance', 'echeances_retard', String(echeancesRetard)],
+      ['store',   'total_commandes',  String(totalCommandes)],
+      ['store',   'revenus_store',    String(revenusStore)],
+    ];
+
+    const sql = `
+      INSERT INTO statistiques (type, cle, valeur, date_stat)
+      VALUES (?, ?, ?, ?)
+    `;
+
+    for (const [type, cle, valeur] of rows) {
+      await pool.execute(sql, [type, cle, valeur, date_stat]);
+    }
+
+    return { inserted: rows.length, date_stat };
+  }
+
+  /**
+   * Retrieve snapshot history from the `statistiques` table.
+   */
+  async getSnapshotHistory(
+    type?: string,
+    limit = 100
+  ): Promise<Array<{ type: string; cle: string; valeur: string; date_stat: Date }>> {
+    const sql = `
+      SELECT type, cle, valeur, date_stat
+      FROM statistiques
+      ${type ? 'WHERE type = ?' : ''}
+      ORDER BY date_stat DESC
+      LIMIT ?
+    `;
+
+    const params: Array<string | number> = type ? [type, limit] : [limit];
+    const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
+
+    return rows.map((row) => ({
+      type: row.type as string,
+      cle: row.cle as string,
+      valeur: row.valeur as string,
+      date_stat: new Date(row.date_stat),
+    }));
+  }
+
+  // ============================================================================
   // HEALTH & UTILITY
   // ============================================================================
 

@@ -179,3 +179,40 @@ export const refreshStatistics = async (): Promise<{
   );
   return response.data;
 };
+
+// ============================================================================
+// SNAPSHOT PERSISTENCE
+// ============================================================================
+
+export interface StatisticsSnapshotResult {
+  inserted: number;
+  date_stat: string;
+}
+
+export interface StatisticsHistoryRow {
+  type: string;
+  cle: string;
+  valeur: string;
+  date_stat: string;
+}
+
+/**
+ * Trigger a statistics snapshot (admin only)
+ */
+export const createStatisticsSnapshot = async (): Promise<StatisticsSnapshotResult> => {
+  const response = await apiClient.post<StatisticsSnapshotResult>('/statistics/snapshot');
+  return response.data;
+};
+
+/**
+ * Fetch snapshot history (admin only)
+ */
+export const getStatisticsHistory = async (
+  type?: string,
+  limit?: number
+): Promise<StatisticsHistoryRow[]> => {
+  const response = await apiClient.get<StatisticsHistoryRow[]>('/statistics/history', {
+    params: { type, limit },
+  });
+  return response.data;
+};

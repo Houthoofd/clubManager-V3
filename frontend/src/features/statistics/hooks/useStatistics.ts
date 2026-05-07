@@ -317,3 +317,41 @@ export const usePrefetchStatistics = () => {
     },
   };
 };
+
+// ============================================================================
+// SNAPSHOT HOOKS
+// ============================================================================
+
+import { useMutation } from '@tanstack/react-query';
+import {
+  createStatisticsSnapshot,
+  getStatisticsHistory,
+  type StatisticsHistoryRow,
+} from '../api/statistics.api';
+
+export const snapshotKeys = {
+  history: (type?: string) => ['statistics', 'snapshot', 'history', type] as const,
+};
+
+/**
+ * Hook to fetch snapshot history
+ */
+export const useStatisticsHistory = (type?: string, limit?: number) =>
+  useQuery<StatisticsHistoryRow[], Error>({
+    queryKey: snapshotKeys.history(type),
+    queryFn: () => getStatisticsHistory(type, limit),
+    staleTime: 2 * 60 * 1000,
+  });
+
+/**
+ * Mutation hook to trigger a snapshot
+ */
+export const useCreateSnapshot = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createStatisticsSnapshot,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['statistics', 'snapshot'] });
+    },
+  });
+};

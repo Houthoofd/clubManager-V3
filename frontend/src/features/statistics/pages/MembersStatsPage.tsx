@@ -23,6 +23,7 @@ import { PeriodSelector } from "../components/PeriodSelector";
 import { MemberStats } from "../components/MemberStats";
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { Button } from "../../../shared/components/Button/Button";
+import { SnapshotHistoryTable } from "../components/SnapshotHistoryTable";
 
 /**
  * MembersStatsPage Component
@@ -156,6 +157,9 @@ export const MembersStatsPage: React.FC = () => {
 
       {/* Main Content */}
       <MemberStats data={data} isLoading={isLoading} error={error} />
+
+      {/* Snapshot History */}
+      <SnapshotHistoryTable />
     </div>
   );
 };
