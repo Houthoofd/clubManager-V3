@@ -400,6 +400,22 @@ export class MySQLMessagingRepository implements IMessagingRepository {
     };
   }
 
+  /**
+   * Enregistre un statut dans message_status (audit trail)
+   * Note: la table message_status n'a pas de colonne user_id (cf. schéma DB)
+   */
+  async recordMessageStatus(params: {
+    message_id: number;
+    user_id: number;
+    statut: 'envoye' | 'lu' | 'archive' | 'supprime';
+  }): Promise<void> {
+    await pool.query(
+      `INSERT INTO message_status (message_id, statut, created_at)
+       VALUES (?, ?, NOW())`,
+      [params.message_id, params.statut],
+    );
+  }
+
   // ==================== HELPER METHODS ====================
 
   /**

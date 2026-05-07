@@ -371,7 +371,10 @@
     "generate": "Generate",
     "generating": "Generating...",
     "created": "Schedule created successfully",
-    "generatedSuccess": "schedule(s) generated"
+    "generatedSuccess": "schedule(s) generated",
+    "deleteButton": "Delete",
+    "deleteScheduleConfirm": "Are you sure you want to delete this schedule?",
+    "scheduleDeleted": "Schedule deleted"
   },
   "myPayments": {
     "title": "My Payments",

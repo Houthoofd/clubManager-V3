@@ -4,6 +4,7 @@
  *
  * Router configuration for the Statistics module.
  * Defines all routes for statistics pages and components.
+ * GAP-24: Finance route protected for ADMIN only.
  */
 
 import React from 'react';
@@ -13,6 +14,8 @@ import { MembersStatsPage } from './pages/MembersStatsPage';
 import { CoursesStatsPage } from './pages/CoursesStatsPage';
 import { FinanceStatsPage } from './pages/FinanceStatsPage';
 import { StoreStatsPage } from './pages/StoreStatsPage';
+import { useAuth } from '../../shared/hooks/useAuth';
+import { UserRole } from '@clubmanager/types';
 
 /**
  * Statistics Router Component
@@ -22,19 +25,16 @@ import { StoreStatsPage } from './pages/StoreStatsPage';
  *
  * Routes:
  * - /statistics -> Dashboard (default)
- * - /statistics/dashboard -> Dashboard
- * - /statistics/members -> Members Statistics
- * - /statistics/courses -> Courses Statistics
- * - /statistics/finance -> Finance Statistics
- * - /statistics/store -> Store Statistics
- *
- * @example
- * ```tsx
- * // In main App.tsx or parent router
- * <Route path="/statistics/*" element={<StatisticsRouter />} />
- * ```
+ * - /statistics/dashboard -> Dashboard (ADMIN + PROFESSOR)
+ * - /statistics/members -> Members Statistics (ADMIN + PROFESSOR)
+ * - /statistics/courses -> Courses Statistics (ADMIN + PROFESSOR)
+ * - /statistics/finance -> Finance Statistics (ADMIN only)
+ * - /statistics/store -> Store Statistics (ADMIN + PROFESSOR)
  */
 export const StatisticsRouter: React.FC = () => {
+  const { hasRole } = useAuth();
+  const isAdmin = hasRole(UserRole.ADMIN);
+
   return (
     <Routes>
       {/* Default route - redirect to dashboard */}
@@ -49,8 +49,11 @@ export const StatisticsRouter: React.FC = () => {
       {/* Courses Statistics - Attendance and course analytics */}
       <Route path="courses" element={<CoursesStatsPage />} />
 
-      {/* Finance Statistics - Revenue and payment analytics */}
-      <Route path="finance" element={<FinanceStatsPage />} />
+      {/* Finance Statistics - Revenue and payment analytics (ADMIN only) */}
+      <Route
+        path="finance"
+        element={isAdmin ? <FinanceStatsPage /> : <Navigate to="dashboard" replace />}
+      />
 
       {/* Store Statistics - Sales and inventory analytics */}
       <Route path="store" element={<StoreStatsPage />} />

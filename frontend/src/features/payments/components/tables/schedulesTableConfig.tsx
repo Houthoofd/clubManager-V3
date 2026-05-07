@@ -2,7 +2,7 @@
  * schedulesTableConfig.tsx - Configuration des colonnes pour le tableau des échéances
  */
 
-import { CheckIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, TrashIcon } from "@heroicons/react/24/outline";
 import type { TFunction } from "i18next";
 import type { Column } from "@/shared/components/Table/DataTable";
 import { Badge } from "@/shared/components";
@@ -37,6 +37,8 @@ export interface SchedulesColumnsOptions {
   isAdmin: boolean;
   markingScheduleId: number | null;
   onMarkAsPaid: (id: number) => void;
+  onDelete?: (id: number) => void;
+  deletingScheduleId?: number | null;
   t: TFunction<"payments">;
 }
 
@@ -44,6 +46,8 @@ export const createSchedulesColumns = ({
   isAdmin,
   markingScheduleId,
   onMarkAsPaid,
+  onDelete,
+  deletingScheduleId,
   t,
 }: SchedulesColumnsOptions): Column<ScheduleRow>[] => [
   {
@@ -140,6 +144,35 @@ export const createSchedulesColumns = ({
         );
       }
       return <span className="text-xs text-gray-400">—</span>;
+    },
+  },
+  {
+    key: "id",
+    label: "",
+    render: (_, row) => {
+      if (isAdmin && onDelete && row.statut !== "paye") {
+        return (
+          <button
+            type="button"
+            onClick={() => onDelete(row.id)}
+            disabled={deletingScheduleId === row.id}
+            title={t("schedule.deleteButton")}
+            className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium
+                     text-white bg-red-600 hover:bg-red-700 rounded-lg
+                     transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {deletingScheduleId === row.id ? (
+              <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <TrashIcon className="h-3.5 w-3.5" />
+            )}
+          </button>
+        );
+      }
+      return null;
     },
   },
 ];

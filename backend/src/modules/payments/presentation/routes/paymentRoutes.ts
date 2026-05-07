@@ -166,21 +166,6 @@ router.post(
   (req, res) => scheduleCtrl.createSchedule(req as any, res),
 );
 
-// POST /api/payments/schedules/generate/:userId — génère les échéances d'un user (admin)
-router.post(
-  "/schedules/generate/:userId",
-  authMiddleware,
-  requireRole(UserRole.ADMIN),
-  (req, res) => scheduleCtrl.generateSchedules(req as any, res),
-);
-
-// POST /api/payments/schedules — crée une échéance manuellement (admin)
-router.post(
-  "/schedules",
-  authMiddleware,
-  requireRole(UserRole.ADMIN),
-  (req, res) => scheduleCtrl.createSchedule(req as any, res),
-);
 
 // POST /api/payments/schedules/generate/:userId — génère les échéances d'un user (admin)
 router.post(
@@ -190,59 +175,20 @@ router.post(
   (req, res) => scheduleCtrl.generateSchedules(req as any, res),
 );
 
-// POST /api/payments/schedules — crée une échéance manuellement (admin)
-router.post(
-  "/schedules",
-  authMiddleware,
-  requireRole(UserRole.ADMIN),
-  (req, res) => scheduleCtrl.createSchedule(req as any, res),
-);
-
-// POST /api/payments/schedules/generate/:userId — génère les échéances d'un user (admin)
-router.post(
-  "/schedules/generate/:userId",
-  authMiddleware,
-  requireRole(UserRole.ADMIN),
-  (req, res) => scheduleCtrl.generateSchedules(req as any, res),
-);
-
-// POST /api/payments/schedules — crée une échéance manuellement (admin)
-router.post(
-  "/schedules",
-  authMiddleware,
-  requireRole(UserRole.ADMIN),
-  (req, res) => scheduleCtrl.createSchedule(req as any, res),
-);
-
-// POST /api/payments/schedules/generate/:userId — génère les échéances d'un user (admin)
-router.post(
-  "/schedules/generate/:userId",
-  authMiddleware,
-  requireRole(UserRole.ADMIN),
-  (req, res) => scheduleCtrl.generateSchedules(req as any, res),
-);
-
-// POST /api/payments/schedules — crée une échéance manuellement (admin)
-router.post(
-  "/schedules",
-  authMiddleware,
-  requireRole(UserRole.ADMIN),
-  (req, res) => scheduleCtrl.createSchedule(req as any, res),
-);
-
-// POST /api/payments/schedules/generate/:userId — génère les échéances d'un user (admin)
-router.post(
-  "/schedules/generate/:userId",
-  authMiddleware,
-  requireRole(UserRole.ADMIN),
-  (req, res) => scheduleCtrl.generateSchedules(req as any, res),
-);
 // PATCH /api/payments/schedules/:id/pay — marque une échéance comme payée (admin)
 router.patch(
   "/schedules/:id/pay",
   authMiddleware,
   requireRole(UserRole.ADMIN),
   (req, res) => scheduleCtrl.markAsPaid(req as any, res),
+);
+
+// DELETE /api/payments/schedules/:id — supprime une échéance (admin, statut != paye)
+router.delete(
+  "/schedules/:id",
+  authMiddleware,
+  requireRole(UserRole.ADMIN),
+  (req, res) => scheduleCtrl.deleteSchedule(req as any, res),
 );
 
 // ============================================================
