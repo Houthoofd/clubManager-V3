@@ -927,68 +927,63 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-20: `auth_attempts` — Pas de lecture admin
+#### ~~GAP-20: `auth_attempts` — Pas de lecture admin~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `auth_attempts` |
-| **Problème** | La table est écrite par le système d’auth mais n’a aucun endpoint de lecture. GAP-14 a couvert `login_attempts` uniquement. |
-| **Backend work** | Étendre `GET /api/auth/audit/login-attempts` pour interroger aussi `auth_attempts`, ou ajouter `GET /api/auth/audit/auth-attempts` séparément. |
-| **Frontend work** | Ajouter un deuxième tableau dans `SecuritySection` ou un onglet secondaire. |
-| **Complexity** | 🟢 **Small** — ~0.5j. Structure identique à `login_attempts`, code quasi-dupliqué. |
-| **Priority** | 🟢 Low |
+| **Backend work** | ✅ `GET /api/auth/audit/auth-attempts` — `AuthAttemptDto`, `GetAuthAttemptsUseCase`, handler + route (admin). Filtrable par email/ip/onlyFailed. |
+| **Frontend work** | Backend uniquement (même pattern que login-attempts). |
+| **Complexity** | 🟢 **Small** |
+| **Sprint** | Sprint 9 ✅ |
 
 ---
 
-#### GAP-21: `cours_recurrent_professeur` — Pas d’endpoint dédié d’assignation
+#### ~~GAP-21: `cours_recurrent_professeur` — Pas d'endpoint dédié d'assignation~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `cours_recurrent_professeur` |
-| **Problème** | La table de liaison cours ↔ professeurs est écrite implicitement à la création de cours mais il n’existe pas d’endpoint pour gérer ces assignations indépendamment. |
-| **Backend work** | Ajouter `POST /api/courses/:id/professors` (assigner un prof) et `DELETE /api/courses/:id/professors/:professorId` (désassigner). |
-| **Frontend work** | Ajouter un panneau d’assignation dans la vue de détail d’un cours récurrent dans `CoursesPage`. |
-| **Complexity** | 🟢 **Small** — ~0.5j. 2 endpoints simples + UI inline. |
-| **Priority** | 🟡 Medium — bloque la gestion fine des emplois du temps. |
+| **Backend work** | ✅ `GET /:id/professors`, `POST /:id/professors`, `DELETE /:id/professors/:professorId` — 3 use-cases (`Assign`, `Unassign`, `GetCourseProfessors`) + `getProfessorsForCourse()` dans le repository. |
+| **Frontend work** | ✅ `getCourseProfessors`, `assignProfessorToCourse`, `unassignProfessorFromCourse` dans `coursesApi` + hooks React Query `useCourseProfessors`, `useAssignProfessor`, `useUnassignProfessor`. |
+| **Complexity** | 🟢 **Small** |
+| **Sprint** | Sprint 9 ✅ |
 
 ---
 
-#### GAP-22: `message_status` — Statut `supprime` jamais écrit
+#### ~~GAP-22: `message_status` — Statut `supprime` jamais écrit~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `message_status` |
-| **Problème** | La table est conçue pour tracer tout le cycle de vie d’un message (`envoye` → `lu` → `archive` → `supprime`). Le statut `archive` est écrit depuis GAP-16 ✅, mais `supprime` n’est jamais inséré lors d’une suppression, et l’historique n’est pas exposé via API. |
-| **Backend work** | Écrire un enregistrement `supprime` dans `message_status` lors du `DELETE /messages/:id`. Ajouter optionnellement `GET /api/messages/:id/status-history`. |
-| **Frontend work** | Aucune (interne/audit). |
-| **Complexity** | 🟢 **Small** — ~0.25j. Modification d’un use-case existant. |
-| **Priority** | 🟢 Low — table d’audit interne, pas visible côté utilisateur. |
+| **Backend work** | ✅ `recordMessageStatus()` dans `IMessagingRepository` + `MySQLMessagingRepository`. `DeleteMessageUseCase` insère désormais `statut='supprime'` dans `message_status` avant la suppression physique. |
+| **Frontend work** | Aucune (audit interne). |
+| **Complexity** | 🟢 **Small** |
+| **Sprint** | Sprint 9 ✅ |
 
 ---
 
-#### GAP-23: `echeances_paiements` — Pas de `DELETE`
+#### ~~GAP-23: `echeances_paiements` — Pas de `DELETE`~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `echeances_paiements` |
-| **Problème** | Les échéances peuvent être créées (GAP-12 ✅) et marquées comme payées, mais aucun endpoint ne permet de les supprimer (ex : erreur de saisie, annulation d’un plan). |
-| **Backend work** | Ajouter `DELETE /api/payments/schedules/:id` (admin only, avec vérification que le statut n’est pas `paye`). |
-| **Frontend work** | Ajouter un bouton supprimer dans la vue Schedules de `PaymentsPage` (admin uniquement). |
-| **Complexity** | 🟢 **Small** — ~0.25j. 1 endpoint + 1 bouton UI. |
-| **Priority** | 🟢 Low — cas d’usage rare (correction d’erreur admin). |
+| **Backend work** | ✅ `DELETE /api/payments/schedules/:id` (admin only) — `DeleteScheduleUseCase` (garde contre statut `paye`) + `delete()` dans repo + controller handler. Suppression des doublons de routes dans `paymentRoutes.ts`. |
+| **Frontend work** | ✅ `deleteSchedule()` API fn + store action + hook + bouton TrashIcon dans `schedulesTableConfig` (admin, statut ≠ paye) + handler dans `PaymentsPage`. |
+| **Complexity** | 🟢 **Small** |
+| **Sprint** | Sprint 9 ✅ |
 
 ---
 
-#### GAP-24: `statistiques` — Role guards manquants sur les stats financières
+#### ~~GAP-24: `statistiques` — Role guards manquants sur les stats financières~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
-| **DB tables** | `statistiques` (+ toutes les tables source des agrégats) |
-| **Problème** | Les endpoints `GET /api/statistics/financial` et `GET /api/statistics/dashboard` sont accessibles à tous les rôles authentifiés. Un membre normal peut donc lire le CA, les revenus et les paiements du club. |
-| **Backend work** | Restreindre `GET /api/statistics/financial` au rôle `admin` uniquement. Garder `members`, `courses`, `store`, `trends` accessibles à `admin + professor`. Garder `dashboard` accessible à tous avec une réponse filtrée selon le rôle. |
-| **Frontend work** | Masquer l’onglet Finances dans `StatisticsPage` pour les membres. |
-| **Complexity** | 🟢 **Small** — ~0.25j. Ajout de middleware ou vérification `req.user.role_app` en haut de chaque handler concerné. |
-| **Priority** | 🟡 **Medium** — fuite de données financières sensibles vers les membres. |
+| **DB tables** | `statistiques` |
+| **Backend work** | ✅ `statistics.routes.ts` : `requireRole` sur toutes les routes — `/financial` → ADMIN seul ; `/dashboard`, `/members`, `/courses`, `/store`, `/trends`, `/metrics/:metric` → ADMIN + PROFESSOR. |
+| **Frontend work** | ✅ `StatisticsRouter.tsx` : onglet Finance masqué et route redirigée vers `/dashboard` si l'utilisateur n'est pas ADMIN. |
+| **Complexity** | 🟢 **Small** |
+| **Sprint** | Sprint 9 ✅ |
 
 ---
 
@@ -1042,11 +1037,11 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 | **Sprint 7** | 🟡 Medium | **GAP-11 (stats snapshots)** | **2 days** | ✅ **Done** |
 | **Sprint 7** | 🟡 Medium | **GAP-17 (attendance export)** | **1.5 days** | ✅ **Done** |
 | Sprint 8 | 🔴 Critical | GAP-01 (alerts system — full) | 5–7 days | ⏳ |
-| Sprint 9 | 🟢 Low/Medium | GAP-20 (auth_attempts read) | 0.5 day | ⏳ |
-| Sprint 9 | 🟡 Medium | GAP-21 (cours_recurrent_professeur endpoints) | 0.5 day | ⏳ |
-| Sprint 9 | 🟢 Low | GAP-22 (message_status supprime) | 0.25 day | ⏳ |
-| Sprint 9 | 🟢 Low | GAP-23 (echeances_paiements DELETE) | 0.25 day | ⏳ |
-| Sprint 9 | 🟡 Medium | GAP-24 (statistics role guards) | 0.25 day | ⏳ |
+| **Sprint 9** | 🟢 Low/Medium | **GAP-20 (auth_attempts read)** | **0.5 day** | ✅ **Done** |
+| **Sprint 9** | 🟡 Medium | **GAP-21 (cours_recurrent_professeur endpoints)** | **0.5 day** | ✅ **Done** |
+| **Sprint 9** | 🟢 Low | **GAP-22 (message_status supprime)** | **0.25 day** | ✅ **Done** |
+| **Sprint 9** | 🟢 Low | **GAP-23 (echeances_paiements DELETE)** | **0.25 day** | ✅ **Done** |
+| **Sprint 9** | 🟡 Medium | **GAP-24 (statistics role guards)** | **0.25 day** | ✅ **Done** |
 
 **Completed Sprint 1:** 3 developer days — 3 gaps fully closed (GAP-02 ✅, GAP-07 ✅, GAP-08 ✅)  
 **Completed Sprint 2:** 2 developer days — 2 gaps fully closed (GAP-03 ✅, GAP-04 ✅)  
@@ -1057,7 +1052,8 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 **Completed Sprint Style (1–3):** ~1.5 developer days — cohérence visuelle complète (icônes TabGroup, layouts UsersPage + ProfilePage)  
 **Completed Sprint 6:** ~3 developer days — 2 gaps fully closed (GAP-06 ✅, GAP-15 ✅)  
 **Completed Sprint 7:** ~3.5 developer days — 2 gaps fully closed (GAP-11 ✅, GAP-17 ✅)  
-**Total estimated remaining work: ~6–8 developer days (Sprint 8–9)**
+**Completed Sprint 9:** ~1.75 developer days — 5 gaps fully closed (GAP-20 ✅, GAP-21 ✅, GAP-22 ✅, GAP-23 ✅, GAP-24 ✅)  
+**Total estimated remaining work: ~5–7 developer days (Sprint 8 — GAP-01 Alerts)**
 
 ---
 
