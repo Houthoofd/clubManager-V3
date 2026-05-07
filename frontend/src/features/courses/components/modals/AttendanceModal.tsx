@@ -5,6 +5,7 @@ import { Modal } from "../../../../shared/components/Modal/Modal";
 import { Button } from "../../../../shared/components/Button/Button";
 import { SubmitButton } from "../../../../shared/components/Button/SubmitButton";
 import { LoadingSpinner } from "../../../../shared/components/Layout/LoadingSpinner";
+import { exportSessionAttendance } from "../../api/coursesApi";
 import type {
   CourseListItemDto,
   AttendanceSheetDto,
@@ -50,6 +51,7 @@ export function AttendanceModal({
     {},
   );
   const [saving, setSaving] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     if (attendanceSheet && isOpen) {
@@ -66,6 +68,19 @@ export function AttendanceModal({
       ...prev,
       [inscriptionId]: prev[inscriptionId] === 1 ? null : 1,
     }));
+  };
+
+  const handleExport = async () => {
+    if (!session) return;
+    setIsExporting(true);
+    try {
+      await exportSessionAttendance(session.id);
+      toast.success(t("messages.success.attendanceExported"));
+    } catch {
+      toast.error(t("messages.error.exportFailed"));
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleSave = async () => {
@@ -201,6 +216,13 @@ export function AttendanceModal({
         )}
       </Modal.Body>
       <Modal.Footer align="right">
+        <Button
+          variant="outline"
+          onClick={handleExport}
+          disabled={isExporting || attendanceLoading || !attendanceSheet}
+        >
+          {isExporting ? t("loadingText.exporting") : t("buttons.exportCsv")}
+        </Button>
         <Button variant="outline" onClick={onClose} disabled={saving}>
           {t("buttons.close")}
         </Button>

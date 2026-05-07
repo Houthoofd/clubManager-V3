@@ -33,7 +33,8 @@
     "generate": "Générer",
     "save": "Sauvegarder",
     "attendance": "Appel",
-    "saveAttendance": "Sauvegarder les présences"
+    "saveAttendance": "Sauvegarder les présences",
+    "exportCsv": "Exporter CSV"
   },
   "loading": {
     "planning": "Chargement du planning...",
@@ -141,7 +142,8 @@
       "professorDeleted": "Professeur supprimé avec succès",
       "sessionCreated": "Séance créée avec succès",
       "sessionsGenerated": "{{count}} séance(s) générée(s) avec succès",
-      "attendanceSaved": "Présences sauvegardées"
+      "attendanceSaved": "Présences sauvegardées",
+      "attendanceExported": "Feuille d'appel exportée"
     },
     "error": {
       "generic": "Une erreur est survenue.",
@@ -151,6 +153,7 @@
       "firstLastNameRequired": "Le prénom et le nom sont obligatoires.",
       "allFieldsRequired": "Veuillez remplir tous les champs.",
       "savingAttendance": "Erreur lors de la sauvegarde.",
+      "exportFailed": "Erreur lors de l'export",
       "professorDeleteError": "Erreur lors de la suppression du professeur"
     },
     "confirm": {
@@ -168,7 +171,8 @@
     "saving": "Enregistrement…",
     "generating": "Génération…",
     "creating": "Création…",
-    "savingAttendance": "Sauvegarde…"
+    "savingAttendance": "Sauvegarde…",
+    "exporting": "Export…"
   },
   "myCourses": {
     "title": "Mes cours",

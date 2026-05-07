@@ -4,7 +4,7 @@
  * cours récurrents, professeurs, instances de cours et inscriptions
  */
 
-import type { Response } from "express";
+import type { Response, NextFunction } from "express";
 import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
 import { MySQLCourseRepository } from "../../infrastructure/repositories/MySQLCourseRepository.js";
 
@@ -34,6 +34,7 @@ import { CreateInscriptionUseCase } from "../../application/use-cases/CreateInsc
 import { BulkUpdatePresenceUseCase } from "../../application/use-cases/BulkUpdatePresenceUseCase.js";
 import { DeleteInscriptionUseCase } from "../../application/use-cases/DeleteInscriptionUseCase.js";
 import { GetMyEnrollmentsUseCase } from "../../application/use-cases/GetMyEnrollmentsUseCase.js";
+import { ExportSessionAttendanceUseCase } from "../../application/use-cases/ExportSessionAttendanceUseCase.js";
 
 // ==================== INSTANTIATION ====================
 
@@ -65,6 +66,7 @@ const createInscriptionUC = new CreateInscriptionUseCase(repo);
 const bulkUpdatePresenceUC = new BulkUpdatePresenceUseCase(repo);
 const deleteInscriptionUC = new DeleteInscriptionUseCase(repo);
 const getMyEnrollmentsUC = new GetMyEnrollmentsUseCase(repo);
+const exportSessionAttendanceUC = new ExportSessionAttendanceUseCase(repo);
 
 // ==================== CONTROLLER ====================
 
@@ -520,6 +522,41 @@ export class CourseController {
         message: error.message,
         error: "INTERNAL_ERROR",
       });
+    }
+  }
+
+  // ==================== EXPORT ====================
+
+  /**
+   * GET /api/courses/sessions/:id/export
+   * Exporte la feuille d'appel d'une séance en CSV
+   */
+  async exportSessionAttendance(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const sessionId = Number(req.params.id);
+      if (isNaN(sessionId) || sessionId <= 0) {
+        res.status(400).json({ success: false, error: "Invalid session ID" });
+        return;
+      }
+      const result = await exportSessionAttendanceUC.execute(sessionId);
+      if (!result) {
+        res.status(404).json({ success: false, error: "Session not found" });
+        return;
+      }
+      // Send as CSV file download
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${result.filename}"`,
+      );
+      // BOM pour Excel FR
+      res.status(200).send("\uFEFF" + result.csv);
+    } catch (error) {
+      next(error);
     }
   }
 }

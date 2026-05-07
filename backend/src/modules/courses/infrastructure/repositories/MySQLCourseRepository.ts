@@ -1230,6 +1230,72 @@ export class MySQLCourseRepository implements ICourseRepository {
     ]);
   }
 
+  async getAttendanceForExport(sessionId: number) {
+    const connection = await pool.getConnection();
+    try {
+      // Récupère infos session
+      const [sessionRows] = await connection.execute<RowDataPacket[]>(
+        `SELECT c.id, cr.type_cours, c.date_cours, cr.heure_debut, cr.heure_fin
+         FROM cours c
+         JOIN cours_recurrents cr ON c.cours_recurrent_id = cr.id
+         WHERE c.id = ?`,
+        [sessionId],
+      );
+      if (!sessionRows.length) return null;
+      const session = sessionRows[0]!;
+
+      // Professeurs
+      const [profRows] = await connection.execute<RowDataPacket[]>(
+        `SELECT CONCAT(u.prenom, ' ', u.nom) AS nom_complet
+         FROM cours_recurrent_professeur crp
+         JOIN utilisateurs u ON crp.professeur_id = u.id
+         WHERE crp.cours_recurrent_id = (
+           SELECT cours_recurrent_id FROM cours WHERE id = ?
+         )`,
+        [sessionId],
+      );
+
+      // Inscriptions
+      const [insRows] = await connection.execute<RowDataPacket[]>(
+        `SELECT
+           CONCAT(u.prenom, ' ', u.nom) AS nom_complet,
+           g.nom AS grade,
+           si.status_id,
+           i.commentaire
+         FROM inscriptions i
+         JOIN utilisateurs u ON i.user_id = u.id
+         LEFT JOIN grades g ON u.grade_id = g.id
+         LEFT JOIN statuts_inscription si ON i.statut_id = si.id
+         WHERE i.cours_id = ?
+         ORDER BY u.nom, u.prenom`,
+        [sessionId],
+      );
+
+      return {
+        session: {
+          id: session.id as number,
+          type_cours: session.type_cours as string,
+          date_cours:
+            session.date_cours instanceof Date
+              ? session.date_cours.toISOString().slice(0, 10)
+              : String(session.date_cours).slice(0, 10),
+          heure_debut: String(session.heure_debut).slice(0, 5),
+          heure_fin: String(session.heure_fin).slice(0, 5),
+        },
+        professeurs: (profRows as any[]).map((p) => p.nom_complet as string),
+        inscriptions: (insRows as any[]).map((ins) => ({
+          nom_complet: ins.nom_complet as string,
+          grade: ins.grade != null ? (ins.grade as string) : undefined,
+          present:
+            ins.status_id === 1 ? true : ins.status_id === null ? null : false,
+          commentaire: ins.commentaire ?? null,
+        })),
+      };
+    } finally {
+      connection.release();
+    }
+  }
+
   /**
    * Récupère toutes les inscriptions d'un utilisateur avec les détails du cours
    * Joint la table cours et la table status pour un résultat complet
