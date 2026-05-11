@@ -148,9 +148,7 @@ export interface TransitionStatutCommande {
 // ─── API CALL ────────────────────────────────────────────────────────────────
 
 async function fetchReferences(): Promise<ReferencesData> {
-  const response = await apiClient.get<{ data: ReferencesData }>(
-    "/api/references",
-  );
+  const response = await apiClient.get<{ data: ReferencesData }>("/references");
   return response.data.data;
 }
 
@@ -158,7 +156,7 @@ async function fetchReferenceType<T extends keyof ReferencesData>(
   type: T,
 ): Promise<ReferencesData[T]> {
   const response = await apiClient.get<ReferencesData[T]>(
-    `/api/references/${type}`,
+    `/references/${type}`,
   );
   return response.data;
 }

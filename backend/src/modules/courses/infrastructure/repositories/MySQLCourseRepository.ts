@@ -1334,9 +1334,8 @@ export class MySQLCourseRepository implements ICourseRepository {
       type_cours: string;
       heure_debut: string;
       heure_fin: string;
-      status_id: number;
+      status_id: number | null;
       status_nom: string | null;
-      presence: number | null;
       commentaire: string | null;
       created_at: Date;
     }
@@ -1351,7 +1350,6 @@ export class MySQLCourseRepository implements ICourseRepository {
         c.heure_fin,
         i.status_id,
         s.nom         AS status_nom,
-        i.presence,
         i.commentaire,
         i.created_at
       FROM inscriptions i
@@ -1369,9 +1367,12 @@ export class MySQLCourseRepository implements ICourseRepository {
       type_cours: row.type_cours,
       heure_debut: row.heure_debut,
       heure_fin: row.heure_fin,
-      status_id: row.status_id,
+      status_id: row.status_id ?? 0,
       status_nom: row.status_nom ?? undefined,
-      presence: row.presence === null ? null : Boolean(row.presence),
+      // Presence is tracked via status_id (set by bulkUpdatePresence):
+      // null = not yet recorded, 1 (Actif) = present, other = absent/other status
+      presence:
+        row.status_id === null ? null : row.status_id === 1 ? true : false,
       commentaire: row.commentaire,
       created_at: new Date(row.created_at).toISOString(),
     }));
