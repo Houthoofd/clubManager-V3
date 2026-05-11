@@ -26,9 +26,14 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { parseArgs, printHelp } from './core/cli.mjs';
-import { generateTests }        from './core/engine.mjs';
-import { config as baseConfig } from './generate-tests.config.mjs';
+// ─── TODO : migration vers le package npm ────────────────────────────────────
+// Quand unitix sera publié sur npm, remplacer les 2 imports ci-dessous par :
+//   import { generateTests } from 'unitix';
+// et supprimer le dossier scripts/core/ (il sera dans le package).
+// ─────────────────────────────────────────────────────────────────────────────
+import { parseArgs, printHelp } from "./core/cli.mjs";
+import { generateTests } from "./core/engine.mjs";
+import { config as baseConfig } from "./generate-tests.config.mjs";
 
 // ─── Parse les arguments CLI ──────────────────────────────────────────────────
 
@@ -47,13 +52,13 @@ if (options.help) {
 /** @type {import('./core/types.mjs').GeneratorConfig} */
 const config = {
   ...baseConfig,
-  workspace:    options.workspace,
-  module:       options.module,
-  sprint:       options.sprint,
-  dryRun:       options.dryRun,
-  force:        options.force,
+  workspace: options.workspace,
+  module: options.module,
+  sprint: options.sprint,
+  dryRun: options.dryRun,
+  force: options.force,
   skipExisting: options.skipExisting,
-  verbose:      options.verbose,
+  verbose: options.verbose,
 };
 
 // ─── Exécution ────────────────────────────────────────────────────────────────
@@ -61,7 +66,7 @@ const config = {
 try {
   await generateTests(config);
 } catch (err) {
-  console.error('\n❌ Erreur fatale :', err.message);
+  console.error("\n❌ Erreur fatale :", err.message);
   if (options.verbose) console.error(err.stack);
   process.exit(1);
 }
