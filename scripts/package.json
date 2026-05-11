@@ -11,13 +11,13 @@
     ".": "./core/index.mjs"
   },
   "scripts": {
-    "generate":          "node generate-tests.mjs",
-    "generate:backend":  "node generate-tests.mjs --workspace=backend",
+    "generate": "node generate-tests.mjs",
+    "generate:backend": "node generate-tests.mjs --workspace=backend",
     "generate:frontend": "node generate-tests.mjs --workspace=frontend",
-    "generate:sprint1":  "node generate-tests.mjs --workspace=backend --sprint=1",
-    "generate:sprint2":  "node generate-tests.mjs --workspace=frontend --sprint=2",
-    "generate:dry":      "node generate-tests.mjs --dry-run",
-    "generate:force":    "node generate-tests.mjs --force"
+    "generate:sprint1": "node generate-tests.mjs --workspace=backend --sprint=1",
+    "generate:sprint2": "node generate-tests.mjs --workspace=frontend --sprint=2",
+    "generate:dry": "node generate-tests.mjs --dry-run",
+    "generate:force": "node generate-tests.mjs --force"
   },
   "keywords": [
     "test-generator",
@@ -34,5 +34,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@houthoofd/unitix": "^0.1.0"
   }
 }

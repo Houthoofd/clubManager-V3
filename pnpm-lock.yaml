@@ -326,6 +326,10 @@ importers:
       '@typescript-eslint/typescript-estree':
         specifier: ^8.0.0
         version: 8.59.2(typescript@5.9.3)
+    devDependencies:
+      '@houthoofd/unitix':
+        specifier: ^0.1.0
+        version: 0.1.0(typescript@5.9.3)
 
 packages:
 
@@ -1037,6 +1041,11 @@ packages:
     resolution: {integrity: sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag==}
     peerDependencies:
       react-hook-form: ^7.0.0
+
+  '@houthoofd/unitix@0.1.0':
+    resolution: {integrity: sha512-dY1QMOHr4W5DGhOZg1Q+ojynIj2nU+/iFdvaaH7M6HU2IzNHMCFxb7fhNi3TdSiwRJUaObbqL+R2s4+k4HxjUg==, tarball: https://npm.pkg.github.com/download/@houthoofd/unitix/0.1.0/a610a8a4225c0648e5f58f41e89a86bfa16d046a}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
 
   '@humanwhocodes/config-array@0.13.0':
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
@@ -6226,6 +6235,13 @@ snapshots:
   '@hookform/resolvers@3.10.0(react-hook-form@7.72.1(react@18.3.1))':
     dependencies:
       react-hook-form: 7.72.1(react@18.3.1)
+
+  '@houthoofd/unitix@0.1.0(typescript@5.9.3)':
+    dependencies:
+      '@typescript-eslint/typescript-estree': 8.59.2(typescript@5.9.3)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
 
   '@humanwhocodes/config-array@0.13.0':
     dependencies:

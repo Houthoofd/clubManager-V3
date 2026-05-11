@@ -26,13 +26,8 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-// ─── TODO : migration vers le package npm ────────────────────────────────────
-// Quand unitix sera publié sur npm, remplacer les 2 imports ci-dessous par :
-//   import { generateTests } from 'unitix';
-// et supprimer le dossier scripts/core/ (il sera dans le package).
-// ─────────────────────────────────────────────────────────────────────────────
 import { parseArgs, printHelp } from "./core/cli.mjs";
-import { generateTests } from "./core/engine.mjs";
+import { generateTests } from "@houthoofd/unitix";
 import { config as baseConfig } from "./generate-tests.config.mjs";
 
 // ─── Parse les arguments CLI ──────────────────────────────────────────────────
