@@ -7,9 +7,6 @@ packages:
 
   # Shared packages
   - "packages/*"
-
-  # Scripts / outils dev (futur package @clubmanager/test-generator)
-  - "scripts"
 allowBuilds:
   "@swc/core": false
   bcrypt: false
