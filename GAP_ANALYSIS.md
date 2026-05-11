@@ -714,7 +714,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ### 🟠 HIGH PRIORITY — Core Features Incomplete
 
-#### GAP-03: Templates — No Frontend
+#### ~~GAP-03: Templates — No Frontend~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
@@ -725,7 +725,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-04: User Soft Delete / GDPR Management
+#### ~~GAP-04: User Soft Delete / GDPR Management~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
@@ -736,7 +736,7 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-05: Member-Facing Payment Pages (Stripe Checkout + My Payments)
+#### ~~GAP-05: Member-Facing Payment Pages (Stripe Checkout + My Payments)~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
@@ -818,25 +818,27 @@ Organized by **priority** (critical first). Each item includes DB tables used, w
 
 ---
 
-#### GAP-12: Payment Schedule Creation & Auto-Generation
+#### ~~GAP-12: Payment Schedule Creation & Auto-Generation~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `echeances_paiements`, `plans_tarifaires` |
-| **Backend work** | Add `POST /api/payments/schedules` (admin: create a single deadline). Add `POST /api/payments/schedules/generate/:userId` (auto-generate schedules for a user based on their plan's `duree_mois`). |
-| **Frontend work** | Add "Generate Schedules" button in the Schedules tab of `PaymentsPage`. |
-| **Complexity** | 🟡 **Small–Medium** — Backend: 2 endpoints + date calculation logic. Frontend: minor addition. |
+| **Backend work** | ✅ `POST /api/payments/schedules` + `POST /api/payments/schedules/generate/:userId` |
+| **Frontend work** | ✅ Bouton "Générer les échéances" dans l'onglet Schedules de `PaymentsPage`. |
+| **Complexity** | 🟡 **Small–Medium** |
+| **Sprint** | Sprint 3 ✅ |
 
 ---
 
-#### GAP-13: User Subscription Assignment
+#### ~~GAP-13: User Subscription Assignment~~ ✅ COMPLETED
 
 | Aspect | Detail |
 |---|---|
 | **DB tables** | `utilisateurs` (column `abonnement_id`), `plans_tarifaires` |
-| **Backend work** | Add `PATCH /api/users/:id/subscription` to set/change a user's `abonnement_id`. |
-| **Frontend work** | Add "Assign Subscription Plan" control in admin `UsersPage` user detail panel. |
-| **Complexity** | 🟢 **Small** — 1 endpoint + dropdown in existing UI. |
+| **Backend work** | ✅ `PATCH /api/users/:id/subscription` — set/change a user's `abonnement_id`. |
+| **Frontend work** | ✅ Dropdown "Assign Subscription Plan" dans le panneau de détail admin `UsersPage`. |
+| **Complexity** | 🟢 **Small** |
+| **Sprint** | Sprint 3 ✅ |
 
 ---
 
