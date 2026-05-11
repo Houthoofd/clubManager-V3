@@ -33,6 +33,7 @@ import gradeRoutes from "./modules/grades/presentation/routes/gradeRoutes.js";
 import recoveryRoutes from "./modules/recovery/presentation/routes/recoveryRoutes.js";
 import reservationRoutes from "./modules/reservations/presentation/routes/reservationRoutes.js";
 import groupRoutes from "./modules/groups/presentation/routes/groupRoutes.js";
+import alertRoutes from "./modules/alerts/presentation/routes/alertRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -125,6 +126,7 @@ const createApp = (): Express => {
   app.use("/api/grades", gradeRoutes);
   app.use("/api/recovery", recoveryRoutes);
   app.use("/api/reservations", reservationRoutes);
+  app.use("/api/alerts", alertRoutes);
   app.use("/api/groups", groupRoutes);
 
   // ==================== ERROR HANDLING ====================
