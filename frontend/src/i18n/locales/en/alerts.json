@@ -1,0 +1,135 @@
+{
+  "page": {
+    "title": "Alerts",
+    "description": "Manage system alerts and view your personal alerts"
+  },
+  "tabs": {
+    "admin": "Alert management",
+    "myAlerts": "My alerts"
+  },
+  "alertTypes": {
+    "title": "Alert types",
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "priority": "Priority",
+      "active": "Active",
+      "actions": "Actions"
+    },
+    "actions": {
+      "create": "New type",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "empty": {
+      "title": "No alert types",
+      "description": "Start by creating an alert type."
+    },
+    "modal": {
+      "createTitle": "Create alert type",
+      "editTitle": "Edit alert type",
+      "fields": {
+        "code": "Unique code",
+        "name": "Name",
+        "description": "Description",
+        "priority": "Priority",
+        "active": "Active"
+      },
+      "placeholders": {
+        "code": "PAYMENT_OVERDUE",
+        "name": "Overdue payment"
+      }
+    },
+    "messages": {
+      "created": "Alert type created",
+      "updated": "Alert type updated",
+      "deleted": "Alert type deleted",
+      "deleteConfirm": "Delete this alert type?"
+    }
+  },
+  "userAlerts": {
+    "title": "User alerts",
+    "columns": {
+      "user": "User",
+      "type": "Type",
+      "priority": "Priority",
+      "status": "Status",
+      "detected": "Detected on",
+      "actions": "Actions"
+    },
+    "actions": {
+      "create": "Create alert",
+      "resolve": "Resolve",
+      "ignore": "Ignore",
+      "viewActions": "View actions"
+    },
+    "filters": {
+      "allStatuses": "All statuses",
+      "allPriorities": "All priorities"
+    },
+    "modal": {
+      "createTitle": "Create alert",
+      "actionsTitle": "Alert actions",
+      "fields": {
+        "userId": "User ID",
+        "type": "Alert type",
+        "notes": "Notes",
+        "context": "Context data (JSON)"
+      },
+      "resolveTitle": "Resolve alert",
+      "addActionTitle": "Add action",
+      "actionFields": {
+        "type": "Action type",
+        "description": "Description"
+      }
+    },
+    "messages": {
+      "created": "Alert created",
+      "resolved": "Alert resolved",
+      "ignored": "Alert ignored",
+      "actionAdded": "Action recorded"
+    },
+    "empty": {
+      "title": "No alerts",
+      "description": "No alerts match the selected filters."
+    }
+  },
+  "myAlerts": {
+    "title": "My alerts",
+    "filters": {
+      "allStatuses": "All statuses"
+    },
+    "empty": {
+      "title": "No alerts",
+      "description": "You have no active alerts at this time."
+    },
+    "card": {
+      "detectedOn": "Detected on",
+      "resolvedOn": "Resolved on",
+      "notes": "Notes"
+    }
+  },
+  "priority": {
+    "basse": "Low",
+    "normale": "Normal",
+    "haute": "High",
+    "critique": "Critical"
+  },
+  "status": {
+    "active": "Active",
+    "resolue": "Resolved",
+    "ignoree": "Ignored"
+  },
+  "actionTypes": {
+    "message_envoye": "Message sent",
+    "information_mise_a_jour": "Info updated",
+    "paiement_recu": "Payment received",
+    "statut_change": "Status changed",
+    "autre": "Other"
+  },
+  "errors": {
+    "loadFailed": "Loading failed",
+    "saveFailed": "Save failed",
+    "deleteFailed": "Delete failed"
+  }
+}

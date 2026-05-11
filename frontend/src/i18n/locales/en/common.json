@@ -44,7 +44,8 @@
     "templates": "Templates",
     "myCourses": "My courses",
     "myPayments": "My Payments",
-    "adminFamilies": "Families (Admin)"
+    "adminFamilies": "Families (Admin)",
+    "alerts": "Alerts"
   },
   "footer": {
     "allRightsReserved": "All rights reserved",

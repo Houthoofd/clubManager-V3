@@ -44,7 +44,8 @@
     "templates": "Modèles",
     "myCourses": "Mes cours",
     "myPayments": "Mes paiements",
-    "adminFamilies": "Familles (Admin)"
+    "adminFamilies": "Familles (Admin)",
+    "alerts": "Alertes"
   },
   "footer": {
     "allRightsReserved": "Tous droits réservés",

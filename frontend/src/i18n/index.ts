@@ -23,6 +23,7 @@ import dashboardFr from "./locales/fr/dashboard.json";
 import groupsFr from "./locales/fr/groups.json";
 import reservationsFr from "./locales/fr/reservations.json";
 import templatesFr from "./locales/fr/templates.json";
+import alertsFr from "./locales/fr/alerts.json";
 
 // Import des traductions EN
 import commonEn from "./locales/en/common.json";
@@ -40,6 +41,7 @@ import dashboardEn from "./locales/en/dashboard.json";
 import groupsEn from "./locales/en/groups.json";
 import reservationsEn from "./locales/en/reservations.json";
 import templatesEn from "./locales/en/templates.json";
+import alertsEn from "./locales/en/alerts.json";
 
 /**
  * Namespaces disponibles pour l'application
@@ -61,6 +63,7 @@ export const namespaces = [
   "groups", // Gestion des groupes
   "reservations", // Gestion des réservations
   "templates", // Gestion des modèles de messages
+  "alerts", // Gestion des alertes
 ] as const;
 
 /**
