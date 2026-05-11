@@ -8,9 +8,14 @@
   "workspaces": [
     "backend",
     "frontend",
-    "packages/*"
+    "packages/*",
+    "scripts"
   ],
   "scripts": {
+    "generate:tests": "node scripts/generate-tests.mjs",
+    "generate:tests:dry": "node scripts/generate-tests.mjs --dry-run",
+    "generate:tests:backend": "node scripts/generate-tests.mjs --workspace=backend",
+    "generate:tests:frontend": "node scripts/generate-tests.mjs --workspace=frontend",
     "dev": "concurrently -n \"backend,frontend\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run backend:dev\" \"npm run frontend:dev\"",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",

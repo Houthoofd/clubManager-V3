@@ -1,14 +1,17 @@
 packages:
   # Backend
-  - 'backend'
+  - "backend"
 
   # Frontend
-  - 'frontend'
+  - "frontend"
 
   # Shared packages
-  - 'packages/*'
+  - "packages/*"
+
+  # Scripts / outils dev (futur package @clubmanager/test-generator)
+  - "scripts"
 allowBuilds:
-  '@swc/core': false
+  "@swc/core": false
   bcrypt: false
   esbuild: false
   msw: false
