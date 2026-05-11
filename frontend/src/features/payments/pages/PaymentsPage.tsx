@@ -215,8 +215,9 @@ export function PaymentsPage() {
   const [deletingPlanId, setDeletingPlanId] = useState<number | null>(null);
   const [markingScheduleId, setMarkingScheduleId] = useState<number | null>(
     null,
-  const [deletingScheduleId, setDeletingScheduleId] = useState<number | null>(null);
-
+  );
+  const [deletingScheduleId, setDeletingScheduleId] = useState<number | null>(
+    null,
   );
 
   // ── Propagation des erreurs du store vers les toasts ──────────────────────
@@ -329,7 +330,9 @@ export function PaymentsPage() {
       await deleteSchedule(id);
       toast.success(t("schedule.scheduleDeleted"));
     } catch (err: any) {
-      toast.error(err.response?.data?.message ?? err.message ?? t("messages.error"));
+      toast.error(
+        err.response?.data?.message ?? err.message ?? t("messages.error"),
+      );
     } finally {
       setDeletingScheduleId(null);
     }
@@ -345,7 +348,13 @@ export function PaymentsPage() {
         deletingScheduleId,
         t,
       }),
-    [isAdmin, markingScheduleId, handlers.handleMarkAsPaid, deletingScheduleId, t],
+    [
+      isAdmin,
+      markingScheduleId,
+      handlers.handleMarkAsPaid,
+      deletingScheduleId,
+      t,
+    ],
   );
 
   // ── Rendu ─────────────────────────────────────────────────────────────────
