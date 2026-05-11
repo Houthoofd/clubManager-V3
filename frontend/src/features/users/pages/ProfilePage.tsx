@@ -202,6 +202,9 @@ export function ProfilePage() {
 
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
+  // ── Tab state (must be before any conditional return) ────────────────────
+  const [activeTab, setActiveTab] = useState<"profile" | "security">("profile");
+
   // Sync form when profile data arrives (or changes after mutation)
   useEffect(() => {
     if (profile) {
@@ -331,8 +334,6 @@ export function ProfilePage() {
   const initials =
     `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`.toUpperCase();
   const neverLabel = t("profile.never", "Jamais");
-
-  const [activeTab, setActiveTab] = useState<"profile" | "security">("profile");
 
   const profileTabs: Tab[] = [
     {
