@@ -44,6 +44,7 @@ import { CoursesPage } from "./features/courses/pages";
 import { StorePage } from "./features/store/pages";
 import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
 import { NotificationsPage } from "./features/notifications/pages";
+import { AlertsPage } from "./features/alerts/pages";
 import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
 
 /**
@@ -233,6 +234,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/family" element={<FamilyPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/alerts" element={<AlertsPage />} />
 
             <Route
               path="/settings"

@@ -1,0 +1,19 @@
+/**
+ * IgnoreAlertUseCase
+ * Cas d'utilisation : ignorer une alerte utilisateur
+ */
+
+import type { IAlertRepository } from '../../domain/repositories/IAlertRepository.js';
+import type { AlertUserDto } from '../../domain/types.js';
+
+export class IgnoreAlertUseCase {
+  constructor(private repo: IAlertRepository) {}
+
+  async execute(alertId: number): Promise<AlertUserDto> {
+    if (!alertId || alertId <= 0) {
+      throw new Error("L'identifiant de l'alerte est invalide");
+    }
+
+    return this.repo.ignoreAlert(alertId);
+  }
+}
