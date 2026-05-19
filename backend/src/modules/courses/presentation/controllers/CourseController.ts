@@ -434,7 +434,7 @@ export class CourseController {
   /**
    * POST /api/courses/sessions/:id/inscriptions
    * Inscrit un utilisateur à un cours
-   * L'id du cours (params) est automatiquement inclus dans le DTO
+   * Accepte `user_id` (client) ou `utilisateur_id` (DTO interne)
    */
   async createInscription(req: AuthRequest, res: Response): Promise<void> {
     try {
@@ -443,7 +443,20 @@ export class CourseController {
         res.status(400).json({ success: false, message: "ID invalide" });
         return;
       }
-      const dto = { ...req.body, cours_id };
+      // Normalisation : accepte user_id (API publique) ou utilisateur_id (DTO interne)
+      const utilisateur_id = Number(
+        req.body.utilisateur_id ?? req.body.user_id,
+      );
+      if (!utilisateur_id || isNaN(utilisateur_id)) {
+        res.status(400).json({ success: false, message: "user_id requis" });
+        return;
+      }
+      const dto = {
+        utilisateur_id,
+        cours_id,
+        status_id: req.body.status_id ?? null,
+        commentaire: req.body.commentaire,
+      };
       await createInscriptionUC.execute(dto);
       res.status(201).json({
         success: true,
@@ -469,11 +482,31 @@ export class CourseController {
 
   /**
    * PATCH /api/courses/sessions/:id/presence
-   * Met à jour en masse les statuts de présence pour un cours
+   * Met à jour en masse les statuts de présence pour un cours.
+   *
+   * Accepte deux formats :
+   *   - Format DTO interne : { updates: [{ inscription_id, status_id }] }
+   *   - Format client API : { presences: [{ inscription_id, statut: 'present'|'absent' }] }
    */
   async bulkUpdatePresence(req: AuthRequest, res: Response): Promise<void> {
     try {
-      await bulkUpdatePresenceUC.execute(req.body);
+      let updates: { inscription_id: number; status_id: number | null }[];
+
+      if (Array.isArray(req.body.presences)) {
+        // Format client : statut en chaîne → status_id numérique
+        const statutToId = (s: string): number | null =>
+          s === "present" ? 1 : null;
+        updates = req.body.presences.map(
+          (p: { inscription_id: number; statut: string }) => ({
+            inscription_id: p.inscription_id,
+            status_id: statutToId(p.statut),
+          }),
+        );
+      } else {
+        updates = req.body.updates ?? [];
+      }
+
+      await bulkUpdatePresenceUC.execute({ updates });
       res.json({
         success: true,
         message: "Présences mises à jour",

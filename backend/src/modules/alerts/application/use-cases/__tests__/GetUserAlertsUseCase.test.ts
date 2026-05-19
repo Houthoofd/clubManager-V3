@@ -2,10 +2,10 @@
  * GetUserAlertsUseCase.test.ts
  * Tests unitaires — alerts / GetUserAlertsUseCase
  * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
+ * Généré par : Unitix v0.4
  * Module     : alerts
  */
+// @unitix-source-hash: c0277471348e73b5
 
 import { GetUserAlertsUseCase } from '../GetUserAlertsUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';
@@ -13,18 +13,18 @@ import type { IAlertRepository } from '../../../domain/repositories/IAlertReposi
 // ─── Mock Repository ────────────────────────────────────────────
 
 const mockRepo: jest.Mocked<IAlertRepository> = {
-  findAllAlertTypes:     jest.fn(),
-  findAlertTypeById:     jest.fn(),
-  findAlertTypeByCode:   jest.fn(),
+  findAllAlertTypes:     jest.fn().mockResolvedValue([]),
+  findAlertTypeById:     jest.fn().mockResolvedValue(null),
+  findAlertTypeByCode:   jest.fn().mockResolvedValue(null),
   createAlertType:       jest.fn(),
   updateAlertType:       jest.fn(),
-  deleteAlertType:       jest.fn(),
-  findUserAlerts:        jest.fn(),
-  findAllActiveAlerts:   jest.fn(),
+  deleteAlertType:       jest.fn().mockResolvedValue(false),
+  findUserAlerts:        jest.fn().mockResolvedValue([]),
+  findAllActiveAlerts:   jest.fn().mockResolvedValue([]),
   createUserAlert:       jest.fn(),
   resolveAlert:          jest.fn(),
   ignoreAlert:           jest.fn(),
-  findAlertActions:      jest.fn(),
+  findAlertActions:      jest.fn().mockResolvedValue([]),
   addAlertAction:        jest.fn(),
 } as jest.Mocked<IAlertRepository>;
 
@@ -55,21 +55,22 @@ describe('GetUserAlertsUseCase', () => {
       // const input: { userId: number, statut?: AlertStatut } = { /* TODO: renseigner les paramètres */ };
 
       // Act
-      // await useCase.execute(input);
+      // const result = await useCase.execute(input);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
+      // expect(result).toEqual(expect.arrayContaining([]));
+      // expect(Array.isArray(result)).toBe(true);
       expect(true).toBe(true); // placeholder — à remplacer
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait lancer Error si une erreur interne survient', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      // mockRepo.<méthode>.mockRejectedValue(new Error('Not found'));
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
+      // await expect(useCase.execute(input)).rejects.toThrow(Error);
       expect(true).toBe(true); // placeholder — à remplacer
     });
 

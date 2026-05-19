@@ -25,7 +25,9 @@ module.exports = {
     "^@/config/(.*)$": "<rootDir>/src/config/$1",
     "^@clubmanager/types$": "<rootDir>/../packages/types/src/index.ts",
     // Relative .js imports → strip extension so Jest resolves to .ts
-    "^(\.{1,2}/.*)\.js$": "$1",
+    // FIX: double backslashes in CJS strings so \. → \. in the regex (literal dot, not wildcard)
+    // Matches ./foo.js and ../bar.js — excludes .cjs/.mjs from node_modules
+    "^(\\.{1,2}\\/.+)\\.js$": "$1",
   },
 
   transform: {

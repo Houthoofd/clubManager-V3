@@ -2,10 +2,10 @@
  * GetAdminAlertsUseCase.test.ts
  * Tests unitaires — alerts / GetAdminAlertsUseCase
  * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
+ * Généré par : Unitix v0.4
  * Module     : alerts
  */
+// @unitix-source-hash: a2373135419a46a5
 
 import { GetAdminAlertsUseCase } from '../GetAdminAlertsUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';
@@ -13,18 +13,18 @@ import type { IAlertRepository } from '../../../domain/repositories/IAlertReposi
 // ─── Mock Repository ────────────────────────────────────────────
 
 const mockRepo: jest.Mocked<IAlertRepository> = {
-  findAllAlertTypes:     jest.fn(),
-  findAlertTypeById:     jest.fn(),
-  findAlertTypeByCode:   jest.fn(),
+  findAllAlertTypes:     jest.fn().mockResolvedValue([]),
+  findAlertTypeById:     jest.fn().mockResolvedValue(null),
+  findAlertTypeByCode:   jest.fn().mockResolvedValue(null),
   createAlertType:       jest.fn(),
   updateAlertType:       jest.fn(),
-  deleteAlertType:       jest.fn(),
-  findUserAlerts:        jest.fn(),
-  findAllActiveAlerts:   jest.fn(),
+  deleteAlertType:       jest.fn().mockResolvedValue(false),
+  findUserAlerts:        jest.fn().mockResolvedValue([]),
+  findAllActiveAlerts:   jest.fn().mockResolvedValue([]),
   createUserAlert:       jest.fn(),
   resolveAlert:          jest.fn(),
   ignoreAlert:           jest.fn(),
-  findAlertActions:      jest.fn(),
+  findAlertActions:      jest.fn().mockResolvedValue([]),
   addAlertAction:        jest.fn(),
 } as jest.Mocked<IAlertRepository>;
 
@@ -59,10 +59,11 @@ describe('GetAdminAlertsUseCase', () => {
   } } = { /* TODO: renseigner les paramètres */ };
 
       // Act
-      // await useCase.execute(input);
+      // const result = await useCase.execute(input);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
+      // expect(result).toEqual(expect.arrayContaining([]));
+      // expect(Array.isArray(result)).toBe(true);
       expect(true).toBe(true); // placeholder — à remplacer
     });
 
