@@ -5,12 +5,8 @@
  * Met ensuite à jour le statut de l'échéance à 'paye'
  */
 
-import type {
-  IPaymentScheduleRepository,
-} from "../../../domain/repositories/IPaymentScheduleRepository.js";
-import type {
-  IPaymentRepository,
-} from "../../../domain/repositories/IPaymentRepository.js";
+import type { IPaymentScheduleRepository } from "../../../domain/repositories/IPaymentScheduleRepository.js";
+import type { IPaymentRepository } from "../../../domain/repositories/IPaymentRepository.js";
 
 export class MarkScheduleAsPaidUseCase {
   constructor(
@@ -28,9 +24,7 @@ export class MarkScheduleAsPaidUseCase {
       throw new Error("Cette échéance est déjà marquée comme payée");
     }
     if (schedule.statut === "annule") {
-      throw new Error(
-        "Impossible de marquer une échéance annulée comme payée",
-      );
+      throw new Error("Impossible de marquer une échéance annulée comme payée");
     }
 
     let resolvedPaiementId = paiementId;
@@ -44,7 +38,7 @@ export class MarkScheduleAsPaidUseCase {
         methode_paiement: "especes",
         statut: "valide",
         description: `Règlement automatique de l'échéance #${scheduleId}`,
-        date_paiement: new Date().toISOString(),
+        date_paiement: new Date().toISOString().slice(0, 19).replace("T", " "),
       });
     }
 
