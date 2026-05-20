@@ -108,12 +108,13 @@ async function loginAndSaveState(
     success: boolean;
     data: {
       user: Record<string, unknown>;
-      tokens: { accessToken: string; refreshToken: string };
+      accessToken: string;
+      expiresIn: number;
     };
   };
 
-  const { accessToken } = json.data.tokens;
-  const user = json.data.user;
+  // L'API retourne accessToken directement dans data (pas dans data.tokens)
+  const { accessToken, user } = json.data;
 
   // Construire le storageState Playwright
   const storageState = {
