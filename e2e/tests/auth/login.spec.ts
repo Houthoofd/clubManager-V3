@@ -63,17 +63,14 @@ test.describe("Login — Authentification", () => {
     await loginPage.login(ADMIN_USER_ID, "MauvaisMotDePasse!999");
 
     // Attendre le toast Sonner OU un élément d'erreur générique visible
-    // (plusieurs implémentations possibles selon l'état du frontend)
+    // Sonner rend les toasts avec data-sonner-toast (pas de classe CSS .sonner-toast)
     const errorVisible = await Promise.race([
-      loginPage.errorToast
+      page
+        .locator('[data-sonner-toast][data-type="error"]')
         .waitFor({ state: "visible", timeout: 5_000 })
         .then(() => true),
       page
         .locator('[role="alert"]')
-        .waitFor({ state: "visible", timeout: 5_000 })
-        .then(() => true),
-      page
-        .locator('[data-testid="login-error"]')
         .waitFor({ state: "visible", timeout: 5_000 })
         .then(() => true),
     ]).catch(() => false);
@@ -164,29 +161,14 @@ test.describe("Login — Authentification", () => {
       await page.goto("/dashboard");
       await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
 
-      // Trouver le bouton de déconnexion — plusieurs sélecteurs possibles
-      // (selon l'implémentation du layout)
-      const logoutBtn = page
-        .locator('[data-testid="logout-btn"]')
-        .or(page.getByRole("button", { name: /d[eé]connexion|logout/i }))
-        .or(page.locator('[data-testid="user-menu-logout"]'))
-        .first();
+      // Trouver le bouton de déconnexion via le menu utilisateur
+      const userMenuTrigger = page.locator('[data-testid="user-menu-trigger"]');
+      await expect(userMenuTrigger).toBeVisible({ timeout: 5_000 });
+      await userMenuTrigger.click();
 
-      // Parfois le bouton est dans un menu déroulant — essayer d'ouvrir le menu
-      const userMenuTrigger = page
-        .locator('[data-testid="user-menu-trigger"]')
-        .or(page.locator('[data-testid="avatar-btn"]'))
-        .first();
-
-      // Tenter d'ouvrir le menu si présent
-      if (
-        await userMenuTrigger.isVisible({ timeout: 2_000 }).catch(() => false)
-      ) {
-        await userMenuTrigger.click();
-        await page.waitForTimeout(300);
-      }
-
-      await expect(logoutBtn).toBeVisible({ timeout: 5_000 });
+      // Le dropdown s'ouvre, cliquer sur le bouton logout
+      const logoutBtn = page.locator('[data-testid="logout-btn"]');
+      await expect(logoutBtn).toBeVisible({ timeout: 3_000 });
       await logoutBtn.click();
 
       // Après déconnexion, on doit être redirigé vers /login

@@ -16,20 +16,22 @@
  * @playwright/test project: chromium-no-auth
  */
 
-import { test, expect } from '@playwright/test';
-import { E2E_ADMIN } from '../../setup/e2e-credentials';
+import { test, expect } from "@playwright/test";
+import { E2E_ADMIN } from "../../setup/e2e-credentials";
 
 // ============================================================
 // Helpers
 // ============================================================
 
 /** URL de base du formulaire d'inscription */
-const REGISTER_URL = '/register';
+const REGISTER_URL = "/register";
 
 /** Naviguer vers la page d'inscription et attendre le chargement */
-async function gotoRegister(page: import('@playwright/test').Page): Promise<void> {
+async function gotoRegister(
+  page: import("@playwright/test").Page,
+): Promise<void> {
   await page.goto(REGISTER_URL);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState("networkidle");
 }
 
 // ============================================================
@@ -44,32 +46,53 @@ test.describe("Register — Inscription d'un utilisateur", () => {
     await gotoRegister(page);
 
     // Vérifier que les champs clés sont visibles
-    await expect(page.locator('[data-testid="register-firstname-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="register-lastname-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="register-email-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="register-password-input"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="register-firstname-input"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="register-lastname-input"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="register-email-input"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="register-password-input"]'),
+    ).toBeVisible();
   });
 
   // ----------------------------------------------------------
   // Test 2 : Inscription valide → redirection /login + succès
   // ----------------------------------------------------------
-  test('inscription valide → redirection vers /login avec message succès', async ({ page }) => {
+  test("inscription valide → redirection vers /login avec message succès", async ({
+    page,
+  }) => {
     await gotoRegister(page);
 
     // Générer un email unique pour éviter les doublons
     const uniqueEmail = `e2e_register_${Date.now()}@test.local`;
 
-    await page.locator('[data-testid="register-firstname-input"]').fill('Test');
-    await page.locator('[data-testid="register-lastname-input"]').fill('E2E');
-    await page.locator('[data-testid="register-email-input"]').fill(uniqueEmail);
-    await page.locator('[data-testid="register-password-input"]').fill('ValidPass@E2E2024!');
+    await page.locator('[data-testid="register-firstname-input"]').fill("Test");
+    await page.locator('[data-testid="register-lastname-input"]').fill("E2E");
+    await page
+      .locator('[data-testid="register-email-input"]')
+      .fill(uniqueEmail);
 
-    // Remplir d'autres champs requis si présents (date de naissance, genre, etc.)
-    // → Ces champs sont optionnels selon l'implémentation du formulaire
+    // Date de naissance (champ requis)
     const dobInput = page.locator('[data-testid="register-dob-input"]');
-    if (await dobInput.isVisible({ timeout: 1_000 }).catch(() => false)) {
-      await dobInput.fill('1990-01-01');
-    }
+    await dobInput.fill("1990-01-01");
+
+    // Genre (select natif requis — attendre que les options soient chargées)
+    await page.waitForFunction(
+      () =>
+        (document.querySelector("#genre_id") as HTMLSelectElement)?.options
+          .length > 1,
+      { timeout: 8_000 },
+    );
+    await page.selectOption("#genre_id", { index: 1 });
+
+    await page
+      .locator('[data-testid="register-password-input"]')
+      .fill("ValidPass@E2E2024!");
 
     await page.locator('[data-testid="register-submit-btn"]').click();
 
@@ -84,19 +107,25 @@ test.describe("Register — Inscription d'un utilisateur", () => {
     await gotoRegister(page);
 
     // Utiliser l'email d'un compte E2E existant
-    await page.locator('[data-testid="register-firstname-input"]').fill('Dupliqué');
-    await page.locator('[data-testid="register-lastname-input"]').fill('Test');
-    await page.locator('[data-testid="register-email-input"]').fill(E2E_ADMIN.email);
-    await page.locator('[data-testid="register-password-input"]').fill('ValidPass@E2E2024!');
+    await page
+      .locator('[data-testid="register-firstname-input"]')
+      .fill("Dupliqué");
+    await page.locator('[data-testid="register-lastname-input"]').fill("Test");
+    await page
+      .locator('[data-testid="register-email-input"]')
+      .fill(E2E_ADMIN.email);
+    await page
+      .locator('[data-testid="register-password-input"]')
+      .fill("ValidPass@E2E2024!");
 
     await page.locator('[data-testid="register-submit-btn"]').click();
 
-    // Attendre une notification d'erreur (toast ou inline)
-    const errorVisible = await Promise.race([
-      page.locator('.sonner-toast[data-type="error"]').waitFor({ state: 'visible', timeout: 8_000 }).then(() => true),
-      page.locator('[role="alert"]').waitFor({ state: 'visible', timeout: 8_000 }).then(() => true),
-      page.locator('[data-testid="register-error"]').waitFor({ state: 'visible', timeout: 8_000 }).then(() => true),
-    ]).catch(() => false);
+    // Attendre une notification d'erreur (toast Sonner)
+    const errorVisible = await page
+      .locator('[data-sonner-toast][data-type="error"]')
+      .waitFor({ state: "visible", timeout: 8_000 })
+      .then(() => true)
+      .catch(() => false);
 
     expect(errorVisible).toBe(true);
     // On reste sur /register (ou /login si le serveur retourne une erreur async)
@@ -106,13 +135,17 @@ test.describe("Register — Inscription d'un utilisateur", () => {
   // ----------------------------------------------------------
   // Test 4 : Champ prénom manquant → validation inline
   // ----------------------------------------------------------
-  test('champ prénom manquant → validation inline', async ({ page }) => {
+  test("champ prénom manquant → validation inline", async ({ page }) => {
     await gotoRegister(page);
 
     // Remplir tous les champs sauf le prénom
-    await page.locator('[data-testid="register-lastname-input"]').fill('Test');
-    await page.locator('[data-testid="register-email-input"]').fill(`no_firstname_${Date.now()}@test.local`);
-    await page.locator('[data-testid="register-password-input"]').fill('ValidPass@E2E2024!');
+    await page.locator('[data-testid="register-lastname-input"]').fill("Test");
+    await page
+      .locator('[data-testid="register-email-input"]')
+      .fill(`no_firstname_${Date.now()}@test.local`);
+    await page
+      .locator('[data-testid="register-password-input"]')
+      .fill("ValidPass@E2E2024!");
 
     // Soumettre sans prénom
     await page.locator('[data-testid="register-submit-btn"]').click();
@@ -124,20 +157,21 @@ test.describe("Register — Inscription d'un utilisateur", () => {
   // ----------------------------------------------------------
   // Test 5 : Mot de passe faible → indicateur de force visible
   // ----------------------------------------------------------
-  test('mot de passe faible → indicateur de force visible', async ({ page }) => {
+  test("mot de passe faible → indicateur de force visible", async ({
+    page,
+  }) => {
     await gotoRegister(page);
 
     // Taper un mot de passe très faible
-    const passwordInput = page.locator('[data-testid="register-password-input"]');
-    await passwordInput.fill('abc');
+    const passwordInput = page.locator(
+      '[data-testid="register-password-input"]',
+    );
+    await passwordInput.fill("abc");
     // Déclencher le blur pour activer la validation
     await passwordInput.blur();
 
-    // L'indicateur de force doit apparaître
-    const strengthIndicator = page.locator('[data-testid="register-password-strength"]')
-      .or(page.locator('[data-testid="password-strength-indicator"]'))
-      .or(page.locator('.password-strength'))
-      .first();
+    // L'indicateur de force PasswordInput a id="password-strength" (id={id}-strength)
+    const strengthIndicator = page.locator("#password-strength");
 
     await expect(strengthIndicator).toBeVisible({ timeout: 3_000 });
   });

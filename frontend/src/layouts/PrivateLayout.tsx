@@ -124,20 +124,19 @@ function SmallCogIcon({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
-
-function BellAlertIcon({ className = 'h-5 w-5' }: { className?: string }) {
+function BellAlertIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
     <svg
       className={className}
-      fill='none'
-      viewBox='0 0 24 24'
+      fill="none"
+      viewBox="0 0 24 24"
       strokeWidth={1.5}
-      stroke='currentColor'
+      stroke="currentColor"
     >
       <path
-        strokeLinecap='round'
-        strokeLinejoin='round'
-        d='M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3 4.5l5 5M21 4.5l-5 5'
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3 4.5l5 5M21 4.5l-5 5"
       />
     </svg>
   );
@@ -488,6 +487,7 @@ const PrivateLayout: React.FC = () => {
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                data-testid="user-menu-trigger"
               >
                 <div
                   className="w-8 h-8 rounded-full text-white flex items-center justify-center text-sm font-semibold"
@@ -527,6 +527,7 @@ const PrivateLayout: React.FC = () => {
                       handleLogout();
                     }}
                     className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
+                    data-testid="logout-btn"
                   >
                     <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
                     {t("navigation.logout")}
