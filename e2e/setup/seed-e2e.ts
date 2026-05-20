@@ -20,10 +20,10 @@
  *   les E2E_DB_USER_IDS dans e2e-credentials.ts.
  */
 
-import dotenv from 'dotenv';
-import path from 'path';
-import bcrypt from 'bcryptjs';
-import mysql from 'mysql2/promise';
+import dotenv from "dotenv";
+import path from "path";
+import bcrypt from "bcryptjs";
+import mysql from "mysql2/promise";
 import {
   E2E_ADMIN,
   E2E_MEMBER,
@@ -31,20 +31,22 @@ import {
   ROLE_DB_MAP,
   E2E_DB_USER_IDS,
   type E2ERole,
-} from './e2e-credentials.js';
+} from "./e2e-credentials.js";
 
 // ============================================================
 // 1. Charger les variables d'environnement depuis backend/.env
 // ============================================================
-const envPath = path.resolve(__dirname, '../../backend/.env');
+const envPath = path.resolve(__dirname, "../../backend/.env");
 dotenv.config({ path: envPath });
 
 const DB_CONFIG = {
-  host:     process.env.DB_HOST     ?? 'localhost',
-  port:     Number(process.env.DB_PORT ?? 3306),
-  user:     process.env.DB_USER     ?? 'root',
-  password: process.env.DB_PASSWORD ?? '',
-  database: 'clubmanager_test',
+  host: process.env.DB_HOST ?? "localhost",
+  port: Number(process.env.DB_PORT ?? 3306),
+  user: process.env.DB_USER ?? "root",
+  password: process.env.DB_PASSWORD ?? "",
+  // On utilise la même DB que le backend (DB_NAME dans backend/.env)
+  // Pour isoler les tests E2E, définir DB_NAME=clubmanager_e2e dans backend/.env
+  database: process.env.DB_NAME ?? "clubmanager",
 };
 
 // ============================================================
@@ -54,10 +56,10 @@ const SALT_ROUNDS = 10;
 
 /** Affiche les paramètres de connexion (sans mot de passe) */
 function printConfig(): void {
-  console.log('📌 DB Config:', {
-    host:     DB_CONFIG.host,
-    port:     DB_CONFIG.port,
-    user:     DB_CONFIG.user,
+  console.log("📌 DB Config:", {
+    host: DB_CONFIG.host,
+    port: DB_CONFIG.port,
+    user: DB_CONFIG.user,
     database: DB_CONFIG.database,
   });
 }
@@ -69,14 +71,14 @@ async function seedE2E(): Promise<void> {
   printConfig();
 
   const connection = await mysql.createConnection(DB_CONFIG);
-  console.log('✅ Connexion MySQL établie\n');
+  console.log("✅ Connexion MySQL établie\n");
 
   try {
     // ----------------------------------------------------------
     // 3. Garantir les données FK requises
     //    On utilise INSERT IGNORE pour ne pas écraser l'existant.
     // ----------------------------------------------------------
-    console.log('🔧 Vérification des données FK (status, genre, grade)...');
+    console.log("🔧 Vérification des données FK (status, genre, grade)...");
 
     // status id=1 → "actif"
     await connection.execute(
@@ -96,19 +98,21 @@ async function seedE2E(): Promise<void> {
        VALUES (1, 'Blanche', 0, 'white')`,
     );
 
-    console.log('   ✓ FK data OK\n');
+    console.log("   ✓ FK data OK\n");
 
     // ----------------------------------------------------------
     // 4. Insérer / mettre à jour les comptes E2E
     // ----------------------------------------------------------
     const accounts = [
-      { cred: E2E_ADMIN,     dbUserId: E2E_DB_USER_IDS.admin     },
-      { cred: E2E_MEMBER,    dbUserId: E2E_DB_USER_IDS.member    },
+      { cred: E2E_ADMIN, dbUserId: E2E_DB_USER_IDS.admin },
+      { cred: E2E_MEMBER, dbUserId: E2E_DB_USER_IDS.member },
       { cred: E2E_PROFESSOR, dbUserId: E2E_DB_USER_IDS.professor },
     ] as const;
 
     for (const { cred, dbUserId } of accounts) {
-      console.log(`👤 Traitement du compte : ${cred.userId} (DB userId: ${dbUserId})`);
+      console.log(
+        `👤 Traitement du compte : ${cred.userId} (DB userId: ${dbUserId})`,
+      );
 
       // Hash du mot de passe
       const passwordHash = await bcrypt.hash(cred.password, SALT_ROUNDS);
@@ -151,7 +155,7 @@ async function seedE2E(): Promise<void> {
           dbUserId,
           cred.email,
           passwordHash,
-          'E2E',
+          "E2E",
           cred.userId, // last_name = identifiant lisible pour le debug
           dbRole,
         ],
@@ -167,21 +171,26 @@ async function seedE2E(): Promise<void> {
     // ----------------------------------------------------------
     // 5. Résumé
     // ----------------------------------------------------------
-    console.log('─'.repeat(60));
-    console.log('✅ Seed E2E terminé avec succès !');
-    console.log('');
-    console.log('  Comptes disponibles pour les tests :');
-    console.log(`  Admin      : ${E2E_DB_USER_IDS.admin}  (${E2E_ADMIN.email})`);
-    console.log(`  Member     : ${E2E_DB_USER_IDS.member}  (${E2E_MEMBER.email})`);
-    console.log(`  Professor  : ${E2E_DB_USER_IDS.professor}  (${E2E_PROFESSOR.email})`);
-    console.log('');
-    console.log('  Prochaine étape : lancer les tests avec');
-    console.log('  → pnpm --filter @clubmanager/e2e test');
-    console.log('─'.repeat(60));
-
+    console.log("─".repeat(60));
+    console.log("✅ Seed E2E terminé avec succès !");
+    console.log("");
+    console.log("  Comptes disponibles pour les tests :");
+    console.log(
+      `  Admin      : ${E2E_DB_USER_IDS.admin}  (${E2E_ADMIN.email})`,
+    );
+    console.log(
+      `  Member     : ${E2E_DB_USER_IDS.member}  (${E2E_MEMBER.email})`,
+    );
+    console.log(
+      `  Professor  : ${E2E_DB_USER_IDS.professor}  (${E2E_PROFESSOR.email})`,
+    );
+    console.log("");
+    console.log("  Prochaine étape : lancer les tests avec");
+    console.log("  → pnpm --filter @clubmanager/e2e test");
+    console.log("─".repeat(60));
   } finally {
     await connection.end();
-    console.log('\n🔌 Connexion MySQL fermée.');
+    console.log("\n🔌 Connexion MySQL fermée.");
   }
 }
 
@@ -189,6 +198,6 @@ async function seedE2E(): Promise<void> {
 // Point d'entrée
 // ============================================================
 seedE2E().catch((err) => {
-  console.error('\n❌ Erreur lors du seed E2E :', err);
+  console.error("\n❌ Erreur lors du seed E2E :", err);
   process.exit(1);
 });
