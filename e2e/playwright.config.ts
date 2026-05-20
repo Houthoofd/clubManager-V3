@@ -120,26 +120,29 @@ export default defineConfig({
   ],
 
   // ============================================================
-  // webServer (désactivé — démarrer manuellement avant les tests)
+  // webServer — démarre automatiquement backend + frontend
+  // reuseExistingServer: true  → réutilise le serveur s'il tourne déjà
+  //                              (pratique quand on les a démarrés manuellement)
   // ============================================================
-  // Pour lancer les serveurs automatiquement, décommenter :
-  //
-  // webServer: [
-  //   {
-  //     command: 'pnpm --filter @clubmanager/backend dev',
-  //     url: 'http://localhost:3000/health',
-  //     reuseExistingServer: !process.env.CI,
-  //     timeout: 30_000,
-  //   },
-  //   {
-  //     command: 'pnpm --filter @clubmanager/frontend dev',
-  //     url: 'http://localhost:5173',
-  //     reuseExistingServer: !process.env.CI,
-  //     timeout: 30_000,
-  //   },
-  // ],
-  //
-  // En attendant, lancer manuellement dans deux terminaux :
-  //   Terminal 1 : pnpm --filter @clubmanager/backend dev
-  //   Terminal 2 : pnpm --filter @clubmanager/frontend dev
+  webServer: [
+    {
+      // Backend Express (TypeScript via tsx watch)
+      // Playwright attend que /health réponde 200 avant de lancer globalSetup
+      command: "pnpm --filter clubmanager-backend dev",
+      url: "http://localhost:3000/health",
+      reuseExistingServer: true,
+      timeout: 60_000,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+    {
+      // Frontend Vite
+      command: "pnpm --filter @clubmanager/frontend dev",
+      url: "http://localhost:5173",
+      reuseExistingServer: true,
+      timeout: 60_000,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+  ],
 });
