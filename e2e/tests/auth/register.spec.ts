@@ -72,7 +72,10 @@ test.describe("Register — Inscription d'un utilisateur", () => {
     const uniqueEmail = `e2e_register_${Date.now()}@test.local`;
 
     await page.locator('[data-testid="register-firstname-input"]').fill("Test");
-    await page.locator('[data-testid="register-lastname-input"]').fill("E2E");
+    // Note: le nom ne peut pas contenir de chiffres (regex /^[a-zA-ZÀ-ÿ\s'-]+$/)
+    await page
+      .locator('[data-testid="register-lastname-input"]')
+      .fill("Dupont");
     await page
       .locator('[data-testid="register-email-input"]')
       .fill(uniqueEmail);
@@ -107,13 +110,23 @@ test.describe("Register — Inscription d'un utilisateur", () => {
     await gotoRegister(page);
 
     // Utiliser l'email d'un compte E2E existant
+    // Remplir TOUS les champs requis (genre + dob) pour passer la validation frontend
     await page
       .locator('[data-testid="register-firstname-input"]')
-      .fill("Dupliqué");
+      .fill("Duplique");
     await page.locator('[data-testid="register-lastname-input"]').fill("Test");
     await page
       .locator('[data-testid="register-email-input"]')
       .fill(E2E_ADMIN.email);
+    await page.locator('[data-testid="register-dob-input"]').fill("1990-01-01");
+    // Attendre que le select genre soit chargé et le remplir
+    await page.waitForFunction(
+      () =>
+        (document.querySelector("#genre_id") as HTMLSelectElement)?.options
+          .length > 1,
+      { timeout: 8_000 },
+    );
+    await page.selectOption("#genre_id", { index: 1 });
     await page
       .locator('[data-testid="register-password-input"]')
       .fill("ValidPass@E2E2024!");
