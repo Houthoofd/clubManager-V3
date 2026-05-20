@@ -987,21 +987,23 @@ data-testid="course-card-{id}"
 ### Tests e2e (Playwright)
 
 | Phase | Périmètre | Tests | Statut |
-|---|---|---|---|
-| Phase E1 | Authentification | ~24 | 📋 À faire |
+|---|---|---|
+| Phase E1 | Authentification | **18** | ✅ Terminé — 18/18 verts |
 | Phase E2 | Navigation & Profil | ~16 | 📋 À faire |
 | Phase E3 | Flux membre | ~18 | 📋 À faire |
 | Phase E4 | Flux admin | ~22 | 📋 À faire |
 | Phase E5 | Flux métier croisés | ~10 | 📋 À faire |
-| **Sous-total e2e** | **5 phases** | **~90** | **0 / ~90** |
+| **Sous-total e2e** | **5 phases** | **~84** | **18 / ~84** |
+
+> Validation Phase E1 confirmée le 2025-05-20 : `18 tests passed` en 55s — projet `chromium-no-auth`.
 
 ### Total combiné
 
 | | Tests | Verts confirmés |
 |---|---|---|
 | **Intégration** | **482** | **482** ✅ |
-| **E2E** | ~90 | 0 |
-| **TOTAL** | **~572** | **482** |
+| **E2E** | ~84 | **18** ✅ |
+| **TOTAL** | **~566** | **500** |
 
 ---
 
