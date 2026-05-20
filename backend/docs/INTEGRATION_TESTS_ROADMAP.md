@@ -1,33 +1,79 @@
 # Roadmap — Tests Backend & E2E
 
-> Ce document est la source de vérité unique pour la stratégie de test du projet.  
-> Il couvre deux niveaux : les **tests d'intégration API** (backend) et les **tests e2e** (pile complète via navigateur).
+> Ce document est la source de vérité unique pour la **stratégie de test complète** du projet.  
+> Il couvre les quatre niveaux de la pyramide de tests : **unitaires backend**, **unitaires frontend**, **intégration API** et **e2e navigateur**.
 
 ---
 
 ## Sommaire
 
-1. [Distinction intégration vs e2e](#1-distinction-intégration-vs-e2e)
+1. [Pyramide de tests — vue d'ensemble](#1-pyramide-de-tests--vue-densemble)
 2. [Infrastructure — Tests d'intégration](#2-infrastructure--tests-dintégration)
 3. [Phase 1 — Auth & Health ✅](#phase-1--auth--health-✅)
 4. [Phase 2 — CRUD simples ✅](#phase-2--modules-crud-simples-✅)
-5. [Phase 3 — Users & Families 📋](#phase-3--modules-utilisateurs-et-familles-📋)
-6. [Phase 4 — Métier 📋](#phase-4--modules-métier-📋)
-7. [Phase 5 — Modules complexes 📋](#phase-5--modules-complexes-📋)
-8. [Phase 6 — Services externes 📋](#phase-6--modules-avec-dépendances-externes-📋)
+5. [Phase 3 — Users & Families ✅](#phase-3--modules-utilisateurs-et-familles-✅)
+6. [Phase 4 — Métier ✅](#phase-4--modules-métier-✅)
+7. [Phase 5 — Modules complexes ✅](#phase-5--modules-complexes-✅)
+8. [Phase 6 — Services externes ✅](#phase-6--modules-avec-dépendances-externes-✅)
 9. [Infrastructure — Tests e2e](#9-infrastructure--tests-e2e)
-10. [Phase E1 — Authentification e2e 📋](#phase-e1--authentification-e2e-📋)
+10. [Phase E1 — Authentification e2e ✅](#phase-e1--authentification-e2e-✅)
 11. [Phase E2 — Navigation & Profil e2e 📋](#phase-e2--navigation--profil-e2e-📋)
 12. [Phase E3 — Flux membre e2e 📋](#phase-e3--flux-membre-e2e-📋)
 13. [Phase E4 — Flux admin e2e 📋](#phase-e4--flux-admin-e2e-📋)
 14. [Phase E5 — Flux métier croisés e2e 📋](#phase-e5--flux-métier-croisés-e2e-📋)
-15. [Helpers à créer](#15-helpers-à-créer-au-fil-des-phases)
-16. [Métriques globales](#16-métriques-globales)
-17. [Commandes utiles](#17-commandes-utiles)
+15. [Tests unitaires Backend (Jest) ⚠️](#15-tests-unitaires-backend-jest)
+16. [Tests unitaires Frontend (Vitest) ❌](#16-tests-unitaires-frontend-vitest)
+17. [Helpers disponibles](#17-helpers-disponibles)
+18. [Métriques globales](#18-métriques-globales)
+19. [Commandes utiles](#19-commandes-utiles)
+20. [Actions immédiates](#20-actions-immédiates)
 
 ---
 
-## 1. Distinction intégration vs e2e
+## 1. Pyramide de tests — vue d'ensemble
+
+Le projet dispose de **4 couches de tests** correspondant à la pyramide classique :
+
+```
+        ┌───────────────────────────────┐
+        │   E2E — Playwright            │  ← parcours utilisateur complet
+        │   18 / ~84  ✅⬜             │     navigateur réel
+        ├───────────────────────────────┤
+        │   Intégration — Jest/Supertest│  ← API endpoint → DB
+        │   482 / 482  ✅              │     HTTP réel, pas de frontend
+        ├───────────────────────────────┤
+        │   Unitaires Backend — Jest    │  ← use-cases, repositories isolés
+        │   137 / 161  ⚠️             │     mocks, pas de DB réelle
+        ├───────────────────────────────┤
+        │   Unitaires Frontend — Vitest │  ← composants React, hooks
+        │   0 / ?      ❌              │     jsdom, pas de backend
+        └───────────────────────────────┘
+```
+
+### Rôle de chaque couche
+
+| Couche | Outil | Ce qu'elle détecte | Ce qu'elle ne voit pas |
+|---|---|---|---|
+| **Unitaires Frontend** | Vitest + Testing Library | Bug dans un composant React, logique d'un hook | Routing, auth réelle, backend |
+| **Unitaires Backend** | Jest (mocks) | Bug dans un use-case, règle métier isolée | Vrais résultats SQL, intégration |
+| **Intégration** | Jest + Supertest | Bug API complet (route → DB), auth, validation | Rendu React, navigation, état UI |
+| **E2E** | Playwright | Régression de flux complet, broken UI, routing cassé | Performance, charge, accessibilité |
+
+### État actuel (2025-05-20)
+
+| Couche | Fichiers | Tests | État |
+|---|---|---|---|
+| Unitaires Frontend | 73 suites | ? | ❌ Cassé — `setup.ts` manquant |
+| Unitaires Backend | 146 suites | 161 | ⚠️ 137/161 verts — 145 suites en échec |
+| Intégration | 30 suites | 482 | ✅ 482/482 verts |
+| E2E Phase E1 | 3 suites | 18 | ✅ 18/18 verts |
+| E2E Phases E2→E5 | — | ~66 | 📋 À implémenter |
+
+> **Conséquence :** la couverture est solide côté intégration API et E2E auth, mais les tests unitaires (les plus rapides à lancer) sont actuellement inutilisables. Les corriger est une priorité.
+
+---
+
+## Ancienne section 1 — Distinction intégration vs e2e
 
 | Critère | Tests d'intégration (API) | Tests e2e (navigateur) |
 |---|---|---|
@@ -958,19 +1004,142 @@ data-testid="course-card-{id}"
 
 | Helper / Fixture | Phase | Description | Statut |
 |---|---|---|---|
-| `auth.fixture.ts` | E1 | Login + persistance `storageState` | 📋 À faire |
-| `LoginPage.ts` (page object) | E1 | Sélecteurs + actions page login | 📋 À faire |
-| `DashboardPage.ts` | E2 | Sélecteurs dashboard | 📋 À faire |
-| `CoursesPage.ts` | E3 | Sélecteurs + actions cours | 📋 À faire |
-| `ProfilePage.ts` | E2 | Sélecteurs profil | 📋 À faire |
-| `db.fixture.ts` | E1+ | Seed/teardown DB depuis les tests e2e | 📋 À faire |
-| `globalSetup.ts` (e2e) | E1 | Seed comptes e2e pré-créés | 📋 À faire |
+| `auth.fixture.ts` | E1 | Login + persistance `storageState` | ✅ |
+| `LoginPage.ts` (page object) | E1 | Sélecteurs + actions page login | ✅ |
+| `DashboardPage.ts` | E2 | Sélecteurs dashboard | ✅ |
+| `CoursesPage.ts` | E3 | Sélecteurs + actions cours | ✅ |
+| `ProfilePage.ts` | E2 | Sélecteurs profil | ✅ |
+| `db.fixture.ts` | E1+ | Seed/teardown DB depuis les tests e2e | ✅ |
+| `globalSetup.ts` (e2e) | E1 | Seed comptes e2e pré-créés | ✅ |
 
 ---
 
-## 16. Métriques globales
+## 15. Tests unitaires Backend (Jest) ⚠️
 
-### Tests d'intégration
+> **État : ⚠️ partiel** — 137/161 tests verts, 145/146 suites en échec (constaté le 2025-05-20)
+
+### Emplacement
+
+```
+backend/src/**/’__tests__’/*.test.ts
+```
+
+Ces tests sont générés par `@houthoofd/unitix` et testent les **use-cases** et **repositories** en isolation via des mocks Jest.
+
+### Lancer les tests unitaires backend
+
+```bash
+# Depuis backend/
+npm test
+# ou :
+npx jest --testPathPattern="__tests__"
+```
+
+### État détaillé
+
+| Métrique | Valeur |
+|---|---|
+| Suites détectées | 146 |
+| Suites qui passent | 1 |
+| Suites en échec | 145 |
+| Tests verts | 137 |
+| Tests échecs | 24 |
+| Tests totaux | 161 |
+
+### Cause probable des échecs
+
+La majorité des échecs sont vraisemblablement liés à des **mocks mal configurés** ou des **imports cassés** suite aux refactorisations. À investiguer suite à un lancement avec `--verbose` pour identifier le pattern commun.
+
+### Actions correctives
+
+- [ ] Lancer `npm test -- --verbose 2>&1 | grep FAIL` pour lister toutes les suites en échec
+- [ ] Identifier si l'échec est un même problème récurrent (import path, mock shape...)
+- [ ] Corriger le problème systémique plutot que suite par suite
+- [ ] Objectif : 161/161 verts
+
+---
+
+## 16. Tests unitaires Frontend (Vitest) ❌
+
+> **État : ❌ cassé** — 73 suites détectées, 0 exécute (constaté le 2025-05-20)
+
+### Emplacement
+
+```
+frontend/src/**/’__tests__’/*.test.tsx
+frontend/src/**/’__tests__’/*.test.ts
+```
+
+Ces tests couvrent les **composants React** et les **hooks** via Vitest + Testing Library + jsdom.
+
+### Lancer les tests unitaires frontend
+
+```bash
+# Depuis frontend/
+npm test
+# Mode watch :
+npm run test:watch
+# Avec couverture :
+npm run test:coverage
+```
+
+### Cause de l'échec
+
+Tous les 73 fichiers de tests font référence à un fichier de setup Vitest qui **n'existe pas** :
+
+```
+Error: Failed to load url .../frontend/src/shared/test/setup.ts
+```
+
+Le fichier `frontend/src/shared/test/setup.ts` est référencé dans `vite.config.ts` :
+```ts
+// vite.config.ts
+test: {
+  setupFiles: ['./src/shared/test/setup.ts'],  // ← ce fichier n'existe pas
+}
+```
+
+### Actions correctives
+
+- [ ] Créer `frontend/src/shared/test/setup.ts` avec le contenu minimal :
+  ```typescript
+  import '@testing-library/jest-dom';
+  // Optionnel : configuration de MSW, i18n mock, etc.
+  ```
+- [ ] Vérifier que `@testing-library/jest-dom` est dans les devDependencies (il l'est déjà)
+- [ ] Lancer `npm test --run` pour voir l'état réel des 73 suites
+- [ ] Corriger les éventuels échecs restants suite par suite
+- [ ] Objectif : toutes les suites Vitest vertes
+
+### Contenu des 73 suites (générées par `@houthoofd/unitix`)
+
+Les suites couvrent notamment :
+- Composants : `AlertActionsModal`, `AlertStatusBadge`, `ComposeModal`, `MessageDetail`, `KpiGrid`, `WelcomeBanner`...
+- Hooks : `useAlerts`, `useCourses`, `useFamilies`, `useMessaging`, `useNotifications`...
+
+---
+
+## 17. Helpers disponibles
+
+> (ancienne section 15 — contenu inchangé)
+
+---
+
+## 18. Métriques globales
+
+> Mise à jour : **2025-05-20**
+
+### Vue complète — pyramide de tests
+
+| Couche | Outil | Suites | Tests | État |
+|---|---|---|---|---|
+| **Unitaires Frontend** | Vitest | 73 | ? | ❌ Cassé — `setup.ts` absent |
+| **Unitaires Backend** | Jest | 146 | 161 | ⚠️ 137/161 verts |
+| **Intégration** | Jest + Supertest | 30 | 482 | ✅ 482/482 verts |
+| **E2E Phase E1** | Playwright | 3 | 18 | ✅ 18/18 verts |
+| **E2E Phases E2→E5** | Playwright | — | ~66 | 📋 À implémenter |
+
+### Détail — Tests d'intégration
 
 | Phase | Module(s) | Tests confirmés | Statut |
 |---|---|---|---|
@@ -1007,11 +1176,25 @@ data-testid="course-card-{id}"
 
 ---
 
-## 17. Commandes utiles
+## 19. Commandes utiles
 
 ```bash
-# ─── Tests d'intégration ───────────────────────────────────────────
-# Lancer tous les tests d'intégration (depuis backend/)
+# ─── Tests unitaires Backend (Jest) ───────────────────────────────────────────────
+# Depuis backend/
+npm test
+npm run test:coverage
+# Lister toutes les suites en échec :
+npx jest --testPathPattern="__tests__" --verbose 2>&1 | grep -E "FAIL|PASS"
+
+# ─── Tests unitaires Frontend (Vitest) ─────────────────────────────────────────
+# Depuis frontend/
+npm test              # mode watch
+npm run test -- --run  # run once
+npm run test:coverage  # avec rapport de couverture
+npm run test:ui        # interface graphique Vitest
+
+# ─── Tests d'intégration ────────────────────────────────────────────────────
+# Depuis backend/
 npm run test:integration
 
 # Lancer un seul fichier
@@ -1024,55 +1207,60 @@ node --experimental-vm-modules ../node_modules/jest/bin/jest.js \
   --config jest.config.integration.cjs --forceExit --runInBand \
   --testPathPattern="users|families"
 
-# Tests unitaires (inchangés)
-npm test
+# ─── Tests e2e (Playwright) ──────────────────────────────────────────────────
+# Depuis la racine du monorepo :
+pnpm --filter @clubmanager/e2e exec playwright test
 
-# ─── Tests e2e (Playwright) ──────────────────────────────────
-# Prérequis : backend + frontend démarrés, ou via webServer dans playwright.config.ts
-
-# Lancer tous les tests e2e (depuis la racine)
-npx playwright test
+# Seeder les comptes E2E en DB (une seule fois) :
+npx tsx e2e/setup/seed-e2e.ts
 
 # Lancer un seul fichier
-npx playwright test e2e/tests/auth/login.spec.ts
+pnpm --filter @clubmanager/e2e exec playwright test tests/auth/login.spec.ts
 
 # Mode UI interactif (recommandé en développement)
-npx playwright test --ui
+pnpm --filter @clubmanager/e2e exec playwright test --ui
 
 # Générer le rapport HTML
-npx playwright show-report
+pnpm --filter @clubmanager/e2e exec playwright show-report
 
 # Enregistrer un nouveau test (codegen)
-npx playwright codegen http://localhost:5173
+pnpm --filter @clubmanager/e2e exec playwright codegen http://localhost:5173
 ```
 
 ---
 
-## 18. Actions immédiates (prochaine session)
+## 20. Actions immédiates (prochaine session)
 
-> Liste priorisée des items à traiter en début de prochaine session.
+> Liste priorisée par impact / effort.
 
-### 1. ✅ TERMINÉ — Suites Phase 6 validées
+### 1. ❌ PRIORITAIRE — Débloquer les tests unitaires Frontend (Vitest)
 
-Toutes les suites Phase 6 ont été corrigées et validées le 2025-05-19 :
-- `dbHelpers.ts::createTestPaymentSchedule()` : `utilisateur_id` → `user_id`
-- `store.orders.test.ts::insertTestStock()` : `seuil_alerte` → `quantite_minimum`
-- `MarkScheduleAsPaidUseCase.ts` : format de date MySQL compatible
-- `store.orders.test.ts` : shape paginée `data.orders` (pas `data` directement)
+**Effort : 15 min — un seul fichier à créer**
 
-**Résultat : 482 tests passés sur 30 suites.**
-
-### 2. Commit + push
-
-```bash
-git add -A
-git commit -m "test(integration): valider Phases 1–6 — 482/482 tests verts, toutes les suites passées"
-git push origin feature/test-suite
+Créer `frontend/src/shared/test/setup.ts` :
+```typescript
+import '@testing-library/jest-dom';
 ```
+Cela débloquera potentiellement les 73 suites Vitest d'un coup.
 
-### 3. Corriger `MySQLStatisticsRepository.ts` (SQL obsolètes) — optionnel
+### 2. ⚠️ PRIORITAIRE — Investiguer les tests unitaires Backend
 
-Les requêtes statistiques avancées font référence aux anciens noms. Les tests statistics passent car la route répond avec des données vides/fallback, mais pour des statistiques correctes en production :
+**Effort : 1–2h selon le problème systémique**
+
+Lancer avec verbose, trouver la cause commune des 145 suites en échec et corriger.
+
+### 3. ✅ TERMINÉ — Phase E1 E2E validée
+
+18/18 tests Playwright verts le 2025-05-20.
+
+### 4. 📋 SUIVANT — Phase E2 E2E (Navigation & Profil)
+
+- `e2e/tests/navigation/routing.spec.ts` (~8 tests)
+- `e2e/tests/navigation/profile.spec.ts` (~8 tests)
+
+### 5. 📋 Corriger `MySQLStatisticsRepository.ts` (SQL obsolètes)
+
+Les erreurs `Unknown column 'status'`, `Unknown column 'role_id'` polluent les logs E2E et cassent le dashboard en production :
 
 | Ancien nom (obsolète) | Nouveau nom (schéma actuel) |
 |---|---|
@@ -1086,19 +1274,9 @@ Les requêtes statistiques avancées font référence aux anciens noms. Les test
 | `categories_articles` | `categories` |
 | `statut_paiement` | `statut` (colonne paiements) |
 
-### 4. Corriger le schéma consolidation (optionnel, recommandé)
+### 6. 📋 Merger les branches dans `develop`
 
-Mettre à jour `db/creation/SCHEMA_CONSOLIDATE.sql` pour intégrer toutes les migrations manquantes :
-- Migration 006 : `actif` sur `types_messages_personnalises`
-- Migration 007 : `ordre` sur `categories`
-- Migrations V4.6/V4.7 : tables de référence
-- Migration 010 : `email` sur `email_validation_tokens`
-
-Cela permettra de simplifier le `globalSetup.cjs` (supprimer les étapes 3c, 6, 7).
-
-### 5. Lancer les tests E2E (Playwright) — prochaine phase
-
-Maintenant que les 482 tests d'intégration sont verts, commencer la Phase E1 :
-- Configurer `playwright.config.ts`
-- Ajouter les fixtures et comptes de test pré-seedés
-- Implémenter `e2e/tests/auth/login.spec.ts`
+Trois branches à merger :
+- `feature/test-suite` (482 tests intégration)
+- `feature/db-schema-consolidation` (SCHEMA_CONSOLIDATE.sql v5.0)
+- `feature/e2e-playwright` (infrastructure Playwright + Phase E1)
