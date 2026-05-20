@@ -107,6 +107,7 @@ export const LoginPage = () => {
             <Link
               to="/register"
               className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              data-testid="login-register-link"
             >
               {t("login.register")}
             </Link>
@@ -140,7 +141,10 @@ export const LoginPage = () => {
 
       {/* Bandeau email non vérifié (custom car contient un lien avec icône) */}
       {emailNotVerified && (
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
+        <div
+          className="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg"
+          data-testid="login-email-not-verified-banner"
+        >
           <p className="text-sm font-medium text-amber-800 mb-1 flex items-center gap-2">
             <ExclamationTriangleIcon className="h-4 w-4 text-amber-600" />
             {t("errors.emailNotVerified")}
@@ -174,7 +178,11 @@ export const LoginPage = () => {
       )}
 
       {/* Formulaire de connexion */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-6"
+        data-testid="login-form"
+      >
         {/* Identifiant membre */}
         <FormField
           id="userId"
@@ -190,6 +198,7 @@ export const LoginPage = () => {
               id="userId"
               type="text"
               autoComplete="username"
+              data-testid="login-userid-input"
               {...register("userId")}
               className={`block w-full pl-10 pr-3 py-3 border ${
                 errors.userId
@@ -223,6 +232,7 @@ export const LoginPage = () => {
                   hasError={!!errors.password}
                   placeholder="••••••••"
                   autoComplete="current-password"
+                  data-testid="login-password-input"
                   className={`pl-10 ${
                     errors.password
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
@@ -241,6 +251,7 @@ export const LoginPage = () => {
               id="remember-me"
               name="remember-me"
               type="checkbox"
+              data-testid="login-remember-me"
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
             />
             <label
@@ -255,6 +266,7 @@ export const LoginPage = () => {
             <Link
               to="/forgot-password"
               className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              data-testid="login-forgot-password-link"
             >
               {t("login.forgotPassword")}
             </Link>
@@ -266,6 +278,7 @@ export const LoginPage = () => {
           isLoading={isSubmitting || isLoading}
           loadingText={t("login.loggingIn")}
           fullWidth
+          data-testid="login-submit-btn"
         >
           {t("login.submit")}
         </SubmitButton>

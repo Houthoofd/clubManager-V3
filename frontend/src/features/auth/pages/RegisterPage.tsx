@@ -272,6 +272,7 @@ export const RegisterPage = () => {
               <Link
                 to="/login"
                 className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                data-testid="register-login-link"
               >
                 {t("register.login")}
               </Link>
@@ -298,7 +299,11 @@ export const RegisterPage = () => {
         </>
       }
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-6"
+        data-testid="register-form"
+      >
         {/* Prénom et Nom */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
@@ -312,6 +317,7 @@ export const RegisterPage = () => {
               type="text"
               autoComplete="given-name"
               placeholder={t("register.firstNamePlaceholder")}
+              data-testid="register-firstname-input"
               {...register("first_name")}
             />
           </FormField>
@@ -327,6 +333,7 @@ export const RegisterPage = () => {
               type="text"
               autoComplete="family-name"
               placeholder={t("register.lastNamePlaceholder")}
+              data-testid="register-lastname-input"
               {...register("last_name")}
             />
           </FormField>
@@ -344,6 +351,7 @@ export const RegisterPage = () => {
             type="email"
             autoComplete="email"
             placeholder={t("register.emailPlaceholder")}
+            data-testid="register-email-input"
             {...register("email")}
           />
         </FormField>
@@ -361,6 +369,7 @@ export const RegisterPage = () => {
               type="date"
               min={getMinBirthDate()}
               max={getMaxBirthDate()}
+              data-testid="register-dob-input"
               {...register("date_of_birth")}
             />
           </FormField>
@@ -378,6 +387,7 @@ export const RegisterPage = () => {
                 value={field.value}
                 onChange={field.onChange}
                 error={errors.genre_id?.message}
+                data-testid="register-gender-select"
               />
             )}
           />
@@ -395,6 +405,7 @@ export const RegisterPage = () => {
             type="text"
             autoComplete="username"
             placeholder={t("register.usernamePlaceholder")}
+            data-testid="register-username-input"
             {...register("nom_utilisateur")}
           />
         </FormField>
@@ -419,6 +430,7 @@ export const RegisterPage = () => {
                   hasError={!!errors.password}
                   placeholder="••••••••"
                   autoComplete="new-password"
+                  data-testid="register-password-input"
                 />
 
                 {/* Exigences détaillées du mot de passe */}
@@ -429,7 +441,11 @@ export const RegisterPage = () => {
         </FormField>
 
         {/* Bouton de soumission */}
-        <SubmitButton isLoading={isSubmitting || isLoading} fullWidth>
+        <SubmitButton
+          isLoading={isSubmitting || isLoading}
+          fullWidth
+          data-testid="register-submit-btn"
+        >
           {t("register.submit")}
         </SubmitButton>
       </form>

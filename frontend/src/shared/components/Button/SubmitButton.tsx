@@ -16,9 +16,9 @@
  * ```
  */
 
-import { ReactNode, forwardRef } from 'react';
-import { Button } from './Button';
-import type { ButtonProps } from './Button';
+import { ReactNode, forwardRef } from "react";
+import { Button } from "./Button";
+import type { ButtonProps } from "./Button";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -51,13 +51,19 @@ export interface SubmitButtonProps {
    * - ghost: Sans fond
    * @default "primary"
    */
-  variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'outline' | 'ghost';
+  variant?:
+    | "primary"
+    | "secondary"
+    | "danger"
+    | "success"
+    | "outline"
+    | "ghost";
 
   /**
    * Taille du bouton
    * @default "md"
    */
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
 
   /**
    * Largeur pleine (recommandé pour les formulaires)
@@ -69,7 +75,7 @@ export interface SubmitButtonProps {
    * Type de bouton HTML
    * @default "submit"
    */
-  type?: 'submit' | 'button';
+  type?: "submit" | "button";
 
   /**
    * Désactiver le bouton (en plus de l'état loading)
@@ -96,7 +102,12 @@ export interface SubmitButtonProps {
    * Position de l'icône
    * @default "left"
    */
-  iconPosition?: 'left' | 'right';
+  iconPosition?: "left" | "right";
+
+  /**
+   * Attribut data-testid pour les tests E2E
+   */
+  "data-testid"?: string;
 }
 
 // ─── COMPOSANT ───────────────────────────────────────────────────────────────
@@ -142,17 +153,18 @@ export const SubmitButton = forwardRef<HTMLButtonElement, SubmitButtonProps>(
       isLoading,
       loadingText,
       children,
-      variant = 'primary',
-      size = 'md',
+      variant = "primary",
+      size = "md",
       fullWidth = false,
-      type = 'submit',
+      type = "submit",
       disabled = false,
-      className = '',
+      className = "",
       onClick,
       icon,
-      iconPosition = 'left',
+      iconPosition = "left",
+      "data-testid": dataTestId,
     },
-    ref
+    ref,
   ) => {
     // Déterminer le texte à afficher
     const displayText = isLoading && loadingText ? loadingText : children;
@@ -170,13 +182,14 @@ export const SubmitButton = forwardRef<HTMLButtonElement, SubmitButtonProps>(
         onClick={onClick}
         icon={icon}
         iconPosition={iconPosition}
+        data-testid={dataTestId}
       >
         {displayText}
       </Button>
     );
-  }
+  },
 );
 
-SubmitButton.displayName = 'SubmitButton';
+SubmitButton.displayName = "SubmitButton";
 
 export default SubmitButton;

@@ -7,6 +7,9 @@ packages:
 
   # Shared packages
   - "packages/*"
+
+  # Tests E2E
+  - "e2e"
 allowBuilds:
   "@swc/core": false
   bcrypt: false
