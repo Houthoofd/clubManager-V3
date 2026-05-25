@@ -1,5 +1,43 @@
 import { defineConfig, devices } from "@playwright/test";
 import path from "path";
+import { findBackendPort, findFrontendPort } from "./setup/portUtils";
+
+// ============================================================
+// Détection automatique du port backend
+// ============================================================
+//
+// findBackendPort() examine les ports 3000-3003 et retourne :
+//   - le port où ClubManager tourne déjà (réutilisation)
+//   - le premier port libre (démarrage d'une nouvelle instance)
+//
+// Cela permet de coexister avec d'autres projets Node.js qui
+// occuperaient déjà le port 3000 (ex : Unitix, autre backend…).
+//
+// La valeur est mise en cache dans process.env.BACKEND_PORT dès la
+// première exécution (processus principal). Les workers Playwright
+// héritent de cette variable et findBackendPort() retourne
+// immédiatement sans relancer les vérifications réseau.
+//
+const BACKEND_PORT = findBackendPort();
+const BACKEND_URL = `http://localhost:${BACKEND_PORT}`;
+
+// Même mécanique côté frontend : trouver un port libre.
+// On part de 5174 (jamais de 5173) pour ne pas entrer en conflit avec
+// le serveur de développement qui tourne normalement sur ce port.
+const E2E_FRONTEND_PORT = findFrontendPort(5174);
+const E2E_FRONTEND_URL = `http://localhost:${E2E_FRONTEND_PORT}`;
+
+// Propagation aux processus enfants :
+//   process.env.PORT              → Express listen (backend/src/server.ts)
+//   process.env.BACKEND_PORT      → cache pour les workers (évite re-détection)
+//   process.env.VITE_API_TARGET   → proxy Vite (frontend/vite.config.ts)
+//   process.env.E2E_FRONTEND_PORT → port Vite e2e (frontend/vite.config.ts)
+//   process.env.E2E_FRONTEND_URL  → origine des storageState (globalSetup.ts)
+process.env.PORT = String(BACKEND_PORT);
+process.env.BACKEND_PORT = String(BACKEND_PORT);
+process.env.VITE_API_TARGET = BACKEND_URL;
+process.env.E2E_FRONTEND_PORT = String(E2E_FRONTEND_PORT);
+process.env.E2E_FRONTEND_URL = E2E_FRONTEND_URL;
 
 // ============================================================
 // Répertoire de stockage des états d'authentification
@@ -49,8 +87,8 @@ export default defineConfig({
   // Options communes à tous les projets
   // ============================================================
   use: {
-    // URL de base du frontend
-    baseURL: "http://localhost:5173",
+    // URL de base du frontend e2e (port dédié 5174)
+    baseURL: E2E_FRONTEND_URL,
 
     // Capturer la trace au premier retry (utile pour déboguer les échecs CI)
     trace: "on-first-retry",
@@ -68,8 +106,6 @@ export default defineConfig({
   projects: [
     // ----------------------------------------------------------
     // 1. Projet "setup" — pour d'éventuels fichiers *.setup.ts
-    //    (auth per-project, fixtures lourdes, etc.)
-    //    Non utilisé pour l'instant : le setup est global.
     // ----------------------------------------------------------
     {
       name: "setup",
@@ -78,12 +114,16 @@ export default defineConfig({
 
     // ----------------------------------------------------------
     // 2. Tests admin — contexte avec storageState admin
-    //    Utilisé pour : tests back-office, gestion membres, etc.
-    //    Exclut les tests auth (qui nécessitent un contexte vierge).
     // ----------------------------------------------------------
     {
       name: "chromium-admin",
-      testIgnore: /tests\/auth\/.*/,
+      // profile.spec.ts  → réservé chromium-member (data race sur e2e_member)
+      // tests/member/*   → réservés chromium-member (fixtures memberPage)
+      testIgnore: [
+        /tests\/auth\/.*/,
+        /tests\/navigation\/profile\.spec\.ts/,
+        /tests\/member\/.*/,
+      ],
       use: {
         ...devices["Desktop Chrome"],
         storageState: STORAGE_STATE.admin,
@@ -92,12 +132,12 @@ export default defineConfig({
 
     // ----------------------------------------------------------
     // 3. Tests membre — contexte avec storageState member
-    //    Utilisé pour : profil, inscriptions cours, etc.
-    //    Exclut les tests auth (qui nécessitent un contexte vierge).
     // ----------------------------------------------------------
     {
       name: "chromium-member",
-      testIgnore: /tests\/auth\/.*/,
+      // tests/admin/* → réservés chromium-admin (fixtures adminPage)
+      // tests/flows/* → réservés chromium-admin (évite double exécution)
+      testIgnore: [/tests\/auth\/.*/, /tests\/admin\/.*/, /tests\/flows\/.*/],
       use: {
         ...devices["Desktop Chrome"],
         storageState: STORAGE_STATE.member,
@@ -106,8 +146,6 @@ export default defineConfig({
 
     // ----------------------------------------------------------
     // 4. Tests sans auth — aucun storageState
-    //    Utilisé pour : login, register, forgot-password, etc.
-    //    N'exécute QUE les tests du dossier tests/auth/.
     // ----------------------------------------------------------
     {
       name: "chromium-no-auth",
@@ -121,24 +159,32 @@ export default defineConfig({
 
   // ============================================================
   // webServer — démarre automatiquement backend + frontend
-  // reuseExistingServer: true  → réutilise le serveur s'il tourne déjà
-  //                              (pratique quand on les a démarrés manuellement)
+  //
+  // Les URLs utilisent BACKEND_URL (port détecté dynamiquement).
+  // reuseExistingServer: true → si ClubManager est déjà sur ce port,
+  //   Playwright le réutilise sans en démarrer un second.
   // ============================================================
   webServer: [
     {
-      // Backend Express (TypeScript via tsx watch)
-      // Playwright attend que /health réponde 200 avant de lancer globalSetup
+      // Backend Express — démarre sur le port détecté (PORT env var)
       command: "pnpm --filter clubmanager-backend dev",
-      url: "http://localhost:3000/health",
+      url: `${BACKEND_URL}/health`,
       reuseExistingServer: true,
       timeout: 60_000,
       stdout: "pipe",
       stderr: "pipe",
     },
     {
-      // Frontend Vite
+      // Frontend Vite — port détecté dynamiquement.
+      //
+      // Toujours ≥ 5174 : on ne touche jamais le port 5173 du frontend dev.
+      // Le port et la cible proxy (VITE_API_TARGET) sont injectés via
+      // process.env, hérités par le processus Vite enfant.
+      //
+      // reuseExistingServer: true — si le serveur e2e tourne déjà sur ce
+      // port (exécution précédente), on le réutilise ; sinon on le démarre.
       command: "pnpm --filter @clubmanager/frontend dev",
-      url: "http://localhost:5173",
+      url: E2E_FRONTEND_URL,
       reuseExistingServer: true,
       timeout: 60_000,
       stdout: "pipe",

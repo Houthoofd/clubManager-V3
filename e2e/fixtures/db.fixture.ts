@@ -57,7 +57,7 @@ export const test = authTest.extend<DbFixtures>({
       port: Number(process.env.DB_PORT ?? 3306),
       user: process.env.DB_USER ?? "root",
       password: process.env.DB_PASSWORD ?? "",
-      database: "clubmanager_test",
+      database: process.env.DB_NAME ?? "clubmanager",
     });
 
     // Construire le helper

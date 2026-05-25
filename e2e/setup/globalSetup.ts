@@ -9,15 +9,15 @@
  *   4. Persister le storageState (cookies + localStorage) dans setup/.auth/*.json
  *
  * ⚠️  Pré-requis avant d'exécuter :
- *   - Backend démarré sur http://localhost:3000
- *   - Frontend démarré sur http://localhost:5173
+ *   - Backend démarré sur http://localhost:3000 (ou port détecté par portUtils)
+ *   - Frontend e2e démarré sur http://localhost:5174 (port dédié e2e)
  *   - Comptes E2E créés en DB via : pnpm --filter @clubmanager/e2e seed
  *
  * Format storageState généré :
  *   {
  *     cookies: [],
  *     origins: [{
- *       origin: "http://localhost:5173",
+ *       origin: "http://localhost:5174",
  *       localStorage: [
  *         { name: "accessToken",   value: "<jwt>" },
  *         { name: "user",          value: "<JSON>" },
@@ -42,8 +42,19 @@ dotenv.config({ path: envPath });
 // ============================================================
 // Constantes
 // ============================================================
-const BACKEND_URL = "http://localhost:3000";
-const FRONTEND_URL = "http://localhost:5173";
+//
+// BACKEND_PORT est défini par playwright.config.ts via process.env.PORT
+// avant que globalSetup ne soit exécuté (même processus Node.js).
+// Fallback sur 3000 si le setup est lancé hors Playwright (ex: debug manuel).
+//
+const BACKEND_PORT = process.env.PORT ?? "3000";
+const BACKEND_URL = `http://localhost:${BACKEND_PORT}`;
+//
+// E2E_FRONTEND_URL est défini par playwright.config.ts.
+// Doit correspondre à l'URL réelle du frontend e2e (port 5174 par défaut)
+// pour que les storageState soient appliqués sur la bonne origine.
+//
+const FRONTEND_URL = process.env.E2E_FRONTEND_URL ?? "http://localhost:5174";
 const AUTH_DIR = path.join(__dirname, ".auth");
 
 // Credentials : on utilise les userId au format U-9999-XXXX (valides pour le LoginUseCase)
@@ -65,6 +76,64 @@ const ACCOUNTS = [
     password: "Prof@E2E2024!",
   },
 ] as const;
+
+// ============================================================
+// Helper : parse d'un header Set-Cookie → objet cookie Playwright
+// ============================================================
+/** Parses a Set-Cookie header string into a Playwright-compatible cookie object */
+function parseSetCookie(
+  setCookieHeader: string,
+  backendHost: string,
+): {
+  name: string;
+  value: string;
+  domain: string;
+  path: string;
+  expires: number;
+  httpOnly: boolean;
+  secure: boolean;
+  sameSite: "Strict" | "Lax" | "None";
+} | null {
+  // Format: "name=value; Path=/; HttpOnly; SameSite=Strict; Max-Age=604800"
+  const parts = setCookieHeader.split(";").map((p) => p.trim());
+  const [nameValue, ...attributes] = parts;
+
+  if (!nameValue || !nameValue.includes("=")) return null;
+
+  const eqIdx = nameValue.indexOf("=");
+  const name = nameValue.substring(0, eqIdx).trim();
+  const value = nameValue.substring(eqIdx + 1).trim();
+
+  let path = "/";
+  let maxAge: number | undefined;
+  let httpOnly = false;
+  let secure = false;
+  let sameSite: "Strict" | "Lax" | "None" = "Lax";
+
+  for (const attr of attributes) {
+    const lower = attr.toLowerCase();
+    if (lower.startsWith("path=")) {
+      path = attr.substring(5).trim();
+    } else if (lower.startsWith("max-age=")) {
+      maxAge = parseInt(attr.substring(8).trim(), 10);
+    } else if (lower === "httponly") {
+      httpOnly = true;
+    } else if (lower === "secure") {
+      secure = true;
+    } else if (lower.startsWith("samesite=")) {
+      const val = attr.substring(9).trim().toLowerCase();
+      sameSite = val === "strict" ? "Strict" : val === "none" ? "None" : "Lax";
+    }
+  }
+
+  const expires =
+    maxAge !== undefined ? Math.floor(Date.now() / 1000) + maxAge : -1;
+
+  // Extract hostname from backend URL (e.g., "http://localhost:3001" → "localhost")
+  const domain = new URL(backendHost).hostname;
+
+  return { name, value, domain, path, expires, httpOnly, secure, sameSite };
+}
 
 // ============================================================
 // Helper : login + construction du storageState
@@ -116,9 +185,35 @@ async function loginAndSaveState(
   // L'API retourne accessToken directement dans data (pas dans data.tokens)
   const { accessToken, user } = json.data;
 
+  // Extraire les cookies HTTP-only (refresh token) de la réponse login
+  const cookies: Array<{
+    name: string;
+    value: string;
+    domain: string;
+    path: string;
+    expires: number;
+    httpOnly: boolean;
+    secure: boolean;
+    sameSite: "Strict" | "Lax" | "None";
+  }> = [];
+
+  // Node 18+ : getSetCookie() retourne un tableau (gère les cookies multiples)
+  const rawCookies: string[] =
+    typeof (response.headers as unknown as { getSetCookie?: () => string[] })
+      .getSetCookie === "function"
+      ? (
+          response.headers as unknown as { getSetCookie: () => string[] }
+        ).getSetCookie()
+      : [response.headers.get("set-cookie") ?? ""].filter(Boolean);
+
+  for (const raw of rawCookies) {
+    const parsed = parseSetCookie(raw, BACKEND_URL);
+    if (parsed) cookies.push(parsed);
+  }
+
   // Construire le storageState Playwright
   const storageState = {
-    cookies: [],
+    cookies,
     origins: [
       {
         origin: FRONTEND_URL,
