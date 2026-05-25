@@ -7,7 +7,7 @@
  * Module     : templates
  */
 
-jest.mock('../services/TemplateEngineService.js');
+jest.mock('../../services/TemplateEngineService.js');
 
 import { PreviewTemplateUseCase } from '../PreviewTemplateUseCase';
 import type { ITemplateRepository } from '../../../domain/repositories/ITemplateRepository';

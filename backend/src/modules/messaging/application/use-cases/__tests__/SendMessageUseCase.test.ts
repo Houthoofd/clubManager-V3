@@ -7,7 +7,7 @@
  * Module     : messaging
  */
 
-jest.mock('../services/MessagingEmailService.js');
+jest.mock('../../services/MessagingEmailService.js');
 
 import { SendMessageUseCase } from '../SendMessageUseCase';
 import type { IMessagingRepository } from '../../../domain/repositories/IMessagingRepository';

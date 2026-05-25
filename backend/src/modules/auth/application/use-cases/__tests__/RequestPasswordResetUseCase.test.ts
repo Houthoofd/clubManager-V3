@@ -8,7 +8,7 @@
  */
 
 jest.mock('@/shared/services/TokenService.js');
-jest.mock('../services/EmailService.js');
+jest.mock('../../services/EmailService.js');
 
 import { RequestPasswordResetUseCase } from '../RequestPasswordResetUseCase';
 import type { IAuthRepository } from '../../../domain/repositories/IAuthRepository';

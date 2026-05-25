@@ -7,27 +7,26 @@
  */
 // @unitix-source-hash: a2373135419a46a5
 
-import { GetAdminAlertsUseCase } from '../GetAdminAlertsUseCase';
-import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';
+import { GetAdminAlertsUseCase } from "../GetAdminAlertsUseCase";
+import type { IAlertRepository } from "../../../domain/repositories/IAlertRepository";
 
 // ─── Mock Repository ────────────────────────────────────────────
 
 const mockRepo: jest.Mocked<IAlertRepository> = {
-  findAllAlertTypes:     jest.fn().mockResolvedValue([]),
-  findAlertTypeById:     jest.fn().mockResolvedValue(null),
-  findAlertTypeByCode:   jest.fn().mockResolvedValue(null),
-  createAlertType:       jest.fn(),
-  updateAlertType:       jest.fn(),
-  deleteAlertType:       jest.fn().mockResolvedValue(false),
-  findUserAlerts:        jest.fn().mockResolvedValue([]),
-  findAllActiveAlerts:   jest.fn().mockResolvedValue([]),
-  createUserAlert:       jest.fn(),
-  resolveAlert:          jest.fn(),
-  ignoreAlert:           jest.fn(),
-  findAlertActions:      jest.fn().mockResolvedValue([]),
-  addAlertAction:        jest.fn(),
+  findAllAlertTypes: jest.fn().mockResolvedValue([]),
+  findAlertTypeById: jest.fn().mockResolvedValue(null),
+  findAlertTypeByCode: jest.fn().mockResolvedValue(null),
+  createAlertType: jest.fn(),
+  updateAlertType: jest.fn(),
+  deleteAlertType: jest.fn().mockResolvedValue(false),
+  findUserAlerts: jest.fn().mockResolvedValue([]),
+  findAllActiveAlerts: jest.fn().mockResolvedValue([]),
+  createUserAlert: jest.fn(),
+  resolveAlert: jest.fn(),
+  ignoreAlert: jest.fn(),
+  findAlertActions: jest.fn().mockResolvedValue([]),
+  addAlertAction: jest.fn(),
 } as jest.Mocked<IAlertRepository>;
-
 
 // ─── Setup ────────────────────────────────────────────────────
 
@@ -41,22 +40,20 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
-describe('GetAdminAlertsUseCase', () => {
-  describe('execute', () => {
-
+describe("GetAdminAlertsUseCase", () => {
+  describe("execute", () => {
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it("devrait retourner le résultat quand les données sont valides", async () => {
       // Arrange
       // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
       // const input: { filters?: {
-    priorite?: AlertPriorite;
-    statut?: AlertStatut;
-    userId?: number;
-  } } = { /* TODO: renseigner les paramètres */ };
+      //   priorite?: AlertPriorite;
+      //   statut?: AlertStatut;
+      //   userId?: number;
+      // } } = { /* TODO: renseigner les paramètres */ };
 
       // Act
       // const result = await useCase.execute(input);
@@ -69,7 +66,7 @@ describe('GetAdminAlertsUseCase', () => {
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it("devrait lancer une erreur si le repository échoue", async () => {
       // Arrange
       // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
 
@@ -80,6 +77,5 @@ describe('GetAdminAlertsUseCase', () => {
 
     // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
     // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });
