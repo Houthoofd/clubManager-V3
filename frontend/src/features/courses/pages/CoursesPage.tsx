@@ -218,7 +218,7 @@ export default function CoursesPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="courses-page">
       <PageHeader
         title={t("page.title")}
         description={t("page.description")}
@@ -320,6 +320,7 @@ export default function CoursesPage() {
                                   ? "border-blue-200 bg-blue-50"
                                   : "border-gray-200 bg-gray-50"
                               }`}
+                              data-testid={`course-card-${course.id}`}
                             >
                               <div className="flex items-start justify-between gap-2 mb-1.5">
                                 <p
@@ -465,82 +466,84 @@ export default function CoursesPage() {
                 }
               />
             ) : (
-              <DataTable
-                rowKey="id"
-                columns={[
-                  {
-                    key: "date_cours",
-                    label: t("columns.date"),
-                    render: (session: CourseListItemDto) =>
-                      formatDate(session.date_cours),
-                  },
-                  {
-                    key: "type_cours",
-                    label: t("columns.type"),
-                  },
-                  {
-                    key: "horaire",
-                    label: t("columns.schedule"),
-                    render: (session: CourseListItemDto) => (
-                      <span>
-                        {formatTime(session.heure_debut)} –{" "}
-                        {formatTime(session.heure_fin)}
-                      </span>
-                    ),
-                  },
-                  {
-                    key: "recurrent",
-                    label: t("columns.linkedPlanning"),
-                    render: (session: CourseListItemDto) =>
-                      session.cours_recurrent_id ? (
-                        <Badge variant="info" size="sm">
-                          {t("status.yes")}
-                        </Badge>
-                      ) : (
-                        <span className="text-gray-400 text-xs">—</span>
+              <div data-testid="courses-sessions-table">
+                <DataTable
+                  rowKey="id"
+                  columns={[
+                    {
+                      key: "date_cours",
+                      label: t("columns.date"),
+                      render: (session: CourseListItemDto) =>
+                        formatDate(session.date_cours),
+                    },
+                    {
+                      key: "type_cours",
+                      label: t("columns.type"),
+                    },
+                    {
+                      key: "horaire",
+                      label: t("columns.schedule"),
+                      render: (session: CourseListItemDto) => (
+                        <span>
+                          {formatTime(session.heure_debut)} –{" "}
+                          {formatTime(session.heure_fin)}
+                        </span>
                       ),
-                  },
-                  {
-                    key: "status",
-                    label: t("columns.status"),
-                    render: (session: CourseListItemDto) =>
-                      session.annule ? (
-                        <Badge variant="danger" size="sm">
-                          {t("status.cancelled")}
-                        </Badge>
-                      ) : (
-                        <Badge variant="success" size="sm">
-                          {t("status.scheduled")}
-                        </Badge>
+                    },
+                    {
+                      key: "recurrent",
+                      label: t("columns.linkedPlanning"),
+                      render: (session: CourseListItemDto) =>
+                        session.cours_recurrent_id ? (
+                          <Badge variant="info" size="sm">
+                            {t("status.yes")}
+                          </Badge>
+                        ) : (
+                          <span className="text-gray-400 text-xs">—</span>
+                        ),
+                    },
+                    {
+                      key: "status",
+                      label: t("columns.status"),
+                      render: (session: CourseListItemDto) =>
+                        session.annule ? (
+                          <Badge variant="danger" size="sm">
+                            {t("status.cancelled")}
+                          </Badge>
+                        ) : (
+                          <Badge variant="success" size="sm">
+                            {t("status.scheduled")}
+                          </Badge>
+                        ),
+                    },
+                    {
+                      key: "actions",
+                      label: t("columns.actions"),
+                      className: "text-right",
+                      render: (session: CourseListItemDto) => (
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            icon={<ClipboardDocumentIcon className="h-4 w-4" />}
+                            onClick={() => {
+                              setAttendanceCourseId(session.id);
+                              setModal({
+                                type: "attendance",
+                                session,
+                              });
+                            }}
+                          >
+                            {t("buttons.attendance")}
+                          </Button>
+                        </div>
                       ),
-                  },
-                  {
-                    key: "actions",
-                    label: t("columns.actions"),
-                    className: "text-right",
-                    render: (session: CourseListItemDto) => (
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          icon={<ClipboardDocumentIcon className="h-4 w-4" />}
-                          onClick={() => {
-                            setAttendanceCourseId(session.id);
-                            setModal({
-                              type: "attendance",
-                              session,
-                            });
-                          }}
-                        >
-                          {t("buttons.attendance")}
-                        </Button>
-                      </div>
-                    ),
-                  },
-                ]}
-                data={sessions}
-                emptyMessage={t("empty.noSessionsFound")}
-              />
+                    },
+                  ]}
+                  data={sessions}
+                  emptyMessage={t("empty.noSessionsFound")}
+                />
+              </div>
             )}
           </div>
         )}

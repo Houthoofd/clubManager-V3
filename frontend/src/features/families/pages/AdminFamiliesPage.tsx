@@ -246,6 +246,7 @@ export function AdminFamiliesPage({ flat = false }: AdminFamiliesPageProps) {
             onClick={() => setModal({ type: "members", family: row })}
             className="p-1.5 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
             title={t("admin.aria.viewMembers", { id: row.id })}
+            data-testid={`family-members-btn-${row.id}`}
           >
             <UsersIcon className="h-4 w-4" />
           </button>
@@ -295,6 +296,7 @@ export function AdminFamiliesPage({ flat = false }: AdminFamiliesPageProps) {
             onChange={(e) => setSearchInput(e.target.value)}
             iconLeft={<MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />}
             className="max-w-sm"
+            data-testid="families-search-input"
           />
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
@@ -307,6 +309,7 @@ export function AdminFamiliesPage({ flat = false }: AdminFamiliesPageProps) {
                 <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
               }
               className="max-w-sm"
+              data-testid="families-search-input"
             />
           </div>
         )}
@@ -483,6 +486,7 @@ export function AdminFamiliesPage({ flat = false }: AdminFamiliesPageProps) {
                     title={t("admin.aria.removeMember", {
                       name: `${m.user.first_name} ${m.user.last_name}`,
                     })}
+                    data-testid={`remove-member-btn-${m.user_id}`}
                   >
                     <XMarkIcon className="h-4 w-4" />
                   </button>

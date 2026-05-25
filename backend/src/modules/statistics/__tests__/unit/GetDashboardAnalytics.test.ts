@@ -3,8 +3,8 @@
  * @module statistics/__tests__/unit/GetDashboardAnalytics.test
  */
 
-import { GetDashboardAnalytics } from '../../application/usecases/GetDashboardAnalytics.js';
-import type { IStatisticsRepository } from '../../domain/repositories/StatisticsRepository.js';
+import { GetDashboardAnalytics } from "../../application/usecases/GetDashboardAnalytics.js";
+import type { IStatisticsRepository } from "../../domain/repositories/StatisticsRepository.js";
 import type {
   DashboardAnalytics,
   AnalyticsDateRange,
@@ -13,15 +13,15 @@ import type {
   FinancialAnalyticsResponse,
   StoreAnalyticsResponse,
   TrendAnalyticsResponse,
-} from '@clubmanager/types';
+} from "@clubmanager/types";
 
 // ============================================================================
 // MOCK DATA
 // ============================================================================
 
 const mockDateRange: AnalyticsDateRange = {
-  date_debut: new Date('2024-01-01'),
-  date_fin: new Date('2024-12-31'),
+  date_debut: new Date("2024-01-01"),
+  date_fin: new Date("2024-12-31"),
 };
 
 const mockMemberAnalytics: MemberAnalyticsResponse = {
@@ -89,22 +89,22 @@ const mockStoreAnalytics: StoreAnalyticsResponse = {
 
 const mockTrendAnalytics: TrendAnalyticsResponse = {
   member_growth: {
-    type: 'member_growth',
-    period_type: 'month',
+    type: "member_growth",
+    period_type: "month",
     data: [],
     total_variation: 15.3,
     moyenne: 10.5,
   },
   attendance: {
-    type: 'attendance',
-    period_type: 'month',
+    type: "attendance",
+    period_type: "month",
     data: [],
     total_variation: 5.2,
     moyenne: 85.0,
   },
   revenue: {
-    type: 'revenue',
-    period_type: 'month',
+    type: "revenue",
+    period_type: "month",
     data: [],
     total_variation: 12.8,
     moyenne: 2000.0,
@@ -170,7 +170,7 @@ const createMockRepository = (): jest.Mocked<IStatisticsRepository> => ({
 // TESTS
 // ============================================================================
 
-describe('GetDashboardAnalytics Use Case', () => {
+describe("GetDashboardAnalytics Use Case", () => {
   let useCase: GetDashboardAnalytics;
   let mockRepository: jest.Mocked<IStatisticsRepository>;
 
@@ -187,8 +187,8 @@ describe('GetDashboardAnalytics Use Case', () => {
   // SUCCESS CASES
   // ==========================================================================
 
-  describe('Success Cases', () => {
-    it('should retrieve dashboard analytics without date range', async () => {
+  describe("Success Cases", () => {
+    it("should retrieve dashboard analytics without date range", async () => {
       // Act
       const result = await useCase.execute({});
 
@@ -196,12 +196,12 @@ describe('GetDashboardAnalytics Use Case', () => {
       expect(result).toEqual(mockDashboardAnalytics);
       expect(mockRepository.getDashboardAnalytics).toHaveBeenCalledWith(
         undefined,
-        'month'
+        "month",
       );
       expect(mockRepository.getDashboardAnalytics).toHaveBeenCalledTimes(1);
     });
 
-    it('should retrieve dashboard analytics with date range', async () => {
+    it("should retrieve dashboard analytics with date range", async () => {
       // Act
       const result = await useCase.execute({
         dateRange: mockDateRange,
@@ -211,26 +211,26 @@ describe('GetDashboardAnalytics Use Case', () => {
       expect(result).toEqual(mockDashboardAnalytics);
       expect(mockRepository.getDashboardAnalytics).toHaveBeenCalledWith(
         mockDateRange,
-        'month'
+        "month",
       );
     });
 
-    it('should retrieve dashboard analytics with custom period type', async () => {
+    it("should retrieve dashboard analytics with custom period type", async () => {
       // Act
       const result = await useCase.execute({
         dateRange: mockDateRange,
-        periodType: 'week',
+        periodType: "week",
       });
 
       // Assert
       expect(result).toEqual(mockDashboardAnalytics);
       expect(mockRepository.getDashboardAnalytics).toHaveBeenCalledWith(
         mockDateRange,
-        'week'
+        "week",
       );
     });
 
-    it('should retrieve dashboard analytics without trends when includeTrends is false', async () => {
+    it("should retrieve dashboard analytics without trends when includeTrends is false", async () => {
       // Arrange
       const expectedResult = {
         ...mockDashboardAnalytics,
@@ -259,23 +259,23 @@ describe('GetDashboardAnalytics Use Case', () => {
       // Assert
       expect(mockRepository.getDashboardAnalytics).toHaveBeenCalledWith(
         undefined,
-        'month'
+        "month",
       );
     });
 
-    it('should use includeTrends default of true when not specified', async () => {
+    it("should use includeTrends default of true when not specified", async () => {
       // Act
       const result = await useCase.execute({});
 
       // Assert
       expect(result.trends).toBeDefined();
-      expect(result.trends).toHaveProperty('member_growth');
-      expect(result.trends).toHaveProperty('attendance');
-      expect(result.trends).toHaveProperty('revenue');
+      expect(result.trends).toHaveProperty("member_growth");
+      expect(result.trends).toHaveProperty("attendance");
+      expect(result.trends).toHaveProperty("revenue");
     });
 
-    it('should handle all period types correctly', async () => {
-      const periodTypes = ['day', 'week', 'month', 'quarter', 'year'] as const;
+    it("should handle all period types correctly", async () => {
+      const periodTypes = ["day", "week", "month", "quarter", "year"] as const;
 
       for (const periodType of periodTypes) {
         // Act
@@ -287,7 +287,7 @@ describe('GetDashboardAnalytics Use Case', () => {
         // Assert
         expect(mockRepository.getDashboardAnalytics).toHaveBeenCalledWith(
           mockDateRange,
-          periodType
+          periodType,
         );
 
         // Reset mock
@@ -295,20 +295,20 @@ describe('GetDashboardAnalytics Use Case', () => {
       }
     });
 
-    it('should include all required analytics sections in response', async () => {
+    it("should include all required analytics sections in response", async () => {
       // Act
       const result = await useCase.execute({});
 
       // Assert
-      expect(result).toHaveProperty('members');
-      expect(result).toHaveProperty('courses');
-      expect(result).toHaveProperty('finance');
-      expect(result).toHaveProperty('store');
-      expect(result).toHaveProperty('trends');
-      expect(result).toHaveProperty('generated_at');
+      expect(result).toHaveProperty("members");
+      expect(result).toHaveProperty("courses");
+      expect(result).toHaveProperty("finance");
+      expect(result).toHaveProperty("store");
+      expect(result).toHaveProperty("trends");
+      expect(result).toHaveProperty("generated_at");
     });
 
-    it('should pass through all analytics data correctly', async () => {
+    it("should pass through all analytics data correctly", async () => {
       // Act
       const result = await useCase.execute({});
 
@@ -325,31 +325,33 @@ describe('GetDashboardAnalytics Use Case', () => {
   // ERROR CASES
   // ==========================================================================
 
-  describe('Error Cases', () => {
-    it('should throw error when repository fails', async () => {
+  describe("Error Cases", () => {
+    it("should throw error when repository fails", async () => {
       // Arrange
-      const errorMessage = 'Database connection failed';
+      const errorMessage = "Database connection failed";
       mockRepository.getDashboardAnalytics.mockRejectedValueOnce(
-        new Error(errorMessage)
+        new Error(errorMessage),
       );
 
       // Act & Assert
       await expect(useCase.execute({})).rejects.toThrow(
-        `Failed to retrieve dashboard analytics: ${errorMessage}`
+        `Failed to retrieve dashboard analytics: ${errorMessage}`,
       );
     });
 
-    it('should throw error with unknown error message when error is not an Error instance', async () => {
+    it("should throw error with unknown error message when error is not an Error instance", async () => {
       // Arrange
-      mockRepository.getDashboardAnalytics.mockRejectedValueOnce('String error');
+      mockRepository.getDashboardAnalytics.mockRejectedValueOnce(
+        "String error",
+      );
 
       // Act & Assert
       await expect(useCase.execute({})).rejects.toThrow(
-        'Failed to retrieve dashboard analytics: Unknown error'
+        "Failed to retrieve dashboard analytics: Unknown error",
       );
     });
 
-    it('should handle repository returning null gracefully', async () => {
+    it("should handle repository returning null gracefully", async () => {
       // Arrange
       mockRepository.getDashboardAnalytics.mockResolvedValueOnce(null as any);
 
@@ -360,14 +362,14 @@ describe('GetDashboardAnalytics Use Case', () => {
       expect(result).toBeNull();
     });
 
-    it('should propagate repository errors without modification', async () => {
+    it("should propagate repository errors without modification", async () => {
       // Arrange
-      const customError = new Error('Custom repository error');
+      const customError = new Error("Custom repository error");
       mockRepository.getDashboardAnalytics.mockRejectedValueOnce(customError);
 
       // Act & Assert
       await expect(useCase.execute({})).rejects.toThrow(
-        'Failed to retrieve dashboard analytics: Custom repository error'
+        "Failed to retrieve dashboard analytics: Custom repository error",
       );
     });
   });
@@ -376,8 +378,8 @@ describe('GetDashboardAnalytics Use Case', () => {
   // EDGE CASES
   // ==========================================================================
 
-  describe('Edge Cases', () => {
-    it('should handle empty input object', async () => {
+  describe("Edge Cases", () => {
+    it("should handle empty input object", async () => {
       // Act
       const result = await useCase.execute({});
 
@@ -386,7 +388,7 @@ describe('GetDashboardAnalytics Use Case', () => {
       expect(mockRepository.getDashboardAnalytics).toHaveBeenCalled();
     });
 
-    it('should handle undefined input', async () => {
+    it("should handle undefined input", async () => {
       // Act
       const result = await useCase.execute(undefined as any);
 
@@ -394,11 +396,11 @@ describe('GetDashboardAnalytics Use Case', () => {
       expect(result).toEqual(mockDashboardAnalytics);
     });
 
-    it('should handle date range with same start and end date', async () => {
+    it("should handle date range with same start and end date", async () => {
       // Arrange
       const sameDateRange: AnalyticsDateRange = {
-        date_debut: new Date('2024-01-15'),
-        date_fin: new Date('2024-01-15'),
+        date_debut: new Date("2024-01-15"),
+        date_fin: new Date("2024-01-15"),
       };
 
       // Act
@@ -407,15 +409,15 @@ describe('GetDashboardAnalytics Use Case', () => {
       // Assert
       expect(mockRepository.getDashboardAnalytics).toHaveBeenCalledWith(
         sameDateRange,
-        'month'
+        "month",
       );
     });
 
-    it('should handle very long date ranges', async () => {
+    it("should handle very long date ranges", async () => {
       // Arrange
       const longDateRange: AnalyticsDateRange = {
-        date_debut: new Date('2020-01-01'),
-        date_fin: new Date('2024-12-31'),
+        date_debut: new Date("2020-01-01"),
+        date_fin: new Date("2024-12-31"),
       };
 
       // Act
@@ -424,11 +426,11 @@ describe('GetDashboardAnalytics Use Case', () => {
       // Assert
       expect(mockRepository.getDashboardAnalytics).toHaveBeenCalledWith(
         longDateRange,
-        'month'
+        "month",
       );
     });
 
-    it('should handle explicit undefined values in input', async () => {
+    it("should handle explicit undefined values in input", async () => {
       // Act
       await useCase.execute({
         dateRange: undefined,
@@ -439,7 +441,7 @@ describe('GetDashboardAnalytics Use Case', () => {
       // Assert
       expect(mockRepository.getDashboardAnalytics).toHaveBeenCalledWith(
         undefined,
-        'month'
+        "month",
       );
     });
   });
@@ -448,8 +450,8 @@ describe('GetDashboardAnalytics Use Case', () => {
   // INTEGRATION BEHAVIOR
   // ==========================================================================
 
-  describe('Integration Behavior', () => {
-    it('should call repository exactly once per execution', async () => {
+  describe("Integration Behavior", () => {
+    it("should call repository exactly once per execution", async () => {
       // Act
       await useCase.execute({});
 
@@ -457,11 +459,11 @@ describe('GetDashboardAnalytics Use Case', () => {
       expect(mockRepository.getDashboardAnalytics).toHaveBeenCalledTimes(1);
     });
 
-    it('should not modify input parameters', async () => {
+    it("should not modify input parameters", async () => {
       // Arrange
       const input = {
         dateRange: { ...mockDateRange },
-        periodType: 'month' as const,
+        periodType: "month" as const,
         includeTrends: true,
       };
       const inputCopy = JSON.parse(JSON.stringify(input));
@@ -473,18 +475,18 @@ describe('GetDashboardAnalytics Use Case', () => {
       expect(JSON.stringify(input)).toEqual(JSON.stringify(inputCopy));
     });
 
-    it('should handle concurrent executions independently', async () => {
+    it("should handle concurrent executions independently", async () => {
       // Act
       const [result1, result2, result3] = await Promise.all([
         useCase.execute({}),
-        useCase.execute({ periodType: 'week' }),
+        useCase.execute({ periodType: "week" }),
         useCase.execute({ includeTrends: false }),
       ]);
 
       // Assert
       expect(result1).toEqual(mockDashboardAnalytics);
       expect(result2).toEqual(mockDashboardAnalytics);
-      expect(result3.trends).toEqual({ date_range: undefined });
+      expect(Object.keys(result3.trends)).toEqual(["date_range"]);
       expect(mockRepository.getDashboardAnalytics).toHaveBeenCalledTimes(3);
     });
   });

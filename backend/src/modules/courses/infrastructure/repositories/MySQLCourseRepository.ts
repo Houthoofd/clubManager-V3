@@ -1248,7 +1248,7 @@ export class MySQLCourseRepository implements ICourseRepository {
       const [sessionRows] = await connection.execute<RowDataPacket[]>(
         `SELECT c.id, cr.type_cours, c.date_cours, cr.heure_debut, cr.heure_fin
          FROM cours c
-         JOIN cours_recurrents cr ON c.cours_recurrent_id = cr.id
+         JOIN cours_recurrent cr ON c.cours_recurrent_id = cr.id
          WHERE c.id = ?`,
         [sessionId],
       );
@@ -1257,9 +1257,9 @@ export class MySQLCourseRepository implements ICourseRepository {
 
       // Professeurs
       const [profRows] = await connection.execute<RowDataPacket[]>(
-        `SELECT CONCAT(u.prenom, ' ', u.nom) AS nom_complet
+        `SELECT CONCAT(p.prenom, ' ', p.nom) AS nom_complet
          FROM cours_recurrent_professeur crp
-         JOIN utilisateurs u ON crp.professeur_id = u.id
+         JOIN professeurs p ON p.id = crp.professeur_id
          WHERE crp.cours_recurrent_id = (
            SELECT cours_recurrent_id FROM cours WHERE id = ?
          )`,
@@ -1269,16 +1269,16 @@ export class MySQLCourseRepository implements ICourseRepository {
       // Inscriptions
       const [insRows] = await connection.execute<RowDataPacket[]>(
         `SELECT
-           CONCAT(u.prenom, ' ', u.nom) AS nom_complet,
+           CONCAT(u.first_name, ' ', u.last_name) AS nom_complet,
            g.nom AS grade,
-           si.status_id,
+           i.status_id,
            i.commentaire
          FROM inscriptions i
          JOIN utilisateurs u ON i.user_id = u.id
          LEFT JOIN grades g ON u.grade_id = g.id
-         LEFT JOIN statuts_inscription si ON i.statut_id = si.id
+         LEFT JOIN status s ON s.id = i.status_id
          WHERE i.cours_id = ?
-         ORDER BY u.nom, u.prenom`,
+         ORDER BY u.last_name, u.first_name`,
         [sessionId],
       );
 

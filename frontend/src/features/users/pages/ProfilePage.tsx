@@ -592,6 +592,7 @@ export function ProfilePage() {
                     >
                       <input
                         id="first_name"
+                        data-testid="profile-firstname-input"
                         type="text"
                         value={formValues.first_name}
                         onChange={(e) =>
@@ -752,6 +753,7 @@ export function ProfilePage() {
                     <Button
                       type="button"
                       variant="outline"
+                      data-testid="profile-cancel-btn"
                       onClick={handleCancel}
                       disabled={mutation.isPending}
                     >
@@ -760,6 +762,7 @@ export function ProfilePage() {
                     <Button
                       type="submit"
                       variant="primary"
+                      data-testid="profile-save-btn"
                       loading={mutation.isPending}
                       icon={
                         !mutation.isPending ? (

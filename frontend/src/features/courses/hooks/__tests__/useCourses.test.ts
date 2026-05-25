@@ -7,7 +7,6 @@
  * Feature    : courses
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'jest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { renderWithProviders } from '@/shared/test/renderWithProviders';
 import { useCourses, useCourseProfessors, useAssignProfessor, useUnassignProfessor, courseKeys } from '../useCourses';

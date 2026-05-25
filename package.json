@@ -8,7 +8,8 @@
   "workspaces": [
     "backend",
     "frontend",
-    "packages/*"
+    "packages/*",
+    "e2e"
   ],
   "scripts": {
     "generate:tests": "unitix",
@@ -36,7 +37,11 @@
     "db:migrate": "mysql -u root -p < db/creation/SCHEMA_CONSOLIDATE.sql",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "docker:logs": "docker-compose logs -f"
+    "docker:logs": "docker-compose logs -f",
+    "e2e": "pnpm --filter @clubmanager/e2e test",
+    "e2e:ui": "pnpm --filter @clubmanager/e2e test:ui",
+    "e2e:report": "pnpm --filter @clubmanager/e2e test:report",
+    "e2e:seed": "pnpm --filter @clubmanager/e2e seed"
   },
   "devDependencies": {
     "@houthoofd/unitix": "^0.1.0",

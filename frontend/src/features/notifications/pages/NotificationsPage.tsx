@@ -201,6 +201,7 @@ function NotificationItem({
         ${config.borderColor}
         ${notification.lu ? "bg-white" : config.bgColor}
       `}
+      data-testid={`notification-item-${notification.id}`}
     >
       {/* Type icon */}
       <config.Icon
@@ -253,6 +254,7 @@ function NotificationItem({
       <button
         onClick={() => onDelete(notification.id)}
         disabled={isDeletingOne}
+        data-testid={`notification-delete-${notification.id}`}
         className="flex-shrink-0 flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-0.5"
         title="Supprimer cette notification"
       >
@@ -334,7 +336,10 @@ export function NotificationsPage() {
 
   return (
     <>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div
+        className="max-w-4xl mx-auto space-y-6"
+        data-testid="notifications-page"
+      >
         {/* Page header */}
         <div className="flex items-center justify-between">
           <div>
@@ -358,6 +363,7 @@ export function NotificationsPage() {
             {isAdmin && (
               <button
                 onClick={() => setIsBroadcastOpen(true)}
+                data-testid="broadcast-notification-btn"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition-colors"
               >
                 <BullhornIcon className="w-4 h-4" />
@@ -372,6 +378,7 @@ export function NotificationsPage() {
                 <button
                   onClick={handleMarkAllAsRead}
                   disabled={isMarkingAll}
+                  data-testid="mark-all-read-btn"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isMarkingAll ? (
@@ -408,6 +415,7 @@ export function NotificationsPage() {
               <button
                 onClick={handleDeleteAll}
                 disabled={isDeletingAll}
+                data-testid="delete-all-btn"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isDeletingAll ? (
@@ -532,7 +540,10 @@ export function NotificationsPage() {
             </div>
           ) : (
             /* Notification list */
-            <ul className="divide-y divide-gray-100">
+            <ul
+              className="divide-y divide-gray-100"
+              data-testid="notifications-list"
+            >
               {filtered.map((notification) => (
                 <li key={notification.id}>
                   <NotificationItem

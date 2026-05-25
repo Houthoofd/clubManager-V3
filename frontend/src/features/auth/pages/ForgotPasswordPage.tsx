@@ -83,7 +83,11 @@ export const ForgotPasswordPage = () => {
       }
     >
       {!emailSent ? (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-6"
+          data-testid="forgot-password-form"
+        >
           {/* Email Field */}
           <FormField
             id="email"
@@ -99,6 +103,7 @@ export const ForgotPasswordPage = () => {
                 id="email"
                 type="email"
                 autoComplete="email"
+                data-testid="forgot-password-email-input"
                 {...register("email")}
                 className={`block w-full pl-10 pr-3 py-3 border ${
                   errors.email
@@ -115,6 +120,7 @@ export const ForgotPasswordPage = () => {
             isLoading={isSubmitting}
             loadingText={t("forgotPassword.sending")}
             fullWidth
+            data-testid="forgot-password-submit-btn"
           >
             {t("forgotPassword.submit")}
           </SubmitButton>
@@ -124,6 +130,7 @@ export const ForgotPasswordPage = () => {
             <Link
               to="/login"
               className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              data-testid="forgot-password-login-link"
             >
               {t("forgotPassword.backToLogin")}
             </Link>
@@ -131,7 +138,7 @@ export const ForgotPasswordPage = () => {
         </form>
       ) : (
         // État de succès (email envoyé)
-        <div className="text-center py-8">
+        <div className="text-center py-8" data-testid="forgot-password-success">
           <CheckCircleIcon className="h-16 w-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             {t("forgotPassword.checkEmail")}

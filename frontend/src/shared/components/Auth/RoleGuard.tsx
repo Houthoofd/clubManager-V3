@@ -2,9 +2,9 @@
  * RoleGuard Component
  * Protège les routes selon le rôle de l'utilisateur
  */
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { UserRole } from '@clubmanager/types';
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { UserRole } from "@clubmanager/types";
 
 interface RoleGuardProps {
   children: React.ReactNode;
@@ -19,7 +19,7 @@ interface RoleGuardProps {
 export const RoleGuard: React.FC<RoleGuardProps> = ({
   children,
   allowedRoles,
-  redirectTo = '/dashboard',
+  redirectTo = "/dashboard",
 }) => {
   const { user } = useAuth();
   const location = useLocation();
@@ -30,7 +30,7 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
     return (
       <Navigate
         to={redirectTo}
-        state={{ from: location, reason: 'INSUFFICIENT_ROLE' }}
+        state={{ from: location, reason: "INSUFFICIENT_ROLE" }}
         replace
       />
     );

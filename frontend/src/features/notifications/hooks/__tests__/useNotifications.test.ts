@@ -7,7 +7,6 @@
  * Feature    : notifications
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'jest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { renderWithProviders } from '@/shared/test/renderWithProviders';
 import { useNotificationCount, useNotifications, useMarkAsRead, useMarkAllAsRead, useDeleteNotification, useDeleteAllNotifications, useBroadcastNotification, notificationKeys } from '../useNotifications';

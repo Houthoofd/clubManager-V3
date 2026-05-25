@@ -1,0 +1,31 @@
+{
+  "name": "@clubmanager/e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tests E2E Playwright — ClubManager V3",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "codegen": "playwright codegen http://localhost:5173",
+    "e2e:auth": "playwright test tests/auth/",
+    "e2e:navigation": "playwright test tests/navigation/",
+    "e2e:member": "playwright test tests/member/",
+    "e2e:admin": "playwright test tests/admin/",
+    "e2e:flows": "playwright test tests/flows/",
+    "seed": "npx tsx setup/seed-e2e.ts"
+  },
+  "dependencies": {
+    "mysql2": "^3.11.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^24.0.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.4.2"
+  }
+}

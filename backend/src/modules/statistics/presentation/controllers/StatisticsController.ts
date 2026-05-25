@@ -6,18 +6,16 @@
  * Handles requests for member, course, financial, store, and trend analytics.
  */
 
-import type { Request, Response, NextFunction } from 'express';
-import type { AnalyticsDateRange, PeriodType } from '@clubmanager/types';
-import type { IStatisticsRepository } from '../../domain/repositories/StatisticsRepository.js';
-import { GetDashboardAnalytics } from '../../application/usecases/GetDashboardAnalytics.js';
-import { GetCourseAnalytics } from '../../application/usecases/GetCourseAnalytics.js';
-import { GetFinancialAnalytics } from '../../application/usecases/GetFinancialAnalytics.js';
-import { GetStoreAnalytics } from '../../application/usecases/GetStoreAnalytics.js';
-import { GetTrendAnalytics } from '../../application/usecases/GetTrendAnalytics.js';
-import { CreateStatisticsSnapshot } from '../../application/usecases/CreateStatisticsSnapshot.js';
-import { GetStatisticsHistory } from '../../application/usecases/GetStatisticsHistory.js';
-import { CreateStatisticsSnapshot } from '../../application/usecases/CreateStatisticsSnapshot.js';
-import { GetStatisticsHistory } from '../../application/usecases/GetStatisticsHistory.js';
+import type { Request, Response, NextFunction } from "express";
+import type { AnalyticsDateRange, PeriodType } from "@clubmanager/types";
+import type { IStatisticsRepository } from "../../domain/repositories/StatisticsRepository.js";
+import { GetDashboardAnalytics } from "../../application/usecases/GetDashboardAnalytics.js";
+import { GetCourseAnalytics } from "../../application/usecases/GetCourseAnalytics.js";
+import { GetFinancialAnalytics } from "../../application/usecases/GetFinancialAnalytics.js";
+import { GetStoreAnalytics } from "../../application/usecases/GetStoreAnalytics.js";
+import { GetTrendAnalytics } from "../../application/usecases/GetTrendAnalytics.js";
+import { CreateStatisticsSnapshot } from "../../application/usecases/CreateStatisticsSnapshot.js";
+import { GetStatisticsHistory } from "../../application/usecases/GetStatisticsHistory.js";
 
 /**
  * Statistics Controller
@@ -38,18 +36,25 @@ export class StatisticsController {
    * - period_type: 'day' | 'week' | 'month' | 'quarter' | 'year' (optional, default: 'month')
    * - include_trends: boolean (optional, default: true)
    */
-  getDashboard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getDashboard = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const { date_debut, date_fin, period_type, include_trends } = req.query;
 
       // Parse date range if provided
-      const dateRange = this.parseDateRange(date_debut as string, date_fin as string);
+      const dateRange = this.parseDateRange(
+        date_debut as string,
+        date_fin as string,
+      );
 
       // Parse period type
-      const periodType = (period_type as PeriodType) || 'month';
+      const periodType = (period_type as PeriodType) || "month";
 
       // Parse include trends
-      const includeTrends = include_trends !== 'false';
+      const includeTrends = include_trends !== "false";
 
       // Execute use case
       const useCase = new GetDashboardAnalytics(this.statisticsRepository);
@@ -76,15 +81,23 @@ export class StatisticsController {
    * - date_debut: ISO date string (optional)
    * - date_fin: ISO date string (optional)
    */
-  getMemberAnalytics = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getMemberAnalytics = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const { date_debut, date_fin } = req.query;
 
       // Parse date range if provided
-      const dateRange = this.parseDateRange(date_debut as string, date_fin as string);
+      const dateRange = this.parseDateRange(
+        date_debut as string,
+        date_fin as string,
+      );
 
       // Get analytics directly from repository
-      const analytics = await this.statisticsRepository.getMemberAnalytics(dateRange);
+      const analytics =
+        await this.statisticsRepository.getMemberAnalytics(dateRange);
 
       res.status(200).json({
         success: true,
@@ -103,12 +116,19 @@ export class StatisticsController {
    * - date_debut: ISO date string (optional)
    * - date_fin: ISO date string (optional)
    */
-  getCourseAnalytics = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getCourseAnalytics = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const { date_debut, date_fin } = req.query;
 
       // Parse date range if provided
-      const dateRange = this.parseDateRange(date_debut as string, date_fin as string);
+      const dateRange = this.parseDateRange(
+        date_debut as string,
+        date_fin as string,
+      );
 
       // Execute use case
       const useCase = new GetCourseAnalytics(this.statisticsRepository);
@@ -131,12 +151,19 @@ export class StatisticsController {
    * - date_debut: ISO date string (optional)
    * - date_fin: ISO date string (optional)
    */
-  getFinancialAnalytics = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getFinancialAnalytics = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const { date_debut, date_fin } = req.query;
 
       // Parse date range if provided
-      const dateRange = this.parseDateRange(date_debut as string, date_fin as string);
+      const dateRange = this.parseDateRange(
+        date_debut as string,
+        date_fin as string,
+      );
 
       // Execute use case
       const useCase = new GetFinancialAnalytics(this.statisticsRepository);
@@ -159,12 +186,19 @@ export class StatisticsController {
    * - date_debut: ISO date string (optional)
    * - date_fin: ISO date string (optional)
    */
-  getStoreAnalytics = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getStoreAnalytics = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const { date_debut, date_fin } = req.query;
 
       // Parse date range if provided
-      const dateRange = this.parseDateRange(date_debut as string, date_fin as string);
+      const dateRange = this.parseDateRange(
+        date_debut as string,
+        date_fin as string,
+      );
 
       // Execute use case
       const useCase = new GetStoreAnalytics(this.statisticsRepository);
@@ -188,7 +222,11 @@ export class StatisticsController {
    * - date_fin: ISO date string (required)
    * - period_type: 'day' | 'week' | 'month' | 'quarter' | 'year' (optional, default: 'month')
    */
-  getTrendAnalytics = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getTrendAnalytics = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const { date_debut, date_fin, period_type } = req.query;
 
@@ -196,23 +234,27 @@ export class StatisticsController {
       if (!date_debut || !date_fin) {
         res.status(400).json({
           success: false,
-          error: 'Date range is required for trend analytics (date_debut and date_fin)',
+          error:
+            "Date range is required for trend analytics (date_debut and date_fin)",
         });
         return;
       }
 
-      const dateRange = this.parseDateRange(date_debut as string, date_fin as string);
+      const dateRange = this.parseDateRange(
+        date_debut as string,
+        date_fin as string,
+      );
 
       if (!dateRange) {
         res.status(400).json({
           success: false,
-          error: 'Invalid date range provided',
+          error: "Invalid date range provided",
         });
         return;
       }
 
       // Parse period type
-      const periodType = (period_type as PeriodType) || 'month';
+      const periodType = (period_type as PeriodType) || "month";
 
       // Execute use case
       const useCase = new GetTrendAnalytics(this.statisticsRepository);
@@ -241,62 +283,69 @@ export class StatisticsController {
    * - date_debut: ISO date string (optional)
    * - date_fin: ISO date string (optional)
    */
-  getMetric = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getMetric = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const { metric } = req.params;
       const { date_debut, date_fin } = req.query;
 
       // Parse date range if provided
-      const dateRange = this.parseDateRange(date_debut as string, date_fin as string);
+      const dateRange = this.parseDateRange(
+        date_debut as string,
+        date_fin as string,
+      );
 
       let value: number;
 
       // Route to appropriate repository method
       switch (metric) {
-        case 'total-members':
+        case "total-members":
           value = await this.statisticsRepository.getTotalMembers();
           break;
 
-        case 'active-members':
+        case "active-members":
           value = await this.statisticsRepository.getTotalMembers(true);
           break;
 
-        case 'new-members':
+        case "new-members":
           if (!dateRange) {
             res.status(400).json({
               success: false,
-              error: 'Date range is required for new members metric',
+              error: "Date range is required for new members metric",
             });
             return;
           }
           value = await this.statisticsRepository.getNewMembersCount(dateRange);
           break;
 
-        case 'total-courses':
+        case "total-courses":
           value = await this.statisticsRepository.getTotalCourses(dateRange);
           break;
 
-        case 'attendance-rate':
+        case "attendance-rate":
           value = await this.statisticsRepository.getAttendanceRate(dateRange);
           break;
 
-        case 'total-revenue':
+        case "total-revenue":
           value = await this.statisticsRepository.getTotalRevenue(dateRange);
           break;
 
-        case 'late-payments-count':
+        case "late-payments-count":
           value = await this.statisticsRepository.getLatePaymentsCount();
           break;
 
-        case 'late-payments-amount':
+        case "late-payments-amount":
           value = await this.statisticsRepository.getLatePaymentsAmount();
           break;
 
-        case 'total-orders':
+        case "total-orders":
           value = await this.statisticsRepository.getTotalOrders(dateRange);
           break;
 
-        case 'store-revenue':
+        case "store-revenue":
           value = await this.statisticsRepository.getStoreRevenue(dateRange);
           break;
 
@@ -326,20 +375,24 @@ export class StatisticsController {
    * Health check endpoint
    * GET /api/statistics/health
    */
-  healthCheck = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  healthCheck = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const isHealthy = await this.statisticsRepository.healthCheck();
 
       if (isHealthy) {
         res.status(200).json({
           success: true,
-          message: 'Statistics service is healthy',
+          message: "Statistics service is healthy",
           timestamp: new Date(),
         });
       } else {
         res.status(503).json({
           success: false,
-          error: 'Statistics service is unhealthy',
+          error: "Statistics service is unhealthy",
           timestamp: new Date(),
         });
       }
@@ -352,7 +405,11 @@ export class StatisticsController {
    * Create a statistics snapshot
    * POST /api/statistics/snapshot
    */
-  createSnapshot = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  createSnapshot = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const useCase = new CreateStatisticsSnapshot(this.statisticsRepository);
       const result = await useCase.execute();
@@ -366,13 +423,17 @@ export class StatisticsController {
    * Get statistics snapshot history
    * GET /api/statistics/history?type=membres&limit=50
    */
-  getHistory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getHistory = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const { type, limit } = req.query;
       const useCase = new GetStatisticsHistory(this.statisticsRepository);
       const history = await useCase.execute(
         type as string | undefined,
-        limit ? parseInt(limit as string, 10) : undefined
+        limit ? parseInt(limit as string, 10) : undefined,
       );
       res.status(200).json({ success: true, data: history });
     } catch (error) {
@@ -393,7 +454,7 @@ export class StatisticsController {
    */
   private parseDateRange(
     dateDebut?: string,
-    dateFin?: string
+    dateFin?: string,
   ): AnalyticsDateRange | undefined {
     if (!dateDebut || !dateFin) {
       return undefined;
@@ -426,6 +487,6 @@ export class StatisticsController {
    * @returns True if valid
    */
   private isValidPeriodType(periodType: string): periodType is PeriodType {
-    return ['day', 'week', 'month', 'quarter', 'year'].includes(periodType);
+    return ["day", "week", "month", "quarter", "year"].includes(periodType);
   }
 }

@@ -189,8 +189,12 @@
       "type": "Course type",
       "time": "Time",
       "presence": "Attendance",
-      "status": "Status"
+      "status": "Status",
+      "actions": "Actions"
     },
+    "unsubscribe": "Unsubscribe",
+    "unsubscribeSuccess": "Successfully unsubscribed.",
+    "unsubscribeError": "Error while unsubscribing.",
     "presence": {
       "present": "Present",
       "absent": "Absent",

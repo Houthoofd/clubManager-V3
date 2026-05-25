@@ -164,7 +164,10 @@ export const MessagesPage = () => {
   // -- Render ------------------------------------------------------------------
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem-3rem)] bg-white rounded-xl shadow overflow-hidden border border-gray-200">
+    <div
+      className="flex flex-col h-[calc(100vh-4rem-3rem)] bg-white rounded-xl shadow overflow-hidden border border-gray-200"
+      data-testid="messages-page"
+    >
       {/* ================================================================
           Header -- Onglets + Bouton Nouveau message
       ================================================================ */}
@@ -187,6 +190,7 @@ export const MessagesPage = () => {
               size="md"
               icon={<PencilAltIcon style={{ fontSize: "16px" }} />}
               onClick={() => setIsComposeOpen(true)}
+              data-testid="messages-compose-btn"
             >
               {t("actions.newMessage")}
             </Button>
@@ -264,7 +268,7 @@ export const MessagesPage = () => {
             )}
 
             {/* Liste scrollable */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto" data-testid="messages-list">
               {isLoading ? (
                 // Spinner de chargement
                 <LoadingSpinner

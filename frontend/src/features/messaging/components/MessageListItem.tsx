@@ -105,6 +105,7 @@ export const MessageListItem = ({
         "relative w-full text-left border-b border-gray-100 transition-colors group",
         isSelected ? "bg-blue-50" : "bg-white hover:bg-gray-50",
       ].join(" ")}
+      data-testid={`message-item-${message.id}`}
     >
       <button
         type="button"

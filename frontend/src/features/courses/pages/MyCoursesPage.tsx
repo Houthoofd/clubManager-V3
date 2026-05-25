@@ -4,11 +4,13 @@
  */
 
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
   CalendarDaysIcon,
   CheckCircleIcon,
   XCircleIcon,
   ClockIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { DataTable } from "../../../shared/components/Table/DataTable";
@@ -48,7 +50,12 @@ function PresenceBadge({ presence }: { presence: boolean | null }) {
 
 export function MyCoursesPage() {
   const { t } = useTranslation("courses");
-  const { myEnrollments, myEnrollmentsLoading } = useCourses();
+  const {
+    myEnrollments,
+    myEnrollmentsLoading,
+    deleteInscription,
+    deleteInscriptionLoading,
+  } = useCourses();
 
   // Format "HH:MM:SS" → "HH:MM"
   const formatTime = (time: string) => time?.slice(0, 5) ?? "—";
@@ -93,22 +100,46 @@ export function MyCoursesPage() {
         <span className="text-sm text-gray-500">{row.status_nom ?? "—"}</span>
       ),
     },
+    {
+      key: "actions",
+      label: t("myCourses.columns.actions"),
+      render: (_: unknown, row: MyEnrollmentDto) => (
+        <button
+          onClick={async () => {
+            try {
+              await deleteInscription(row.inscription_id);
+              toast.success(t("myCourses.unsubscribeSuccess"));
+            } catch {
+              toast.error(t("myCourses.unsubscribeError"));
+            }
+          }}
+          disabled={deleteInscriptionLoading}
+          data-testid={`course-unsubscribe-btn-${row.inscription_id}`}
+          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <TrashIcon className="h-3.5 w-3.5" />
+          {t("myCourses.unsubscribe")}
+        </button>
+      ),
+    },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="my-courses-page">
       <PageHeader
         icon={<CalendarDaysIcon className="h-8 w-8 text-blue-600" />}
         title={t("myCourses.title")}
         description={t("myCourses.description")}
       />
-      <DataTable
-        columns={columns}
-        data={myEnrollments}
-        rowKey="inscription_id"
-        loading={myEnrollmentsLoading}
-        emptyMessage={t("myCourses.empty")}
-      />
+      <div data-testid="my-courses-table">
+        <DataTable
+          columns={columns}
+          data={myEnrollments}
+          rowKey="inscription_id"
+          loading={myEnrollmentsLoading}
+          emptyMessage={t("myCourses.empty")}
+        />
+      </div>
     </div>
   );
 }

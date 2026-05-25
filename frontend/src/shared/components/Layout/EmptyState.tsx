@@ -49,6 +49,8 @@ export interface EmptyStateProps {
     label: string;
     /** Fonction appelée au clic */
     onClick: () => void;
+    /** data-testid optionnel pour les tests E2E */
+    testId?: string;
   };
 
   /**
@@ -105,7 +107,12 @@ export function EmptyState({
       {/* Action (Bouton) */}
       {action && (
         <div className="mt-4">
-          <Button variant="primary" size="sm" onClick={action.onClick}>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={action.onClick}
+            data-testid={action.testId}
+          >
             {action.label}
           </Button>
         </div>

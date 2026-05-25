@@ -7,7 +7,6 @@
  * Feature    : dashboard
  */
 
-import { describe, it, expect } from 'jest';
 import { screen } from '@testing-library/react';
 import { render } from '@testing-library/react';
 import { WelcomeBanner } from '../WelcomeBanner';

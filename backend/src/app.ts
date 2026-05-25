@@ -150,8 +150,75 @@ const createApp = (): Express => {
       console.error("[Stack Trace]", error.stack);
     }
 
-    // Determine status code
-    const statusCode = error.statusCode || error.status || 500;
+    // ── Determine HTTP status code ─────────────────────────────────────────
+    // 1. If the error already has a statusCode/status (e.g. set by middleware)
+    // 2. Map well-known domain error messages to proper HTTP codes
+    // 3. Fall back to 500
+    let statusCode: number = error.statusCode || error.status;
+
+    if (!statusCode) {
+      const msg: string = (error.message || "").toLowerCase();
+
+      // 401 — authentication failures
+      if (
+        msg.includes("invalide") ||
+        msg.includes("invalid") ||
+        msg.includes("mot de passe") ||
+        msg.includes("identifiant") ||
+        msg.includes("not authenticated") ||
+        msg.includes("unauthorized") ||
+        msg.includes("not authorized") ||
+        msg.includes("access denied") ||
+        msg.includes("token") ||
+        msg.includes("jwt")
+      ) {
+        statusCode = 401;
+      }
+      // 403 — forbidden
+      else if (
+        msg.includes("forbidden") ||
+        msg.includes("interdit") ||
+        msg.includes("permission") ||
+        msg.includes("acc\u00e8s refus\u00e9")
+      ) {
+        statusCode = 403;
+      }
+      // 404 — not found
+      else if (
+        msg.includes("not found") ||
+        msg.includes("introuvable") ||
+        msg.includes("n'existe pas")
+      ) {
+        statusCode = 404;
+      }
+      // 409 — conflict (duplicate email, existing resource)
+      else if (
+        msg.includes("d\u00e9j\u00e0") ||
+        msg.includes("already") ||
+        msg.includes("duplicate") ||
+        msg.includes("existe") ||
+        msg.includes("associ\u00e9")
+      ) {
+        statusCode = 409;
+      }
+      // 422 / 400 — validation errors
+      else if (
+        msg.includes("requis") ||
+        msg.includes("required") ||
+        msg.includes("invalide") ||
+        msg.includes("format") ||
+        msg.includes("must be") ||
+        msg.includes("doit") ||
+        msg.includes("trop court") ||
+        msg.includes("trop long")
+      ) {
+        statusCode = 422;
+      }
+      // Default
+      else {
+        statusCode = 500;
+      }
+    }
 
     // Send error response
     res.status(statusCode).json({

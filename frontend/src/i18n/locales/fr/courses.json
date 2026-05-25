@@ -189,8 +189,12 @@
       "type": "Type de cours",
       "time": "Horaire",
       "presence": "Présence",
-      "status": "Statut"
+      "status": "Statut",
+      "actions": "Actions"
     },
+    "unsubscribe": "Se désinscrire",
+    "unsubscribeSuccess": "Désinscription effectuée.",
+    "unsubscribeError": "Erreur lors de la désinscription.",
     "presence": {
       "present": "Présent",
       "absent": "Absent",

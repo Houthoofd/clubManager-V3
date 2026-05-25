@@ -7,7 +7,7 @@
  * Module     : auth
  */
 
-jest.mock('../services/EmailService.js');
+jest.mock('../../services/EmailService.js');
 
 import { RequestEmailChangeUseCase } from '../RequestEmailChangeUseCase';
 import type { IAuthRepository } from '../../../domain/repositories/IAuthRepository';

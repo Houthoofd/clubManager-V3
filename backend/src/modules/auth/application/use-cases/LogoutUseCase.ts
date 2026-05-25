@@ -49,9 +49,9 @@ export class LogoutUseCase {
    * @returns Promise<{ success: true; message: string }> - Confirmation
    */
   async logoutAllDevices(
-    userId: number
+    userId: number,
   ): Promise<{ success: true; message: string }> {
-    if (!userId) {
+    if (!userId || userId <= 0) {
       throw new Error("User ID is required");
     }
 
