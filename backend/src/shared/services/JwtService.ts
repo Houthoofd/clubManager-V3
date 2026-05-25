@@ -5,6 +5,7 @@
  */
 
 import jwt from "jsonwebtoken";
+import { randomUUID } from "crypto";
 import type { JwtPayload, DecodedToken, TokenPair } from "@clubmanager/types";
 
 // Configuration JWT depuis les variables d'environnement
@@ -33,6 +34,7 @@ export class JwtService {
       expiresIn: JWT_ACCESS_EXPIRES_IN,
       issuer: "clubmanager",
       audience: "clubmanager-api",
+      jwtid: randomUUID(), // unique ID — prevents hash collisions on fast token rotation
     });
   }
 
@@ -51,6 +53,7 @@ export class JwtService {
       expiresIn: JWT_REFRESH_EXPIRES_IN,
       issuer: "clubmanager",
       audience: "clubmanager-api",
+      jwtid: randomUUID(), // unique ID — prevents hash collisions on fast token rotation
     });
   }
 

@@ -6,7 +6,7 @@
  * Provides real-time analytics queries across all modules.
  */
 
-import type { RowDataPacket } from 'mysql2/promise';
+import type { RowDataPacket } from "mysql2/promise";
 import type {
   AnalyticsDateRange,
   PeriodType,
@@ -36,9 +36,9 @@ import type {
   AttendanceTrend,
   RevenueTrend,
   DashboardAnalytics,
-} from '@clubmanager/types';
-import type { IStatisticsRepository } from '../domain/repositories/StatisticsRepository.js';
-import { pool } from '../../../core/config/database.js';
+} from "@clubmanager/types";
+import type { IStatisticsRepository } from "../domain/repositories/StatisticsRepository.js";
+import { pool } from "@/core/database/connection.js";
 
 /**
  * MySQL Statistics Repository Implementation
@@ -54,7 +54,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get comprehensive member analytics
    */
-  async getMemberAnalytics(dateRange?: AnalyticsDateRange): Promise<MemberAnalyticsResponse> {
+  async getMemberAnalytics(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<MemberAnalyticsResponse> {
     const overview = await this.getMemberStatisticsOverview(dateRange);
     const byGrade = await this.getMembersByGrade(dateRange);
     const byGender = await this.getMembersByGender(dateRange);
@@ -72,7 +74,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get member statistics overview
    */
-  private async getMemberStatisticsOverview(dateRange?: AnalyticsDateRange): Promise<MemberStatistics> {
+  private async getMemberStatisticsOverview(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<MemberStatistics> {
     const sql = `
       SELECT
         COUNT(*) as total_membres,
@@ -82,7 +86,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         SUM(CASE WHEN date_inscription >= DATE_SUB(NOW(), INTERVAL 1 WEEK) THEN 1 ELSE 0 END) as nouveaux_membres_semaine
       FROM utilisateurs
       WHERE role_id != 1
-      ${dateRange ? 'AND date_inscription BETWEEN ? AND ?' : ''}
+      ${dateRange ? "AND date_inscription BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -94,7 +98,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       dateRange || {
         date_debut: new Date(new Date().setMonth(new Date().getMonth() - 1)),
         date_fin: new Date(),
-      }
+      },
     );
 
     return {
@@ -111,24 +115,33 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get members by grade
    */
-  private async getMembersByGrade(dateRange?: AnalyticsDateRange): Promise<MembersByGrade[]> {
+  private async getMembersByGrade(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<MembersByGrade[]> {
     const sql = `
       SELECT
         g.grade_id,
         g.nom as grade_nom,
         COUNT(u.utilisateur_id) as count,
-        (COUNT(u.utilisateur_id) * 100.0 / (SELECT COUNT(*) FROM utilisateurs WHERE role_id != 1 ${dateRange ? 'AND date_inscription BETWEEN ? AND ?' : ''})) as pourcentage
+        (COUNT(u.utilisateur_id) * 100.0 / (SELECT COUNT(*) FROM utilisateurs WHERE role_id != 1 ${dateRange ? "AND date_inscription BETWEEN ? AND ?" : ""})) as pourcentage
       FROM grades g
       LEFT JOIN utilisateurs u ON g.grade_id = u.grade_id AND u.role_id != 1
-      ${dateRange ? 'AND u.date_inscription BETWEEN ? AND ?' : ''}
+      ${dateRange ? "AND u.date_inscription BETWEEN ? AND ?" : ""}
       GROUP BY g.grade_id, g.nom
       ORDER BY g.ordre
     `;
 
-    const params = dateRange ? [dateRange.date_debut, dateRange.date_fin, dateRange.date_debut, dateRange.date_fin] : [];
+    const params = dateRange
+      ? [
+          dateRange.date_debut,
+          dateRange.date_fin,
+          dateRange.date_debut,
+          dateRange.date_fin,
+        ]
+      : [];
     const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       grade_id: row.grade_id,
       grade_nom: row.grade_nom,
       count: Number(row.count) || 0,
@@ -139,24 +152,33 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get members by gender
    */
-  private async getMembersByGender(dateRange?: AnalyticsDateRange): Promise<MembersByGender[]> {
+  private async getMembersByGender(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<MembersByGender[]> {
     const sql = `
       SELECT
         g.genre_id,
         g.nom as genre_nom,
         COUNT(u.utilisateur_id) as count,
-        (COUNT(u.utilisateur_id) * 100.0 / (SELECT COUNT(*) FROM utilisateurs WHERE role_id != 1 ${dateRange ? 'AND date_inscription BETWEEN ? AND ?' : ''})) as pourcentage
+        (COUNT(u.utilisateur_id) * 100.0 / (SELECT COUNT(*) FROM utilisateurs WHERE role_id != 1 ${dateRange ? "AND date_inscription BETWEEN ? AND ?" : ""})) as pourcentage
       FROM genres g
       LEFT JOIN utilisateurs u ON g.genre_id = u.genre_id AND u.role_id != 1
-      ${dateRange ? 'AND u.date_inscription BETWEEN ? AND ?' : ''}
+      ${dateRange ? "AND u.date_inscription BETWEEN ? AND ?" : ""}
       GROUP BY g.genre_id, g.nom
       ORDER BY count DESC
     `;
 
-    const params = dateRange ? [dateRange.date_debut, dateRange.date_fin, dateRange.date_debut, dateRange.date_fin] : [];
+    const params = dateRange
+      ? [
+          dateRange.date_debut,
+          dateRange.date_fin,
+          dateRange.date_debut,
+          dateRange.date_fin,
+        ]
+      : [];
     const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       genre_id: row.genre_id,
       genre_nom: row.genre_nom,
       count: Number(row.count) || 0,
@@ -167,7 +189,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get members by age group
    */
-  private async getMembersByAgeGroup(dateRange?: AnalyticsDateRange): Promise<MembersByAgeGroup[]> {
+  private async getMembersByAgeGroup(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<MembersByAgeGroup[]> {
     const sql = `
       SELECT
         CASE
@@ -179,18 +203,25 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
           ELSE '56+'
         END as groupe_age,
         COUNT(*) as count,
-        (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM utilisateurs WHERE role_id != 1 AND date_of_birth IS NOT NULL ${dateRange ? 'AND date_inscription BETWEEN ? AND ?' : ''})) as pourcentage
+        (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM utilisateurs WHERE role_id != 1 AND date_of_birth IS NOT NULL ${dateRange ? "AND date_inscription BETWEEN ? AND ?" : ""})) as pourcentage
       FROM utilisateurs
       WHERE role_id != 1 AND date_of_birth IS NOT NULL
-      ${dateRange ? 'AND date_inscription BETWEEN ? AND ?' : ''}
+      ${dateRange ? "AND date_inscription BETWEEN ? AND ?" : ""}
       GROUP BY groupe_age
       ORDER BY groupe_age
     `;
 
-    const params = dateRange ? [dateRange.date_debut, dateRange.date_fin, dateRange.date_debut, dateRange.date_fin] : [];
+    const params = dateRange
+      ? [
+          dateRange.date_debut,
+          dateRange.date_fin,
+          dateRange.date_debut,
+          dateRange.date_fin,
+        ]
+      : [];
     const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       groupe_age: row.groupe_age,
       count: Number(row.count) || 0,
       pourcentage: Number(row.pourcentage) || 0,
@@ -205,7 +236,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       SELECT COUNT(*) as total
       FROM utilisateurs
       WHERE role_id != 1
-      ${activeOnly ? "AND status = 'actif'" : ''}
+      ${activeOnly ? "AND status = 'actif'" : ""}
     `;
 
     const [rows] = await pool.execute<RowDataPacket[]>(sql);
@@ -223,7 +254,10 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       AND date_inscription BETWEEN ? AND ?
     `;
 
-    const [rows] = await pool.execute<RowDataPacket[]>(sql, [dateRange.date_debut, dateRange.date_fin]);
+    const [rows] = await pool.execute<RowDataPacket[]>(sql, [
+      dateRange.date_debut,
+      dateRange.date_fin,
+    ]);
     return Number(rows[0].total) || 0;
   }
 
@@ -239,7 +273,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       AND date_inscription < ?
     `;
 
-    const [startRows] = await pool.execute<RowDataPacket[]>(sqlStart, [dateRange.date_debut]);
+    const [startRows] = await pool.execute<RowDataPacket[]>(sqlStart, [
+      dateRange.date_debut,
+    ]);
     const startCount = Number(startRows[0].total) || 0;
 
     if (startCount === 0) return 0;
@@ -258,7 +294,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get comprehensive course analytics
    */
-  async getCourseAnalytics(dateRange?: AnalyticsDateRange): Promise<CourseAnalyticsResponse> {
+  async getCourseAnalytics(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<CourseAnalyticsResponse> {
     const overview = await this.getCourseAttendanceOverview(dateRange);
     const byType = await this.getCoursesByType(dateRange);
     const popularCourses = await this.getPopularCourses(dateRange);
@@ -276,7 +314,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get course attendance overview
    */
-  private async getCourseAttendanceOverview(dateRange?: AnalyticsDateRange): Promise<CourseAttendanceStatistics> {
+  private async getCourseAttendanceOverview(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<CourseAttendanceStatistics> {
     const sql = `
       SELECT
         COUNT(DISTINCT c.cours_id) as total_cours,
@@ -286,7 +326,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         (COUNT(i.inscription_id) * 1.0 / NULLIF(COUNT(DISTINCT c.cours_id), 0)) as moyenne_participants_par_cours
       FROM cours c
       LEFT JOIN inscriptions i ON c.cours_id = i.cours_id
-      ${dateRange ? 'WHERE c.date_cours BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE c.date_cours BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -298,7 +338,8 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       total_inscriptions: Number(row.total_inscriptions) || 0,
       total_presences: Number(row.total_presences) || 0,
       taux_presence: Number(row.taux_presence) || 0,
-      moyenne_participants_par_cours: Number(row.moyenne_participants_par_cours) || 0,
+      moyenne_participants_par_cours:
+        Number(row.moyenne_participants_par_cours) || 0,
       date_calcul: new Date(),
     };
   }
@@ -306,7 +347,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get courses by type
    */
-  private async getCoursesByType(dateRange?: AnalyticsDateRange): Promise<CoursesByType[]> {
+  private async getCoursesByType(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<CoursesByType[]> {
     const sql = `
       SELECT
         c.type_cours,
@@ -317,7 +360,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         (COUNT(i.inscription_id) * 1.0 / NULLIF(COUNT(DISTINCT c.cours_id), 0)) as moyenne_participants
       FROM cours c
       LEFT JOIN inscriptions i ON c.cours_id = i.cours_id
-      ${dateRange ? 'WHERE c.date_cours BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE c.date_cours BETWEEN ? AND ?" : ""}
       GROUP BY c.type_cours
       ORDER BY total_inscriptions DESC
     `;
@@ -325,7 +368,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
     const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       type_cours: row.type_cours,
       total_cours: Number(row.total_cours) || 0,
       total_inscriptions: Number(row.total_inscriptions) || 0,
@@ -338,7 +381,10 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get popular courses
    */
-  private async getPopularCourses(dateRange?: AnalyticsDateRange, limit = 10): Promise<PopularCourse[]> {
+  private async getPopularCourses(
+    dateRange?: AnalyticsDateRange,
+    limit = 10,
+  ): Promise<PopularCourse[]> {
     const sql = `
       SELECT
         c.cours_id,
@@ -351,7 +397,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         (COUNT(i.inscription_id) * 100.0 / NULLIF(c.capacite_max, 0)) as taux_remplissage
       FROM cours c
       LEFT JOIN inscriptions i ON c.cours_id = i.cours_id
-      ${dateRange ? 'WHERE c.date_cours BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE c.date_cours BETWEEN ? AND ?" : ""}
       GROUP BY c.cours_id, c.type_cours, c.date_cours, c.heure_debut, c.heure_fin, c.capacite_max
       ORDER BY total_inscriptions DESC
       LIMIT ?
@@ -362,7 +408,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       : [limit];
     const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       cours_id: row.cours_id,
       type_cours: row.type_cours,
       date_cours: new Date(row.date_cours),
@@ -377,7 +423,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get attendance by day of week
    */
-  private async getAttendanceByDay(dateRange?: AnalyticsDateRange): Promise<AttendanceByDay[]> {
+  private async getAttendanceByDay(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<AttendanceByDay[]> {
     const sql = `
       SELECT
         DAYOFWEEK(c.date_cours) as jour_semaine,
@@ -387,7 +435,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         (SUM(CASE WHEN i.presence = 1 THEN 1 ELSE 0 END) * 1.0 / NULLIF(COUNT(DISTINCT c.cours_id), 0)) as moyenne_presences
       FROM cours c
       LEFT JOIN inscriptions i ON c.cours_id = i.cours_id
-      ${dateRange ? 'WHERE c.date_cours BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE c.date_cours BETWEEN ? AND ?" : ""}
       GROUP BY jour_semaine, jour_nom
       ORDER BY jour_semaine
     `;
@@ -395,7 +443,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
     const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       jour_semaine: row.jour_semaine,
       jour_nom: row.jour_nom,
       total_cours: Number(row.total_cours) || 0,
@@ -411,7 +459,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
     const sql = `
       SELECT COUNT(*) as total
       FROM cours
-      ${dateRange ? 'WHERE date_cours BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE date_cours BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -428,7 +476,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         (SUM(CASE WHEN i.presence = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(i.inscription_id), 0)) as taux
       FROM inscriptions i
       INNER JOIN cours c ON i.cours_id = c.cours_id
-      ${dateRange ? 'WHERE c.date_cours BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE c.date_cours BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -439,13 +487,15 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get average participants per course
    */
-  async getAverageParticipantsPerCourse(dateRange?: AnalyticsDateRange): Promise<number> {
+  async getAverageParticipantsPerCourse(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<number> {
     const sql = `
       SELECT
         (COUNT(i.inscription_id) * 1.0 / NULLIF(COUNT(DISTINCT c.cours_id), 0)) as moyenne
       FROM cours c
       LEFT JOIN inscriptions i ON c.cours_id = i.cours_id
-      ${dateRange ? 'WHERE c.date_cours BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE c.date_cours BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -460,7 +510,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get comprehensive financial analytics
    */
-  async getFinancialAnalytics(dateRange?: AnalyticsDateRange): Promise<FinancialAnalyticsResponse> {
+  async getFinancialAnalytics(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<FinancialAnalyticsResponse> {
     const overview = await this.getFinancialOverview(dateRange);
     const byPaymentMethod = await this.getRevenueByPaymentMethod(dateRange);
     const bySubscriptionPlan = await this.getRevenueByPlan(dateRange);
@@ -478,7 +530,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get financial overview
    */
-  private async getFinancialOverview(dateRange?: AnalyticsDateRange): Promise<FinancialStatistics> {
+  private async getFinancialOverview(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<FinancialStatistics> {
     const sql = `
       SELECT
         SUM(CASE WHEN statut = 'valide' THEN montant ELSE 0 END) as total_revenus,
@@ -488,7 +542,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         SUM(CASE WHEN statut = 'en_attente' THEN montant ELSE 0 END) as montant_en_attente,
         (SUM(CASE WHEN statut = 'valide' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)) as taux_paiement
       FROM paiements
-      ${dateRange ? 'WHERE date_paiement BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE date_paiement BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -515,26 +569,33 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get revenue by payment method
    */
-  private async getRevenueByPaymentMethod(dateRange?: AnalyticsDateRange): Promise<RevenueByPaymentMethod[]> {
+  private async getRevenueByPaymentMethod(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<RevenueByPaymentMethod[]> {
     const sql = `
       SELECT
         methode_paiement,
         COUNT(*) as total_paiements,
         SUM(montant) as montant_total,
-        (SUM(montant) * 100.0 / (SELECT SUM(montant) FROM paiements WHERE statut = 'valide' ${dateRange ? 'AND date_paiement BETWEEN ? AND ?' : ''})) as pourcentage
+        (SUM(montant) * 100.0 / (SELECT SUM(montant) FROM paiements WHERE statut = 'valide' ${dateRange ? "AND date_paiement BETWEEN ? AND ?" : ""})) as pourcentage
       FROM paiements
       WHERE statut = 'valide'
-      ${dateRange ? 'AND date_paiement BETWEEN ? AND ?' : ''}
+      ${dateRange ? "AND date_paiement BETWEEN ? AND ?" : ""}
       GROUP BY methode_paiement
       ORDER BY montant_total DESC
     `;
 
     const params = dateRange
-      ? [dateRange.date_debut, dateRange.date_fin, dateRange.date_debut, dateRange.date_fin]
+      ? [
+          dateRange.date_debut,
+          dateRange.date_fin,
+          dateRange.date_debut,
+          dateRange.date_fin,
+        ]
       : [];
     const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       methode_paiement: row.methode_paiement,
       total_paiements: Number(row.total_paiements) || 0,
       montant_total: Number(row.montant_total) || 0,
@@ -545,28 +606,35 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get revenue by subscription plan
    */
-  private async getRevenueByPlan(dateRange?: AnalyticsDateRange): Promise<RevenueByPlan[]> {
+  private async getRevenueByPlan(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<RevenueByPlan[]> {
     const sql = `
       SELECT
         pa.plan_abonnement_id as plan_id,
         pa.nom as plan_nom,
         COUNT(DISTINCT a.abonnement_id) as total_abonnes,
         SUM(p.montant) as montant_total,
-        (SUM(p.montant) * 100.0 / (SELECT SUM(montant) FROM paiements WHERE statut = 'valide' ${dateRange ? 'AND date_paiement BETWEEN ? AND ?' : ''})) as pourcentage
+        (SUM(p.montant) * 100.0 / (SELECT SUM(montant) FROM paiements WHERE statut = 'valide' ${dateRange ? "AND date_paiement BETWEEN ? AND ?" : ""})) as pourcentage
       FROM plans_abonnement pa
       LEFT JOIN abonnements a ON pa.plan_abonnement_id = a.plan_abonnement_id
       LEFT JOIN paiements p ON a.abonnement_id = p.abonnement_id AND p.statut = 'valide'
-      ${dateRange ? 'WHERE p.date_paiement BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE p.date_paiement BETWEEN ? AND ?" : ""}
       GROUP BY pa.plan_abonnement_id, pa.nom
       ORDER BY montant_total DESC
     `;
 
     const params = dateRange
-      ? [dateRange.date_debut, dateRange.date_fin, dateRange.date_debut, dateRange.date_fin]
+      ? [
+          dateRange.date_debut,
+          dateRange.date_fin,
+          dateRange.date_debut,
+          dateRange.date_fin,
+        ]
       : [];
     const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       plan_id: row.plan_id,
       plan_nom: row.plan_nom,
       total_abonnes: Number(row.total_abonnes) || 0,
@@ -599,7 +667,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
 
     const [rows] = await pool.execute<RowDataPacket[]>(sql);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       utilisateur_id: row.utilisateur_id,
       utilisateur_nom: row.utilisateur_nom,
       utilisateur_prenom: row.utilisateur_prenom,
@@ -618,7 +686,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       SELECT SUM(montant) as total
       FROM paiements
       WHERE statut = 'valide'
-      ${dateRange ? 'AND date_paiement BETWEEN ? AND ?' : ''}
+      ${dateRange ? "AND date_paiement BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -634,7 +702,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       SELECT
         (SUM(CASE WHEN statut = 'valide' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)) as taux
       FROM paiements
-      ${dateRange ? 'WHERE date_paiement BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE date_paiement BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -679,7 +747,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get comprehensive store analytics
    */
-  async getStoreAnalytics(dateRange?: AnalyticsDateRange): Promise<StoreAnalyticsResponse> {
+  async getStoreAnalytics(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<StoreAnalyticsResponse> {
     const overview = await this.getStoreOverview(dateRange);
     const popularProducts = await this.getPopularProducts(dateRange);
     const byCategory = await this.getSalesByCategory(dateRange);
@@ -697,7 +767,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get store overview
    */
-  private async getStoreOverview(dateRange?: AnalyticsDateRange): Promise<StoreStatistics> {
+  private async getStoreOverview(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<StoreStatistics> {
     const sql = `
       SELECT
         COUNT(*) as total_commandes,
@@ -707,7 +779,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         SUM(CASE WHEN statut_paiement = 'paye' THEN montant_total ELSE 0 END) as total_revenus,
         (SUM(CASE WHEN statut_paiement = 'paye' THEN montant_total ELSE 0 END) / NULLIF(SUM(CASE WHEN statut_paiement = 'paye' THEN 1 ELSE 0 END), 0)) as panier_moyen
       FROM commandes
-      ${dateRange ? 'WHERE date_commande BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE date_commande BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -720,10 +792,13 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       FROM commande_articles ca
       INNER JOIN commandes c ON ca.commande_id = c.commande_id
       WHERE c.statut_paiement = 'paye'
-      ${dateRange ? 'AND c.date_commande BETWEEN ? AND ?' : ''}
+      ${dateRange ? "AND c.date_commande BETWEEN ? AND ?" : ""}
     `;
 
-    const [articlesRows] = await pool.execute<RowDataPacket[]>(sqlArticles, params);
+    const [articlesRows] = await pool.execute<RowDataPacket[]>(
+      sqlArticles,
+      params,
+    );
     const totalArticlesVendus = Number(articlesRows[0].total) || 0;
 
     // Conversion rate (assuming we track visitors)
@@ -745,7 +820,10 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get popular products
    */
-  private async getPopularProducts(dateRange?: AnalyticsDateRange, limit = 10): Promise<PopularProduct[]> {
+  private async getPopularProducts(
+    dateRange?: AnalyticsDateRange,
+    limit = 10,
+  ): Promise<PopularProduct[]> {
     const sql = `
       SELECT
         a.article_id,
@@ -759,7 +837,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       INNER JOIN commandes c ON ca.commande_id = c.commande_id
       LEFT JOIN categories_articles cat ON a.categorie_id = cat.categorie_id
       WHERE c.statut_paiement = 'paye'
-      ${dateRange ? 'AND c.date_commande BETWEEN ? AND ?' : ''}
+      ${dateRange ? "AND c.date_commande BETWEEN ? AND ?" : ""}
       GROUP BY a.article_id, a.nom, cat.nom
       ORDER BY quantite_vendue DESC
       LIMIT ?
@@ -770,10 +848,10 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       : [limit];
     const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       article_id: row.article_id,
       article_nom: row.article_nom,
-      categorie: row.categorie || 'Non catégorisé',
+      categorie: row.categorie || "Non catégorisé",
       quantite_vendue: Number(row.quantite_vendue) || 0,
       revenus_total: Number(row.revenus_total) || 0,
       nombre_commandes: Number(row.nombre_commandes) || 0,
@@ -783,7 +861,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get sales by category
    */
-  private async getSalesByCategory(dateRange?: AnalyticsDateRange): Promise<SalesByCategory[]> {
+  private async getSalesByCategory(
+    dateRange?: AnalyticsDateRange,
+  ): Promise<SalesByCategory[]> {
     const sql = `
       SELECT
         cat.categorie_id,
@@ -796,23 +876,28 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
           FROM commande_articles ca2
           INNER JOIN commandes c2 ON ca2.commande_id = c2.commande_id
           WHERE c2.statut_paiement = 'paye'
-          ${dateRange ? 'AND c2.date_commande BETWEEN ? AND ?' : ''}
+          ${dateRange ? "AND c2.date_commande BETWEEN ? AND ?" : ""}
         )) as pourcentage_revenus
       FROM categories_articles cat
       LEFT JOIN articles a ON cat.categorie_id = a.categorie_id
       LEFT JOIN commande_articles ca ON a.article_id = ca.article_id
       LEFT JOIN commandes c ON ca.commande_id = c.commande_id AND c.statut_paiement = 'paye'
-      ${dateRange ? 'WHERE c.date_commande BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE c.date_commande BETWEEN ? AND ?" : ""}
       GROUP BY cat.categorie_id, cat.nom
       ORDER BY revenus_total DESC
     `;
 
     const params = dateRange
-      ? [dateRange.date_debut, dateRange.date_fin, dateRange.date_debut, dateRange.date_fin]
+      ? [
+          dateRange.date_debut,
+          dateRange.date_fin,
+          dateRange.date_debut,
+          dateRange.date_fin,
+        ]
       : [];
     const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       categorie_id: row.categorie_id,
       categorie_nom: row.categorie_nom,
       total_articles_vendus: Number(row.total_articles_vendus) || 0,
@@ -846,13 +931,13 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
 
     const [rows] = await pool.execute<RowDataPacket[]>(sql);
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       article_id: row.article_id,
       article_nom: row.article_nom,
       taille: row.taille,
       quantite_disponible: Number(row.quantite_disponible),
       quantite_minimum: Number(row.quantite_minimum),
-      statut: row.statut as 'bas' | 'critique' | 'rupture',
+      statut: row.statut as "bas" | "critique" | "rupture",
     }));
   }
 
@@ -863,7 +948,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
     const sql = `
       SELECT COUNT(*) as total
       FROM commandes
-      ${dateRange ? 'WHERE date_commande BETWEEN ? AND ?' : ''}
+      ${dateRange ? "WHERE date_commande BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -879,7 +964,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       SELECT SUM(montant_total) as total
       FROM commandes
       WHERE statut_paiement = 'paye'
-      ${dateRange ? 'AND date_commande BETWEEN ? AND ?' : ''}
+      ${dateRange ? "AND date_commande BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -896,7 +981,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         (SUM(montant_total) / NULLIF(COUNT(*), 0)) as moyenne
       FROM commandes
       WHERE statut_paiement = 'paye'
-      ${dateRange ? 'AND date_commande BETWEEN ? AND ?' : ''}
+      ${dateRange ? "AND date_commande BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -921,7 +1006,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
    */
   async getTrendAnalytics(
     dateRange: AnalyticsDateRange,
-    periodType: PeriodType
+    periodType: PeriodType,
   ): Promise<TrendAnalyticsResponse> {
     const memberGrowth = await this.getMemberGrowthTrend(dateRange, periodType);
     const attendance = await this.getAttendanceTrend(dateRange, periodType);
@@ -940,7 +1025,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
    */
   async getMemberGrowthTrend(
     dateRange: AnalyticsDateRange,
-    periodType: PeriodType
+    periodType: PeriodType,
   ): Promise<MemberGrowthTrend> {
     const formatSql = this.getPeriodFormatSql(periodType);
 
@@ -957,12 +1042,18 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       ORDER BY periode
     `;
 
-    const [rows] = await pool.execute<RowDataPacket[]>(sql, [dateRange.date_debut, dateRange.date_fin]);
+    const [rows] = await pool.execute<RowDataPacket[]>(sql, [
+      dateRange.date_debut,
+      dateRange.date_fin,
+    ]);
 
     const data: TrendDataPoint[] = rows.map((row, index) => {
       const valeur = Number(row.valeur);
       const previousValue = index > 0 ? Number(rows[index - 1].valeur) : valeur;
-      const variation = previousValue !== 0 ? ((valeur - previousValue) / previousValue) * 100 : 0;
+      const variation =
+        previousValue !== 0
+          ? ((valeur - previousValue) / previousValue) * 100
+          : 0;
 
       return {
         periode: row.periode,
@@ -977,10 +1068,11 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
     const moyenne = data.length > 0 ? total / data.length : 0;
     const firstValue = data.length > 0 ? data[0].valeur : 0;
     const lastValue = data.length > 0 ? data[data.length - 1].valeur : 0;
-    const totalVariation = firstValue !== 0 ? ((lastValue - firstValue) / firstValue) * 100 : 0;
+    const totalVariation =
+      firstValue !== 0 ? ((lastValue - firstValue) / firstValue) * 100 : 0;
 
     return {
-      type: 'member_growth',
+      type: "member_growth",
       period_type: periodType,
       data,
       total_variation: totalVariation,
@@ -993,9 +1085,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
    */
   async getAttendanceTrend(
     dateRange: AnalyticsDateRange,
-    periodType: PeriodType
+    periodType: PeriodType,
   ): Promise<AttendanceTrend> {
-    const formatSql = this.getPeriodFormatSql(periodType, 'c.date_cours');
+    const formatSql = this.getPeriodFormatSql(periodType, "c.date_cours");
 
     const sql = `
       SELECT
@@ -1010,12 +1102,18 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       ORDER BY periode
     `;
 
-    const [rows] = await pool.execute<RowDataPacket[]>(sql, [dateRange.date_debut, dateRange.date_fin]);
+    const [rows] = await pool.execute<RowDataPacket[]>(sql, [
+      dateRange.date_debut,
+      dateRange.date_fin,
+    ]);
 
     const data: TrendDataPoint[] = rows.map((row, index) => {
       const valeur = Number(row.valeur);
       const previousValue = index > 0 ? Number(rows[index - 1].valeur) : valeur;
-      const variation = previousValue !== 0 ? ((valeur - previousValue) / previousValue) * 100 : 0;
+      const variation =
+        previousValue !== 0
+          ? ((valeur - previousValue) / previousValue) * 100
+          : 0;
 
       return {
         periode: row.periode,
@@ -1030,10 +1128,11 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
     const moyenne = data.length > 0 ? total / data.length : 0;
     const firstValue = data.length > 0 ? data[0].valeur : 0;
     const lastValue = data.length > 0 ? data[data.length - 1].valeur : 0;
-    const totalVariation = firstValue !== 0 ? ((lastValue - firstValue) / firstValue) * 100 : 0;
+    const totalVariation =
+      firstValue !== 0 ? ((lastValue - firstValue) / firstValue) * 100 : 0;
 
     return {
-      type: 'attendance',
+      type: "attendance",
       period_type: periodType,
       data,
       total_variation: totalVariation,
@@ -1046,9 +1145,9 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
    */
   async getRevenueTrend(
     dateRange: AnalyticsDateRange,
-    periodType: PeriodType
+    periodType: PeriodType,
   ): Promise<RevenueTrend> {
-    const formatSql = this.getPeriodFormatSql(periodType, 'date_paiement');
+    const formatSql = this.getPeriodFormatSql(periodType, "date_paiement");
 
     const sql = `
       SELECT
@@ -1063,12 +1162,18 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       ORDER BY periode
     `;
 
-    const [rows] = await pool.execute<RowDataPacket[]>(sql, [dateRange.date_debut, dateRange.date_fin]);
+    const [rows] = await pool.execute<RowDataPacket[]>(sql, [
+      dateRange.date_debut,
+      dateRange.date_fin,
+    ]);
 
     const data: TrendDataPoint[] = rows.map((row, index) => {
       const valeur = Number(row.valeur);
       const previousValue = index > 0 ? Number(rows[index - 1].valeur) : valeur;
-      const variation = previousValue !== 0 ? ((valeur - previousValue) / previousValue) * 100 : 0;
+      const variation =
+        previousValue !== 0
+          ? ((valeur - previousValue) / previousValue) * 100
+          : 0;
 
       return {
         periode: row.periode,
@@ -1083,10 +1188,11 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
     const moyenne = data.length > 0 ? total / data.length : 0;
     const firstValue = data.length > 0 ? data[0].valeur : 0;
     const lastValue = data.length > 0 ? data[data.length - 1].valeur : 0;
-    const totalVariation = firstValue !== 0 ? ((lastValue - firstValue) / firstValue) * 100 : 0;
+    const totalVariation =
+      firstValue !== 0 ? ((lastValue - firstValue) / firstValue) * 100 : 0;
 
     return {
-      type: 'revenue',
+      type: "revenue",
       period_type: periodType,
       data,
       total_variation: totalVariation,
@@ -1098,17 +1204,20 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   /**
    * Get SQL format for period grouping
    */
-  private getPeriodFormatSql(periodType: PeriodType, dateColumn = 'date_inscription'): string {
+  private getPeriodFormatSql(
+    periodType: PeriodType,
+    dateColumn = "date_inscription",
+  ): string {
     switch (periodType) {
-      case 'day':
+      case "day":
         return `DATE_FORMAT(${dateColumn}, '%Y-%m-%d')`;
-      case 'week':
+      case "week":
         return `DATE_FORMAT(${dateColumn}, '%Y-W%v')`;
-      case 'month':
+      case "month":
         return `DATE_FORMAT(${dateColumn}, '%Y-%m')`;
-      case 'quarter':
+      case "quarter":
         return `CONCAT(YEAR(${dateColumn}), '-Q', QUARTER(${dateColumn}))`;
-      case 'year':
+      case "year":
         return `YEAR(${dateColumn})`;
       default:
         return `DATE_FORMAT(${dateColumn}, '%Y-%m')`;
@@ -1124,7 +1233,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
    */
   async getDashboardAnalytics(
     dateRange?: AnalyticsDateRange,
-    periodType: PeriodType = 'month'
+    periodType: PeriodType = "month",
   ): Promise<DashboardAnalytics> {
     const [members, courses, finance, store, trends] = await Promise.all([
       this.getMemberAnalytics(dateRange),
@@ -1135,10 +1244,12 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         ? this.getTrendAnalytics(dateRange, periodType)
         : this.getTrendAnalytics(
             {
-              date_debut: new Date(new Date().setMonth(new Date().getMonth() - 6)),
+              date_debut: new Date(
+                new Date().setMonth(new Date().getMonth() - 6),
+              ),
               date_fin: new Date(),
             },
-            periodType
+            periodType,
           ),
     ]);
 
@@ -1186,15 +1297,15 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
     ]);
 
     const rows: Array<[string, string, string]> = [
-      ['membres', 'total_membres',    String(totalMembres)],
-      ['membres', 'membres_actifs',   String(membresActifs)],
-      ['cours',   'total_cours',      String(totalCours)],
-      ['cours',   'taux_presence',    String(tauxPresence)],
-      ['finance', 'total_revenus',    String(totalRevenus)],
-      ['finance', 'taux_paiement',    String(tauxPaiement)],
-      ['finance', 'echeances_retard', String(echeancesRetard)],
-      ['store',   'total_commandes',  String(totalCommandes)],
-      ['store',   'revenus_store',    String(revenusStore)],
+      ["membres", "total_membres", String(totalMembres)],
+      ["membres", "membres_actifs", String(membresActifs)],
+      ["cours", "total_cours", String(totalCours)],
+      ["cours", "taux_presence", String(tauxPresence)],
+      ["finance", "total_revenus", String(totalRevenus)],
+      ["finance", "taux_paiement", String(tauxPaiement)],
+      ["finance", "echeances_retard", String(echeancesRetard)],
+      ["store", "total_commandes", String(totalCommandes)],
+      ["store", "revenus_store", String(revenusStore)],
     ];
 
     const sql = `
@@ -1214,12 +1325,14 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
    */
   async getSnapshotHistory(
     type?: string,
-    limit = 100
-  ): Promise<Array<{ type: string; cle: string; valeur: string; date_stat: Date }>> {
+    limit = 100,
+  ): Promise<
+    Array<{ type: string; cle: string; valeur: string; date_stat: Date }>
+  > {
     const sql = `
       SELECT type, cle, valeur, date_stat
       FROM statistiques
-      ${type ? 'WHERE type = ?' : ''}
+      ${type ? "WHERE type = ?" : ""}
       ORDER BY date_stat DESC
       LIMIT ?
     `;
@@ -1249,7 +1362,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
       connection.release();
       return true;
     } catch (error) {
-      console.error('Statistics Repository health check failed:', error);
+      console.error("Statistics Repository health check failed:", error);
       return false;
     }
   }

@@ -11,6 +11,10 @@
     "packages/*"
   ],
   "scripts": {
+    "generate:tests": "unitix",
+    "generate:tests:dry": "unitix --dry-run",
+    "generate:tests:backend": "unitix --workspace=backend",
+    "generate:tests:frontend": "unitix --workspace=frontend",
     "dev": "concurrently -n \"backend,frontend\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run backend:dev\" \"npm run frontend:dev\"",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",
@@ -35,6 +39,7 @@
     "docker:logs": "docker-compose logs -f"
   },
   "devDependencies": {
+    "@houthoofd/unitix": "^0.1.0",
     "concurrently": "^8.2.2",
     "rimraf": "^5.0.5"
   },

@@ -14,3 +14,4 @@ export class GetAlertTypesUseCase {
     return this.repo.findAllAlertTypes(onlyActive);
   }
 }
+

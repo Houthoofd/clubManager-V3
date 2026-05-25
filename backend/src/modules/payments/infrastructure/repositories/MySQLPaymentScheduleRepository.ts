@@ -52,7 +52,7 @@ const BASE_SELECT = `
     e.paiement_id,
     e.created_at,
     e.updated_at,
-    e.utilisateur_id AS user_id,
+    e.user_id AS user_id,
     u.first_name  AS user_first_name,
     u.last_name   AS user_last_name,
     u.email       AS user_email,
@@ -63,7 +63,7 @@ const BASE_SELECT = `
       ELSE NULL
     END AS jours_retard
   FROM echeances_paiements e
-  LEFT JOIN utilisateurs     u  ON u.id  = e.utilisateur_id
+  LEFT JOIN utilisateurs     u  ON u.id = e.user_id
   LEFT JOIN plans_tarifaires pt ON pt.id = e.plan_tarifaire_id
 `;
 
@@ -81,7 +81,7 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
     const params: (string | number)[] = [];
 
     if (user_id !== undefined) {
-      conditions.push("e.utilisateur_id = ?");
+      conditions.push("e.user_id = ?");
       params.push(user_id);
     }
     if (statut) {
@@ -142,7 +142,7 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
    */
   async findByUserId(userId: number): Promise<ScheduleRow[]> {
     const [rows] = await pool.query<ScheduleDbRow[]>(
-      `${BASE_SELECT} WHERE e.utilisateur_id = ? ORDER BY e.date_echeance ASC`,
+      `${BASE_SELECT} WHERE e.user_id = ? ORDER BY e.date_echeance ASC`,
       [userId],
     );
 
@@ -192,7 +192,7 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
   async create(data: CreateScheduleInput): Promise<number> {
     const [result] = await pool.query<ResultSetHeader>(
       `INSERT INTO echeances_paiements
-         (utilisateur_id, plan_tarifaire_id, montant, date_echeance, statut, paiement_id)
+         (user_id, plan_tarifaire_id, montant, date_echeance, statut, paiement_id)
        VALUES (?, ?, ?, ?, ?, ?)`,
       [
         data.user_id,
@@ -211,7 +211,7 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
    * Supprime définitivement une échéance par son ID
    */
   async delete(id: number): Promise<void> {
-    const sql = 'DELETE FROM echeances_paiements WHERE id = ?';
+    const sql = "DELETE FROM echeances_paiements WHERE id = ?";
     await pool.query(sql, [id]);
   }
 

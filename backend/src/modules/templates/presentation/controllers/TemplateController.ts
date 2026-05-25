@@ -344,9 +344,13 @@ export class TemplateController {
         actif: actif !== undefined ? Boolean(actif) : undefined,
       });
 
+      // Récupérer et retourner le template mis à jour
+      const updated = await getTemplateByIdUC.execute(id);
+
       res.json({
         success: true,
         message: "Template mis à jour",
+        data: updated,
       });
     } catch (error: any) {
       console.error("[TemplateController.updateTemplate]", error);
@@ -405,8 +409,8 @@ export class TemplateController {
 
   /**
    * PATCH /api/templates/:id/toggle
-   * Active ou désactive un template
-   * Body: { actif: boolean }
+   * Active ou désactive un template (flip automatique si 'actif' absent du body)
+   * Body optionnel: { actif: boolean }
    */
   async toggleTemplate(req: AuthRequest, res: Response): Promise<void> {
     try {
@@ -421,16 +425,16 @@ export class TemplateController {
         return;
       }
 
-      if (req.body.actif === undefined) {
-        res.status(400).json({
-          success: false,
-          message: "Le champ 'actif' est requis (boolean)",
-          error: "MISSING_FIELD",
-        });
-        return;
+      // Déterminer la valeur cible de actif :
+      // - Si fourni dans le body → l'utiliser explicitement
+      // - Sinon → lire l'état actuel et inverser (flip)
+      let actif: boolean;
+      if (req.body.actif !== undefined) {
+        actif = Boolean(req.body.actif);
+      } else {
+        const template = await getTemplateByIdUC.execute(id);
+        actif = !template.actif;
       }
-
-      const actif = Boolean(req.body.actif);
 
       await toggleTemplateUC.execute(id, actif);
 

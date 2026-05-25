@@ -35,7 +35,13 @@ export class RegisterUseCase {
     // 1. Valider les données d'entrée
     this.validateInput(dto);
 
-    // 2. Valider la force du mot de passe
+    // 2. Vérifier que l'email n'est pas déjà utilisé
+    const emailTaken = await this.authRepository.emailExists(dto.email);
+    if (emailTaken) {
+      throw new Error("Cette adresse email est déjà associée à un compte.");
+    }
+
+    // 3. Valider la force du mot de passe
     const passwordValidation = PasswordService.validatePasswordStrength(
       dto.password,
     );
