@@ -17,23 +17,21 @@ export function DashboardPage() {
   const { t } = useTranslation("dashboard");
   const { data, isLoading, error } = useDashboardAnalytics();
 
-  if (error) {
-    return (
-      <AlertBanner
-        variant="error"
-        title={t("errors.stats")}
-        message={error.message}
-      />
-    );
-  }
-
   return (
     <div className="space-y-6">
-      {/* 1. Bannière de bienvenue */}
+      {/* 1. Bannière de bienvenue — toujours affichée */}
       <WelcomeBanner />
 
-      {/* 2. KPIs */}
-      <KpiGrid />
+      {/* 2. KPIs — ou banner d'erreur stats si l'API échoue */}
+      {error ? (
+        <AlertBanner
+          variant="error"
+          title={t("errors.stats")}
+          message={error.message}
+        />
+      ) : (
+        <KpiGrid />
+      )}
 
       {/* 3. Alertes (paiements, stock) — visible uniquement si alertes */}
       <AlertsSection data={data} isLoading={isLoading} />

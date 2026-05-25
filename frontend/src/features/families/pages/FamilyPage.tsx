@@ -174,6 +174,7 @@ export function FamilyPage() {
                 action={{
                   label: t("messages.empty.action"),
                   onClick: () => setIsModalOpen(true),
+                  testId: "family-create-btn",
                 }}
               />
             )}

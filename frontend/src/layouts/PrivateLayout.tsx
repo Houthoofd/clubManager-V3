@@ -387,6 +387,7 @@ const PrivateLayout: React.FC = () => {
               <li key={item.path}>
                 <Link
                   to={item.path}
+                  data-testid={`nav-${item.path.split("/")[1]}`}
                   className={`flex items-center px-3 py-3 rounded-lg transition-colors ${
                     isActive(item.path) ? "bg-blue-50" : "hover:bg-black/5"
                   }`}
@@ -469,7 +470,10 @@ const PrivateLayout: React.FC = () => {
               >
                 <BellIcon className="h-5 w-5 text-gray-600" />
                 {notifCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                  <span
+                    data-testid="notification-badge"
+                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold"
+                  >
                     {notifCount > 99 ? "99+" : notifCount}
                   </span>
                 )}
@@ -506,6 +510,7 @@ const PrivateLayout: React.FC = () => {
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                   <Link
                     to="/profile"
+                    data-testid="nav-profile"
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                     onClick={() => setIsUserMenuOpen(false)}
                   >

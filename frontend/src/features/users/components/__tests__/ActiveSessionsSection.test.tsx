@@ -7,7 +7,6 @@
  * Feature    : users
  */
 
-import { describe, it, expect } from 'jest';
 import { screen } from '@testing-library/react';
 import { render } from '@testing-library/react';
 import { ActiveSessionsSection } from '../ActiveSessionsSection';

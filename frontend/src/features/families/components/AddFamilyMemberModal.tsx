@@ -157,6 +157,7 @@ export function AddFamilyMemberModal({
           className="space-y-5"
           noValidate
           id="add-member-form"
+          data-testid="family-create-form"
         >
           {/* Prénom / Nom (2 colonnes) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -263,6 +264,7 @@ export function AddFamilyMemberModal({
           form="add-member-form"
           loading={isSubmitting}
           disabled={isSubmitting}
+          data-testid="family-create-submit"
         >
           {t("modal.addButton")}
         </Button>

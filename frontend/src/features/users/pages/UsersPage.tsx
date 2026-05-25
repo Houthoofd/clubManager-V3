@@ -514,7 +514,7 @@ export function UsersPage() {
   // ── Rendu ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="users-page">
       {/* ── En-tête ── */}
       <PageHeader
         icon={<UsersIcon className="h-8 w-8 text-blue-600" />}
@@ -547,11 +547,13 @@ export function UsersPage() {
                   leftIcon={
                     <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
                   }
+                  data-testid="users-search"
                 />
               </div>
 
               {/* Filtre rôle */}
               <select
+                data-testid="users-role-filter"
                 value={filters.role_app}
                 onChange={(e) => setFilter("role_app", e.target.value)}
                 className="px-3 py-3 border border-gray-300 rounded-lg text-sm bg-white
@@ -593,13 +595,15 @@ export function UsersPage() {
             </div>
 
             {/* ── Table ── */}
-            <DataTable
-              columns={columns}
-              data={users}
-              rowKey="id"
-              loading={isLoading}
-              emptyMessage={t("noUsers")}
-            />
+            <div data-testid="users-table">
+              <DataTable
+                columns={columns}
+                data={users}
+                rowKey="id"
+                loading={isLoading}
+                emptyMessage={t("noUsers")}
+              />
+            </div>
 
             {/* Bouton pour effacer les filtres si aucun résultat */}
             {!isLoading &&

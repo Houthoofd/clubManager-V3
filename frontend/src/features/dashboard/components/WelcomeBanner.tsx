@@ -87,7 +87,10 @@ export function WelcomeBanner() {
   const roleBadgeClasses = getRoleBadgeClasses(user?.role_app);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div
+      data-testid="welcome-banner"
+      className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+    >
       {/* Partie gauche — salutation + date */}
       <div className="flex items-center gap-4">
         {/* Icône décorative */}

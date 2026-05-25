@@ -325,7 +325,7 @@ export const SettingsPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="settings-page">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}

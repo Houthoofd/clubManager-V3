@@ -11,9 +11,7 @@ import { useTranslation } from "react-i18next";
 import { StatCard } from "../../../features/statistics/components/StatCard";
 import { useDashboardAnalytics } from "../../../features/statistics/hooks/useStatistics";
 import { useNotificationCount } from "../../notifications/hooks/useNotifications";
-import {
-  formatPercentage,
-} from "../../../features/statistics/utils/formatting";
+import { formatPercentage } from "../../../features/statistics/utils/formatting";
 
 // ─── Icônes SVG (heroicons outline) ──────────────────────────────────────────
 
@@ -118,20 +116,17 @@ const BellIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
 export function KpiGrid() {
   const { t } = useTranslation("dashboard");
 
-  const {
-    data,
-    isLoading: isStatsLoading,
-  } = useDashboardAnalytics();
+  const { data, isLoading: isStatsLoading } = useDashboardAnalytics();
 
-  const {
-    data: count,
-    isLoading: isCountLoading,
-  } = useNotificationCount();
+  const { data: count, isLoading: isCountLoading } = useNotificationCount();
 
   const isLoading = isStatsLoading || isCountLoading;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+    <div
+      data-testid="kpi-grid"
+      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
+    >
       {/* KPI 1 — Membres actifs */}
       <StatCard
         title={t("kpis.members")}
@@ -151,10 +146,7 @@ export function KpiGrid() {
         value={data?.courses?.overview?.total_cours ?? 0}
         valueFormat="number"
         description={
-          formatPercentage(
-            data?.courses?.overview?.taux_presence ?? 0,
-            1
-          ) +
+          formatPercentage(data?.courses?.overview?.taux_presence ?? 0, 1) +
           " " +
           t("kpis.coursesDesc")
         }
@@ -169,10 +161,7 @@ export function KpiGrid() {
         value={data?.finance?.overview?.total_revenus ?? 0}
         valueFormat="currency"
         description={
-          formatPercentage(
-            data?.finance?.overview?.taux_paiement ?? 0,
-            1
-          ) +
+          formatPercentage(data?.finance?.overview?.taux_paiement ?? 0, 1) +
           " " +
           t("kpis.revenueDesc")
         }

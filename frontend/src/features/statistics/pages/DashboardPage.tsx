@@ -178,11 +178,13 @@ export const DashboardPage: React.FC = () => {
       id: "members",
       label: t("tabs.members"),
       icon: <UsersIcon className="w-5 h-5" />,
+      testId: "stats-tab-members",
     },
     {
       id: "courses",
       label: t("tabs.courses"),
       icon: <CalendarIcon className="w-5 h-5" />,
+      testId: "stats-tab-courses",
     },
     {
       id: "finance",
@@ -199,7 +201,7 @@ export const DashboardPage: React.FC = () => {
   // Error state - Using ErrorBanner component
   if (error) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6" data-testid="statistics-dashboard">
         <PageHeader
           icon={<ChartLineIcon className="h-8 w-8 text-blue-600" />}
           title={t("page.title")}
@@ -215,7 +217,7 @@ export const DashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="statistics-dashboard">
       {/* Page Header - Using PageHeader component */}
       <PageHeader
         icon={<ChartLineIcon className="h-8 w-8 text-blue-600" />}
@@ -399,20 +401,24 @@ export const DashboardPage: React.FC = () => {
 
           {/* Members Tab */}
           {activeTab === "members" && (
-            <MemberStats
-              data={data?.members}
-              isLoading={isLoading}
-              error={error}
-            />
+            <div data-testid="stats-members-section">
+              <MemberStats
+                data={data?.members}
+                isLoading={isLoading}
+                error={error}
+              />
+            </div>
           )}
 
           {/* Courses Tab */}
           {activeTab === "courses" && (
-            <CourseStats
-              data={data?.courses}
-              isLoading={isLoading}
-              error={error}
-            />
+            <div data-testid="stats-courses-section">
+              <CourseStats
+                data={data?.courses}
+                isLoading={isLoading}
+                error={error}
+              />
+            </div>
           )}
 
           {/* Finance Tab */}

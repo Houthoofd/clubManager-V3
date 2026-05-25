@@ -7,7 +7,6 @@
  * Feature    : families
  */
 
-import { describe, it, expect } from 'jest';
 import { screen } from '@testing-library/react';
 import { render } from '@testing-library/react';
 import { AddFamilyMemberModal } from '../AddFamilyMemberModal';

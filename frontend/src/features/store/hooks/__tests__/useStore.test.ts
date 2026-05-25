@@ -7,7 +7,6 @@
  * Feature    : store
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'jest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { renderWithProviders } from '@/shared/test/renderWithProviders';
 import { useCategories, useSizes, useArticles, useArticle, useOrders, useMyOrders, useOrder, useStocks, useLowStocks, useCreateCategory, useUpdateCategory, useDeleteCategory, useReorderCategories, useCreateSize, useUpdateSize, useDeleteSize, useCreateArticle, useUpdateArticle, useDeleteArticle, useToggleArticle, useUploadArticleImage, useDeleteArticleImage, useCreateOrder, useUpdateOrderStatus, useCancelOrder, useUpdateStock, useAdjustStock, storeKeys } from '../useStore';

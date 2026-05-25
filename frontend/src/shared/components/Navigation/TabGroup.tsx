@@ -47,6 +47,8 @@ export interface Tab {
   icon?: ReactNode;
   /** Badge numérique optionnel */
   badge?: number;
+  /** data-testid optionnel pour les tests E2E */
+  testId?: string;
 }
 
 export interface TabGroupProps {
@@ -261,6 +263,7 @@ export function TabGroup({
               aria-selected={isActive}
               aria-controls={`tabpanel-${tab.id}`}
               id={`tab-${tab.id}`}
+              data-testid={tab.testId}
               onClick={() => onTabChange(tab.id)}
               className={tabClasses}
             >

@@ -237,6 +237,14 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
 
   // ── Présences ────────────────────────────────────────────────────────────────
 
+  const deleteInscriptionMutation = useMutation({
+    mutationFn: (id: number) => coursesApi.deleteInscription(id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: courseKeys.myEnrollments(),
+      }),
+  });
+
   const bulkUpdatePresenceMutation = useMutation({
     mutationFn: ({
       cours_id,
@@ -342,9 +350,14 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
       return { generated: result.generated };
     },
 
-    // ── Mutations présences ───────────────────────────────────────────────────
+    // ── Mutations présences ──────────────────────────────────────────────────────
     bulkUpdatePresence: (cours_id: number, dto: BulkUpdatePresenceDto) =>
       bulkUpdatePresenceMutation.mutateAsync({ cours_id, dto }),
+
+    deleteInscription: async (id: number): Promise<void> => {
+      await deleteInscriptionMutation.mutateAsync(id);
+    },
+    deleteInscriptionLoading: deleteInscriptionMutation.isPending,
 
     // ── Utilitaires ───────────────────────────────────────────────────────────
 
