@@ -176,7 +176,7 @@ test.describe("Flux messagerie — E2E croisé", () => {
 
     // ── Compter les notifications non lues du membre AVANT le broadcast ──
     const beforeRows = await db.query<{ count: number }>(
-      "SELECT COUNT(*) AS count FROM notifications WHERE utilisateur_id = ? AND lue = 0",
+      "SELECT COUNT(*) AS count FROM notifications WHERE user_id = ? AND lu = 0",
       [memberDbId],
     );
     const countBefore = beforeRows[0]?.count ?? 0;
@@ -229,7 +229,7 @@ test.describe("Flux messagerie — E2E croisé", () => {
     await memberPage.waitForTimeout(1000);
 
     const afterRows = await db.query<{ count: number }>(
-      "SELECT COUNT(*) AS count FROM notifications WHERE utilisateur_id = ? AND lue = 0",
+      "SELECT COUNT(*) AS count FROM notifications WHERE user_id = ? AND lu = 0",
       [memberDbId],
     );
     const countAfter = afterRows[0]?.count ?? 0;
@@ -239,7 +239,7 @@ test.describe("Flux messagerie — E2E croisé", () => {
 
     // ── Cleanup : supprimer les notifications créées par le broadcast ──
     await db.query(
-      "DELETE FROM notifications WHERE utilisateur_id = ? AND titre LIKE ?",
+      "DELETE FROM notifications WHERE user_id = ? AND titre LIKE ?",
       [memberDbId, `%[E2E-broadcast]%`],
     );
   });

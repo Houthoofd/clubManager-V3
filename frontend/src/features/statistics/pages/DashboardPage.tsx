@@ -265,38 +265,38 @@ export const DashboardPage: React.FC = () => {
                     <>
                       <StatCard
                         title={t("kpis.totalMembers")}
-                        value={data?.members.overview.total_membres || 0}
+                        value={data?.members?.overview?.total_membres || 0}
                         valueFormat="number"
-                        trend={data?.members.overview.taux_croissance}
+                        trend={data?.members?.overview?.taux_croissance}
                         trendLabel={t("kpis.growthRate")}
                         icon={UsersIcon}
                         variant="info"
                       />
                       <StatCard
                         title={t("kpis.totalCourses")}
-                        value={data?.courses.overview.total_cours || 0}
+                        value={data?.courses?.overview?.total_cours || 0}
                         valueFormat="number"
                         icon={CalendarIcon}
                         variant="default"
-                        description={`${formatPercentage(data?.courses.overview.taux_presence || 0, 1)} ${t("kpis.attendanceRate")}`}
+                        description={`${formatPercentage(data?.courses?.overview?.taux_presence || 0, 1)} ${t("kpis.attendanceRate")}`}
                       />
                       <StatCard
                         title={t("kpis.totalRevenue")}
-                        value={data?.finance.overview.total_revenus || 0}
+                        value={data?.finance?.overview?.total_revenus || 0}
                         valueFormat="currency"
                         icon={CurrencyDollarIcon}
                         variant="success"
-                        description={`${formatPercentage(data?.finance.overview.taux_paiement || 0, 1)} ${t("kpis.paymentRate")}`}
+                        description={`${formatPercentage(data?.finance?.overview?.taux_paiement || 0, 1)} ${t("kpis.paymentRate")}`}
                       />
                       <StatCard
                         title={t("kpis.storeOrders")}
-                        value={data?.store.overview.total_commandes || 0}
+                        value={data?.store?.overview?.total_commandes || 0}
                         valueFormat="number"
                         icon={ShoppingCartIcon}
                         variant="default"
                         description={
                           formatCurrency(
-                            data?.store.overview.panier_moyen || 0,
+                            data?.store?.overview?.panier_moyen || 0,
                           ) +
                           " " +
                           t("kpis.averageBasket")
@@ -310,25 +310,27 @@ export const DashboardPage: React.FC = () => {
               {/* Alerts - Using AlertBanner component */}
               {data && (
                 <div className="space-y-3">
-                  {data.finance.overview.nombre_echeances_retard > 0 && (
+                  {(data.finance?.overview?.nombre_echeances_retard ?? 0) >
+                    0 && (
                     <AlertBanner
                       variant="warning"
                       title={t("alerts.latePayments")}
                       message={t("alerts.latePaymentsMessage", {
-                        count: data.finance.overview.nombre_echeances_retard,
+                        count:
+                          data.finance?.overview?.nombre_echeances_retard ?? 0,
                         amount: formatCurrency(
-                          data.finance.overview.montant_echeances_retard,
+                          data.finance?.overview?.montant_echeances_retard ?? 0,
                         ),
                       })}
                     />
                   )}
 
-                  {data.store.low_stock.length > 0 && (
+                  {(data.store?.low_stock?.length ?? 0) > 0 && (
                     <AlertBanner
                       variant="warning"
                       title={t("alerts.lowStock")}
                       message={t("alerts.lowStockMessage", {
-                        count: data.store.low_stock.length,
+                        count: data.store?.low_stock?.length ?? 0,
                       })}
                     />
                   )}
@@ -347,7 +349,7 @@ export const DashboardPage: React.FC = () => {
                     </div>
                   ) : (
                     <>
-                      {data?.trends.member_growth && (
+                      {data?.trends?.member_growth && (
                         <TrendChart
                           title={t("charts.memberGrowth")}
                           subtitle={t("charts.memberGrowthSubtitle")}
@@ -363,7 +365,7 @@ export const DashboardPage: React.FC = () => {
                         />
                       )}
 
-                      {data?.trends.attendance && (
+                      {data?.trends?.attendance && (
                         <TrendChart
                           title={t("charts.courseAttendance")}
                           subtitle={t("charts.courseAttendanceSubtitle")}
@@ -379,7 +381,7 @@ export const DashboardPage: React.FC = () => {
                         />
                       )}
 
-                      {data?.trends.revenue && (
+                      {data?.trends?.revenue && (
                         <TrendChart
                           title={t("charts.revenueEvolution")}
                           subtitle={t("charts.revenueEvolutionSubtitle")}

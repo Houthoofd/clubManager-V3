@@ -7,6 +7,7 @@
 import type { Response, NextFunction } from "express";
 import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
 import { MySQLCourseRepository } from "../../infrastructure/repositories/MySQLCourseRepository.js";
+import { pool } from "@/core/database/connection.js";
 
 // Use Cases — cours récurrents
 import { GetCourseRecurrentsUseCase } from "../../application/use-cases/GetCourseRecurrentsUseCase.js";
@@ -531,6 +532,21 @@ export class CourseController {
         res.status(400).json({ success: false, message: "ID invalide" });
         return;
       }
+
+      // Membres : vérifier que l'inscription leur appartient
+      const userRole = req.user?.role_app;
+      if (userRole === "member") {
+        const numericUserId = req.user?.userId; // id numérique en DB
+        const [rows] = await pool.query<any[]>(
+          `SELECT id FROM inscriptions WHERE id = ? AND user_id = ?`,
+          [id, numericUserId],
+        );
+        if (!Array.isArray(rows) || rows.length === 0) {
+          res.status(403).json({ success: false, message: "Accès interdit" });
+          return;
+        }
+      }
+
       await deleteInscriptionUC.execute(id);
       res.json({
         success: true,

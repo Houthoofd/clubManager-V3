@@ -40,9 +40,6 @@ test.describe("Statistiques — Flux admin", () => {
     adminPage,
   }) => {
     await adminPage.goto("/statistics/dashboard");
-
-    // The key assertion: user is NOT redirected to /login (auth refresh works)
-    // Wait for URL to stabilize
     await adminPage.waitForLoadState("load");
 
     // Must stay on statistics route (not redirected to /login)

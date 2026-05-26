@@ -118,7 +118,7 @@ router.get(
 // --- Inscription deletion (stands apart from /:id so no conflict) ---
 router.delete(
   "/inscriptions/:inscriptionId",
-  requireRole(UserRole.ADMIN, UserRole.PROFESSOR),
+  requireRole(UserRole.ADMIN, UserRole.PROFESSOR, UserRole.MEMBER),
   (req, res) => ctrl.deleteInscription(req as any, res),
 );
 
