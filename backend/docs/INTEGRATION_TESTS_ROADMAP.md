@@ -18,11 +18,11 @@
 9. [Infrastructure — Tests e2e](#9-infrastructure--tests-e2e)
 10. [Phase E1 — Authentification e2e ✅](#phase-e1--authentification-e2e-✅)
 11. [Phase E2 — Navigation & Profil e2e ✅](#phase-e2--navigation--profil-e2e-✅)
-12. [Phase E3 — Flux membre e2e 📋](#phase-e3--flux-membre-e2e-📋)
-13. [Phase E4 — Flux admin e2e 📋](#phase-e4--flux-admin-e2e-📋)
-14. [Phase E5 — Flux métier croisés e2e 📋](#phase-e5--flux-métier-croisés-e2e-📋)
-15. [Tests unitaires Backend (Jest) ⚠️](#15-tests-unitaires-backend-jest)
-16. [Tests unitaires Frontend (Vitest) ❌](#16-tests-unitaires-frontend-vitest)
+12. [Phase E3 — Flux membre e2e ✅](#phase-e3--flux-membre-e2e-✅)
+13. [Phase E4 — Flux admin e2e ✅](#phase-e4--flux-admin-e2e-✅)
+14. [Phase E5 — Flux métier croisés e2e ✅](#phase-e5--flux-m%C3%A9tier-crois%C3%A9s-e2e-)
+15. [Tests unitaires Backend (Jest) ✅](#15-tests-unitaires-backend-jest-)
+16. [Tests unitaires Frontend (Vitest) ✅](#16-tests-unitaires-frontend-vitest-)
 17. [Helpers disponibles](#17-helpers-disponibles)
 18. [Métriques globales](#18-métriques-globales)
 19. [Commandes utiles](#19-commandes-utiles)
@@ -59,18 +59,16 @@ Le projet dispose de **4 couches de tests** correspondant à la pyramide classiq
 | **Intégration** | Jest + Supertest | Bug API complet (route → DB), auth, validation | Rendu React, navigation, état UI |
 | **E2E** | Playwright | Régression de flux complet, broken UI, routing cassé | Performance, charge, accessibilité |
 
-### État actuel (2026-05-25)
+### État actuel (2026-05-26)
 
 | Couche | Fichiers | Tests | État |
 |---|---|---|---|
 | Unitaires Frontend | 73 suites | 266 | ✅ 266/266 verts |
 | Unitaires Backend | 146 suites | 644 | ✅ 644/644 verts |
 | Intégration | 30 suites | 482 | ✅ 482/482 verts |
-| E2E Phase E1 | 3 suites | 18 | ✅ 18/18 verts |
-| E2E Phase E2 | 2 suites | 23 | ✅ 23/23 verts |
-| E2E Phases E3→E5 | 9 suites | 73 actifs + 1 fixme | ✅ Implémentées (1 fixme restant) |
+| E2E Phases E1→E5 | 14 suites | 83 | ✅ **83/83 verts** |
 
-> **État :** toutes les couches de tests sont opérationnelles. La pyramide complète est verte. Il reste 1 `test.fixme` E2E (retrait membre famille via admin — flux cross-context complexe).
+> **État :** la pyramide de tests est **100% verte**. Toutes les phases E2E sont complètes, 0 `test.fixme` restant. Les 3 branches de tests ont été mergées dans `develop`.
 
 ---
 
@@ -996,10 +994,10 @@ data-testid="course-card-{id}"
 
 ---
 
-## Phase E5 — Flux métier croisés e2e ✅ (quasi-complet)
+## Phase E5 — Flux métier croisés e2e ✅ (complet)
 
 > Tests de bout en bout qui traversent plusieurs pages et modules en séquence.  
-> **Validation :** 2026-05-25 — 10 tests actifs ✅, 1 test.fixme ⚠️  
+> **Validation :** 2026-05-26 — 11 tests actifs ✅, 0 test.fixme  
 > Note : tous les flows s'exécutent dans le projet `chromium-admin` uniquement.
 
 ### `e2e/tests/flows/enrollment-flow.spec.ts` — 4 tests ✅
@@ -1011,14 +1009,14 @@ data-testid="course-card-{id}"
 | Membre inscrit via DB → visible dans onglet Mes inscriptions | ✅ |
 | Membre se désinscrit via `course-unsubscribe-btn-{id}` → bouton absent | ✅ |
 
-### `e2e/tests/flows/family-flow.spec.ts` — 3 tests ✅ + 1 test.fixme ⚠️
+### `e2e/tests/flows/family-flow.spec.ts` — 4 tests ✅
 
 | Scénario complet | Statut |
 |---|---|
 | Membre navigue vers `/family` → page visible | ✅ |
 | Famille créée en DB → visible sur `/family` | ✅ |
 | EmptyState → clic → modal de création visible (data-testid) | ✅ |
-| Retrait membre via UI | 🔧 fixme |
+| Admin retire un membre via panneau admin → membre ne voit plus la famille | ✅ |
 
 ### `e2e/tests/flows/messaging-flow.spec.ts` — 3 tests ✅
 
@@ -1196,20 +1194,18 @@ Les suites couvrent notamment :
 
 ## 18. Métriques globales
 
-> Mise à jour : **2026-05-25**
+> Mise à jour : **2026-05-26**
 
 ### Vue complète — pyramide de tests
 
-> Mise à jour : **2026-05-25**
+> Mise à jour : **2026-05-26**
 
 | Couche | Outil | Suites | Tests | État |
 |---|---|---|---|---|
 | **Unitaires Frontend** | Vitest | 73 | 266 | ✅ 266/266 verts |
 | **Unitaires Backend** | Jest | 146 | 644 | ✅ 644/644 verts |
 | **Intégration** | Jest + Supertest | 30 | 482 | ✅ 482/482 verts |
-| **E2E Phase E1** | Playwright | 3 | 18 | ✅ 18/18 verts |
-| **E2E Phase E2** | Playwright | 2 | 23 | ✅ 23/23 verts |
-| **E2E Phases E3→E5** | Playwright | 9 | 73 actifs + 1 fixme | ✅ Implémentées (1 fixme) |
+| **E2E Phases E1→E5** | Playwright | 14 | **83** | ✅ **83/83 verts** |
 
 ### Détail — Tests d'intégration
 
@@ -1232,14 +1228,15 @@ Les suites couvrent notamment :
 | Phase E1 | Authentification | **18** | ✅ Terminé — 18/18 verts |
 | Phase E2 | Navigation & Profil | **23** | ✅ Terminé — 23/23 verts |
 | Phase E3 | Flux membre | **15** | ✅ Terminé — 15/15 verts |
-| Phase E4 | Flux admin | **16** actifs | ✅ Complet — 16/16 verts |
-| Phase E5 | Flux métier croisés | **10** actifs + **1** fixme | ✅ Quasi-complet — 10/11 verts |
-| **Sous-total e2e** | **5 phases** | **82** actifs + **1** fixme | **82 / 83** |
+| Phase E4 | Flux admin | **16** | ✅ Terminé — 16/16 verts |
+| Phase E5 | Flux métier croisés | **11** | ✅ Terminé — 11/11 verts |
+| **Sous-total e2e** | **5 phases / 14 specs** | **83** | ✅ **83/83 verts** |
 
 > Validation Phase E1 : `18 tests passed` — 2025-05-20.  
 > Validation Phase E2 : `23 tests passed` — 2026-05-21.  
 > Validation Phases E3→E5 : `76 passed, 7 skipped (fixme), 0 failed` — 2026-05-25.  
-> Déblocage fixmes E4+E5 : `+6 tests actifs, 7 fixme → 1 fixme` — 2026-05-25.
+> Déblocage fixmes E4+E5 : `+6 tests actifs, 7 fixme → 1 fixme` — 2026-05-25.  
+> Dernier fixme résolu (family-flow retrait membre) + corrections post-merge : **83/83 verts** — 2026-05-26.
 
 ### Total combiné
 
@@ -1248,8 +1245,8 @@ Les suites couvrent notamment :
 | **Unitaires Frontend** | **266** | **266** ✅ |
 | **Unitaires Backend** | **644** | **644** ✅ |
 | **Intégration** | **482** | **482** ✅ |
-| **E2E** | **83** | **82** ✅ |
-| **TOTAL** | **1 475** | **1 474** |
+| **E2E** | **83** | **83** ✅ |
+| **TOTAL** | **1 475** | **1 475** ✅ |
 
 ---
 
@@ -1484,27 +1481,58 @@ Après : mapping explicite :
 | `notifications/components/BroadcastNotificationModal.tsx` | `broadcast-notification-form` |
 | `courses/pages/MyCoursesPage.tsx` | `course-unsubscribe-btn-{id}` (colonne Actions) |
 
-### 17. 📋 SUIVANT — Compléter le dernier test.fixme E2E
+### 17. ✅ TERMINÉ — Compléter le dernier test.fixme E2E (2026-05-26)
 
 **Fichier :** `e2e/tests/flows/family-flow.spec.ts`  
 **Test :** `responsable retire un membre → membre ne voit plus la famille`
 
-**Plan :**
-1. Admin insère une famille avec 2 membres (via DB fixture)
-2. Contexte admin : naviguer vers la famille, cliquer sur le bouton de retrait
-3. Attendre l'appel `DELETE /api/families/{id}/members/{memberId}`
-4. Contexte membre : vérifier que la famille n'apparaît plus dans `/family`
+**Implémentation :**
+1. Seed DB : famille + membre e2e dans `membres_famille`
+2. Admin : navigate `/family` → onglet `#tab-admin` → recherche par nom (évite pagination) → clic `[data-testid="family-members-btn-{id}"]` → clic `[data-testid="remove-member-btn-{userId}"]`
+3. `waitForResponse` DELETE `/families/{id}/members/{userId}` → 200
+4. Membre : reload `/family` → famille absente (`not.toBeVisible`)
+5. Finally : cleanup DB garanti
 
-### 18. 📋 Merger les branches dans `develop`
+**Nouveaux `data-testid` :** `families-search-input`, `family-members-btn-{id}`, `remove-member-btn-{user_id}` dans `AdminFamiliesPage.tsx`.
 
-Trois branches à merger :
-- `feature/test-suite` (482 tests intégration)
-- `feature/db-schema-consolidation` (SCHEMA_CONSOLIDATE.sql v5.0)
-- `feature/e2e-playwright` (infrastructure Playwright + Phase E1 + Phase E2)
+### 18. ✅ TERMINÉ — Merger les branches dans `develop` (2026-05-26)
 
-### 19. 📋 CI — Intégrer les tests e2e dans GitHub Actions
+Trois branches mergées avec succès :
 
-- Ajouter un service MySQL dans le workflow CI
-- Lancer `seed-e2e.ts` avant `playwright test`
-- Utiliser `BACKEND_PORT` / `E2E_FRONTEND_PORT` pour contourner les conflits de port en CI
-- Restreindre à la branche `main`/`develop` ou aux PRs pour économies de minutes.
+| Branche | Contenu | Commits |
+|---|---|---|
+| `feature/test-suite` | 482 tests intégration + scaffolder | `fc78c13` |
+| `feature/db-schema-consolidation` | SCHEMA_CONSOLIDATE.sql v5.0 | `63c639a` |
+| `feature/e2e-playwright` | Infrastructure Playwright + Phases E1→E5 + fixes backend/frontend | 20+ commits |
+
+Ordre de merge : `test-suite` → `db-schema-consolidation` → `e2e-playwright` (pour respecter la hiérarchie des commits partagés).
+
+**Commit final :** `e5f63cd merge(feature/e2e-playwright)` sur `develop`.
+
+### 19. ✅ TERMINÉ — Corrections post-merge (2026-05-26)
+
+Bugs détectés lors de la première exécution E2E complète après merge :
+
+| Fichier | Bug | Fix |
+|---|---|---|
+| `statistics/DashboardPage.tsx` | `data?.members.overview` crash React (TypeError) au premier render (`data = undefined`) | Optional chaining complet : `data?.members?.overview?.total_membres` sur 8 expressions + `data?.store?.low_stock?.length` |
+| `courses/courseRoutes.ts` | DELETE `/inscriptions/:id` réservé ADMIN/PROFESSOR → membre ne peut pas se désinscrire (403) | Ajout `UserRole.MEMBER` dans `requireRole` |
+| `courses/CourseController.ts` | Aucune vérification de propriété pour les membres | Check `SELECT id FROM inscriptions WHERE id=? AND user_id=?` avant suppression |
+| `e2e/flows/messaging-flow.spec.ts` | Colonnes SQL `utilisateur_id` et `lue` inexistantes dans `notifications` | Renommage → `user_id`, `lu` (schéma V4.9) |
+
+**Résultat final :** `83 passed` — exécution complète en 3.4 min.
+
+### 20. 📋 SUIVANT — Push `develop` sur origin + GitHub Actions CI
+
+**A. Push develop**
+```bash
+git push origin develop
+```
+
+**B. Workflow GitHub Actions** (`/.github/workflows/e2e.yml`)  
+À créer quand tous les tests seront stables en CI :
+- Service MySQL dans le job
+- `pnpm --filter @clubmanager/e2e seed` avant `playwright test`
+- Variables d'env `BACKEND_PORT` / `E2E_FRONTEND_PORT` pour éviter conflits
+- Artifacts : rapport HTML Playwright en cas d'échec
+- Restreindre à `main`/`develop` ou aux PRs
