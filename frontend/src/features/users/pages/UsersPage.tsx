@@ -127,6 +127,7 @@ export function UsersPage() {
       id: "active",
       label: t("tabs.active"),
       icon: <UsersIcon className="h-4 w-4" />,
+      testId: "tab-active-users",
     },
     ...(isAdmin
       ? [
@@ -134,11 +135,13 @@ export function UsersPage() {
             id: "deleted" as const,
             label: t("tabs.deleted"),
             icon: <TrashIcon className="h-4 w-4" />,
+            testId: "tab-deleted-users",
           },
           {
             id: "groups" as const,
             label: t("tabs.groups"),
             icon: <UserGroupIcon className="h-4 w-4" />,
+            testId: "tab-groups",
           },
         ]
       : []),
@@ -327,6 +330,7 @@ export function UsersPage() {
         <button
           type="button"
           onClick={() => setModal({ type: "notifyBulk" })}
+          data-testid="btn-notify-bulk"
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-orange-200
                      bg-orange-50 text-orange-700 text-sm font-medium
                      hover:bg-orange-100 hover:border-orange-300 transition-colors"
@@ -417,6 +421,7 @@ export function UsersPage() {
           <button
             type="button"
             onClick={() => setModal({ type: "editRole", user: row })}
+            data-testid={`btn-edit-role-${row.id}`}
             title={t("changeRole")}
             className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50
                        transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -428,6 +433,7 @@ export function UsersPage() {
           <button
             type="button"
             onClick={() => setModal({ type: "editStatus", user: row })}
+            data-testid={`btn-edit-status-${row.id}`}
             title={t("changeStatus")}
             className="p-1.5 rounded-lg text-gray-500 hover:text-indigo-600 hover:bg-indigo-50
                        transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400"
@@ -481,6 +487,7 @@ export function UsersPage() {
             <button
               type="button"
               onClick={() => setModal({ type: "delete", user: row })}
+              data-testid={`btn-delete-user-${row.id}`}
               title={t("deleteUser")}
               className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50
                          transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
@@ -685,6 +692,7 @@ export function UsersPage() {
             loadingText={t("modal.editRole.saving")}
             onClick={handleRoleSubmit}
             type="button"
+            data-testid="btn-submit-role"
             disabled={
               isSubmitting ||
               (modal.type === "editRole" &&
@@ -730,6 +738,7 @@ export function UsersPage() {
             loadingText={t("modal.editStatus.saving")}
             onClick={handleStatusSubmit}
             type="button"
+            data-testid="btn-submit-status"
             disabled={
               isSubmitting ||
               (modal.type === "editStatus" &&
@@ -779,6 +788,7 @@ export function UsersPage() {
             </label>
             <textarea
               id="delete-reason"
+              data-testid="input-delete-reason"
               rows={3}
               value={deleteReason}
               onChange={(e) => setDeleteReason(e.target.value)}
@@ -822,6 +832,7 @@ export function UsersPage() {
             onClick={handleDeleteSubmit}
             type="button"
             variant="danger"
+            data-testid="btn-confirm-delete-user"
             disabled={isSubmitting}
           >
             {t("modal.delete.confirm")}

@@ -4,9 +4,9 @@
  * Gère les opérations CRUD sur les tables alertes_types, alertes_utilisateurs, alertes_actions
  */
 
-import { pool } from '@/core/database/connection.js';
-import type { RowDataPacket, ResultSetHeader } from 'mysql2/promise';
-import type { IAlertRepository } from '../../domain/repositories/IAlertRepository.js';
+import { pool } from "@/core/database/connection.js";
+import type { RowDataPacket, ResultSetHeader } from "mysql2/promise";
+import type { IAlertRepository } from "../../domain/repositories/IAlertRepository.js";
 import type {
   AlertTypeDto,
   AlertUserDto,
@@ -18,7 +18,7 @@ import type {
   UpdateAlertTypeDto,
   CreateUserAlertDto,
   CreateAlertActionDto,
-} from '../../domain/types.js';
+} from "../../domain/types.js";
 
 // ==================== DB ROW INTERFACES ====================
 
@@ -64,15 +64,16 @@ interface AlertActionDbRow extends RowDataPacket {
 }
 
 // ─── SQL de sélection des alertes utilisateurs avec JOIN ─────────────────────
+// Note: alias "at" évité car c'est un mot réservé MySQL 8 (AT TIME ZONE) — on utilise "atype".
 const SELECT_ALERT_USER = `
   SELECT
     au.id, au.user_id, au.alerte_type_id, au.statut, au.donnees_contexte,
     au.date_detection, au.date_resolution, au.notes, au.resolu_par,
-    at.id AS at_id, at.code AS at_code, at.nom AS at_nom,
-    at.description AS at_description, at.priorite AS at_priorite,
-    at.actif AS at_actif, at.created_at AS at_created_at, at.updated_at AS at_updated_at
+    atype.id AS at_id, atype.code AS at_code, atype.nom AS at_nom,
+    atype.description AS at_description, atype.priorite AS at_priorite,
+    atype.actif AS at_actif, atype.created_at AS at_created_at, atype.updated_at AS at_updated_at
   FROM alertes_utilisateurs au
-  JOIN alertes_types at ON au.alerte_type_id = at.id
+  JOIN alertes_types atype ON au.alerte_type_id = atype.id
 `;
 
 // ==================== REPOSITORY ====================
@@ -125,7 +126,13 @@ export class MySQLAlertRepository implements IAlertRepository {
   async createAlertType(data: CreateAlertTypeDto): Promise<AlertTypeDto> {
     const [result] = await pool.query<ResultSetHeader>(
       `INSERT INTO alertes_types (code, nom, description, priorite, actif) VALUES (?, ?, ?, ?, ?)`,
-      [data.code, data.nom, data.description ?? null, data.priorite ?? 'normale', data.actif ?? true],
+      [
+        data.code,
+        data.nom,
+        data.description ?? null,
+        data.priorite ?? "normale",
+        data.actif ?? true,
+      ],
     );
 
     const created = await this.findAlertTypeById(result.insertId);
@@ -141,38 +148,43 @@ export class MySQLAlertRepository implements IAlertRepository {
    * Met à jour un type d'alerte et retourne l'objet mis à jour
    * Construit la requête dynamiquement selon les champs fournis
    */
-  async updateAlertType(id: number, data: UpdateAlertTypeDto): Promise<AlertTypeDto> {
+  async updateAlertType(
+    id: number,
+    data: UpdateAlertTypeDto,
+  ): Promise<AlertTypeDto> {
     const updates: string[] = [];
     const params: unknown[] = [];
 
     if (data.nom !== undefined) {
-      updates.push('nom = ?');
+      updates.push("nom = ?");
       params.push(data.nom);
     }
     if (data.description !== undefined) {
-      updates.push('description = ?');
+      updates.push("description = ?");
       params.push(data.description);
     }
     if (data.priorite !== undefined) {
-      updates.push('priorite = ?');
+      updates.push("priorite = ?");
       params.push(data.priorite);
     }
     if (data.actif !== undefined) {
-      updates.push('actif = ?');
+      updates.push("actif = ?");
       params.push(data.actif);
     }
 
     if (updates.length > 0) {
       params.push(id);
       await pool.query<ResultSetHeader>(
-        `UPDATE alertes_types SET ${updates.join(', ')} WHERE id = ?`,
+        `UPDATE alertes_types SET ${updates.join(", ")} WHERE id = ?`,
         params,
       );
     }
 
     const updated = await this.findAlertTypeById(id);
     if (!updated) {
-      throw new Error(`Type d'alerte introuvable après mise à jour (id: ${id})`);
+      throw new Error(
+        `Type d'alerte introuvable après mise à jour (id: ${id})`,
+      );
     }
     return updated;
   }
@@ -195,16 +207,19 @@ export class MySQLAlertRepository implements IAlertRepository {
    * Retourne les alertes d'un utilisateur avec le type d'alerte joint
    * Filtre optionnel sur le statut
    */
-  async findUserAlerts(userId: number, statut?: AlertStatut): Promise<AlertUserDto[]> {
-    const conditions = ['au.user_id = ?'];
+  async findUserAlerts(
+    userId: number,
+    statut?: AlertStatut,
+  ): Promise<AlertUserDto[]> {
+    const conditions = ["au.user_id = ?"];
     const params: unknown[] = [userId];
 
     if (statut !== undefined) {
-      conditions.push('au.statut = ?');
+      conditions.push("au.statut = ?");
       params.push(statut);
     }
 
-    const sql = `${SELECT_ALERT_USER} WHERE ${conditions.join(' AND ')} ORDER BY au.date_detection DESC`;
+    const sql = `${SELECT_ALERT_USER} WHERE ${conditions.join(" AND ")} ORDER BY au.date_detection DESC`;
 
     const [rows] = await pool.query<AlertUserDbRow[]>(sql, params);
     return rows.map((row) => this.mapAlertUserRow(row));
@@ -223,20 +238,20 @@ export class MySQLAlertRepository implements IAlertRepository {
     const params: unknown[] = [];
 
     if (filters?.priorite !== undefined) {
-      conditions.push('at.priorite = ?');
+      conditions.push("atype.priorite = ?");
       params.push(filters.priorite);
     }
     if (filters?.statut !== undefined) {
-      conditions.push('au.statut = ?');
+      conditions.push("au.statut = ?");
       params.push(filters.statut);
     }
     if (filters?.userId !== undefined) {
-      conditions.push('au.user_id = ?');
+      conditions.push("au.user_id = ?");
       params.push(filters.userId);
     }
 
     const whereClause =
-      conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
     const sql = `${SELECT_ALERT_USER} ${whereClause} ORDER BY au.date_detection DESC`;
 
@@ -272,7 +287,11 @@ export class MySQLAlertRepository implements IAlertRepository {
    * Résout une alerte : statut → resolue, date_resolution = NOW(), resolu_par = resolvedBy
    * Retourne l'alerte mise à jour
    */
-  async resolveAlert(id: number, resolvedBy: number, notes?: string): Promise<AlertUserDto> {
+  async resolveAlert(
+    id: number,
+    resolvedBy: number,
+    notes?: string,
+  ): Promise<AlertUserDto> {
     await pool.query<ResultSetHeader>(
       `UPDATE alertes_utilisateurs
        SET statut = 'resolue', date_resolution = NOW(), resolu_par = ?, notes = ?
@@ -323,7 +342,12 @@ export class MySQLAlertRepository implements IAlertRepository {
   async addAlertAction(data: CreateAlertActionDto): Promise<AlertActionDto> {
     const [result] = await pool.query<ResultSetHeader>(
       `INSERT INTO alertes_actions (alerte_user_id, user_id, action_type, description) VALUES (?, ?, ?, ?)`,
-      [data.alerte_user_id, data.user_id ?? null, data.action_type, data.description ?? null],
+      [
+        data.alerte_user_id,
+        data.user_id ?? null,
+        data.action_type,
+        data.description ?? null,
+      ],
     );
 
     const [rows] = await pool.query<AlertActionDbRow[]>(
@@ -443,8 +467,8 @@ export class MySQLAlertRepository implements IAlertRepository {
    */
   private parseContexte(value: unknown): Record<string, unknown> | null {
     if (value === null || value === undefined) return null;
-    if (typeof value === 'object') return value as Record<string, unknown>;
-    if (typeof value === 'string') {
+    if (typeof value === "object") return value as Record<string, unknown>;
+    if (typeof value === "string") {
       return JSON.parse(value) as Record<string, unknown>;
     }
     return null;

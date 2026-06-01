@@ -113,6 +113,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
           id="plan-form"
           onSubmit={handleSubmit(handleFormSubmit)}
           className="space-y-5"
+          data-testid="plan-form-modal"
         >
           {/* Nom */}
           <div>
@@ -128,6 +129,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
               type="text"
               placeholder={t("modal.pricingPlan.planNamePlaceholder")}
               disabled={isSubmitting}
+              data-testid="input-plan-name"
               className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                           placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                           focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
@@ -168,6 +170,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
                 min="0.01"
                 placeholder={t("common:placeholders.amount")}
                 disabled={isSubmitting}
+                data-testid="input-plan-price"
                 className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                             placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                             focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
@@ -205,6 +208,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
                 step="1"
                 placeholder="1"
                 disabled={isSubmitting}
+                data-testid="input-plan-duration"
                 className={`block w-full px-3 py-3 border rounded-lg shadow-sm text-sm
                             placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                             focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed
@@ -259,6 +263,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
           variant="outline"
           onClick={onClose}
           disabled={isSubmitting}
+          data-testid="btn-cancel-plan-form"
         >
           {t("modal.pricingPlan.cancel")}
         </Button>
@@ -268,6 +273,7 @@ export const PricingPlanFormModal: React.FC<PricingPlanFormModalProps> = ({
           variant="primary"
           loading={isSubmitting}
           disabled={isSubmitting}
+          data-testid="btn-submit-plan-form"
         >
           {isEditMode
             ? t("modal.pricingPlan.submitEdit")

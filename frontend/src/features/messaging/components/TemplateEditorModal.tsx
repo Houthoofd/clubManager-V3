@@ -197,6 +197,7 @@ export const TemplateEditorModal = ({
       <form
         onSubmit={handleSubmit}
         className="flex flex-col flex-1 overflow-hidden"
+        data-testid="template-editor-modal"
       >
         <Modal.Body className="space-y-5">
           {/* ── Ligne : Catégorie + Titre ── */}
@@ -234,6 +235,7 @@ export const TemplateEditorModal = ({
               label={t("templateEditor.fields.title")}
               type="text"
               required
+              data-testid="input-template-title"
               value={titre}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setTitre(e.target.value);
@@ -258,6 +260,7 @@ export const TemplateEditorModal = ({
                 id="tpl-contenu"
                 label={t("templateEditor.fields.content")}
                 required
+                data-testid="input-template-content"
                 value={contenu}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                   setContenu(e.target.value);
@@ -400,6 +403,7 @@ export const TemplateEditorModal = ({
             variant="primary"
             disabled={isSaving}
             loading={isSaving}
+            data-testid="btn-submit-template"
             icon={!isSaving ? <SaveIcon className="w-4 h-4" /> : undefined}
           >
             {t("actions.save")}

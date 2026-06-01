@@ -52,6 +52,18 @@ test.describe("Utilisateurs — Flux admin", () => {
     const tableWrapper = adminPage.locator('[data-testid="users-table"]');
     await expect(tableWrapper).toBeVisible({ timeout: 10_000 });
 
+    // Les utilisateurs E2E sont paginés (38 utilisateurs, 20/page) : on filtre d'abord
+    const searchInput = adminPage.locator('[data-testid="users-search"]');
+    await expect(searchInput).toBeVisible({ timeout: 10_000 });
+    await searchInput.fill("U-9999");
+
+    // Attendre la réponse API filtrée (debounce 300 ms)
+    await adminPage.waitForResponse(
+      (resp) =>
+        resp.url().includes("/api/users") && resp.url().includes("U-9999"),
+      { timeout: 10_000 },
+    );
+
     // Les userId E2E (U-9999-0001, U-9999-0002, U-9999-0003) doivent apparaître
     // .first() évite la violation strict mode (plusieurs lignes matchent le pattern)
     await expect(tableWrapper.getByText(/U-9999-000[123]/).first()).toBeVisible(
@@ -111,11 +123,17 @@ test.describe("Utilisateurs — Flux admin", () => {
     await expect(roleFilter).toBeVisible({ timeout: 10_000 });
     await roleFilter.selectOption("member");
 
-    // Attendre la mise à jour de la liste
+    // Affiner par userId E2E membre pour contourner la pagination
+    const searchInput = adminPage.locator('[data-testid="users-search"]');
+    await expect(searchInput).toBeVisible({ timeout: 10_000 });
+    await searchInput.fill(E2E_DB_USER_IDS.member); // "U-9999-0002"
+
+    // Attendre la réponse API combinant rôle + recherche
     await adminPage.waitForResponse(
       (resp) =>
         resp.url().includes("/api/users") &&
-        resp.url().includes("role_app=member"),
+        resp.url().includes("role_app=member") &&
+        resp.url().includes(E2E_DB_USER_IDS.member),
       { timeout: 10_000 },
     );
 

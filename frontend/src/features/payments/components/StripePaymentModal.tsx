@@ -135,7 +135,10 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
 
       {/* ── Message d'erreur ── */}
       {errorMessage && (
-        <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <div
+          data-testid="stripe-error-message"
+          className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"
+        >
           <svg
             className="h-4 w-4 mt-0.5 flex-shrink-0"
             fill="none"
@@ -212,37 +215,39 @@ const StripeKeyMissingModal: React.FC<{
       />
 
       <Modal.Body>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
-            <svg
-              className="h-5 w-5 text-red-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0
+        <div data-testid="stripe-missing-key-modal">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
+              <svg
+                className="h-5 w-5 text-red-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0
                    2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898
                    0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-              />
-            </svg>
+                />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                {t("modal.stripe.missingKeyRequired")}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-900">
-              {t("modal.stripe.missingKeyRequired")}
-            </p>
-          </div>
-        </div>
 
-        <p className="text-sm text-gray-600 mb-2">
-          {t("modal.stripe.missingKeyMessage")}
-        </p>
-        <p className="text-sm text-gray-500">
-          {t("modal.stripe.missingKeyInstruction")}
-        </p>
+          <p className="text-sm text-gray-600 mb-2">
+            {t("modal.stripe.missingKeyMessage")}
+          </p>
+          <p className="text-sm text-gray-500">
+            {t("modal.stripe.missingKeyInstruction")}
+          </p>
+        </div>
       </Modal.Body>
 
       <Modal.Footer align="right">
@@ -369,13 +374,15 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
 
       {/* ── Body avec Stripe Elements ── */}
       <Modal.Body>
-        <Elements stripe={stripePromise} options={elementsOptions}>
-          <StripeCheckoutForm
-            amount={amount}
-            onSuccess={handleSuccess}
-            onClose={onClose}
-          />
-        </Elements>
+        <div data-testid="stripe-payment-modal">
+          <Elements stripe={stripePromise} options={elementsOptions}>
+            <StripeCheckoutForm
+              amount={amount}
+              onSuccess={handleSuccess}
+              onClose={onClose}
+            />
+          </Elements>
+        </div>
       </Modal.Body>
 
       {/* ── Footer avec actions du formulaire ── */}
@@ -413,6 +420,7 @@ const StripeCheckoutFormActions: React.FC<{
         form="stripe-payment-form"
         variant="primary"
         disabled={!stripe || !elements}
+        data-testid="stripe-submit-btn"
       >
         {t("modal.stripe.payButton")} {amountFormatted}
       </Button>

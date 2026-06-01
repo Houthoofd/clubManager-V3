@@ -16,6 +16,7 @@
 
 import { test as authTest, expect, type AuthFixtures } from "./auth.fixture";
 import mysql, { type Connection } from "mysql2/promise";
+import { createHash } from "crypto";
 import path from "path";
 import dotenv from "dotenv";
 
@@ -37,6 +38,21 @@ export interface DbHelper {
   ): Promise<T[]>;
   /** Insère une ligne et retourne l'insertId */
   insertOne(table: string, data: Record<string, unknown>): Promise<number>;
+  /** Insère un token directement en DB pour les tests nécessitant un token valide.
+   * Le backend SHA-256 hache les tokens — ce helper fait la même chose.
+   * @param type - 'password-reset' | 'email-verification' | 'email-change'
+   * @param userId - ID interne (int) de l'utilisateur (pas le userId format U-XXXX)
+   * @param token - Token en clair (sera hashé SHA-256)
+   * @param email - Nouveau email (obligatoire pour 'email-change')
+   * @param expiresInMinutes - Durée de validité (défaut: 60)
+   */
+  insertToken(params: {
+    type: "password-reset" | "email-verification" | "email-change";
+    userId: number;
+    token: string;
+    email?: string;
+    expiresInMinutes?: number;
+  }): Promise<void>;
   /** Connexion MySQL sous-jacente (pour les cas avancés) */
   connection: Connection;
 }
@@ -75,6 +91,34 @@ export const test = authTest.extend<DbFixtures>({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const [rows] = await connection.execute(sql, params as any[]);
         return rows as T[];
+      },
+
+      async insertToken({ type, userId, token, email, expiresInMinutes = 60 }) {
+        const tokenHash = createHash("sha256").update(token).digest("hex");
+        const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
+
+        if (type === "password-reset") {
+          await connection.execute(
+            "INSERT INTO password_reset_tokens (user_id, token_hash, expires_at) VALUES (?, ?, ?)",
+            [userId, tokenHash, expiresAt],
+          );
+        } else if (type === "email-verification") {
+          await connection.execute(
+            "INSERT INTO email_validation_tokens (user_id, token_hash, expires_at) VALUES (?, ?, ?)",
+            [userId, tokenHash, expiresAt],
+          );
+        } else if (type === "email-change") {
+          if (!email)
+            throw new Error("email is required for email-change token type");
+          await connection.execute(
+            "DELETE FROM email_validation_tokens WHERE user_id = ? AND token_type = 'change_email'",
+            [userId],
+          );
+          await connection.execute(
+            "INSERT INTO email_validation_tokens (user_id, token_hash, token_type, email, expires_at) VALUES (?, ?, 'change_email', ?, ?)",
+            [userId, tokenHash, email, expiresAt],
+          );
+        }
       },
 
       async insertOne(

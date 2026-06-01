@@ -101,6 +101,60 @@ async function seedE2E(): Promise<void> {
     console.log("   ✓ FK data OK\n");
 
     // ----------------------------------------------------------
+    // 3b. Migration V4.10 — alertes_utilisateurs.utilisateur_id → user_id
+    //     La DB live a été créée avec l'ancienne convention (utilisateur_id).
+    //     V4.8 a renommé d'autres tables mais avait oublié alertes_utilisateurs.
+    // ----------------------------------------------------------
+    console.log(
+      "🔧 Migration V4.10 — alertes_utilisateurs.utilisateur_id → user_id...",
+    );
+
+    const [colRows] = await connection.execute<mysql.RowDataPacket[]>(
+      `SELECT COUNT(*) AS cnt
+       FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE()
+         AND TABLE_NAME   = 'alertes_utilisateurs'
+         AND COLUMN_NAME  = 'utilisateur_id'`,
+    );
+    const colExists = (colRows[0] as { cnt: number }).cnt > 0;
+
+    if (colExists) {
+      // Supprimer la FK si elle existe
+      const [fkRows] = await connection.execute<mysql.RowDataPacket[]>(
+        `SELECT CONSTRAINT_NAME
+         FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND TABLE_NAME   = 'alertes_utilisateurs'
+           AND COLUMN_NAME  = 'utilisateur_id'
+           AND REFERENCED_TABLE_NAME IS NOT NULL
+         LIMIT 1`,
+      );
+      if (fkRows.length > 0) {
+        const fkName = (fkRows[0] as { CONSTRAINT_NAME: string })
+          .CONSTRAINT_NAME;
+        await connection.execute(
+          `ALTER TABLE alertes_utilisateurs DROP FOREIGN KEY \`${fkName}\``,
+        );
+      }
+      // Renommer la colonne
+      await connection.execute(
+        `ALTER TABLE alertes_utilisateurs CHANGE COLUMN utilisateur_id user_id INT UNSIGNED NOT NULL`,
+      );
+      // Recréer la FK
+      await connection.execute(
+        `ALTER TABLE alertes_utilisateurs
+         ADD CONSTRAINT fk_alertes_util_user
+         FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
+         ON DELETE CASCADE ON UPDATE CASCADE`,
+      );
+      console.log("   ✓ alertes_utilisateurs.utilisateur_id → user_id : OK\n");
+    } else {
+      console.log(
+        "   ✓ alertes_utilisateurs.user_id déjà correct, rien à faire\n",
+      );
+    }
+
+    // ----------------------------------------------------------
     // 4. Insérer / mettre à jour les comptes E2E
     // ----------------------------------------------------------
     const accounts = [

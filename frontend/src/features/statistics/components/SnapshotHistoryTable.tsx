@@ -6,70 +6,76 @@
  * to trigger a new snapshot.
  */
 
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
-import { useStatisticsHistory, useCreateSnapshot } from '../hooks/useStatistics';
-import { Button } from '../../../shared/components/Button/Button';
-import { LoadingSpinner } from '../../../shared/components/Layout/LoadingSpinner';
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import {
+  useStatisticsHistory,
+  useCreateSnapshot,
+} from "../hooks/useStatistics";
+import { Button } from "../../../shared/components/Button/Button";
+import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
 
-const TYPES = ['membres', 'cours', 'finance', 'store'] as const;
-type SnapshotType = typeof TYPES[number];
+const TYPES = ["membres", "cours", "finance", "store"] as const;
+type SnapshotType = (typeof TYPES)[number];
 
 /** Format a date string to French locale with time */
 function fmt(dateStr: string): string {
   const d = new Date(dateStr);
-  return d.toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return d.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
 /** Human-readable labels for metric keys */
 const KEY_LABELS: Record<string, string> = {
-  total_membres:    'Total membres',
-  membres_actifs:   'Membres actifs',
-  total_cours:      'Total cours',
-  taux_presence:    'Taux présence (%)',
-  total_revenus:    'Total revenus (€)',
-  taux_paiement:    'Taux paiement (%)',
-  echeances_retard: 'Échéances en retard',
-  total_commandes:  'Total commandes',
-  revenus_store:    'Revenus magasin (€)',
+  total_membres: "Total membres",
+  membres_actifs: "Membres actifs",
+  total_cours: "Total cours",
+  taux_presence: "Taux présence (%)",
+  total_revenus: "Total revenus (€)",
+  taux_paiement: "Taux paiement (%)",
+  echeances_retard: "Échéances en retard",
+  total_commandes: "Total commandes",
+  revenus_store: "Revenus magasin (€)",
 };
 
 /** Badge colours per domain */
 const TYPE_COLORS: Record<string, string> = {
-  membres: 'bg-blue-50 text-blue-700',
-  cours:   'bg-green-50 text-green-700',
-  finance: 'bg-yellow-50 text-yellow-700',
-  store:   'bg-purple-50 text-purple-700',
+  membres: "bg-blue-50 text-blue-700",
+  cours: "bg-green-50 text-green-700",
+  finance: "bg-yellow-50 text-yellow-700",
+  store: "bg-purple-50 text-purple-700",
 };
 
 export const SnapshotHistoryTable: React.FC = () => {
-  const { t } = useTranslation('statistics');
-  const [activeType, setActiveType] = useState<SnapshotType | undefined>(undefined);
+  const { t } = useTranslation("statistics");
+  const [activeType, setActiveType] = useState<SnapshotType | undefined>(
+    undefined,
+  );
 
   const { data: history, isLoading } = useStatisticsHistory(activeType, 50);
-  const { mutate: takeSnapshot, isPending: isSnapshotting } = useCreateSnapshot();
+  const { mutate: takeSnapshot, isPending: isSnapshotting } =
+    useCreateSnapshot();
 
   const handleSnapshot = () => {
     takeSnapshot(undefined, {
       onSuccess: (result) => {
-        toast.success(t('snapshot.success', { count: result.inserted }));
+        toast.success(t("snapshot.success", { count: result.inserted }));
       },
       onError: () => {
-        toast.error(t('snapshot.error'));
+        toast.error(t("snapshot.error"));
       },
     });
   };
 
   // Group rows by minute-precision timestamp (each snapshot == same minute)
   const grouped = React.useMemo(() => {
-    if (!history) return [];
+    if (!history || !Array.isArray(history)) return [];
     const map = new Map<string, typeof history>();
     for (const row of history) {
       const dateKey = new Date(row.date_stat).toISOString().slice(0, 16);
@@ -86,10 +92,13 @@ export const SnapshotHistoryTable: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
-            {t('snapshot.title', 'Historique des Snapshots')}
+            {t("snapshot.title", "Historique des Snapshots")}
           </h3>
           <p className="text-sm text-gray-500 mt-0.5">
-            {t('snapshot.description', 'Captures ponctuelles des statistiques clés')}
+            {t(
+              "snapshot.description",
+              "Captures ponctuelles des statistiques clés",
+            )}
           </p>
         </div>
         <Button
@@ -98,8 +107,8 @@ export const SnapshotHistoryTable: React.FC = () => {
           disabled={isSnapshotting}
         >
           {isSnapshotting
-            ? t('snapshot.taking', 'Capture en cours…')
-            : t('snapshot.take', 'Prendre un snapshot')}
+            ? t("snapshot.taking", "Capture en cours…")
+            : t("snapshot.take", "Prendre un snapshot")}
         </Button>
       </div>
 
@@ -109,8 +118,8 @@ export const SnapshotHistoryTable: React.FC = () => {
           onClick={() => setActiveType(undefined)}
           className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
             activeType === undefined
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
           Tous
@@ -121,8 +130,8 @@ export const SnapshotHistoryTable: React.FC = () => {
             onClick={() => setActiveType(tp === activeType ? undefined : tp)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors ${
               activeType === tp
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
             {tp}
@@ -138,14 +147,17 @@ export const SnapshotHistoryTable: React.FC = () => {
       ) : grouped.length === 0 ? (
         <p className="text-center text-gray-400 py-8 text-sm">
           {t(
-            'snapshot.empty',
-            'Aucun snapshot. Cliquez sur "Prendre un snapshot" pour en créer un.'
+            "snapshot.empty",
+            'Aucun snapshot. Cliquez sur "Prendre un snapshot" pour en créer un.',
           )}
         </p>
       ) : (
         <div className="space-y-4">
           {grouped.map(([dateKey, rows]) => (
-            <div key={dateKey} className="border border-gray-100 rounded-lg overflow-hidden">
+            <div
+              key={dateKey}
+              className="border border-gray-100 rounded-lg overflow-hidden"
+            >
               {/* Snapshot header row */}
               <div className="bg-gray-50 px-4 py-2 flex items-center gap-2">
                 <svg
@@ -177,7 +189,7 @@ export const SnapshotHistoryTable: React.FC = () => {
                       <td className="px-4 py-2 text-xs w-24">
                         <span
                           className={`inline-block px-2 py-0.5 rounded-full font-medium ${
-                            TYPE_COLORS[row.type] ?? 'bg-gray-100 text-gray-600'
+                            TYPE_COLORS[row.type] ?? "bg-gray-100 text-gray-600"
                           }`}
                         >
                           {row.type}

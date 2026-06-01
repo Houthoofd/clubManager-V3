@@ -50,6 +50,8 @@ export interface ConfirmDialogProps {
   cancelLabel?: string;
   /** Loading pendant l'action */
   isLoading?: boolean;
+  /** Identifiant de test (préfixe pour data-testid des boutons) */
+  testId?: string;
 }
 
 // ─── CONFIGURATION DES VARIANTS ──────────────────────────────────────────────
@@ -141,6 +143,7 @@ export function ConfirmDialog({
   confirmLabel,
   cancelLabel = "Annuler",
   isLoading = false,
+  testId,
 }: ConfirmDialogProps) {
   // Récupération de la configuration du variant
   const config = VARIANT_CONFIG[variant];
@@ -193,7 +196,12 @@ export function ConfirmDialog({
 
       {/* Footer avec boutons */}
       <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-3 justify-end">
-        <Button variant="outline" onClick={onClose} disabled={isLoading}>
+        <Button
+          variant="outline"
+          onClick={onClose}
+          disabled={isLoading}
+          data-testid={testId ? `${testId}-cancel-btn` : undefined}
+        >
           {cancelLabel}
         </Button>
 
@@ -201,6 +209,7 @@ export function ConfirmDialog({
           variant={config.buttonVariant}
           onClick={handleConfirm}
           loading={isLoading}
+          data-testid={testId ? `${testId}-confirm-btn` : undefined}
         >
           {confirmLabel || config.defaultConfirmLabel}
         </Button>

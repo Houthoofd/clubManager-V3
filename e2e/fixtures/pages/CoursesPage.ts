@@ -7,7 +7,7 @@
  *   course-card-{id}    → carte d'un cours individuel (ex: course-card-42)
  */
 
-import { type Page, type Locator } from '@playwright/test';
+import { type Page, type Locator } from "@playwright/test";
 
 export class CoursesPage {
   readonly page: Page;
@@ -41,7 +41,7 @@ export class CoursesPage {
 
   /** Naviguer vers la liste des cours */
   async goto(): Promise<void> {
-    await this.page.goto('/courses');
-    await this.page.waitForLoadState('networkidle');
+    await this.page.goto("/courses");
+    await this.page.waitForLoadState("domcontentloaded");
   }
 }

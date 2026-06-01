@@ -783,7 +783,7 @@ export function ProfilePage() {
 
         {/* ══════════════════════════════════════ TAB : Sécurité */}
         {activeTab === "security" && (
-          <div className="p-6 space-y-8">
+          <div className="p-6 space-y-8" data-testid="profile-security-tab">
             {/* Changement d'email */}
             {profile.email && (
               <ChangeEmailSection flat currentEmail={profile.email} />

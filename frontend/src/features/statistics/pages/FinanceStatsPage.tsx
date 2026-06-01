@@ -72,7 +72,7 @@ export const FinanceStatsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="finance-stats-page">
       {/* Page Header with Breadcrumb and Actions */}
       <div className="bg-white rounded-lg shadow p-6">
         <PageHeader

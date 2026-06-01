@@ -295,7 +295,7 @@ export function ReservationsPage() {
 
   // ── JSX ───────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="reservations-page">
       {/* PageHeader */}
       <PageHeader
         icon={<CalendarDaysIcon className="h-8 w-8 text-blue-600" />}
@@ -391,13 +391,15 @@ export function ReservationsPage() {
       )}
 
       {/* DataTable */}
-      <DataTable
-        columns={columns}
-        data={reservations}
-        rowKey="id"
-        loading={isLoading}
-        emptyMessage={t("messages.empty.noReservations")}
-      />
+      <div data-testid="reservations-table">
+        <DataTable
+          columns={columns}
+          data={reservations}
+          rowKey="id"
+          loading={isLoading}
+          emptyMessage={t("messages.empty.noReservations")}
+        />
+      </div>
 
       {/* Pagination */}
       {!isLoading && pagination.totalPages > 1 && (

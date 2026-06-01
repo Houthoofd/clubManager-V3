@@ -31,7 +31,7 @@ async function gotoRegister(
   page: import("@playwright/test").Page,
 ): Promise<void> {
   await page.goto(REGISTER_URL);
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 }
 
 // ============================================================

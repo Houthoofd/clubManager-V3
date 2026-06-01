@@ -34,7 +34,10 @@ interface SessionItemProps {
 
 function SessionItem({ session, onRevoke, isRevoking }: SessionItemProps) {
   return (
-    <div className="flex items-center justify-between gap-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
+    <div
+      data-testid={`session-item-${session.id}`}
+      className="flex items-center justify-between gap-4 px-4 py-3 bg-white border border-gray-200 rounded-lg"
+    >
       <div className="flex items-start gap-3">
         <div className="mt-0.5 text-gray-400">
           <LaptopIcon className="w-5 h-5" />
@@ -53,6 +56,7 @@ function SessionItem({ session, onRevoke, isRevoking }: SessionItemProps) {
         </div>
       </div>
       <button
+        data-testid={`btn-revoke-${session.id}`}
         onClick={() => onRevoke(session.id)}
         disabled={isRevoking}
         className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -76,7 +80,7 @@ export function ActiveSessionsSection({ flat = false }: { flat?: boolean }) {
   };
 
   const content = (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="active-sessions-section">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-semibold text-gray-900">
@@ -107,7 +111,7 @@ export function ActiveSessionsSection({ flat = false }: { flat?: boolean }) {
           Aucune session active
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2" data-testid="session-list">
           {sessions.map((session) => (
             <SessionItem
               key={session.id}

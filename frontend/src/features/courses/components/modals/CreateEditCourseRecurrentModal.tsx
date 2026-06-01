@@ -176,6 +176,7 @@ export function CreateEditCourseRecurrentModal({
       <Modal.Body>
         <form
           id="course-recurrent-form"
+          data-testid="course-recurrent-form"
           onSubmit={handleSubmit}
           className="space-y-4"
         >
@@ -211,6 +212,7 @@ export function CreateEditCourseRecurrentModal({
           <Input.Select
             label={t("fields.courseType")}
             id="type_cours"
+            data-testid="course-recurrent-type-select"
             value={form.type_cours}
             onChange={(e) =>
               setForm((f) => ({ ...f, type_cours: e.target.value }))
@@ -241,6 +243,7 @@ export function CreateEditCourseRecurrentModal({
           <Input.Select
             label={t("fields.dayOfWeek")}
             id="jour_semaine"
+            data-testid="course-recurrent-day-select"
             value={form.jour_semaine}
             onChange={(e) =>
               setForm((f) => ({ ...f, jour_semaine: Number(e.target.value) }))
@@ -258,6 +261,7 @@ export function CreateEditCourseRecurrentModal({
             <Input
               label={t("fields.startTime")}
               id="heure_debut"
+              data-testid="course-recurrent-start-time"
               type="time"
               value={form.heure_debut}
               onChange={(e) =>
@@ -268,6 +272,7 @@ export function CreateEditCourseRecurrentModal({
             <Input
               label={t("fields.endTime")}
               id="heure_fin"
+              data-testid="course-recurrent-end-time"
               type="time"
               value={form.heure_fin}
               onChange={(e) =>
@@ -319,10 +324,16 @@ export function CreateEditCourseRecurrentModal({
         </form>
       </Modal.Body>
       <Modal.Footer align="right">
-        <Button variant="outline" onClick={onClose} disabled={saving}>
+        <Button
+          variant="outline"
+          onClick={onClose}
+          disabled={saving}
+          data-testid="course-recurrent-cancel-btn"
+        >
           {t("buttons.cancel")}
         </Button>
         <SubmitButton
+          data-testid="course-recurrent-submit-btn"
           type="button"
           onClick={() => {
             const formElement = document.getElementById(

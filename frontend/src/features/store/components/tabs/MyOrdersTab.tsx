@@ -41,7 +41,7 @@ export function MyOrdersTab() {
     ordersQuery.data?.filter((order) => order.statut === "livree").length ?? 0;
 
   return (
-    <div>
+    <div data-testid="my-orders-tab">
       {/* En-tête de l'onglet */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
@@ -96,6 +96,7 @@ export function MyOrdersTab() {
             {ordersQuery.data.map((order) => (
               <article
                 key={order.id}
+                data-testid={`my-order-card-${order.id}`}
                 className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
               >
                 <div className="flex items-start justify-between gap-4">

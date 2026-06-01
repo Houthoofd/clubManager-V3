@@ -39,6 +39,12 @@ process.env.VITE_API_TARGET = BACKEND_URL;
 process.env.E2E_FRONTEND_PORT = String(E2E_FRONTEND_PORT);
 process.env.E2E_FRONTEND_URL = E2E_FRONTEND_URL;
 
+// Clé Stripe publique de test — injectée dans le frontend dev server pour les tests Stripe.
+// Utilise la valeur déjà définie dans l'env si disponible, sinon une clé mock fictive.
+// Les tests E2E mockent toutes les requêtes Stripe réelles via page.route().
+process.env.VITE_STRIPE_PUBLIC_KEY =
+  process.env.VITE_STRIPE_PUBLIC_KEY ?? "pk_test_e2e_mock_playwright";
+
 // ============================================================
 // Répertoire de stockage des états d'authentification
 // Généré par globalSetup.ts avant chaque run
@@ -123,6 +129,7 @@ export default defineConfig({
         /tests\/auth\/.*/,
         /tests\/navigation\/profile\.spec\.ts/,
         /tests\/member\/.*/,
+        /tests\/profile\/.*/,
       ],
       use: {
         ...devices["Desktop Chrome"],

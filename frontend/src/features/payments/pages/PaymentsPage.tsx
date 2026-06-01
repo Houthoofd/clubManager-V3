@@ -292,12 +292,14 @@ export function PaymentsPage() {
       id: "payments",
       label: t("tabs.payments"),
       icon: <CreditCardIcon className="h-4 w-4" />,
+      testId: "tab-payments",
     },
     {
       id: "schedules",
       label: t("tabs.pending"),
       icon: <ClockIcon className="h-4 w-4" />,
       badge: overdueSchedules.length > 0 ? overdueSchedules.length : undefined,
+      testId: "tab-schedules",
     },
     ...(isAdmin
       ? [
@@ -305,6 +307,7 @@ export function PaymentsPage() {
             id: "plans" as const,
             label: t("tabs.plans"),
             icon: <DocumentTextIcon className="h-4 w-4" />,
+            testId: "tab-plans",
           },
         ]
       : []),
@@ -314,6 +317,7 @@ export function PaymentsPage() {
             id: "myPayments" as const,
             label: t("tabs.myPayments"),
             icon: <UserCircleIcon className="h-4 w-4" />,
+            testId: "tab-my-payments",
           },
         ]
       : []),
@@ -360,7 +364,7 @@ export function PaymentsPage() {
   // ── Rendu ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="payments-page">
       {/* ── En-tête ── */}
       <PageHeader title={t("title")} description={t("subtitle")} />
 

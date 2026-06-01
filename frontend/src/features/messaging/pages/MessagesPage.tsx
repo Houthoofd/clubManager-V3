@@ -139,16 +139,19 @@ export const MessagesPage = () => {
       label: t("tabs.inbox"),
       icon: <InboxIcon style={{ fontSize: "18px" }} />,
       badge: unreadCount > 0 ? unreadCount : undefined,
+      testId: "tab-inbox",
     },
     {
       id: "sent",
       label: t("tabs.sent"),
       icon: <PaperPlaneIcon style={{ fontSize: "18px" }} />,
+      testId: "tab-sent",
     },
     {
       id: "archived",
       label: t("tabs.archived", { defaultValue: "Archives" }),
       icon: <ArchiveIcon style={{ fontSize: "18px" }} />,
+      testId: "tab-archived",
     },
   ];
 
@@ -158,6 +161,7 @@ export const MessagesPage = () => {
       id: "templates",
       label: t("tabs.templates"),
       icon: <PficonTemplateIcon style={{ fontSize: "18px" }} />,
+      testId: "tab-templates",
     });
   }
 

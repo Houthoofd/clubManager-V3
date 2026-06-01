@@ -7,7 +7,7 @@
  *   profile-save-btn         → bouton sauvegarder
  */
 
-import { type Page, type Locator } from '@playwright/test';
+import { type Page, type Locator } from "@playwright/test";
 
 export class ProfilePage {
   readonly page: Page;
@@ -21,8 +21,10 @@ export class ProfilePage {
   constructor(page: Page) {
     this.page = page;
 
-    this.firstNameInput = page.locator('[data-testid="profile-firstname-input"]');
-    this.saveButton     = page.locator('[data-testid="profile-save-btn"]');
+    this.firstNameInput = page.locator(
+      '[data-testid="profile-firstname-input"]',
+    );
+    this.saveButton = page.locator('[data-testid="profile-save-btn"]');
   }
 
   // ============================================================
@@ -31,7 +33,7 @@ export class ProfilePage {
 
   /** Naviguer vers la page de profil */
   async goto(): Promise<void> {
-    await this.page.goto('/profile');
-    await this.page.waitForLoadState('networkidle');
+    await this.page.goto("/profile");
+    await this.page.waitForLoadState("domcontentloaded");
   }
 }

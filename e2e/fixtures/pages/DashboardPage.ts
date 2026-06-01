@@ -10,7 +10,7 @@
  *   nav-messages     → lien de navigation vers les messages
  */
 
-import { type Page, type Locator, expect } from '@playwright/test';
+import { type Page, type Locator, expect } from "@playwright/test";
 
 export class DashboardPage {
   readonly page: Page;
@@ -28,10 +28,10 @@ export class DashboardPage {
     this.page = page;
 
     this.welcomeBanner = page.locator('[data-testid="welcome-banner"]');
-    this.kpiGrid       = page.locator('[data-testid="kpi-grid"]');
-    this.navCourses    = page.locator('[data-testid="nav-courses"]');
-    this.navProfile    = page.locator('[data-testid="nav-profile"]');
-    this.navMessages   = page.locator('[data-testid="nav-messages"]');
+    this.kpiGrid = page.locator('[data-testid="kpi-grid"]');
+    this.navCourses = page.locator('[data-testid="nav-courses"]');
+    this.navProfile = page.locator('[data-testid="nav-profile"]');
+    this.navMessages = page.locator('[data-testid="nav-messages"]');
   }
 
   // ============================================================
@@ -40,8 +40,8 @@ export class DashboardPage {
 
   /** Naviguer directement vers /dashboard */
   async goto(): Promise<void> {
-    await this.page.goto('/dashboard');
-    await this.page.waitForLoadState('networkidle');
+    await this.page.goto("/dashboard");
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   /**

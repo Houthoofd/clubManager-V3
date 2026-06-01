@@ -102,7 +102,10 @@ export function ChangeEmailSection({ currentEmail, flat = false }: Props) {
 
       {/* Bannière succès */}
       {sent && (
-        <div className="flex items-start gap-3 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
+        <div
+          data-testid="change-email-success-banner"
+          className="flex items-start gap-3 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800"
+        >
           <CheckCircleIcon className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-medium">
@@ -139,6 +142,7 @@ export function ChangeEmailSection({ currentEmail, flat = false }: Props) {
           <input
             id="new-email"
             type="email"
+            data-testid="input-new-email"
             value={newEmail}
             onChange={(e) => {
               setNewEmail(e.target.value);
@@ -165,6 +169,7 @@ export function ChangeEmailSection({ currentEmail, flat = false }: Props) {
           <input
             id="confirm-email"
             type="email"
+            data-testid="input-confirm-email"
             value={confirmEmail}
             onChange={(e) => setConfirmEmail(e.target.value)}
             className={cn(INPUT.base)}
@@ -184,6 +189,7 @@ export function ChangeEmailSection({ currentEmail, flat = false }: Props) {
             variant="primary"
             loading={isPending}
             disabled={!canSubmit}
+            data-testid="btn-submit-change-email"
           >
             {isPending
               ? t("profile.changeEmail.sending", "Envoi en cours…")
@@ -197,7 +203,7 @@ export function ChangeEmailSection({ currentEmail, flat = false }: Props) {
   // Mode flat : rendu inline sans card (usage dans onglet Sécurité)
   if (flat) {
     return (
-      <div>
+      <div data-testid="change-email-section">
         <div className="flex items-center gap-3 mb-4">
           <EnvelopeIcon className="h-5 w-5 text-blue-600" />
           <h3 className="text-base font-semibold text-gray-900">

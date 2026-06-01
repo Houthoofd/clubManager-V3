@@ -146,6 +146,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
       <Modal.Body>
         <form
           id="article-form"
+          data-testid="article-form-modal"
           onSubmit={handleSubmit(handleFormSubmit)}
           className="space-y-5"
         >
@@ -160,6 +161,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
             </label>
             <input
               id="article-nom"
+              data-testid="input-article-name"
               type="text"
               placeholder={t("articleModal.fields.name.placeholder")}
               disabled={isSubmitting}
@@ -194,6 +196,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
             </label>
             <input
               id="article-prix"
+              data-testid="input-article-price"
               type="number"
               step="0.01"
               min="0"
@@ -288,6 +291,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
         <Button
           type="submit"
           form="article-form"
+          data-testid="btn-submit-article-form"
           variant="primary"
           loading={isSubmitting}
           disabled={isSubmitting}

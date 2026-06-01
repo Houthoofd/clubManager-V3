@@ -18,7 +18,7 @@ export function DashboardPage() {
   const { data, isLoading, error } = useDashboardAnalytics();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="dashboard-page">
       {/* 1. Bannière de bienvenue — toujours affichée */}
       <WelcomeBanner />
 

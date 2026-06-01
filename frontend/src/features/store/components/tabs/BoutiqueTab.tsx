@@ -56,7 +56,7 @@ export function BoutiqueTab() {
   );
 
   return (
-    <div>
+    <div data-testid="boutique-tab">
       {/* En-tête de l'onglet */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
@@ -98,6 +98,7 @@ export function BoutiqueTab() {
         {cartCount > 0 && (
           <button
             onClick={() => store.openCartModal()}
+            data-testid="btn-view-cart"
             className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-sm transition-colors"
           >
             <svg
@@ -201,6 +202,7 @@ export function BoutiqueTab() {
               {articlesQuery.data.items.map((article) => (
                 <article
                   key={article.id}
+                  data-testid={`article-boutique-${article.id}`}
                   className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
                 >
                   {article.image_url && (
@@ -230,6 +232,7 @@ export function BoutiqueTab() {
                     </span>
                     <button
                       onClick={() => store.openQuickOrderModal(article as any)}
+                      data-testid={`btn-order-${article.id}`}
                       className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
                     >
                       {t("boutique.card.order")}

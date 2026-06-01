@@ -15,7 +15,7 @@
  *   login-email-not-verified-banner → bannière email non vérifié
  */
 
-import { type Page, type Locator, expect } from '@playwright/test';
+import { type Page, type Locator, expect } from "@playwright/test";
 
 export class LoginPage {
   readonly page: Page;
@@ -36,15 +36,19 @@ export class LoginPage {
   constructor(page: Page) {
     this.page = page;
 
-    this.userIdInput            = page.locator('[data-testid="login-userid-input"]');
-    this.passwordInput          = page.locator('[data-testid="login-password-input"]');
-    this.submitButton           = page.locator('[data-testid="login-submit-btn"]');
-    this.rememberMeCheckbox     = page.locator('[data-testid="login-remember-me"]');
-    this.forgotPasswordLink     = page.locator('[data-testid="login-forgot-password-link"]');
-    this.registerLink           = page.locator('[data-testid="login-register-link"]');
-    this.emailNotVerifiedBanner = page.locator('[data-testid="login-email-not-verified-banner"]');
+    this.userIdInput = page.locator('[data-testid="login-userid-input"]');
+    this.passwordInput = page.locator('[data-testid="login-password-input"]');
+    this.submitButton = page.locator('[data-testid="login-submit-btn"]');
+    this.rememberMeCheckbox = page.locator('[data-testid="login-remember-me"]');
+    this.forgotPasswordLink = page.locator(
+      '[data-testid="login-forgot-password-link"]',
+    );
+    this.registerLink = page.locator('[data-testid="login-register-link"]');
+    this.emailNotVerifiedBanner = page.locator(
+      '[data-testid="login-email-not-verified-banner"]',
+    );
     // Sonner toast avec type="error"
-    this.errorToast             = page.locator('.sonner-toast[data-type="error"]');
+    this.errorToast = page.locator('.sonner-toast[data-type="error"]');
   }
 
   // ============================================================
@@ -53,8 +57,8 @@ export class LoginPage {
 
   /** Naviguer vers la page de login */
   async goto(): Promise<void> {
-    await this.page.goto('/login');
-    await this.page.waitForLoadState('networkidle');
+    await this.page.goto("/login");
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   /**

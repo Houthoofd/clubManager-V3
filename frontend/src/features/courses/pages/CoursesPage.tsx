@@ -52,6 +52,7 @@ import {
 } from "../components/modals";
 import { MyCoursesPage } from "./MyCoursesPage";
 import { ReservationsPage } from "../../reservations/pages/ReservationsPage";
+import { TabErrorBoundary } from "../../../shared/components/Feedback/TabErrorBoundary";
 import type {
   CourseRecurrentListItemDto,
   ProfessorListItemDto,
@@ -114,7 +115,22 @@ export default function CoursesPage() {
   const { user } = useAuth();
   const isAdmin = user?.role_app === "admin";
 
-  const [activeTab, setActiveTab] = useState<TabId>("planning");
+  // Onglet initial optionnel via ?tab= (utilisé par les tests E2E pour éviter les clics)
+  // Lazy initializer : lit window.location.search une seule fois au montage
+  const [activeTab, setActiveTab] = useState<TabId>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    const validTabs: TabId[] = [
+      "planning",
+      "sessions",
+      "professeurs",
+      "myEnrollments",
+      "reservations",
+    ];
+    return tab && validTabs.includes(tab as TabId)
+      ? (tab as TabId)
+      : "planning";
+  });
   const [modal, setModal] = useState<ModalState>({ type: "none" });
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -242,6 +258,7 @@ export default function CoursesPage() {
                   size="md"
                   icon={<PlusIcon className="h-5 w-5" />}
                   onClick={() => setModal({ type: "createCourseRecurrent" })}
+                  data-testid="course-add-recurrent-btn"
                 >
                   {t("buttons.newRecurrentCourse")}
                 </Button>
@@ -251,6 +268,7 @@ export default function CoursesPage() {
                     size="md"
                     icon={<SparklesIcon className="h-5 w-5" />}
                     onClick={() => setModal({ type: "generateCourses" })}
+                    data-testid="course-generate-sessions-btn"
                   >
                     {t("buttons.generateSessions")}
                   </Button>
@@ -285,7 +303,10 @@ export default function CoursesPage() {
                 }
               />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                data-testid="courses-list"
+              >
                 {DAYS_KEYS.map((dayKey, idx) => {
                   const dayNum = idx + 1;
                   const dayCourses = planning
@@ -364,6 +385,7 @@ export default function CoursesPage() {
                                     }
                                     className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-700 hover:text-blue-800 hover:bg-blue-100 rounded transition-colors"
                                     title={t("buttons.modify")}
+                                    data-testid={`course-edit-btn-${course.id}`}
                                   >
                                     <PencilIcon className="h-3.5 w-3.5" />
                                     {t("buttons.edit")}
@@ -377,6 +399,7 @@ export default function CoursesPage() {
                                     }
                                     className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
                                     title={t("buttons.delete")}
+                                    data-testid={`course-delete-btn-${course.id}`}
                                   >
                                     <TrashIcon className="h-3.5 w-3.5" />
                                     {t("buttons.delete")}
@@ -397,247 +420,284 @@ export default function CoursesPage() {
 
         {/* ──────────────────────────────── TAB 2 : Séances */}
         {activeTab === "sessions" && (
-          <div className="p-6 space-y-6">
-            {isAdmin && (
-              <div className="flex gap-3">
+          <TabErrorBoundary tabKey={activeTab}>
+            <div className="p-6 space-y-6">
+              {isAdmin && (
+                <div className="flex gap-3">
+                  <Button
+                    variant="primary"
+                    size="md"
+                    icon={<PlusIcon className="h-5 w-5" />}
+                    onClick={() => setModal({ type: "createSession" })}
+                    data-testid="session-add-btn"
+                  >
+                    {t("buttons.newSession")}
+                  </Button>
+                </div>
+              )}
+
+              {sessionsError && (
+                <AlertBanner
+                  variant="danger"
+                  message={sessionsError}
+                  dismissible
+                  onDismiss={clearError}
+                />
+              )}
+
+              {/* Filtres */}
+              <div className="flex flex-wrap gap-3">
+                <Input.Select
+                  label={t("filters.filterByType")}
+                  id="filter-type"
+                  value={sessionFilters.type_cours ?? ""}
+                  onChange={(e) =>
+                    setSessionFilter("type_cours", e.target.value || "")
+                  }
+                  size="sm"
+                  containerClassName="w-64"
+                >
+                  <option value="">{t("filters.allTypes")}</option>
+                  {filterTypes
+                    ? filterTypes.map((type) => (
+                        <option key={type.code} value={type.code}>
+                          {i18n.language === "en" && type.nom_en
+                            ? type.nom_en
+                            : type.nom}
+                        </option>
+                      ))
+                    : uniqueTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                </Input.Select>
+              </div>
+
+              {sessionsLoading ? (
+                <LoadingSpinner size="lg" text={t("loading.sessions")} />
+              ) : sessions.length === 0 ? (
+                <EmptyState
+                  icon={<ClipboardDocumentIcon className="h-12 w-12" />}
+                  title={t("empty.noSessions")}
+                  description={t("empty.noSessionsDescription")}
+                  action={
+                    isAdmin
+                      ? {
+                          label: t("empty.noSessionsAction"),
+                          onClick: () => setModal({ type: "createSession" }),
+                        }
+                      : undefined
+                  }
+                />
+              ) : (
+                <div data-testid="courses-sessions-table">
+                  <DataTable
+                    rowKey="id"
+                    columns={[
+                      {
+                        key: "date_cours",
+                        label: t("columns.date"),
+                        render: (session: CourseListItemDto) =>
+                          formatDate(session.date_cours),
+                      },
+                      {
+                        key: "type_cours",
+                        label: t("columns.type"),
+                      },
+                      {
+                        key: "horaire",
+                        label: t("columns.schedule"),
+                        render: (session: CourseListItemDto) => (
+                          <span>
+                            {formatTime(session.heure_debut)} –{" "}
+                            {formatTime(session.heure_fin)}
+                          </span>
+                        ),
+                      },
+                      {
+                        key: "recurrent",
+                        label: t("columns.linkedPlanning"),
+                        render: (session: CourseListItemDto) =>
+                          session.cours_recurrent_id ? (
+                            <Badge variant="info" size="sm">
+                              {t("status.yes")}
+                            </Badge>
+                          ) : (
+                            <span className="text-gray-400 text-xs">—</span>
+                          ),
+                      },
+                      {
+                        key: "status",
+                        label: t("columns.status"),
+                        render: (session: CourseListItemDto) =>
+                          session.annule ? (
+                            <Badge variant="danger" size="sm">
+                              {t("status.cancelled")}
+                            </Badge>
+                          ) : (
+                            <Badge variant="success" size="sm">
+                              {t("status.scheduled")}
+                            </Badge>
+                          ),
+                      },
+                      {
+                        key: "actions",
+                        label: t("columns.actions"),
+                        className: "text-right",
+                        render: (session: CourseListItemDto) => (
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              icon={
+                                <ClipboardDocumentIcon className="h-4 w-4" />
+                              }
+                              onClick={() => {
+                                setAttendanceCourseId(session.id);
+                                setModal({
+                                  type: "attendance",
+                                  session,
+                                });
+                              }}
+                              data-testid={`session-attendance-btn-${session.id}`}
+                            >
+                              {t("buttons.attendance")}
+                            </Button>
+                          </div>
+                        ),
+                      },
+                    ]}
+                    data={sessions}
+                    emptyMessage={t("empty.noSessionsFound")}
+                  />
+                </div>
+              )}
+            </div>
+          </TabErrorBoundary>
+        )}
+
+        {/* ──────────────────────────────── TAB 3 : Professeurs */}
+        {activeTab === "professeurs" && (
+          <TabErrorBoundary tabKey={activeTab}>
+            <div className="p-6 space-y-6">
+              {isAdmin && (
                 <Button
                   variant="primary"
                   size="md"
                   icon={<PlusIcon className="h-5 w-5" />}
-                  onClick={() => setModal({ type: "createSession" })}
+                  onClick={() => setModal({ type: "createProfessor" })}
+                  data-testid="professor-add-btn"
                 >
-                  {t("buttons.newSession")}
+                  {t("buttons.newProfessor")}
                 </Button>
-              </div>
-            )}
+              )}
 
-            {sessionsError && (
-              <AlertBanner
-                variant="danger"
-                message={sessionsError}
-                dismissible
-                onDismiss={clearError}
-              />
-            )}
-
-            {/* Filtres */}
-            <div className="flex flex-wrap gap-3">
-              <Input.Select
-                label={t("filters.filterByType")}
-                id="filter-type"
-                value={sessionFilters.type_cours ?? ""}
-                onChange={(e) =>
-                  setSessionFilter("type_cours", e.target.value || "")
-                }
-                size="sm"
-                containerClassName="w-64"
-              >
-                <option value="">{t("filters.allTypes")}</option>
-                {filterTypes
-                  ? filterTypes.map((type) => (
-                      <option key={type.code} value={type.code}>
-                        {i18n.language === "en" && type.nom_en
-                          ? type.nom_en
-                          : type.nom}
-                      </option>
-                    ))
-                  : uniqueTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-              </Input.Select>
-            </div>
-
-            {sessionsLoading ? (
-              <LoadingSpinner size="lg" text={t("loading.sessions")} />
-            ) : sessions.length === 0 ? (
-              <EmptyState
-                icon={<ClipboardDocumentIcon className="h-12 w-12" />}
-                title={t("empty.noSessions")}
-                description={t("empty.noSessionsDescription")}
-                action={
-                  isAdmin
-                    ? {
-                        label: t("empty.noSessionsAction"),
-                        onClick: () => setModal({ type: "createSession" }),
-                      }
-                    : undefined
-                }
-              />
-            ) : (
-              <div data-testid="courses-sessions-table">
+              {professorsLoading ? (
+                <LoadingSpinner size="lg" text={t("loading.professors")} />
+              ) : professors.length === 0 ? (
+                <EmptyState
+                  icon={<EnvelopeIcon className="h-12 w-12" />}
+                  title={t("empty.noProfessors")}
+                  description={t("empty.noProfessorsDescription")}
+                  action={
+                    isAdmin
+                      ? {
+                          label: t("empty.noProfessorsAction"),
+                          onClick: () => setModal({ type: "createProfessor" }),
+                        }
+                      : undefined
+                  }
+                />
+              ) : (
                 <DataTable
                   rowKey="id"
                   columns={[
                     {
-                      key: "date_cours",
-                      label: t("columns.date"),
-                      render: (session: CourseListItemDto) =>
-                        formatDate(session.date_cours),
-                    },
-                    {
-                      key: "type_cours",
-                      label: t("columns.type"),
-                    },
-                    {
-                      key: "horaire",
-                      label: t("columns.schedule"),
-                      render: (session: CourseListItemDto) => (
-                        <span>
-                          {formatTime(session.heure_debut)} –{" "}
-                          {formatTime(session.heure_fin)}
-                        </span>
+                      key: "nom_complet",
+                      label: t("columns.fullName"),
+                      render: (professor: ProfessorListItemDto) => (
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {professor.nom_complet}
+                          </p>
+                          {professor.specialite && (
+                            <p className="text-xs text-gray-500">
+                              {professor.specialite}
+                            </p>
+                          )}
+                        </div>
                       ),
                     },
                     {
-                      key: "recurrent",
-                      label: t("columns.linkedPlanning"),
-                      render: (session: CourseListItemDto) =>
-                        session.cours_recurrent_id ? (
-                          <Badge variant="info" size="sm">
-                            {t("status.yes")}
-                          </Badge>
+                      key: "email",
+                      label: t("columns.email"),
+                      render: (professor: ProfessorListItemDto) =>
+                        professor.email ? (
+                          <a
+                            href={`mailto:${professor.email}`}
+                            className="text-sm text-blue-600 hover:underline"
+                          >
+                            {professor.email}
+                          </a>
                         ) : (
-                          <span className="text-gray-400 text-xs">—</span>
+                          <span className="text-gray-400 text-sm">—</span>
                         ),
                     },
                     {
-                      key: "status",
-                      label: t("columns.status"),
-                      render: (session: CourseListItemDto) =>
-                        session.annule ? (
-                          <Badge variant="danger" size="sm">
-                            {t("status.cancelled")}
-                          </Badge>
-                        ) : (
-                          <Badge variant="success" size="sm">
-                            {t("status.scheduled")}
-                          </Badge>
+                      key: "telephone",
+                      label: t("columns.phone"),
+                      render: (professor: ProfessorListItemDto) =>
+                        professor.telephone || (
+                          <span className="text-gray-400 text-sm">—</span>
                         ),
+                    },
+                    {
+                      key: "actif",
+                      label: t("columns.status"),
+                      render: (professor: ProfessorListItemDto) => (
+                        <Badge.Status
+                          status={professor.actif ? "active" : "inactive"}
+                        />
+                      ),
                     },
                     {
                       key: "actions",
                       label: t("columns.actions"),
                       className: "text-right",
-                      render: (session: CourseListItemDto) => (
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            icon={<ClipboardDocumentIcon className="h-4 w-4" />}
-                            onClick={() => {
-                              setAttendanceCourseId(session.id);
-                              setModal({
-                                type: "attendance",
-                                session,
-                              });
-                            }}
-                          >
-                            {t("buttons.attendance")}
-                          </Button>
-                        </div>
-                      ),
-                    },
-                  ]}
-                  data={sessions}
-                  emptyMessage={t("empty.noSessionsFound")}
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ──────────────────────────────── TAB 3 : Professeurs */}
-        {activeTab === "professeurs" && (
-          <div className="p-6 space-y-6">
-            {isAdmin && (
-              <Button
-                variant="primary"
-                size="md"
-                icon={<PlusIcon className="h-5 w-5" />}
-                onClick={() => setModal({ type: "createProfessor" })}
-              >
-                {t("buttons.newProfessor")}
-              </Button>
-            )}
-
-            {professorsLoading ? (
-              <LoadingSpinner size="lg" text={t("loading.professors")} />
-            ) : professors.length === 0 ? (
-              <EmptyState
-                icon={<EnvelopeIcon className="h-12 w-12" />}
-                title={t("empty.noProfessors")}
-                description={t("empty.noProfessorsDescription")}
-                action={
-                  isAdmin
-                    ? {
-                        label: t("empty.noProfessorsAction"),
-                        onClick: () => setModal({ type: "createProfessor" }),
-                      }
-                    : undefined
-                }
-              />
-            ) : (
-              <DataTable
-                rowKey="id"
-                columns={[
-                  {
-                    key: "nom_complet",
-                    label: t("columns.fullName"),
-                    render: (professor: ProfessorListItemDto) => (
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {professor.nom_complet}
-                        </p>
-                        {professor.specialite && (
-                          <p className="text-xs text-gray-500">
-                            {professor.specialite}
-                          </p>
-                        )}
-                      </div>
-                    ),
-                  },
-                  {
-                    key: "email",
-                    label: t("columns.email"),
-                    render: (professor: ProfessorListItemDto) =>
-                      professor.email ? (
-                        <a
-                          href={`mailto:${professor.email}`}
-                          className="text-sm text-blue-600 hover:underline"
-                        >
-                          {professor.email}
-                        </a>
-                      ) : (
-                        <span className="text-gray-400 text-sm">—</span>
-                      ),
-                  },
-                  {
-                    key: "telephone",
-                    label: t("columns.phone"),
-                    render: (professor: ProfessorListItemDto) =>
-                      professor.telephone || (
-                        <span className="text-gray-400 text-sm">—</span>
-                      ),
-                  },
-                  {
-                    key: "actif",
-                    label: t("columns.status"),
-                    render: (professor: ProfessorListItemDto) => (
-                      <Badge.Status
-                        status={professor.actif ? "active" : "inactive"}
-                      />
-                    ),
-                  },
-                  {
-                    key: "actions",
-                    label: t("columns.actions"),
-                    className: "text-right",
-                    render: (professor: ProfessorListItemDto) => (
-                      <>
-                        {isAdmin && (
-                          <div className="flex items-center justify-end gap-1">
+                      render: (professor: ProfessorListItemDto) => (
+                        <>
+                          {isAdmin && (
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                icon={<PencilIcon className="h-4 w-4" />}
+                                onClick={() =>
+                                  setModal({ type: "editProfessor", professor })
+                                }
+                                data-testid={`professor-edit-btn-${professor.id}`}
+                              >
+                                {t("buttons.modify")}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                icon={<TrashIcon className="h-4 w-4" />}
+                                onClick={() =>
+                                  setModal({
+                                    type: "deleteProfessor",
+                                    professor,
+                                  })
+                                }
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                data-testid={`professor-delete-btn-${professor.id}`}
+                              >
+                                {t("buttons.delete")}
+                              </Button>
+                            </div>
+                          )}
+                          {!isAdmin && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -648,47 +708,32 @@ export default function CoursesPage() {
                             >
                               {t("buttons.modify")}
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              icon={<TrashIcon className="h-4 w-4" />}
-                              onClick={() =>
-                                setModal({ type: "deleteProfessor", professor })
-                              }
-                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                            >
-                              {t("buttons.delete")}
-                            </Button>
-                          </div>
-                        )}
-                        {!isAdmin && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            icon={<PencilIcon className="h-4 w-4" />}
-                            onClick={() =>
-                              setModal({ type: "editProfessor", professor })
-                            }
-                          >
-                            {t("buttons.modify")}
-                          </Button>
-                        )}
-                      </>
-                    ),
-                  },
-                ]}
-                data={professors}
-                emptyMessage={t("empty.noProfessorsFound")}
-              />
-            )}
-          </div>
+                          )}
+                        </>
+                      ),
+                    },
+                  ]}
+                  data={professors}
+                  emptyMessage={t("empty.noProfessorsFound")}
+                />
+              )}
+            </div>
+          </TabErrorBoundary>
         )}
 
         {/* ──────────────────────────────── TAB 4 : Mes inscriptions */}
-        {activeTab === "myEnrollments" && <MyCoursesPage />}
+        {activeTab === "myEnrollments" && (
+          <TabErrorBoundary tabKey={activeTab}>
+            <MyCoursesPage />
+          </TabErrorBoundary>
+        )}
 
         {/* ──────────────────────────────── TAB 5 : Réservations */}
-        {activeTab === "reservations" && <ReservationsPage />}
+        {activeTab === "reservations" && (
+          <TabErrorBoundary tabKey={activeTab}>
+            <ReservationsPage />
+          </TabErrorBoundary>
+        )}
       </div>
 
       {/* ───────────────────────────────────────────────────────────── */}

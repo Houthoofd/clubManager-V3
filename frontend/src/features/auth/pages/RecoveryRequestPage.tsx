@@ -27,9 +27,7 @@ import { SubmitButton } from "@/shared/components/Button/SubmitButton";
 
 const recoveryRequestSchema = z.object({
   email: z.string().email("Adresse email invalide"),
-  reason: z
-    .string()
-    .min(10, "La raison doit contenir au moins 10 caractères"),
+  reason: z.string().min(10, "La raison doit contenir au moins 10 caractères"),
 });
 
 type RecoveryRequestInput = z.infer<typeof recoveryRequestSchema>;
@@ -60,15 +58,12 @@ export const RecoveryRequestPage = () => {
     try {
       await apiClient.post("/recovery/public", data);
       setSubmitted(true);
-      toast.success(
-        t("recoveryRequest.successTitle", "Demande envoyée"),
-        {
-          description: t(
-            "recoveryRequest.successMessage",
-            "Votre demande a été soumise avec succès.",
-          ),
-        },
-      );
+      toast.success(t("recoveryRequest.successTitle", "Demande envoyée"), {
+        description: t(
+          "recoveryRequest.successMessage",
+          "Votre demande a été soumise avec succès.",
+        ),
+      });
     } catch (error: any) {
       const message =
         error?.response?.data?.message ??
@@ -84,10 +79,7 @@ export const RecoveryRequestPage = () => {
 
   return (
     <AuthPageContainer
-      title={t(
-        "recoveryRequest.title",
-        "Demande de récupération de compte",
-      )}
+      title={t("recoveryRequest.title", "Demande de récupération de compte")}
       subtitle={t(
         "recoveryRequest.description",
         "Expliquez votre situation pour que l'équipe puisse vous aider à récupérer l'accès à votre compte.",
@@ -105,7 +97,11 @@ export const RecoveryRequestPage = () => {
       }
     >
       {!submitted ? (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-6"
+          data-testid="recovery-request-page"
+        >
           {/* Champ Email */}
           <FormField
             id="email"
@@ -122,6 +118,7 @@ export const RecoveryRequestPage = () => {
                 type="email"
                 autoComplete="email"
                 {...register("email")}
+                data-testid="input-recovery-email"
                 className={`block w-full pl-10 pr-3 py-3 border ${
                   errors.email
                     ? "border-red-300 focus:ring-red-500 focus:border-red-500"
@@ -153,6 +150,7 @@ export const RecoveryRequestPage = () => {
             <textarea
               id="reason"
               rows={5}
+              data-testid="textarea-recovery-reason"
               {...register("reason")}
               className={`block w-full px-3 py-3 border ${
                 errors.reason
@@ -171,6 +169,7 @@ export const RecoveryRequestPage = () => {
             isLoading={isSubmitting}
             loadingText={t("recoveryRequest.sending", "Envoi en cours...")}
             fullWidth
+            data-testid="btn-submit-recovery"
           >
             {t("recoveryRequest.submit", "Envoyer ma demande")}
           </SubmitButton>
@@ -187,7 +186,7 @@ export const RecoveryRequestPage = () => {
         </form>
       ) : (
         // État de succès — demande soumise
-        <div className="text-center py-8">
+        <div className="text-center py-8" data-testid="recovery-success">
           <CheckCircleIcon className="h-16 w-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             {t("recoveryRequest.successTitle", "Demande envoyée !")}

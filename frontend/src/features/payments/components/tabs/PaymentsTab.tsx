@@ -82,7 +82,7 @@ export function PaymentsTab({
   const statutsPaiement = useStatutsPaiement();
 
   return (
-    <div>
+    <div data-testid="payments-tab">
       {/* En-tête de l'onglet */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
@@ -130,6 +130,7 @@ export function PaymentsTab({
             <button
               type="button"
               onClick={() => setRecordPaymentOpen(true)}
+              data-testid="btn-record-payment"
               className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium
                          text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm
                          transition-colors"
@@ -245,13 +246,15 @@ export function PaymentsTab({
         />
       ) : (
         <>
-          <DataTable
-            columns={paymentsColumns}
-            data={filteredPayments}
-            rowKey="id"
-            loading={paymentsLoading}
-            emptyMessage={t("messages.noPayments")}
-          />
+          <div data-testid="payments-table">
+            <DataTable
+              columns={paymentsColumns}
+              data={filteredPayments}
+              rowKey="id"
+              loading={paymentsLoading}
+              emptyMessage={t("messages.noPayments")}
+            />
+          </div>
           <PaginationBar
             currentPage={paymentsPagination.page}
             totalPages={paymentsPagination.totalPages}

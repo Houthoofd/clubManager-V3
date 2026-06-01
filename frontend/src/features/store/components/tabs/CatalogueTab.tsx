@@ -63,7 +63,7 @@ export function CatalogueTab() {
   }>({ isOpen: false, articleId: null, articleNom: "" });
 
   return (
-    <div>
+    <div data-testid="catalogue-tab">
       {/* En-tête de l'onglet */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
@@ -87,6 +87,7 @@ export function CatalogueTab() {
         </div>
         <button
           onClick={() => store.openArticleModal()}
+          data-testid="btn-create-article"
           className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
         >
           <svg
@@ -203,6 +204,7 @@ export function CatalogueTab() {
               {articlesQuery.data.items.map((article) => (
                 <article
                   key={article.id}
+                  data-testid={`article-card-${article.id}`}
                   className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -248,6 +250,7 @@ export function CatalogueTab() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => store.openArticleModal(article)}
+                        data-testid={`btn-edit-article-${article.id}`}
                         className="flex-1 rounded-lg border border-blue-600 bg-white px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
                       >
                         {t("catalogue.actions.edit")}
@@ -270,6 +273,7 @@ export function CatalogueTab() {
                             articleNom: article.nom,
                           })
                         }
+                        data-testid={`btn-delete-article-${article.id}`}
                         className="rounded-lg border border-red-600 bg-white px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
                       >
                         {t("catalogue.actions.delete")}

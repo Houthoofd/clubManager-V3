@@ -46,7 +46,10 @@ export function ConfirmEmailChangePage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 w-full max-w-md p-8 text-center space-y-4">
+      <div
+        className="bg-white rounded-xl shadow-sm border border-gray-200 w-full max-w-md p-8 text-center space-y-4"
+        data-testid="confirm-email-change-page"
+      >
         {status === "loading" && (
           <>
             <LoadingSpinner size="lg" />
@@ -55,26 +58,30 @@ export function ConfirmEmailChangePage() {
         )}
 
         {status === "success" && (
-          <>
+          <div data-testid="confirm-email-change-success" className="space-y-4">
             <CheckCircleIcon className="h-14 w-14 text-green-500 mx-auto" />
             <h1 className="text-xl font-bold text-gray-900">
               Adresse email mise à jour !
             </h1>
             <p className="text-gray-600 text-sm">
               Votre nouvelle adresse email est désormais{" "}
-              <span className="font-semibold">{newEmail}</span>.
+              <span className="font-semibold" data-testid="new-email-display">
+                {newEmail}
+              </span>
+              .
             </p>
             <button
               onClick={() => navigate("/profile")}
               className="mt-4 px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              data-testid="btn-back-profile"
             >
               Retour au profil
             </button>
-          </>
+          </div>
         )}
 
         {status === "error" && (
-          <>
+          <div data-testid="confirm-email-change-error" className="space-y-4">
             <XCircleIcon className="h-14 w-14 text-red-500 mx-auto" />
             <h1 className="text-xl font-bold text-gray-900">
               Lien invalide ou expiré
@@ -83,10 +90,11 @@ export function ConfirmEmailChangePage() {
             <button
               onClick={() => navigate("/profile")}
               className="mt-4 px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              data-testid="btn-back-profile"
             >
               Retour au profil
             </button>
-          </>
+          </div>
         )}
       </div>
     </div>

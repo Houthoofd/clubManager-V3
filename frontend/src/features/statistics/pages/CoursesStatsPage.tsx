@@ -120,7 +120,7 @@ export const CoursesStatsPage: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="courses-stats-page">
       {/* Page Header with Breadcrumb */}
       <PageHeader
         breadcrumb={breadcrumb}

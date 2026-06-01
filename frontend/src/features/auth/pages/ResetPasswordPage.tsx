@@ -13,7 +13,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -42,6 +42,7 @@ export const ResetPasswordPage = () => {
   const token = searchParams.get("token") ?? "";
 
   const {
+    control,
     register,
     handleSubmit,
     watch,
@@ -128,7 +129,7 @@ export const ResetPasswordPage = () => {
         subtitle={t("resetPassword.invalidLinkSubtitle")}
         showLogo={false}
       >
-        <div className="space-y-6">
+        <div className="space-y-6" data-testid="reset-password-no-token">
           <AlertBanner
             variant="error"
             title={t("resetPassword.invalidLinkTitle")}
@@ -141,6 +142,7 @@ export const ResetPasswordPage = () => {
             variant="primary"
             type="button"
             onClick={() => navigate("/forgot-password")}
+            data-testid="btn-request-new-link"
           >
             {t("resetPassword.requestNewLink")}
           </SubmitButton>
@@ -176,7 +178,13 @@ export const ResetPasswordPage = () => {
       }
     >
       {!resetSuccess ? (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-6"
+          data-testid="reset-password-form"
+        >
+          {/* Champ token caché — enregistré dans RHF pour être inclus dans les données de soumission */}
+          <input type="hidden" {...register("token")} />
           {/* Nouveau mot de passe avec indicateur de force */}
           <FormField
             id="newPassword"
@@ -185,14 +193,21 @@ export const ResetPasswordPage = () => {
             error={errors.newPassword?.message}
             helpText={t("resetPassword.passwordRequirements")}
           >
-            <PasswordInput
-              id="newPassword"
-              value={newPassword}
-              {...register("newPassword")}
-              showStrengthIndicator
-              hasError={!!errors.newPassword}
-              placeholder="••••••••"
-              autoComplete="new-password"
+            <Controller
+              name="newPassword"
+              control={control}
+              render={({ field }) => (
+                <PasswordInput
+                  id="newPassword"
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  showStrengthIndicator
+                  hasError={!!errors.newPassword}
+                  placeholder="••••••••"
+                  autoComplete="new-password"
+                  data-testid="input-new-password"
+                />
+              )}
             />
           </FormField>
 
@@ -204,13 +219,20 @@ export const ResetPasswordPage = () => {
             error={errors.confirmPassword?.message}
           >
             <div className="space-y-2">
-              <PasswordInput
-                id="confirmPassword"
-                value={confirmPassword}
-                {...register("confirmPassword")}
-                hasError={!!errors.confirmPassword}
-                placeholder="••••••••"
-                autoComplete="new-password"
+              <Controller
+                name="confirmPassword"
+                control={control}
+                render={({ field }) => (
+                  <PasswordInput
+                    id="confirmPassword"
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    hasError={!!errors.confirmPassword}
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                    data-testid="input-confirm-password"
+                  />
+                )}
               />
 
               {/* Indicateur de correspondance des mots de passe */}
@@ -271,6 +293,7 @@ export const ResetPasswordPage = () => {
             isLoading={isSubmitting}
             loadingText={t("resetPassword.resetting")}
             fullWidth
+            data-testid="btn-submit-reset"
           >
             {t("resetPassword.submit")}
           </SubmitButton>
@@ -286,7 +309,10 @@ export const ResetPasswordPage = () => {
           </div>
         </form>
       ) : (
-        <div className="text-center py-8 space-y-6">
+        <div
+          className="text-center py-8 space-y-6"
+          data-testid="reset-password-success"
+        >
           <CheckCircleIcon className="h-16 w-16 text-green-500 mx-auto" />
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">

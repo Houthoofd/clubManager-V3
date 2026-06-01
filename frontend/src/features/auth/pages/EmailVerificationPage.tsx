@@ -198,7 +198,7 @@ export const EmailVerificationPage = () => {
 
       {/* ── ÉTAT SUCCESS ── */}
       {verificationState === "success" && (
-        <div className="space-y-6">
+        <div className="space-y-6" data-testid="verify-email-success">
           <AlertBanner
             variant="success"
             title={t("emailVerification.successAlertTitle")}
@@ -231,6 +231,7 @@ export const EmailVerificationPage = () => {
               })
             }
             type="button"
+            data-testid="btn-login-now"
           >
             {t("emailVerification.loginNow")}
           </SubmitButton>
@@ -239,7 +240,7 @@ export const EmailVerificationPage = () => {
 
       {/* ── ÉTAT ERROR ── */}
       {verificationState === "error" && (
-        <div className="space-y-6">
+        <div className="space-y-6" data-testid="verify-email-error">
           <AlertBanner
             variant="danger"
             title={t("emailVerification.invalidLinkTitle")}
@@ -254,6 +255,7 @@ export const EmailVerificationPage = () => {
                 fullWidth
                 onClick={() => setShowResendForm(true)}
                 type="button"
+                data-testid="btn-resend-email"
               >
                 {t("emailVerification.resend")}
               </SubmitButton>
@@ -267,7 +269,11 @@ export const EmailVerificationPage = () => {
               </Button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit(onResend)} className="space-y-4">
+            <form
+              onSubmit={handleSubmit(onResend)}
+              className="space-y-4"
+              data-testid="verify-email-resend-form"
+            >
               {/* Champ email */}
               <div>
                 <label
@@ -285,6 +291,7 @@ export const EmailVerificationPage = () => {
                     type="email"
                     autoComplete="email"
                     {...register("email")}
+                    data-testid="input-resend-email"
                     className={`block w-full pl-10 pr-3 py-3 border ${
                       errors.email
                         ? "border-red-300 focus:ring-red-500 focus:border-red-500"
@@ -306,6 +313,7 @@ export const EmailVerificationPage = () => {
                   isLoading={isSubmitting}
                   loadingText={t("emailVerification.sending")}
                   fullWidth
+                  data-testid="btn-submit-resend"
                 >
                   {t("emailVerification.resendEmail")}
                 </SubmitButton>

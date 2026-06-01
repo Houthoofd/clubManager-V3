@@ -254,6 +254,7 @@ export function AdminFamiliesPage({ flat = false }: AdminFamiliesPageProps) {
             onClick={() => openEdit(row)}
             className="p-1.5 rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
             title={t("admin.aria.editFamily", { id: row.id })}
+            data-testid={`family-edit-btn-${row.id}`}
           >
             <PencilIcon className="h-4 w-4" />
           </button>
@@ -261,6 +262,7 @@ export function AdminFamiliesPage({ flat = false }: AdminFamiliesPageProps) {
             onClick={() => setModal({ type: "delete", family: row })}
             className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
             title={t("admin.aria.deleteFamily", { id: row.id })}
+            data-testid={`family-delete-btn-${row.id}`}
           >
             <TrashIcon className="h-4 w-4" />
           </button>
@@ -369,6 +371,7 @@ export function AdminFamiliesPage({ flat = false }: AdminFamiliesPageProps) {
                 placeholder={t("admin.placeholders.name")}
                 autoFocus
                 error={formErrors.nom}
+                data-testid="input-family-name"
               />
             </FormField>
             <p className="text-xs text-gray-400">{t("admin.modal.editHint")}</p>
@@ -386,6 +389,7 @@ export function AdminFamiliesPage({ flat = false }: AdminFamiliesPageProps) {
             variant="primary"
             onClick={handleSubmit}
             loading={updateMutation.isPending}
+            data-testid="btn-submit-family-edit"
           >
             {t("actions.save")}
           </Button>
@@ -435,6 +439,7 @@ export function AdminFamiliesPage({ flat = false }: AdminFamiliesPageProps) {
               onChange={(e) => setNewMemberUserId(e.target.value)}
               placeholder={t("admin.placeholders.userId")}
               className="w-40"
+              data-testid="input-add-member-userid"
             />
             <Button
               variant="primary"
@@ -442,6 +447,7 @@ export function AdminFamiliesPage({ flat = false }: AdminFamiliesPageProps) {
               onClick={handleAddMember}
               loading={addMemberMutation.isPending}
               disabled={!newMemberUserId}
+              data-testid="btn-add-member"
             >
               {t("actions.addMember")}
             </Button>

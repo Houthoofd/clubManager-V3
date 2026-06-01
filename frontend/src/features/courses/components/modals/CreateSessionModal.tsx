@@ -87,12 +87,14 @@ export function CreateSessionModal({
       <Modal.Body>
         <form
           id="create-session-form"
+          data-testid="create-session-form"
           onSubmit={handleSubmit}
           className="space-y-4"
         >
           <Input
             label={t("fields.date")}
             id="date_cours"
+            data-testid="session-date-input"
             type="date"
             value={form.date_cours}
             onChange={(e) =>
@@ -104,6 +106,7 @@ export function CreateSessionModal({
           <Input.Select
             label={t("fields.courseType")}
             id="type_cours"
+            data-testid="session-type-select"
             value={form.type_cours}
             onChange={(e) =>
               setForm((f) => ({ ...f, type_cours: e.target.value }))
@@ -135,6 +138,7 @@ export function CreateSessionModal({
             <Input
               label={t("fields.startTime")}
               id="heure_debut"
+              data-testid="session-start-time-input"
               type="time"
               value={form.heure_debut}
               onChange={(e) =>
@@ -145,6 +149,7 @@ export function CreateSessionModal({
             <Input
               label={t("fields.endTime")}
               id="heure_fin"
+              data-testid="session-end-time-input"
               type="time"
               value={form.heure_fin}
               onChange={(e) =>
@@ -174,10 +179,16 @@ export function CreateSessionModal({
         </form>
       </Modal.Body>
       <Modal.Footer align="right">
-        <Button variant="outline" onClick={onClose} disabled={saving}>
+        <Button
+          variant="outline"
+          onClick={onClose}
+          disabled={saving}
+          data-testid="session-cancel-btn"
+        >
           {t("buttons.cancel")}
         </Button>
         <SubmitButton
+          data-testid="session-submit-btn"
           type="button"
           onClick={() => {
             const formElement = document.getElementById(

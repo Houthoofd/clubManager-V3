@@ -104,140 +104,154 @@ export function AttendanceModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
-      <Modal.Header
-        title={t("modals.attendanceSheet")}
-        subtitle={
-          session
-            ? `${session.type_cours} — ${formatDate(session.date_cours)} ${formatTime(session.heure_debut)}–${formatTime(session.heure_fin)}`
-            : undefined
-        }
-      />
-      <Modal.Body padding="px-6 py-5">
-        {attendanceLoading ? (
-          <LoadingSpinner size="lg" />
-        ) : !attendanceSheet ? (
-          <p className="text-center text-gray-500 py-12">{t("empty.noData")}</p>
-        ) : (
-          <>
-            <div className="flex flex-wrap gap-4 mb-5 p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm text-gray-600">
-                {t("labels.total")}{" "}
-                <strong>{attendanceSheet.statistiques.total_inscrits}</strong>
-              </span>
-              <span className="text-sm text-green-700">
-                {t("labels.present")}{" "}
-                <strong>{attendanceSheet.statistiques.nombre_presents}</strong>
-              </span>
-              <span className="text-sm text-red-600">
-                {t("labels.absent")}{" "}
-                <strong>{attendanceSheet.statistiques.nombre_absents}</strong>
-              </span>
-              {attendanceSheet.professeurs.length > 0 && (
-                <span className="text-sm text-blue-600">
-                  {t("labels.professor")}{" "}
-                  {attendanceSheet.professeurs
-                    .map((p) => p.nom_complet)
-                    .join(", ")}
+    <div data-testid="attendance-modal">
+      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+        <Modal.Header
+          title={t("modals.attendanceSheet")}
+          subtitle={
+            session
+              ? `${session.type_cours} — ${formatDate(session.date_cours)} ${formatTime(session.heure_debut)}–${formatTime(session.heure_fin)}`
+              : undefined
+          }
+        />
+        <Modal.Body padding="px-6 py-5">
+          {attendanceLoading ? (
+            <LoadingSpinner size="lg" />
+          ) : !attendanceSheet ? (
+            <p className="text-center text-gray-500 py-12">
+              {t("empty.noData")}
+            </p>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-4 mb-5 p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm text-gray-600">
+                  {t("labels.total")}{" "}
+                  <strong>{attendanceSheet.statistiques.total_inscrits}</strong>
                 </span>
-              )}
-            </div>
+                <span className="text-sm text-green-700">
+                  {t("labels.present")}{" "}
+                  <strong>
+                    {attendanceSheet.statistiques.nombre_presents}
+                  </strong>
+                </span>
+                <span className="text-sm text-red-600">
+                  {t("labels.absent")}{" "}
+                  <strong>{attendanceSheet.statistiques.nombre_absents}</strong>
+                </span>
+                {attendanceSheet.professeurs.length > 0 && (
+                  <span className="text-sm text-blue-600">
+                    {t("labels.professor")}{" "}
+                    {attendanceSheet.professeurs
+                      .map((p) => p.nom_complet)
+                      .join(", ")}
+                  </span>
+                )}
+              </div>
 
-            {attendanceSheet.inscriptions.length === 0 ? (
-              <p className="text-center text-gray-400 py-8">
-                {t("empty.noInscriptions")}
-              </p>
-            ) : (
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-4">
-                      {t("fields.fullName")}
-                    </th>
-                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-4">
-                      {t("fields.grade")}
-                    </th>
-                    <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 w-24">
-                      {t("fields.present")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {attendanceSheet.inscriptions.map((ins) => (
-                    <tr
-                      key={ins.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="py-3 pr-4 text-sm font-medium text-gray-900">
-                        {ins.nom_complet}
-                      </td>
-                      <td className="py-3 pr-4 text-sm text-gray-500">
-                        {ins.grade ? (
-                          <span className="inline-flex items-center gap-2">
-                            {ins.grade.couleur && (
-                              <span
-                                className="inline-block h-2.5 w-2.5 rounded-full flex-shrink-0"
-                                style={{ backgroundColor: ins.grade.couleur }}
-                              />
-                            )}
-                            {ins.grade.nom}
-                          </span>
-                        ) : (
-                          <span className="text-gray-300">—</span>
-                        )}
-                      </td>
-                      <td className="py-3 text-center">
-                        <button
-                          type="button"
-                          role="switch"
-                          aria-checked={presenceMap[ins.id] === 1}
-                          onClick={() => togglePresence(ins.id)}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                            presenceMap[ins.id] === 1
-                              ? "bg-green-500"
-                              : "bg-gray-200"
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${
-                              presenceMap[ins.id] === 1
-                                ? "translate-x-6"
-                                : "translate-x-1"
-                            }`}
-                          />
-                        </button>
-                      </td>
+              {attendanceSheet.inscriptions.length === 0 ? (
+                <p className="text-center text-gray-400 py-8">
+                  {t("empty.noInscriptions")}
+                </p>
+              ) : (
+                <table className="w-full" data-testid="attendance-table">
+                  <thead>
+                    <tr className="border-b border-gray-100">
+                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-4">
+                        {t("fields.fullName")}
+                      </th>
+                      <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-4">
+                        {t("fields.grade")}
+                      </th>
+                      <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 w-24">
+                        {t("fields.present")}
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </>
-        )}
-      </Modal.Body>
-      <Modal.Footer align="right">
-        <Button
-          variant="outline"
-          onClick={handleExport}
-          disabled={isExporting || attendanceLoading || !attendanceSheet}
-        >
-          {isExporting ? t("loadingText.exporting") : t("buttons.exportCsv")}
-        </Button>
-        <Button variant="outline" onClick={onClose} disabled={saving}>
-          {t("buttons.close")}
-        </Button>
-        {attendanceSheet && attendanceSheet.inscriptions.length > 0 && (
-          <SubmitButton
-            type="button"
-            onClick={handleSave}
-            isLoading={saving}
-            disabled={attendanceLoading}
-            loadingText={t("loadingText.savingAttendance")}
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {attendanceSheet.inscriptions.map((ins) => (
+                      <tr
+                        key={ins.id}
+                        data-testid={`attendance-row-${ins.id}`}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="py-3 pr-4 text-sm font-medium text-gray-900">
+                          {ins.nom_complet}
+                        </td>
+                        <td className="py-3 pr-4 text-sm text-gray-500">
+                          {ins.grade ? (
+                            <span className="inline-flex items-center gap-2">
+                              {ins.grade.couleur && (
+                                <span
+                                  className="inline-block h-2.5 w-2.5 rounded-full flex-shrink-0"
+                                  style={{ backgroundColor: ins.grade.couleur }}
+                                />
+                              )}
+                              {ins.grade.nom}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300">—</span>
+                          )}
+                        </td>
+                        <td className="py-3 text-center">
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={presenceMap[ins.id] === 1}
+                            data-testid={`attendance-toggle-${ins.id}`}
+                            onClick={() => togglePresence(ins.id)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                              presenceMap[ins.id] === 1
+                                ? "bg-green-500"
+                                : "bg-gray-200"
+                            }`}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${
+                                presenceMap[ins.id] === 1
+                                  ? "translate-x-6"
+                                  : "translate-x-1"
+                              }`}
+                            />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer align="right">
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={isExporting || attendanceLoading || !attendanceSheet}
           >
-            {t("buttons.saveAttendance")}
-          </SubmitButton>
-        )}
-      </Modal.Footer>
-    </Modal>
+            {isExporting ? t("loadingText.exporting") : t("buttons.exportCsv")}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={saving}
+            data-testid="attendance-close-btn"
+          >
+            {t("buttons.close")}
+          </Button>
+          {attendanceSheet && attendanceSheet.inscriptions.length > 0 && (
+            <SubmitButton
+              type="button"
+              onClick={handleSave}
+              isLoading={saving}
+              disabled={attendanceLoading}
+              loadingText={t("loadingText.savingAttendance")}
+              data-testid="attendance-save-btn"
+            >
+              {t("buttons.saveAttendance")}
+            </SubmitButton>
+          )}
+        </Modal.Footer>
+      </Modal>
+    </div>
   );
 }

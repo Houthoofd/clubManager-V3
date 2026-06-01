@@ -32,8 +32,8 @@
  * ```
  */
 
-import { useState, ChangeEvent, InputHTMLAttributes } from 'react';
-import { cn, INPUT } from '../../styles/designTokens';
+import { useState, ChangeEvent, InputHTMLAttributes } from "react";
+import { cn, INPUT } from "../../styles/designTokens";
 
 // ─── ICONS (SVG inline) ──────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ interface IconProps {
   className?: string;
 }
 
-function EyeIcon({ className = '' }: IconProps) {
+function EyeIcon({ className = "" }: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -66,7 +66,7 @@ function EyeIcon({ className = '' }: IconProps) {
   );
 }
 
-function EyeSlashIcon({ className = '' }: IconProps) {
+function EyeSlashIcon({ className = "" }: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +88,10 @@ function EyeSlashIcon({ className = '' }: IconProps) {
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
-export interface PasswordInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
+export interface PasswordInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "type"
+> {
   /**
    * ID du champ (requis pour l'accessibilité)
    */
@@ -154,9 +157,9 @@ function calculatePasswordStrength(password: string): PasswordStrength {
   if (!password) {
     return {
       score: 0,
-      label: '',
-      color: 'text-gray-400',
-      bgColor: 'bg-gray-300',
+      label: "",
+      color: "text-gray-400",
+      bgColor: "bg-gray-300",
     };
   }
 
@@ -181,30 +184,30 @@ function calculatePasswordStrength(password: string): PasswordStrength {
   if (score < 25) {
     return {
       score,
-      label: 'Faible',
-      color: 'text-red-600',
-      bgColor: 'bg-red-500',
+      label: "Faible",
+      color: "text-red-600",
+      bgColor: "bg-red-500",
     };
   } else if (score < 50) {
     return {
       score,
-      label: 'Moyen',
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-500',
+      label: "Moyen",
+      color: "text-orange-600",
+      bgColor: "bg-orange-500",
     };
   } else if (score < 75) {
     return {
       score,
-      label: 'Fort',
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-500',
+      label: "Fort",
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-500",
     };
   } else {
     return {
       score,
-      label: 'Très fort',
-      color: 'text-green-600',
-      bgColor: 'bg-green-500',
+      label: "Très fort",
+      color: "text-green-600",
+      bgColor: "bg-green-500",
     };
   }
 }
@@ -217,17 +220,22 @@ export function PasswordInput({
   onChange,
   showStrengthIndicator = false,
   hasError = false,
-  placeholder = 'Entrez votre mot de passe',
-  autoComplete = 'current-password',
-  className = '',
-  containerClassName = '',
+  placeholder = "Entrez votre mot de passe",
+  autoComplete = "current-password",
+  className = "",
+  containerClassName = "",
   disabled,
   ...props
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
+  // Normaliser la valeur (peut être undefined en React 18 StrictMode pendant le remount)
+  const valueStr = value ?? "";
+
   // Calculer la force du mot de passe si l'indicateur est activé
-  const strength = showStrengthIndicator ? calculatePasswordStrength(value) : null;
+  const strength = showStrengthIndicator
+    ? calculatePasswordStrength(valueStr)
+    : null;
 
   // Classes du champ input
   const inputClasses = cn(
@@ -235,19 +243,19 @@ export function PasswordInput({
     INPUT.withIconRight, // Padding right pour le bouton toggle
     hasError && INPUT.error,
     disabled && INPUT.disabled,
-    className
+    className,
   );
 
   // Classes du conteneur
-  const containerClasses = cn('relative', containerClassName);
+  const containerClasses = cn("relative", containerClassName);
 
   return (
     <div className={containerClasses}>
       {/* Champ input */}
       <input
         id={id}
-        type={showPassword ? 'text' : 'password'}
-        value={value}
+        type={showPassword ? "text" : "password"}
+        value={valueStr}
         onChange={onChange}
         placeholder={placeholder}
         autoComplete={autoComplete}
@@ -255,7 +263,7 @@ export function PasswordInput({
         className={inputClasses}
         aria-invalid={hasError}
         aria-describedby={
-          showStrengthIndicator && value.length > 0
+          showStrengthIndicator && valueStr.length > 0
             ? `${id}-strength`
             : undefined
         }
@@ -268,7 +276,9 @@ export function PasswordInput({
         onClick={() => setShowPassword(!showPassword)}
         disabled={disabled}
         className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+        aria-label={
+          showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"
+        }
         tabIndex={-1}
       >
         {showPassword ? (
@@ -279,7 +289,7 @@ export function PasswordInput({
       </button>
 
       {/* Indicateur de force du mot de passe */}
-      {showStrengthIndicator && value.length > 0 && strength && (
+      {showStrengthIndicator && valueStr.length > 0 && strength && (
         <div
           id={`${id}-strength`}
           className="mt-2 space-y-1"
@@ -289,7 +299,10 @@ export function PasswordInput({
           {/* Barre de progression */}
           <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className={cn('h-full transition-all duration-300', strength.bgColor)}
+              className={cn(
+                "h-full transition-all duration-300",
+                strength.bgColor,
+              )}
               style={{ width: `${strength.score}%` }}
               role="progressbar"
               aria-valuenow={strength.score}
@@ -300,7 +313,7 @@ export function PasswordInput({
 
           {/* Label de force */}
           <div className="flex items-center justify-between">
-            <span className={cn('text-xs font-medium', strength.color)}>
+            <span className={cn("text-xs font-medium", strength.color)}>
               {strength.label}
             </span>
             <span className="text-xs text-gray-500">

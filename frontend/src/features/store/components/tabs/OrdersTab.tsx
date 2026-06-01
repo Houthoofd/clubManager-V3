@@ -55,7 +55,7 @@ export function OrdersTab() {
       .length ?? 0;
 
   return (
-    <div>
+    <div data-testid="orders-tab">
       {/* En-tête de l'onglet */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
@@ -133,7 +133,10 @@ export function OrdersTab() {
 
         {ordersQuery.data?.items.length ? (
           <div className="space-y-4">
-            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+            <div
+              className="overflow-hidden rounded-xl border border-gray-200 bg-white"
+              data-testid="orders-table"
+            >
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">

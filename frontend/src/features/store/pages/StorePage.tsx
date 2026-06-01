@@ -79,26 +79,31 @@ export function StorePage() {
           id: "catalogue",
           label: t("tabs.catalogue"),
           icon: <ShoppingBagIcon className="h-4 w-4" />,
+          testId: "tab-catalogue",
         },
         {
           id: "commandes",
           label: t("tabs.orders"),
           icon: <ClipboardDocumentListIcon className="h-4 w-4" />,
+          testId: "tab-commandes",
         },
         {
           id: "stocks",
           label: t("tabs.stocks"),
           icon: <ArchiveBoxIcon className="h-4 w-4" />,
+          testId: "tab-stocks",
         },
         {
           id: "mouvements",
           label: t("tabs.movements", "Mouvements"),
           icon: <ArrowsRightLeftIcon className="h-4 w-4" />,
+          testId: "tab-mouvements",
         },
         {
           id: "configuration",
           label: t("tabs.configuration"),
           icon: <Cog6ToothIcon className="h-4 w-4" />,
+          testId: "tab-configuration",
         },
       ]
     : [
@@ -106,16 +111,18 @@ export function StorePage() {
           id: "boutique",
           label: t("tabs.shop"),
           icon: <ShoppingBagIcon className="h-4 w-4" />,
+          testId: "tab-boutique",
         },
         {
           id: "mes_commandes",
           label: t("tabs.myOrders"),
           icon: <ClipboardDocumentListIcon className="h-4 w-4" />,
+          testId: "tab-mes-commandes",
         },
       ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="store-page">
       {/* ── En-tête ── */}
       <PageHeader
         title={t("page.title")}

@@ -44,18 +44,18 @@ const formatDateParam = (date?: Date | string): string | undefined => {
 export const getDashboardAnalytics = async (
   params?: AnalyticsParams,
 ): Promise<DashboardAnalytics> => {
-  const response = await apiClient.get<DashboardAnalytics>(
-    "/statistics/dashboard",
-    {
-      params: {
-        date_debut: formatDateParam(params?.date_debut),
-        date_fin: formatDateParam(params?.date_fin),
-        period_type: params?.period_type,
-        include_trends: params?.include_trends ?? true,
-      },
+  const response = await apiClient.get<{
+    success: boolean;
+    data: DashboardAnalytics;
+  }>("/statistics/dashboard", {
+    params: {
+      date_debut: formatDateParam(params?.date_debut),
+      date_fin: formatDateParam(params?.date_fin),
+      period_type: params?.period_type,
+      include_trends: params?.include_trends ?? true,
     },
-  );
-  return response.data;
+  });
+  return response.data.data;
 };
 
 /**
@@ -67,16 +67,16 @@ export const getDashboardAnalytics = async (
 export const getMemberAnalytics = async (
   params?: AnalyticsParams,
 ): Promise<MemberAnalyticsResponse> => {
-  const response = await apiClient.get<MemberAnalyticsResponse>(
-    "/statistics/members",
-    {
-      params: {
-        date_debut: formatDateParam(params?.date_debut),
-        date_fin: formatDateParam(params?.date_fin),
-      },
+  const response = await apiClient.get<{
+    success: boolean;
+    data: MemberAnalyticsResponse;
+  }>("/statistics/members", {
+    params: {
+      date_debut: formatDateParam(params?.date_debut),
+      date_fin: formatDateParam(params?.date_fin),
     },
-  );
-  return response.data;
+  });
+  return response.data.data;
 };
 
 /**
@@ -88,16 +88,16 @@ export const getMemberAnalytics = async (
 export const getCourseAnalytics = async (
   params?: AnalyticsParams,
 ): Promise<CourseAnalyticsResponse> => {
-  const response = await apiClient.get<CourseAnalyticsResponse>(
-    "/statistics/courses",
-    {
-      params: {
-        date_debut: formatDateParam(params?.date_debut),
-        date_fin: formatDateParam(params?.date_fin),
-      },
+  const response = await apiClient.get<{
+    success: boolean;
+    data: CourseAnalyticsResponse;
+  }>("/statistics/courses", {
+    params: {
+      date_debut: formatDateParam(params?.date_debut),
+      date_fin: formatDateParam(params?.date_fin),
     },
-  );
-  return response.data;
+  });
+  return response.data.data;
 };
 
 /**
@@ -109,16 +109,16 @@ export const getCourseAnalytics = async (
 export const getFinancialAnalytics = async (
   params?: AnalyticsParams,
 ): Promise<FinancialAnalyticsResponse> => {
-  const response = await apiClient.get<FinancialAnalyticsResponse>(
-    "/statistics/finance",
-    {
-      params: {
-        date_debut: formatDateParam(params?.date_debut),
-        date_fin: formatDateParam(params?.date_fin),
-      },
+  const response = await apiClient.get<{
+    success: boolean;
+    data: FinancialAnalyticsResponse;
+  }>("/statistics/finance", {
+    params: {
+      date_debut: formatDateParam(params?.date_debut),
+      date_fin: formatDateParam(params?.date_fin),
     },
-  );
-  return response.data;
+  });
+  return response.data.data;
 };
 
 /**
@@ -130,16 +130,16 @@ export const getFinancialAnalytics = async (
 export const getStoreAnalytics = async (
   params?: AnalyticsParams,
 ): Promise<StoreAnalyticsResponse> => {
-  const response = await apiClient.get<StoreAnalyticsResponse>(
-    "/statistics/store",
-    {
-      params: {
-        date_debut: formatDateParam(params?.date_debut),
-        date_fin: formatDateParam(params?.date_fin),
-      },
+  const response = await apiClient.get<{
+    success: boolean;
+    data: StoreAnalyticsResponse;
+  }>("/statistics/store", {
+    params: {
+      date_debut: formatDateParam(params?.date_debut),
+      date_fin: formatDateParam(params?.date_fin),
     },
-  );
-  return response.data;
+  });
+  return response.data.data;
 };
 
 /**
@@ -151,17 +151,17 @@ export const getStoreAnalytics = async (
 export const getTrendAnalytics = async (
   params?: AnalyticsParams,
 ): Promise<TrendAnalyticsResponse> => {
-  const response = await apiClient.get<TrendAnalyticsResponse>(
-    "/statistics/trends",
-    {
-      params: {
-        date_debut: formatDateParam(params?.date_debut),
-        date_fin: formatDateParam(params?.date_fin),
-        period_type: params?.period_type || "month",
-      },
+  const response = await apiClient.get<{
+    success: boolean;
+    data: TrendAnalyticsResponse;
+  }>("/statistics/trends", {
+    params: {
+      date_debut: formatDateParam(params?.date_debut),
+      date_fin: formatDateParam(params?.date_fin),
+      period_type: params?.period_type || "month",
     },
-  );
-  return response.data;
+  });
+  return response.data.data;
 };
 
 /**
@@ -199,20 +199,30 @@ export interface StatisticsHistoryRow {
 /**
  * Trigger a statistics snapshot (admin only)
  */
-export const createStatisticsSnapshot = async (): Promise<StatisticsSnapshotResult> => {
-  const response = await apiClient.post<StatisticsSnapshotResult>('/statistics/snapshot');
-  return response.data;
-};
+export const createStatisticsSnapshot =
+  async (): Promise<StatisticsSnapshotResult> => {
+    const response = await apiClient.post<StatisticsSnapshotResult>(
+      "/statistics/snapshot",
+    );
+    return response.data;
+  };
 
 /**
  * Fetch snapshot history (admin only)
  */
 export const getStatisticsHistory = async (
   type?: string,
-  limit?: number
+  limit?: number,
 ): Promise<StatisticsHistoryRow[]> => {
-  const response = await apiClient.get<StatisticsHistoryRow[]>('/statistics/history', {
+  const response = await apiClient.get<{
+    success: boolean;
+    data: StatisticsHistoryRow[];
+  }>("/statistics/history", {
     params: { type, limit },
   });
-  return response.data;
+  // Le backend wrappe la réponse dans { success, data } — on extrait le tableau
+  return (
+    (response.data as { success: boolean; data: StatisticsHistoryRow[] })
+      .data ?? []
+  );
 };

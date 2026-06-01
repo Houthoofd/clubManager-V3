@@ -125,7 +125,7 @@ export const MembersStatsPage: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="members-stats-page">
       {/* Page Header with Breadcrumb */}
       <div className="bg-white rounded-lg shadow p-6">
         <PageHeader

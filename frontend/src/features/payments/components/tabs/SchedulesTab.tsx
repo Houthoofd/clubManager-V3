@@ -103,7 +103,7 @@ export function SchedulesTab({
   const [generateUserId, setGenerateUserId] = useState("");
 
   return (
-    <div>
+    <div data-testid="schedules-tab">
       {/* En-tête de l'onglet */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
@@ -259,6 +259,7 @@ export function SchedulesTab({
                           type="button"
                           onClick={() => handleMarkAsPaid(s.id)}
                           disabled={markingScheduleId === s.id}
+                          data-testid={`btn-mark-paid-${s.id}`}
                           className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium
                                      text-white bg-green-600 hover:bg-green-700 rounded-lg
                                      transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

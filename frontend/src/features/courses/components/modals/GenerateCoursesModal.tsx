@@ -79,12 +79,14 @@ export function GenerateCoursesModal({
       <Modal.Body>
         <form
           id="generate-courses-form"
+          data-testid="generate-courses-form"
           onSubmit={handleSubmit}
           className="space-y-4"
         >
           <Input.Select
             label={t("fields.recurrentCourse")}
             id="cours_recurrent_id"
+            data-testid="generate-recurrent-select"
             value={form.cours_recurrent_id}
             onChange={(e) =>
               setForm((f) => ({
@@ -107,6 +109,7 @@ export function GenerateCoursesModal({
             <Input
               label={t("fields.startDate")}
               id="date_debut"
+              data-testid="generate-date-debut-input"
               type="date"
               value={form.date_debut}
               onChange={(e) =>
@@ -117,6 +120,7 @@ export function GenerateCoursesModal({
             <Input
               label={t("fields.endDate")}
               id="date_fin"
+              data-testid="generate-date-fin-input"
               type="date"
               value={form.date_fin}
               onChange={(e) =>
@@ -128,10 +132,16 @@ export function GenerateCoursesModal({
         </form>
       </Modal.Body>
       <Modal.Footer align="right">
-        <Button variant="outline" onClick={onClose} disabled={saving}>
+        <Button
+          variant="outline"
+          onClick={onClose}
+          disabled={saving}
+          data-testid="generate-courses-cancel-btn"
+        >
           {t("buttons.cancel")}
         </Button>
         <SubmitButton
+          data-testid="generate-courses-submit-btn"
           type="button"
           onClick={() => {
             const formElement = document.getElementById(

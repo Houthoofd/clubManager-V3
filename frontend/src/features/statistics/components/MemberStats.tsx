@@ -313,21 +313,21 @@ export const MemberStats: React.FC<MemberStatsProps> = ({
 
   // Prepare distribution data
   const gradeDistribution =
-    data?.by_grade.map((item) => ({
+    data?.by_grade?.map((item) => ({
       label: item.grade_nom,
       value: item.count,
       percentage: item.pourcentage,
     })) || [];
 
   const genderDistribution =
-    data?.by_gender.map((item) => ({
+    data?.by_gender?.map((item) => ({
       label: item.genre_nom,
       value: item.count,
       percentage: item.pourcentage,
     })) || [];
 
   const ageDistribution =
-    data?.by_age_group.map((item) => ({
+    data?.by_age_group?.map((item) => ({
       label: `${item.groupe_age} ${t("members.ageSuffix")}`,
       value: item.count,
       percentage: item.pourcentage,

@@ -323,7 +323,7 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
 
   // Prepare distribution data
   const typeDistribution =
-    data?.by_type.map((item) => ({
+    data?.by_type?.map((item) => ({
       label: item.type_nom,
       value: item.count,
       percentage: item.pourcentage,
@@ -331,7 +331,7 @@ export const CourseStats: React.FC<CourseStatsProps> = ({
     })) || [];
 
   const professorDistribution =
-    data?.by_professor.slice(0, 5).map((item) => ({
+    data?.by_professor?.slice(0, 5)?.map((item) => ({
       label: item.professeur_nom,
       value: item.nombre_cours,
       percentage: 0,

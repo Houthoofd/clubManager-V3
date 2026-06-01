@@ -105,6 +105,7 @@ export function TodayCourses() {
   return (
     <section
       className="bg-white rounded-xl shadow p-6"
+      data-testid="today-courses-section"
       aria-labelledby="today-courses-title"
     >
       {/* ── En-tête ─────────────────────────────────────────────────────── */}

@@ -43,7 +43,7 @@ export function PlansTab({
   const { t } = useTranslation("payments");
 
   return (
-    <div>
+    <div data-testid="plans-tab">
       {/* En-tête */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3">
@@ -86,6 +86,7 @@ export function PlansTab({
               setSelectedPlan(undefined);
               setPlanFormOpen(true);
             }}
+            data-testid="btn-create-plan"
             className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium
                        text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm
                        transition-colors"
@@ -124,6 +125,7 @@ export function PlansTab({
             {plans.map((plan) => (
               <div
                 key={plan.id}
+                data-testid={`plan-card-${plan.id}`}
                 className={`relative flex flex-col rounded-xl border shadow-sm transition-all
                   ${
                     plan.actif
@@ -237,6 +239,7 @@ export function PlansTab({
                         setPlanFormOpen(true);
                       }}
                       title={t("tabs.edit")}
+                      data-testid={`btn-edit-plan-${plan.id}`}
                       className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50
                                  transition-colors"
                     >
@@ -264,6 +267,7 @@ export function PlansTab({
                         <button
                           type="button"
                           onClick={() => handleDeletePlan(plan.id, plan.nom)}
+                          data-testid={`btn-confirm-delete-plan-${plan.id}`}
                           className="px-2 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
                         >
                           {t("tabs.yes")}
@@ -281,6 +285,7 @@ export function PlansTab({
                         type="button"
                         onClick={() => setDeletingPlanId(plan.id)}
                         title={t("tabs.delete")}
+                        data-testid={`btn-delete-plan-${plan.id}`}
                         className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50
                                    transition-colors"
                       >

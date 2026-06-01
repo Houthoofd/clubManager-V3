@@ -31,10 +31,10 @@ interface NotificationItem {
 
 /** Classes Tailwind de badge par type de notification */
 const TYPE_BADGE_CLASSES: Record<NotificationItem["type"], string> = {
-  info:    "bg-blue-100 text-blue-700",
+  info: "bg-blue-100 text-blue-700",
   success: "bg-green-100 text-green-700",
   warning: "bg-orange-100 text-orange-700",
-  error:   "bg-red-100 text-red-700",
+  error: "bg-red-100 text-red-700",
 };
 
 // ─── Icônes SVG (heroicons outline) ──────────────────────────────────────────
@@ -77,15 +77,15 @@ export function RecentNotifications() {
   const markAllAsRead = useMarkAllAsRead();
 
   // Les 5 premières notifications
-  const recent: NotificationItem[] = (
-    notifications as NotificationItem[] | undefined
-  )?.slice(0, 5) ?? [];
+  const recent: NotificationItem[] =
+    (notifications as NotificationItem[] | undefined)?.slice(0, 5) ?? [];
 
   const hasUnread = recent.some((n) => !n.lu);
 
   return (
     <section
       className="bg-white rounded-xl shadow p-6"
+      data-testid="recent-notifications-section"
       aria-labelledby="recent-notifications-title"
     >
       {/* ── En-tête ─────────────────────────────────────────────────────── */}

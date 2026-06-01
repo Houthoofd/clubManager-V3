@@ -463,6 +463,7 @@ export function NotificationsPage() {
                 return (
                   <button
                     key={tab.key}
+                    data-testid={`notifications-tab-${tab.key}`}
                     onClick={() => setActiveTab(tab.key)}
                     className={`
                     relative flex-shrink-0 flex items-center gap-1.5 px-4 py-3.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap

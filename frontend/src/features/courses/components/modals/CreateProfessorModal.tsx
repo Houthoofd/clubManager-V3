@@ -110,11 +110,17 @@ export function CreateProfessorModal({
         }
       />
       <Modal.Body>
-        <form id="professor-form" onSubmit={handleSubmit} className="space-y-4">
+        <form
+          id="professor-form"
+          data-testid="professor-form"
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
           <div className="grid grid-cols-2 gap-4">
             <Input
               label={t("fields.firstName")}
               id="prenom"
+              data-testid="professor-prenom-input"
               type="text"
               value={form.prenom}
               onChange={(e) =>
@@ -125,6 +131,7 @@ export function CreateProfessorModal({
             <Input
               label={t("fields.lastName")}
               id="nom"
+              data-testid="professor-nom-input"
               type="text"
               value={form.nom}
               onChange={(e) => setForm((f) => ({ ...f, nom: e.target.value }))}
@@ -174,10 +181,16 @@ export function CreateProfessorModal({
         </form>
       </Modal.Body>
       <Modal.Footer align="right">
-        <Button variant="outline" onClick={onClose} disabled={saving}>
+        <Button
+          variant="outline"
+          onClick={onClose}
+          disabled={saving}
+          data-testid="professor-cancel-btn"
+        >
           {t("buttons.cancel")}
         </Button>
         <SubmitButton
+          data-testid="professor-submit-btn"
           type="button"
           onClick={() => {
             const formElement = document.getElementById(

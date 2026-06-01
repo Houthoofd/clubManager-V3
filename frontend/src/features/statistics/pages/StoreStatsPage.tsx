@@ -329,7 +329,7 @@ export const StoreStatsPage: React.FC = () => {
    */
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6" data-testid="store-stats-page">
         {breadcrumb}
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
@@ -346,7 +346,7 @@ export const StoreStatsPage: React.FC = () => {
    */
   if (error) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6" data-testid="store-stats-page">
         {breadcrumb}
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
@@ -374,7 +374,7 @@ export const StoreStatsPage: React.FC = () => {
    */
   if (!data) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6" data-testid="store-stats-page">
         {breadcrumb}
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
@@ -393,7 +393,7 @@ export const StoreStatsPage: React.FC = () => {
   const { overview, popular_products, by_category, low_stock } = data;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="store-stats-page">
       {/* Breadcrumb */}
       {breadcrumb}
 

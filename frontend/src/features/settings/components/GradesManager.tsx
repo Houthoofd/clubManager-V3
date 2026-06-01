@@ -202,7 +202,10 @@ export function GradesManager() {
   return (
     <>
       {/* ── Card principale ───────────────────────────────────────────────── */}
-      <div className="bg-white rounded-lg shadow p-6 space-y-6">
+      <div
+        className="bg-white rounded-lg shadow p-6 space-y-6"
+        data-testid="grades-manager"
+      >
         {/* Header */}
         <div className="flex items-center justify-between pb-5 border-b border-gray-100">
           <div className="flex items-center gap-3">
@@ -228,6 +231,7 @@ export function GradesManager() {
               size="sm"
               icon={<PlusIcon className="h-4 w-4" />}
               onClick={openCreateModal}
+              data-testid="btn-create-grade"
             >
               {t("grades.actions.create", "Nouveau grade")}
             </Button>
@@ -315,6 +319,7 @@ export function GradesManager() {
                   <tr
                     key={grade.id}
                     className="hover:bg-gray-50 transition-colors duration-100"
+                    data-testid={`grade-row-${grade.id}`}
                   >
                     {/* Ordre */}
                     <td className="px-6 py-3.5 text-sm font-semibold text-gray-700">
@@ -353,6 +358,7 @@ export function GradesManager() {
                             title={t("grades.actions.edit", "Modifier")}
                             aria-label={`${t("grades.actions.edit", "Modifier")} ${grade.nom}`}
                             className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            data-testid={`btn-edit-grade-${grade.id}`}
                           >
                             <PencilIcon className="h-4 w-4" />
                           </button>
@@ -362,6 +368,7 @@ export function GradesManager() {
                             title={t("grades.actions.delete", "Supprimer")}
                             aria-label={`${t("grades.actions.delete", "Supprimer")} ${grade.nom}`}
                             className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
+                            data-testid={`btn-delete-grade-${grade.id}`}
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
@@ -398,7 +405,7 @@ export function GradesManager() {
           onClose={closeModal}
         />
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={handleSubmit} noValidate data-testid="grade-form-modal">
           <Modal.Body>
             <div className="space-y-5">
               {/* Nom */}
@@ -421,6 +428,7 @@ export function GradesManager() {
                   )}
                   autoFocus
                   error={formErrors.nom}
+                  data-testid="input-grade-name"
                 />
               </FormField>
 
@@ -533,7 +541,12 @@ export function GradesManager() {
               {t("actions.cancel", "Annuler")}
             </Button>
 
-            <Button variant="primary" type="submit" loading={isMutating}>
+            <Button
+              variant="primary"
+              type="submit"
+              loading={isMutating}
+              data-testid="btn-submit-grade"
+            >
               {editingGrade
                 ? t("grades.actions.update", "Mettre à jour")
                 : t("grades.actions.create", "Créer")}

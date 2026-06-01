@@ -25,7 +25,8 @@ async function gotoForgotPassword(
   page: import("@playwright/test").Page,
 ): Promise<void> {
   await page.goto(FORGOT_PASSWORD_URL);
-  await page.waitForLoadState("networkidle");
+  // networkidle ne fonctionne pas avec les SPA (polling, WS) — on attend le DOM
+  await page.waitForLoadState("domcontentloaded");
 }
 
 // ============================================================
