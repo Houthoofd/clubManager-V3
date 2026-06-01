@@ -1055,39 +1055,80 @@ data-testid="course-card-{id}"
 
 ### Couverture par module (état actuel)
 
-| Module | Ce qui est couvert ✅ | Lacunes connues |
-|--------|----------------------|-----------------|
-| **Auth** | login, register, forgot-password, reset-password, verify-email, recovery-request, confirm-email-change | — |
-| **Navigation / Routing** | Dashboard KPIs, routing SPA, redirections rôle | QuickActions dashboard |
-| **Dashboard** | KPIs, cours du jour, notifications récentes | — |
-| **Cours admin** | CRUD récurrent, générer sessions, professeurs CRUD, présences (modal), onglet réservations | Bulk update présences (sauvegarder) ; créer/annuler réservation via UI |
-| **Cours membre** | Mes inscriptions, désinscription | — |
-| **Utilisateurs** | Liste, filtres, rôle/statut/suppression/notification masse, groupes, onglet Supprimés | Restaurer un utilisateur supprimé ; assigner abonnement |
-| **Paiements admin** | CRUD plans tarifaires | RecordPaymentModal ; marquer échéance payée ; générer échéances |
-| **Paiements membre** | Historique, échéances, flux Stripe (succès + refus + erreur API) | — |
-| **Boutique admin** | Catalogue CRUD, commandes (liste) | Changer statut commande ; ajustement stock ; onglet Configuration |
-| **Boutique membre** | Browse catalogue, passer commande | — |
-| **Messagerie** | Inbox, marquer lu, archiver, broadcast DB, templates CRUD | ComposeModal (UI) ; onglets Envoyés + Archivés |
-| **Notifications** | Filtres par type, suppression groupée | Marquer une notif individuelle lue ; Broadcast admin via UI |
-| **Alertes** | Types CRUD, créer alerte, résoudre, vue membre | — |
-| **Profil** | Onglets Mon profil + Sécurité (email, sessions, révocation) | Sauvegarder les modifications du profil |
-| **Famille** | Voir, créer, retirer membre, admin CRUD | — |
-| **Paramètres** | Club Info, Apparence, Navigation, Grades CRUD | Horaires, Réseaux sociaux, Finance, Localisation, Sécurité |
-| **Statistiques** | Dashboard + 4 sous-pages (membres, cours, finance, boutique) + PeriodSelector | — |
+| Module | Ce qui est couvert ✅ | Lacunes connues | Professor 🔴 |
+|--------|----------------------|-----------------|------------|
+| **Auth** | login, register, forgot-password, reset-password, verify-email, recovery-request, confirm-email-change | — | n/a |
+| **Navigation / Routing** | Dashboard KPIs, routing SPA, redirections rôle | QuickActions dashboard | ✅ (même routes) |
+| **Dashboard** | KPIs, cours du jour, notifications récentes | — | ✅ (même vue) |
+| **Cours admin** | CRUD récurrent, générer sessions, professeurs CRUD, présences (modal), onglet réservations | Bulk update présences (sauvegarder) ; créer/annuler réservation via UI | ❌ non testé |
+| **Cours membre** | Mes inscriptions, désinscription | — | ❌ non testé |
+| **Utilisateurs** | Liste, filtres, rôle/statut/suppression/notification masse, groupes, onglet Supprimés | Restaurer supprimé ; assigner abonnement | ❌ (lecture seule prof) |
+| **Paiements admin** | CRUD plans tarifaires | RecordPaymentModal ; marquer échéance payée ; générer échéances | n/a |
+| **Paiements membre** | Historique, échéances, flux Stripe (succès + refus + erreur API) | — | n/a |
+| **Boutique admin** | Catalogue CRUD, commandes (liste) | Changer statut commande ; ajustement stock ; onglet Configuration | ❌ non testé |
+| **Boutique membre** | Browse catalogue, passer commande | — | n/a |
+| **Messagerie** | Inbox, marquer lu, archiver, broadcast DB, templates CRUD | ComposeModal (UI) ; onglets Envoyés + Archivés | ❌ non testé |
+| **Notifications** | Filtres par type, suppression groupée | Marquer une notif individuelle lue ; Broadcast admin via UI | ❌ non testé |
+| **Alertes** | Types CRUD, créer alerte, résoudre, vue membre | — | ❌ non testé |
+| **Profil** | Onglets Mon profil + Sécurité (email, sessions, révocation) | Sauvegarder les modifications du profil | ✅ (même vue) |
+| **Famille** | Voir, créer, retirer membre, admin CRUD | — | n/a |
+| **Paramètres** | Club Info, Apparence, Navigation, Grades CRUD | Horaires, Réseaux sociaux, Finance, Localisation, Sécurité | **❌ accès refusé** (redirection non testée) |
+| **Statistiques** | Dashboard + 4 sous-pages (membres, cours, finance, boutique) + PeriodSelector | — | ❌ (sans Finance) |
+
+### Gap critique — Rôle `professor` (0 test actif)
+
+> `professorPage` est défini dans `e2e/fixtures/auth.fixture.ts` et le compte `e2e_prof` est seedé par `globalSetup.ts`, mais **aucun test ne l'utilise**.
+
+```
+213 tests E2E répartis par rôle :
+  adminPage    → ~120 tests  ✅
+  memberPage   →  ~85 tests  ✅
+  professorPage→    0 test   ❌
+```
+
+Le rôle professor a un périmètre distinct — il n'est ni admin ni membre :
+
+| Route | Ce que le professor peut faire (spécifique) |
+|-------|---------------------------------------------|
+| `/courses` | Voir planning + séances, gérer les présences — mais pas CRUD récurrent |
+| `/users` | Voir la liste — mais pas modifier rôle/statut/supprimer |
+| `/store` | Gérer catalogue + commandes — mais pas la configuration |
+| `/statistics` | Tout sauf `/statistics/finance` |
+| `/messages` | Envoyer, templates — comme l'admin |
+| `/settings` | **Accès refusé → redirection vers `/dashboard`** — non vérifié |
+| `/payments/plans` | **Accès refusé** — non vérifié |
 
 ### Synthèse par niveau de couverture
 
-| Niveau | Modules / Scénarios |
-|--------|---------------------|
-| ✅ Complet | Auth (7 flows), Navigation, Dashboard, Cours membre, Paiements membre (+ Stripe), Boutique membre, Alertes, Profil sécurité, Famille, Statistiques |
-| 🟡 Partiel | Cours admin (présences sauvegarde manquante), Utilisateurs (restaurer/abonnement manquants), Boutique admin (statuts/stocks/config), Messagerie (ComposeModal/envoyés/archivés), Notifications (broadcast UI), Paramètres (5 onglets) |
-| ❌ Non couvert | voir section 29 — Audit des lacunes E2E |
+| Dimension | État actuel | Après Phase E12 | Après Phase E12 + Prof + Paths |
+|-----------|-------------|-----------------|--------------------------------|
+| **Happy paths** (tous rôles) | ~80 % | ~97 % | ~99 % |
+| **Rôle professor** | 0 % | 0 % | ~80 % |
+| **Chemins négatifs** (validation, erreurs API) | ~10 % | ~10 % | ~30 % |
+| **Multi-browser** (Firefox, Safari, mobile) | ~33 % | ~33 % | ~33 % |
+| **Accessibilité (a11y)** | 0 % | 0 % | 0 % |
+| **Performance** | 0 % | 0 % | 0 % |
+
+> La couverture **100 % fonctionnelle** est un idéal théorique. En pratique, « couverture exhaustive » signifie :
+> tous les happy paths de tous les rôles (→ Phase E12 + Professor) + chemins négatifs critiques.
+> L'accessibilité, la performance et le multi-browser relèvent d'outils spécialisés (axe-core, Lighthouse, k6).
 
 ### Lacunes identifiées — Audit 2026-06-02
 
-> 17 scénarios manquants classés par priorité métier.
+> Trois catégories de lacunes de natures différentes.
 
-#### 🔴 Haute priorité (flux utilisateur critiques)
+#### 🔴 Critique — Rôle professor non testé (6 scénarios)
+
+| # | Scénario | Route | Spécificité professor |
+|---|----------|-------|---------------------|
+| P1 | **Acces `/courses`** — planning + séances visibles | `/courses` | Pas de boutons CRUD récurrent |
+| P2 | **Présences** — ouvrir AttendanceModal et sauvegarder | `/courses?tab=sessions` | Même accès que admin |
+| P3 | **Boutique** — gérer catalogue (pas la config) | `/store` | Onglet Configuration absent |
+| P4 | **Statistiques** — accès sans Finance | `/statistics` | Redirection `/statistics/finance` → dashboard |
+| P5 | **Paramètres** — accès refusé → redirection | `/settings` | Doit rediriger vers `/dashboard` |
+| P6 | **Plans tarifaires** — accès refusé | `/payments` | Onglet Plans non visible |
+
+#### 🔴 Haute priorité — flux utilisateur critiques (4 scénarios)
 
 | # | Scénario | Route | Détail |
 |---|----------|-------|---------|
@@ -1096,7 +1137,7 @@ data-testid="course-card-{id}"
 | 3 | **Annuler une réservation** depuis la liste | `/courses?tab=reservations` | Symétrie création/annulation |
 | 4 | **ComposeModal → Envoyer un message via UI** | `/messages` | Seul le flux via DB est testé ; le bouton « Nouveau message » ne l'est pas |
 
-#### 🟠 Priorité moyenne (actions admin courantes)
+#### 🟠 Priorité moyenne — actions admin courantes (7 scénarios)
 
 | # | Scénario | Route | Détail |
 |---|----------|-------|---------|
@@ -1108,16 +1149,39 @@ data-testid="course-card-{id}"
 | 10 | **Changer le statut d'une commande** | `/store` admin | Flux admin boutique partiel |
 | 11 | **Broadcast notifications admin via UI** | `/notifications` | Bouton « Diffuser » non testé (flux DB uniquement dans messaging-flow) |
 
-#### 🟡 Faible priorité (UI secondaire / edge cases)
+#### 🟡 Faible priorité — UI secondaire / edge cases (6 scénarios)
 
 | # | Scénario | Route |
-|---|----------|-------|
+|---|----------|---------|
 | 12 | Onglets Messages **Envoyés** et **Archivés** (naviguer + lire) | `/messages` |
 | 13 | **Sauvegarder modifications profil** (form submit) | `/profile` |
 | 14 | Settings : **Horaires, Réseaux sociaux, Finance, Localisation** | `/settings` |
 | 15 | **Export CSV** feuille de présence | `/courses` |
 | 16 | **QuickActions** du dashboard (raccourcis rapides) | `/dashboard` |
 | 17 | **Page 404** | `/*` |
+
+#### 🟠 Chemins négatifs — validation & erreurs (non couverts)
+
+> Non couverts par les tests actuels mais détectés par les tests d'intégration.
+
+| Catégorie | Exemples | Couverture actuelle |
+|-----------|----------|---------------------|
+| **Validation formulaires** | Soumettre form vide, email invalide, mot de passe trop court | 0 % E2E (couvert intégration) |
+| **Erreurs API** | Backend retourne 500 — est-ce qu'un message d'erreur s'affiche ? | 0 % (sauf Stripe mock 500) |
+| **Accès non autorisé** | Membre tente `/settings`, `/users` | ~10 % (quelques redirections testées) |
+| **Session expirée** | Token JWT expire pendant une action | 0 % |
+| **Pagination** | Navigation page 2, 3 de `/users`, `/payments` | 0 % |
+
+#### ❌ Hors scope E2E — outils spécialisés requis
+
+| Dimension | Pourquoi hors scope | Outil recommandé |
+|-----------|---------------------|------------------|
+| **Accessibilité (a11y)** | Navigation clavier, ARIA, contraste couleurs | `@axe-core/playwright` + Lighthouse |
+| **Performance** | Core Web Vitals, temps de chargement, LCP | Lighthouse CI, k6 |
+| **Multi-browser** | Firefox, Safari, mobile Chrome | Playwright projects additionnels |
+| **Emails réels** | Vérifier qu'un email arrive vraiment | Mailhog (en CI), Mailtrap API |
+| **Webhooks** | Stripe webhook en conditions réelles | Couvert par tests intégration |
+| **Concurrence** | 2 admins modifient la même ressource | Tests de charge (k6, Artillery) |
 
 ---
 
@@ -2059,13 +2123,29 @@ Correction future : `<ErrorBoundary>` dans CoursesPage ou fix du composant tab c
 
 Tests 3–5 : skip gracieux si `stripe-payment-modal` n'est pas disponible (serveur sans clé Stripe).
 
-### 29. 📋 Audit des lacunes E2E — Backlog Phase E12 (2026-06-02)
+### 29. 📋 Audit des lacunes E2E — Backlog Phases E12 + E13 (2026-06-02)
 
-> Résultat de l'audit exhaustif croisé routes frontend × tests E2E existants.  
-> **17 scénarios** non couverts identifiés, classés par priorité métier.  
+> Résultat de l'audit exhaustif croisé routes frontend × rôles × tests E2E existants.  
+> **3 catégories de lacunes** identifiées de natures différentes.  
 > Détails complets dans la section « Analyse de couverture E2E » ci-dessus.
 
-#### Priorité haute — flux utilisateur critiques (4 scénarios)
+#### Ce que signifie « couverture 100 % » en pratique
+
+| Objectif | Ce qu'il faut | État après Phase E12 | État après E12 + E13 |
+|----------|--------------|----------------------|-----------------------|
+| 100 % happy paths | Phases E12 (17 scénarios) | ✅ ~97 % | ✅ ~97 % |
+| 100 % rôles | + Professor (6 scénarios) | ❌ 0 % professor | ✅ ~80 % professor |
+| Chemins négatifs critiques | + Negative paths (~10 tests) | ❌ ~10 % | ✅ ~30 % |
+| A11y, perf, multi-browser | Outils spécialisés | Hors scope E2E | Hors scope E2E |
+
+> **Conclusion :** Phase E12 + E13 = **couverture fonctionnelle professionnelle** (~250 tests E2E).  
+> Le 100 % absolu n'existe pas — l'accessibilité, la performance et le multi-browser relèvent d'outils dédiés.
+
+---
+
+#### Phase E12 — Happy paths manquants (17 scénarios, ~35 tests)
+
+**Priorité haute — flux utilisateur critiques (4 scénarios)**
 
 | # | Scénario | Fichier cible | Prérequis |
 |---|----------|---------------|----------|
@@ -2074,7 +2154,7 @@ Tests 3–5 : skip gracieux si `stripe-payment-modal` n'est pas disponible (serv
 | 3 | Annuler une réservation | idem | Idem |
 | 4 | ComposeModal → Envoyer un message via UI | `messaging.spec.ts` (test supplémentaire) | `data-testid` sur `ComposeModal` (btn-compose, input-to, input-subject, input-body, btn-send) |
 
-#### Priorité moyenne — actions admin courantes (7 scénarios)
+**Priorité moyenne — actions admin courantes (7 scénarios)**
 
 | # | Scénario | Fichier cible | Prérequis |
 |---|----------|---------------|----------|
@@ -2086,7 +2166,7 @@ Tests 3–5 : skip gracieux si `stripe-payment-modal` n'est pas disponible (serv
 | 10 | Changer statut d'une commande | `store.admin.spec.ts` | `data-testid="btn-change-order-status-{id}"` |
 | 11 | Broadcast notifications admin via UI | `notifications.filters.spec.ts` ou nouveau `notifications.admin.spec.ts` | `data-testid="btn-broadcast"` sur `BroadcastNotificationModal` |
 
-#### Priorité faible — UI secondaire (6 scénarios)
+**Priorité faible — UI secondaire (6 scénarios)**
 
 | # | Scénario | Fichier cible |
 |---|----------|--------------|
@@ -2097,11 +2177,63 @@ Tests 3–5 : skip gracieux si `stripe-payment-modal` n'est pas disponible (serv
 | 16 | QuickActions dashboard | `dashboard.spec.ts` |
 | 17 | Page 404 | `routing.spec.ts` |
 
-#### Estimation Phase E12
+**Estimation Phase E12**
 
 | Priorité | Scénarios | Tests estimés | Effort |
 |----------|-----------|--------------|--------|
 | Haute | 4 | ~10 tests | 2–3h |
 | Moyenne | 7 | ~15 tests | 4–5h |
 | Faible | 6 | ~10 tests | 2–3h |
-| **Total** | **17** | **~35 tests** | **~10h** |
+| **Total E12** | **17** | **~35 tests** | **~10h** |
+
+---
+
+#### Phase E13 — Rôle professor + chemins négatifs (~20 tests)
+
+**Rôle professor — 6 scénarios spécifiques**
+
+> Utiliser `professorPage` (fixture existante, jamais utilisée).  
+> Créer `e2e/tests/professor/professor.spec.ts`.
+
+| # | Scénario | Route | Comportement attendu |
+|---|----------|-------|---------------------|
+| P1 | Accès `/courses` — planning visible, pas de CRUD | `/courses` | Boutons créer/supprimer absents |
+| P2 | Présences — ouvrir + sauvegarder | `/courses?tab=sessions` | Fonctionnel (accès partagé admin/prof) |
+| P3 | Boutique — catalogue visible, onglet Config absent | `/store` | Onglet Configuration non rendu |
+| P4 | Statistiques — accès sans Finance | `/statistics` | `/statistics/finance` redirige vers `/dashboard` |
+| P5 | Paramètres — accès refusé | `/settings` | Redirection vers `/dashboard` |
+| P6 | Plans tarifaires — accès refusé | `/payments` | Onglet Plans non visible |
+
+**Chemins négatifs critiques — 7 scénarios**
+
+| # | Scénario | Stratégie mock | Comportement attendu |
+|---|----------|----------------|---------------------|
+| N1 | Formulaire de login vide → message d'erreur | Pas de mock (UI) | Message « Email requis » ou « Mot de passe requis » |
+| N2 | Mot de passe incorrect → message d'erreur API | Vrai backend | Toast « Identifiants invalides » |
+| N3 | Register — email déjà utilisé | Vrai backend | Toast « Email déjà enregistré » |
+| N4 | Créer un plan tarifaire — champ nom vide | `page.route` bloque | Message de validation inline |
+| N5 | Membre accède à `/settings` | RoleGuard | Redirection `/dashboard` |
+| N6 | Membre accède à `/users` | RoleGuard | Redirection `/dashboard` |
+| N7 | Erreur réseau générique (500) | `page.route` → 500 | AlertBanner ou toast d'erreur visible |
+
+**Estimation Phase E13**
+
+| Catégorie | Scénarios | Tests estimés | Effort |
+|-----------|-----------|--------------|--------|
+| Rôle professor | 6 | ~8 tests | 2–3h |
+| Chemins négatifs | 7 | ~10 tests | 3–4h |
+| **Total E13** | **13** | **~18 tests** | **~6h** |
+
+---
+
+#### Bilan global post-E12 + E13
+
+| Couche | Tests | État visé |
+|--------|-------|----------|
+| Unitaires Frontend | 266 | ✅ 100 % |
+| Unitaires Backend | 644 | ✅ 100 % |
+| Intégration | 482 | ✅ 100 % |
+| E2E E1→E11 (actuel) | 213 | ✅ ~98 % happy paths admin+membre |
+| E2E E12 (happy paths) | +~35 | ✅ ~99 % happy paths |
+| E2E E13 (professor + négatifs) | +~18 | ✅ ~80 % professor + ~30 % négatifs |
+| **TOTAL visé** | **~1 658 tests** | **Couverture fonctionnelle professionnelle** |
