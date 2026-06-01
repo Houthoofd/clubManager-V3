@@ -1048,37 +1048,76 @@ data-testid="course-card-{id}"
 
 ---
 
-## Analyse de couverture E2E — Bilan final (mise à jour 2026-06-01)
+## Analyse de couverture E2E — Audit complet (mise à jour 2026-06-02)
 
-> Mise à jour 2026-06-01 — **Tous les tests E2E passent** : 199 passed, 8 skipped, 0 failed.
+> Mise à jour 2026-06-02 — **213 tests E2E** (Phases E1→E11) — ~209 passed, ~4 skipped conditionnels, 0 failed.
+> TabErrorBoundary corrige les 4 fixme CoursesPage. Phase E11 Stripe ajoutée.
 
-### Modules non couverts (0 %)
+### Couverture par module (état actuel)
 
-_(aucun — tous les modules principaux sont désormais couverts)_
-
-### Couverture par module
-
-| Module | Ce qui est couvert ✅ | Lacunes / Remarques |
-|--------|----------------------|---------------------|
-| **Alertes** | Alertes admin (CRUD types, créer, résoudre) + vue membre | ⚠️ 4 tests `fixme` (tabs non-planning headless crash) |
-| **Cours** | Flux membre + CRUD cours récurrent (planning tab) + générer sessions | ⚠️ Professeurs, présences, réservations (`fixme` headless crash) |
-| **Utilisateurs** | Liste, recherche, filtres, onglet Supprimés + toutes actions admin (rôle, statut, supprimer, notifier masse, groupes) | — |
-| **Paiements** | Chargement page admin/membre, CRUD plans, échéances, KPIs membre | Flux Stripe (paiement en ligne) — nécessite mock `@stripe/stripe-js` |
-| **Boutique** | Chargement page admin/membre, CRUD articles catalogue, commandes, stocks, mouvements, configuration | — |
-| **Profil** | Onglet « Mon profil » + Sécurité (changement email, sessions, révocation) | — |
-| **Statistiques** | Dashboard + onglets Members/Courses + Finance + sous-pages complètes + PeriodSelector | — |
+| Module | Ce qui est couvert ✅ | Lacunes connues |
+|--------|----------------------|-----------------|
 | **Auth** | login, register, forgot-password, reset-password, verify-email, recovery-request, confirm-email-change | — |
-| **Messagerie** | Boîte de réception, envoi, broadcast, marquer lu, templates admin (CRUD), archiver message | — |
-| **Famille** | Voir famille, EmptyState + modal, retrait membre + CRUD admin complet | — |
-| **Navigation** | Dashboard KPIs, routing, profil, paramètres, grades (CRUD) | — |
+| **Navigation / Routing** | Dashboard KPIs, routing SPA, redirections rôle | QuickActions dashboard |
+| **Dashboard** | KPIs, cours du jour, notifications récentes | — |
+| **Cours admin** | CRUD récurrent, générer sessions, professeurs CRUD, présences (modal), onglet réservations | Bulk update présences (sauvegarder) ; créer/annuler réservation via UI |
+| **Cours membre** | Mes inscriptions, désinscription | — |
+| **Utilisateurs** | Liste, filtres, rôle/statut/suppression/notification masse, groupes, onglet Supprimés | Restaurer un utilisateur supprimé ; assigner abonnement |
+| **Paiements admin** | CRUD plans tarifaires | RecordPaymentModal ; marquer échéance payée ; générer échéances |
+| **Paiements membre** | Historique, échéances, flux Stripe (succès + refus + erreur API) | — |
+| **Boutique admin** | Catalogue CRUD, commandes (liste) | Changer statut commande ; ajustement stock ; onglet Configuration |
+| **Boutique membre** | Browse catalogue, passer commande | — |
+| **Messagerie** | Inbox, marquer lu, archiver, broadcast DB, templates CRUD | ComposeModal (UI) ; onglets Envoyés + Archivés |
+| **Notifications** | Filtres par type, suppression groupée | Marquer une notif individuelle lue ; Broadcast admin via UI |
+| **Alertes** | Types CRUD, créer alerte, résoudre, vue membre | — |
+| **Profil** | Onglets Mon profil + Sécurité (email, sessions, révocation) | Sauvegarder les modifications du profil |
+| **Famille** | Voir, créer, retirer membre, admin CRUD | — |
+| **Paramètres** | Club Info, Apparence, Navigation, Grades CRUD | Horaires, Réseaux sociaux, Finance, Localisation, Sécurité |
+| **Statistiques** | Dashboard + 4 sous-pages (membres, cours, finance, boutique) + PeriodSelector | — |
 
-### Synthèse
+### Synthèse par niveau de couverture
 
-| Couverture | Modules |
-|------------|----------|
-| ✅ Complet | Auth, Navigation, Dashboard, Profil, Cours (membre), Messagerie, Notifications, Paramètres, Grades, Famille, Statistiques (toutes pages), Alertes, Paiements (sans Stripe en ligne), Boutique, Utilisateurs |
-| ⚠️ Partiel avec fixme | Cours admin (CRUD planning ✅, professeurs/présences/réservations ⚠️ headless crash React 18) |
-| 📋 Non couvert | Flux Stripe paiement en ligne (nécessite mock) |
+| Niveau | Modules / Scénarios |
+|--------|---------------------|
+| ✅ Complet | Auth (7 flows), Navigation, Dashboard, Cours membre, Paiements membre (+ Stripe), Boutique membre, Alertes, Profil sécurité, Famille, Statistiques |
+| 🟡 Partiel | Cours admin (présences sauvegarde manquante), Utilisateurs (restaurer/abonnement manquants), Boutique admin (statuts/stocks/config), Messagerie (ComposeModal/envoyés/archivés), Notifications (broadcast UI), Paramètres (5 onglets) |
+| ❌ Non couvert | voir section 29 — Audit des lacunes E2E |
+
+### Lacunes identifiées — Audit 2026-06-02
+
+> 17 scénarios manquants classés par priorité métier.
+
+#### 🔴 Haute priorité (flux utilisateur critiques)
+
+| # | Scénario | Route | Détail |
+|---|----------|-------|---------|
+| 1 | **Bulk update présences** (sauvegarder) | `/courses?tab=sessions` | La modal s'ouvre (testé) mais le bouton Sauvegarder + résultat ne sont pas validés |
+| 2 | **Créer une réservation** depuis l'onglet Réservations (membre) | `/courses?tab=reservations` | Modal de création non testée côté UI |
+| 3 | **Annuler une réservation** depuis la liste | `/courses?tab=reservations` | Symétrie création/annulation |
+| 4 | **ComposeModal → Envoyer un message via UI** | `/messages` | Seul le flux via DB est testé ; le bouton « Nouveau message » ne l'est pas |
+
+#### 🟠 Priorité moyenne (actions admin courantes)
+
+| # | Scénario | Route | Détail |
+|---|----------|-------|---------|
+| 5 | **Enregistrer un paiement manuel** (RecordPaymentModal) | `/payments` (admin) | Modal non testée |
+| 6 | **Marquer une échéance comme payée** (inline admin) | `/payments?tab=schedules` | Action admin fréquente |
+| 7 | **Restaurer un utilisateur supprimé** | `/users` onglet Supprimés | L'onglet est visible mais le bouton Restaurer non testé |
+| 8 | **Assigner un abonnement** à un utilisateur | `/users` | Modal d'assignation non testée |
+| 9 | **Ajustement de stock** (StockModal) | `/store` admin | Gestion stocks non testée |
+| 10 | **Changer le statut d'une commande** | `/store` admin | Flux admin boutique partiel |
+| 11 | **Broadcast notifications admin via UI** | `/notifications` | Bouton « Diffuser » non testé (flux DB uniquement dans messaging-flow) |
+
+#### 🟡 Faible priorité (UI secondaire / edge cases)
+
+| # | Scénario | Route |
+|---|----------|-------|
+| 12 | Onglets Messages **Envoyés** et **Archivés** (naviguer + lire) | `/messages` |
+| 13 | **Sauvegarder modifications profil** (form submit) | `/profile` |
+| 14 | Settings : **Horaires, Réseaux sociaux, Finance, Localisation** | `/settings` |
+| 15 | **Export CSV** feuille de présence | `/courses` |
+| 16 | **QuickActions** du dashboard (raccourcis rapides) | `/dashboard` |
+| 17 | **Page 404** | `/*` |
 
 ---
 
@@ -1481,18 +1520,18 @@ Les suites couvrent notamment :
 
 ## 18. Métriques globales
 
-> Mise à jour : **2026-05-26**
+> Mise à jour : **2026-06-02**
 
 ### Vue complète — pyramide de tests
 
-> Mise à jour : **2026-05-26**
+> Mise à jour : **2026-06-02**
 
 | Couche | Outil | Suites | Tests | État |
 |---|---|---|---|---|
 | **Unitaires Frontend** | Vitest | 73 | 266 | ✅ 266/266 verts |
 | **Unitaires Backend** | Jest | 146 | 644 | ✅ 644/644 verts |
 | **Intégration** | Jest + Supertest | 30 | 482 | ✅ 482/482 verts |
-| **E2E Phases E1→E8** | Playwright | 16 | **97** | ✅ **93 verts** / ⚠️ 4 fixme |
+| **E2E Phases E1→E11** | Playwright | 40+ | **213** | ✅ **~209 verts** / 🔄 ~4 skipped conditionnels |
 
 ### Détail — Tests d'intégration
 
@@ -1519,19 +1558,19 @@ Les suites couvrent notamment :
 | Phase E5 | Flux métier croisés | **11** | ✅ Terminé — 11/11 verts |
 | Phase E6 | Paiements | **13** | ✅ Terminé — 13/13 verts |
 | Phase E7 | Boutique | **14** | ✅ Terminé — 14/14 verts |
-| Phase E8 | Alertes & Cours admin | **18** | ✅ 14 verts / ⚠️ 4 fixme (headless React 18 crash CoursesPage) |
+| Phase E8 | Alertes & Cours admin | **18** | ✅ Terminé — 18/18 verts (4 fixme résolus via TabErrorBoundary) |
 | Phase E9 | Auth avancée & Profil sécurité | **18** | ✅ Terminé — 18/18 verts |
 | Phase E10 | Dashboard widgets + Stats sous-pages + Admin étendu | **30** | ✅ Terminé — 30/30 verts |
-| **Sous-total e2e** | **10 phases / 35+ specs** | **207** | ✅ **199 verts** / ⚠️ **4 fixme** / 🔄 **8 skipped** (conditionnels) |
+| Phase E11 | Flux Stripe paiement en ligne | **6** | ✅ Terminé — 6/6 (skip conditionnel si clé Stripe absente) |
+| **Sous-total e2e** | **11 phases / 40+ specs** | **213** | ✅ **~209 verts** / 🔄 **~4 skipped** conditionnels |
 
 > Validation Phase E1 : `18 tests passed` — 2025-05-20.  
 > Validation Phase E2 : `23 tests passed` — 2026-05-21.  
 > Validation Phases E3→E5 : `76 passed, 7 skipped (fixme), 0 failed` — 2026-05-25.  
 > Déblocage fixmes E4+E5 : `+6 tests actifs, 7 fixme → 1 fixme` — 2026-05-25.  
 > Dernier fixme résolu (family-flow retrait membre) + corrections post-merge : **83/83 verts** — 2026-05-26.  
-> Analyse de couverture + Phases E6→E10 planifiées (93 nouveaux tests, couverture exhaustive) — 2026-05-26.  
-> Phase E8 implémentée : 14 verts (alerts + courses planning CRUD) + 4 fixme (crash React 18 tabs non-planning) — 2026-06-01.  
-> Phases E6, E7, E9, E10 implémentées et passées au vert. Correction de tous les bugs bloquants E2E — **199 passed, 8 skipped, 0 failed** — 2026-06-01.
+> Phases E6→E10 implémentées (130 nouveaux tests). Correction de tous les bugs bloquants E2E — **199 passed, 8 skipped, 0 failed** — 2026-06-01.  
+> TabErrorBoundary : 4 `test.fixme` CoursesPage résolus. Phase E11 Stripe ajoutée (+6 tests). Audit couverture complet : 17 lacunes identifiées — **~209 passed, ~4 skipped, 0 failed** — 2026-06-02.
 
 ### Total combiné
 
@@ -1540,8 +1579,8 @@ Les suites couvrent notamment :
 | **Unitaires Frontend** | **266** | **266** ✅ |
 | **Unitaires Backend** | **644** | **644** ✅ |
 | **Intégration** | **482** | **482** ✅ |
-| **E2E (E1-E10 actifs)** | **207** | **199** ✅ / **4** ⚠️ fixme / **8** 🔄 skipped |
-| **TOTAL** | **1 599** | **1 599** — 1 392 ✅ / 199 ✅ / 4 ⚠️ / 8 🔄 |
+| **E2E (E1-E11 actifs)** | **213** | **~209** ✅ / **~4** 🔄 skipped |
+| **TOTAL** | **1 605** | **~1 601 verts** / **~4 skipped** |
 
 ---
 
@@ -2019,3 +2058,50 @@ Correction future : `<ErrorBoundary>` dans CoursesPage ou fix du composant tab c
 | 6 | Erreur 500 backend intent → toast d'erreur | `mockIntentEndpoint(..., 500)` |
 
 Tests 3–5 : skip gracieux si `stripe-payment-modal` n'est pas disponible (serveur sans clé Stripe).
+
+### 29. 📋 Audit des lacunes E2E — Backlog Phase E12 (2026-06-02)
+
+> Résultat de l'audit exhaustif croisé routes frontend × tests E2E existants.  
+> **17 scénarios** non couverts identifiés, classés par priorité métier.  
+> Détails complets dans la section « Analyse de couverture E2E » ci-dessus.
+
+#### Priorité haute — flux utilisateur critiques (4 scénarios)
+
+| # | Scénario | Fichier cible | Prérequis |
+|---|----------|---------------|----------|
+| 1 | Bulk update présences (sauvegarder) | `courses.admin.spec.ts` (test 8 étendu) | `data-testid="attendance-save-btn"` + DB inscription |
+| 2 | Créer une réservation via UI (membre) | `courses.admin.spec.ts` ou nouveau `courses.member.spec.ts` | `data-testid` sur `ReservationCreateModal` |
+| 3 | Annuler une réservation | idem | Idem |
+| 4 | ComposeModal → Envoyer un message via UI | `messaging.spec.ts` (test supplémentaire) | `data-testid` sur `ComposeModal` (btn-compose, input-to, input-subject, input-body, btn-send) |
+
+#### Priorité moyenne — actions admin courantes (7 scénarios)
+
+| # | Scénario | Fichier cible | Prérequis |
+|---|----------|---------------|----------|
+| 5 | RecordPaymentModal (paiement manuel) | `payments.admin.spec.ts` | `data-testid` sur `RecordPaymentModal` |
+| 6 | Marquer échéance comme payée (admin) | `payments.admin.spec.ts` | `data-testid` sur bouton mark-paid + `echeances_paiements` en DB |
+| 7 | Restaurer utilisateur supprimé | `users.actions.spec.ts` | `data-testid="btn-restore-{id}"` |
+| 8 | Assigner abonnement à utilisateur | `users.actions.spec.ts` | `data-testid` sur modal assignation + `plans_tarifaires` en DB |
+| 9 | Ajustement stock (StockModal) | `store.admin.spec.ts` | `data-testid` sur `StockAdjustmentModal` |
+| 10 | Changer statut d'une commande | `store.admin.spec.ts` | `data-testid="btn-change-order-status-{id}"` |
+| 11 | Broadcast notifications admin via UI | `notifications.filters.spec.ts` ou nouveau `notifications.admin.spec.ts` | `data-testid="btn-broadcast"` sur `BroadcastNotificationModal` |
+
+#### Priorité faible — UI secondaire (6 scénarios)
+
+| # | Scénario | Fichier cible |
+|---|----------|--------------|
+| 12 | Messages Envoyés + Archivés | `messaging.spec.ts` |
+| 13 | Sauvegarder modifications profil | `profile.spec.ts` |
+| 14 | Settings : Horaires, Réseaux sociaux, Finance, Localisation | `settings.spec.ts` (4 tests supplémentaires) |
+| 15 | Export CSV présences | `courses.admin.spec.ts` |
+| 16 | QuickActions dashboard | `dashboard.spec.ts` |
+| 17 | Page 404 | `routing.spec.ts` |
+
+#### Estimation Phase E12
+
+| Priorité | Scénarios | Tests estimés | Effort |
+|----------|-----------|--------------|--------|
+| Haute | 4 | ~10 tests | 2–3h |
+| Moyenne | 7 | ~15 tests | 4–5h |
+| Faible | 6 | ~10 tests | 2–3h |
+| **Total** | **17** | **~35 tests** | **~10h** |
