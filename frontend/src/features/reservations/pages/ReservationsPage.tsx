@@ -283,6 +283,7 @@ export function ReservationsPage() {
           <div className="flex justify-end">
             <button
               onClick={() => setModal({ type: "cancel", reservation: row })}
+              data-testid={`btn-cancel-reservation-${row.id}`}
               className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
               title={t("aria.cancelReservation", { id: row.id })}
             >
@@ -309,6 +310,7 @@ export function ReservationsPage() {
               variant="primary"
               icon={<PlusIcon className="h-4 w-4" />}
               onClick={openCreate}
+              data-testid="btn-create-reservation"
             >
               {t("actions.create")}
             </Button>
@@ -473,6 +475,7 @@ export function ReservationsPage() {
             variant="primary"
             onClick={handleCreate}
             loading={createMutation.isPending}
+            data-testid="btn-submit-create-reservation"
           >
             {t("actions.confirm")}
           </Button>

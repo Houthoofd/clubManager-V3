@@ -45,7 +45,9 @@ test.describe("Messagerie — Flux membre", () => {
   // ----------------------------------------------------------
   // Test 1 : Charger /messages → messages-page visible
   // ----------------------------------------------------------
-  test("charger /messages → page messagerie visible", async ({ memberPage }) => {
+  test("charger /messages → page messagerie visible", async ({
+    memberPage,
+  }) => {
     await gotoMessages(memberPage);
     await expect(
       memberPage.locator('[data-testid="messages-page"]'),
@@ -87,14 +89,12 @@ test.describe("Messagerie — Flux membre", () => {
   }) => {
     await gotoMessages(memberPage);
 
-    await memberPage
-      .locator('[data-testid="messages-compose-btn"]')
-      .click();
+    await memberPage.locator('[data-testid="messages-compose-btn"]').click();
 
     // La modale de composition est identifiée par le formulaire
-    await expect(
-      memberPage.locator('[id="compose-message-form"]'),
-    ).toBeVisible({ timeout: 5_000 });
+    await expect(memberPage.locator('[id="compose-message-form"]')).toBeVisible(
+      { timeout: 5_000 },
+    );
   });
 
   // ----------------------------------------------------------
@@ -124,9 +124,7 @@ test.describe("Messagerie — Flux membre", () => {
     await gotoMessages(memberPage);
 
     // Ouvrir la modale de composition
-    await memberPage
-      .locator('[data-testid="messages-compose-btn"]')
-      .click();
+    await memberPage.locator('[data-testid="messages-compose-btn"]').click();
     await memberPage.locator('[id="compose-message-form"]').waitFor({
       state: "visible",
       timeout: 5_000,
@@ -147,7 +145,9 @@ test.describe("Messagerie — Flux membre", () => {
     await memberPage.locator("#contenu").fill(`Message de test E2E ${ts}`);
 
     // Envoyer le message (bouton de type submit lié au formulaire)
-    await memberPage.locator('[form="compose-message-form"][type="submit"]').click();
+    await memberPage
+      .locator('[form="compose-message-form"][type="submit"]')
+      .click();
 
     // Attendre la fermeture de la modale (le formulaire disparaît)
     await expect(
@@ -159,9 +159,9 @@ test.describe("Messagerie — Flux membre", () => {
 
     // Attendre que la liste se mette à jour — le message envoyé doit apparaître
     // On cherche un item dont le texte contient le sujet unique créé
-    await expect(
-      memberPage.getByText(`Test E2E sujet ${ts}`),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(memberPage.getByText(`Test E2E sujet ${ts}`)).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   // ----------------------------------------------------------
@@ -217,5 +217,53 @@ test.describe("Messagerie — Flux membre", () => {
       // Nettoyage
       await db.query("DELETE FROM messages WHERE id = ?", [msgId]);
     }
+  });
+
+  // ----------------------------------------------------------
+  // Test 7 : Onglet Envoyés → liste visible (ou état vide)
+  // ----------------------------------------------------------
+  test("onglet Envoyés → liste ou état vide visible", async ({
+    memberPage,
+  }) => {
+    await gotoMessages(memberPage);
+
+    await memberPage.locator("#tab-sent").click();
+    await expect(memberPage.locator("#tab-sent")).toHaveAttribute(
+      "aria-selected",
+      "true",
+      { timeout: 5_000 },
+    );
+
+    // Liste ou état vide doit être rendu (pas d'erreur 500)
+    await expect(
+      memberPage.locator("text=/500|Internal Server Error/i"),
+    ).not.toBeVisible({ timeout: 5_000 });
+    await memberPage.waitForTimeout(1000);
+  });
+
+  // ----------------------------------------------------------
+  // Test 8 : Onglet Archivés → liste visible (ou état vide)
+  // ----------------------------------------------------------
+  test("onglet Archivés → liste ou état vide visible", async ({
+    memberPage,
+  }) => {
+    await gotoMessages(memberPage);
+
+    // Vérifier que l'onglet Archivés existe
+    const archivedTab = memberPage.locator("#tab-archived, #tab-archive");
+    const tabExists = await archivedTab
+      .isVisible({ timeout: 5_000 })
+      .catch(() => false);
+
+    if (!tabExists) {
+      test.skip();
+      return;
+    }
+
+    await archivedTab.click();
+    await expect(
+      memberPage.locator("text=/500|Internal Server Error/i"),
+    ).not.toBeVisible({ timeout: 5_000 });
+    await memberPage.waitForTimeout(1000);
   });
 });

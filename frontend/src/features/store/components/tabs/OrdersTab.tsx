@@ -187,6 +187,7 @@ export function OrdersTab() {
                         <td className="px-4 py-3 text-sm text-gray-600">
                           <div className="flex items-center gap-2">
                             <button
+                              data-testid={`btn-order-detail-${order.id}`}
                               onClick={() =>
                                 store.openOrderDetailModal(order as any)
                               }

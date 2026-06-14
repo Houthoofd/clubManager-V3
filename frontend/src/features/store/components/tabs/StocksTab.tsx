@@ -189,6 +189,7 @@ export function StocksTab() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
                         <button
+                          data-testid={`btn-adjust-stock-${stock.id}`}
                           onClick={() => store.openStockAdjustModal(stock)}
                           className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
                         >

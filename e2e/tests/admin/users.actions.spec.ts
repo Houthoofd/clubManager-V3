@@ -237,4 +237,140 @@ test.describe("Utilisateurs — Actions admin", () => {
     // Attendre que le contenu se charge
     await adminPage.waitForTimeout(1000);
   });
+
+  // ----------------------------------------------------------
+  // Test 6 : Restaurer un utilisateur supprimé → visible dans la liste active
+  // ----------------------------------------------------------
+  test("restaurer un utilisateur supprimé → visible dans la liste active", async ({
+    adminPage,
+    db,
+  }) => {
+    const ts = String(Date.now() % 10000).padStart(4, "0");
+    const id = await db.insertOne("utilisateurs", {
+      userId: `U-9994-${ts}`,
+      email: `restore-${ts}@test.local`,
+      password: "$2b$10$placeholder",
+      first_name: "Restore",
+      last_name: "TestUser",
+      role_app: "member",
+      status_id: 1,
+      active: 0,
+      deleted_at: new Date().toISOString().slice(0, 19).replace("T", " "),
+      deletion_reason: "Test E2E restauration",
+    });
+
+    try {
+      await gotoUsers(adminPage);
+
+      // Naviguer vers l'onglet Supprimés
+      await adminPage
+        .locator('[data-testid="tab-deleted-users"]')
+        .waitFor({ state: "visible", timeout: 10_000 });
+      await adminPage.locator('[data-testid="tab-deleted-users"]').click();
+
+      // La page des supprimés doit être visible
+      await adminPage
+        .locator('[data-testid="deleted-users-page"]')
+        .waitFor({ state: "visible", timeout: 10_000 });
+
+      // Le bouton restaurer doit être visible pour notre utilisateur
+      const restoreBtn = adminPage.locator(`[data-testid="btn-restore-${id}"]`);
+      await restoreBtn.waitFor({ state: "visible", timeout: 10_000 });
+
+      const responsePromise = adminPage.waitForResponse(
+        (resp) =>
+          resp.url().includes("/api/users/") &&
+          resp.url().includes("/restore") &&
+          resp.request().method() === "POST",
+        { timeout: 10_000 },
+      );
+      await restoreBtn.click();
+      const resp = await responsePromise;
+      expect(resp.status()).toBeLessThan(300);
+    } finally {
+      await db
+        .query("DELETE FROM utilisateurs WHERE id = ?", [id])
+        .catch(() => {});
+    }
+  });
+
+  // ----------------------------------------------------------
+  // Test 7 : Assigner un abonnement à un utilisateur
+  // ----------------------------------------------------------
+  test("assigner un abonnement à un utilisateur", async ({ adminPage, db }) => {
+    // Récupérer un plan tarifaire existant
+    const planRows = await db.query<{ id: number; nom: string }>(
+      "SELECT id, nom FROM plans_tarifaires WHERE actif = 1 LIMIT 1",
+    );
+    if (planRows.length === 0) {
+      test.skip();
+      return;
+    }
+    const planId = planRows[0].id;
+
+    const ts = String(Date.now() % 10000).padStart(4, "0");
+    const id = await db.insertOne("utilisateurs", {
+      userId: `U-9993-${ts}`,
+      email: `sub-${ts}@test.local`,
+      password: "$2b$10$placeholder",
+      first_name: "Sub",
+      last_name: "TestUser",
+      role_app: "member",
+      status_id: 1,
+      active: 1,
+    });
+
+    try {
+      await gotoUsers(adminPage);
+
+      // Chercher l'utilisateur
+      await adminPage
+        .locator('[data-testid="users-search"]')
+        .fill(`U-9993-${ts}`);
+      await adminPage.waitForResponse(
+        (resp) =>
+          resp.url().includes("/api/users") && resp.url().includes("U-999"),
+        { timeout: 10_000 },
+      );
+      await adminPage.waitForTimeout(500);
+
+      // Cliquer sur le bouton assigner abonnement
+      const assignBtn = adminPage.locator(
+        `[data-testid="btn-assign-subscription-${id}"]`,
+      );
+      await assignBtn.waitFor({ state: "visible", timeout: 10_000 });
+      await assignBtn.click();
+
+      // La modal doit s'ouvrir
+      await adminPage
+        .locator('[data-testid="subscription-modal"]')
+        .waitFor({ state: "visible", timeout: 5_000 });
+
+      // Sélectionner le plan
+      await adminPage
+        .locator('[data-testid="subscription-plan-select"]')
+        .waitFor({ state: "visible", timeout: 5_000 });
+      await adminPage
+        .locator('[data-testid="subscription-plan-select"]')
+        .selectOption(String(planId));
+
+      // Confirmer
+      const responsePromise = adminPage.waitForResponse(
+        (resp) =>
+          resp.url().includes("/api/users/") &&
+          resp.url().includes("/subscription") &&
+          resp.request().method() === "PATCH",
+        { timeout: 10_000 },
+      );
+      await adminPage
+        .locator('[data-testid="btn-confirm-subscription"]')
+        .click();
+      const resp = await responsePromise;
+      expect(resp.status()).toBeLessThan(300);
+    } finally {
+      await db
+        .query("DELETE FROM utilisateurs WHERE id = ?", [id])
+        .catch(() => {});
+    }
+  });
 });

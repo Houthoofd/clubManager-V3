@@ -199,6 +199,7 @@ export function LocalizationSection({
           onClick={handleSaveLocalisation}
           loading={isSaving}
           variant="primary"
+          data-testid="btn-save-localisation"
         >
           {t("actions.save")}
         </Button>

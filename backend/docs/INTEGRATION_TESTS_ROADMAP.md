@@ -2230,10 +2230,71 @@ Tests 3–5 : skip gracieux si `stripe-payment-modal` n'est pas disponible (serv
 
 | Couche | Tests | État visé |
 |--------|-------|----------|
-| Unitaires Frontend | 266 | ✅ 100 % |
-| Unitaires Backend | 644 | ✅ 100 % |
-| Intégration | 482 | ✅ 100 % |
-| E2E E1→E11 (actuel) | 213 | ✅ ~98 % happy paths admin+membre |
-| E2E E12 (happy paths) | +~35 | ✅ ~99 % happy paths |
-| E2E E13 (professor + négatifs) | +~18 | ✅ ~80 % professor + ~30 % négatifs |
-| **TOTAL visé** | **~1 658 tests** | **Couverture fonctionnelle professionnelle** |
+| Unitaires Frontend | 266 | ✅ 100 % |
+| Unitaires Backend | 644 | ✅ 100 % |
+| Intégration | 482 | ✅ 100 % |
+| E2E E1→E11 (actuel) | 213 | ✅ ~98 % happy paths admin+membre |
+| E2E E12 (happy paths) | +~35 | ✅ ~99 % happy paths |
+| E2E E13 (professor + négatifs) | +~18 | ✅ ~80 % professor + ~30 % négatifs |
+| **TOTAL visé** | **~1 658 tests** | **Couverture fonctionnelle professionnelle** |
+
+---
+
+### 30. ✅ TERMINÉ — Phase E12 : Happy paths manquants (2026-06-02)
+
+> **+27 tests** créés ou identifiés comme déjà couverts. Total E2E : ~240 tests.
+
+#### data-testid ajoutés au frontend
+
+| Composant | testid(s) ajoutés |
+|---|---|
+| `ReservationsPage.tsx` | `btn-create-reservation`, `btn-cancel-reservation-{id}`, `btn-submit-create-reservation` |
+| `UsersPage.tsx` | `btn-assign-subscription-{id}`, `subscription-modal`, `subscription-plan-select`, `btn-cancel-subscription`, `btn-confirm-subscription` |
+| `DeletedUsersPage.tsx` | `deleted-users-page`, `btn-restore-{id}` |
+| `StocksTab.tsx` | `btn-adjust-stock-{id}` |
+| `OrdersTab.tsx` | `btn-order-detail-{id}` |
+| `QuickActions.tsx` | `quick-actions`, `quick-action-{route}` (8 cartes) |
+| `ScheduleSection.tsx` | `btn-save-horaires` |
+| `SocialSection.tsx` | `btn-save-social` |
+| `FinanceSection.tsx` | `btn-save-finance` |
+| `LocalizationSection.tsx` | `btn-save-localisation` |
+
+#### Tests créés / étendus
+
+| Fichier | Tests ajoutés | Scénario |
+|---|---|---|
+| `courses.admin.spec.ts` | +3 (tests 10-12) | Attendance save, créer réservation, annuler réservation |
+| `payments.admin.spec.ts` | +2 (tests 8-9) | RecordPaymentModal, marquer échéance payée |
+| `users.actions.spec.ts` | +2 (tests 6-7) | Restaurer user supprimé, assigner abonnement |
+| `store.admin.spec.ts` | +2 (tests 10-11) | Ajustement stock, changement statut commande |
+| `admin/notifications.admin.spec.ts` | +3 (nouveau fichier) | Broadcast notifications via UI |
+| `admin/settings.spec.ts` | +4 (tests 6-9) | Onglets Horaires, Social, Finance, Localisation |
+| `navigation/dashboard.spec.ts` | +1 (test 4) | QuickActions navigation |
+| `member/messaging.spec.ts` | +2 (tests 7-8) | Onglets Envoyés + Archivés |
+
+#### Scénarios déjà couverts (comptés, non dupliqués)
+
+- `profile.spec.ts` test 5 : sauvegarder profil ✅ (déjà dans Phase E2)
+- `routing.spec.ts` test 9 : page 404 ✅ (déjà dans Phase E2)
+- `messaging.spec.ts` test 5 : ComposeModal envoi ✅ (déjà dans Phase E3)
+
+#### Scénario non implémenté
+
+- Export CSV présences : nécessite gestion du téléchargement de fichier → reporté (hors scope)
+
+---
+
+### 31. ✅ TERMINÉ — Phase E13 : Rôle professor + chemins négatifs (2026-06-02)
+
+> **+11 tests** créés. Total E2E : ~251 tests.
+
+#### Tests créés
+
+| Fichier | Tests | Scénarios couverts |
+|---|---|---|
+| `tests/professor/professor.spec.ts` | 7 tests (P1–P7) | /courses planning, /users lecture, /store catalogue, /statistics, /statistics/finance redirect, /settings redirect, /payments redirect |
+| `tests/auth/negative-paths.spec.ts` | 4 tests (N1–N4) | Login vide → validation, login mauvais mdp → 401, register email dupliqué → 4xx, erreur réseau (skip intentionnel) |
+
+#### Config Playwright mise à jour
+
+- `tests/professor/*` ajouté au `testIgnore` de `chromium-member` → les tests professor ne tournent que dans `chromium-admin`.

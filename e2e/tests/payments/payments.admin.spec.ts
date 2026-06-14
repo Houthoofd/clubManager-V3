@@ -13,66 +13,85 @@
  *   btn-submit-plan-form, btn-cancel-plan-form
  */
 
-import { test, expect } from '../../fixtures';
+import { test, expect } from "../../fixtures";
 
-async function gotoPayments(page: import('@playwright/test').Page) {
-  await page.goto('/payments');
-  await page.locator('[data-testid="payments-page"]').waitFor({ state: 'visible', timeout: 15_000 });
+async function gotoPayments(page: import("@playwright/test").Page) {
+  await page.goto("/payments");
+  await page
+    .locator('[data-testid="payments-page"]')
+    .waitFor({ state: "visible", timeout: 15_000 });
 }
 
-test.describe('Paiements — Flux admin', () => {
+test.describe("Paiements — Flux admin", () => {
   // ----------------------------------------------------------
   // Test 1 : Charger /payments → page visible
   // ----------------------------------------------------------
-  test('charger /payments → page visible (admin)', async ({ adminPage }) => {
+  test("charger /payments → page visible (admin)", async ({ adminPage }) => {
     await gotoPayments(adminPage);
-    await expect(adminPage.locator('[data-testid="payments-page"]')).toBeVisible();
+    await expect(
+      adminPage.locator('[data-testid="payments-page"]'),
+    ).toBeVisible();
   });
 
   // ----------------------------------------------------------
   // Test 2 : Onglet Paiements → table ou état vide visible
   // ----------------------------------------------------------
-  test('onglet Paiements → table ou état vide visible', async ({ adminPage }) => {
+  test("onglet Paiements → table ou état vide visible", async ({
+    adminPage,
+  }) => {
     await gotoPayments(adminPage);
     await adminPage.locator('[data-testid="tab-payments"]').click();
 
-    await adminPage.locator('[data-testid="payments-tab"]').waitFor({ state: 'visible', timeout: 10_000 });
+    await adminPage
+      .locator('[data-testid="payments-tab"]')
+      .waitFor({ state: "visible", timeout: 10_000 });
 
     const table = adminPage.locator('[data-testid="payments-table"]');
-    const empty = adminPage.locator('.text-center').filter({ hasText: /aucun|no payment/i });
+    const empty = adminPage
+      .locator(".text-center")
+      .filter({ hasText: /aucun|no payment/i });
     await expect(table.or(empty)).toBeVisible({ timeout: 10_000 });
   });
 
   // ----------------------------------------------------------
   // Test 3 : Onglet Plans tarifaires → liste ou état vide visible
   // ----------------------------------------------------------
-  test('onglet Plans tarifaires → liste visible', async ({ adminPage }) => {
+  test("onglet Plans tarifaires → liste visible", async ({ adminPage }) => {
     await gotoPayments(adminPage);
     await adminPage.locator('[data-testid="tab-plans"]').click();
-    await expect(
-      adminPage.locator('[data-testid="plans-tab"]'),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(adminPage.locator('[data-testid="plans-tab"]')).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   // ----------------------------------------------------------
   // Test 4 : Créer un plan tarifaire → plan visible dans la liste
   // ----------------------------------------------------------
-  test('créer un plan tarifaire → plan visible dans la liste', async ({ adminPage, db }) => {
+  test("créer un plan tarifaire → plan visible dans la liste", async ({
+    adminPage,
+    db,
+  }) => {
     const uniqueName = `Plan E2E ${Date.now()}`;
 
     await gotoPayments(adminPage);
     await adminPage.locator('[data-testid="tab-plans"]').click();
-    await adminPage.locator('[data-testid="plans-tab"]').waitFor({ state: 'visible', timeout: 10_000 });
+    await adminPage
+      .locator('[data-testid="plans-tab"]')
+      .waitFor({ state: "visible", timeout: 10_000 });
 
     await adminPage.locator('[data-testid="btn-create-plan"]').click();
-    await adminPage.locator('[data-testid="plan-form-modal"]').waitFor({ state: 'visible', timeout: 10_000 });
+    await adminPage
+      .locator('[data-testid="plan-form-modal"]')
+      .waitFor({ state: "visible", timeout: 10_000 });
 
     await adminPage.locator('[data-testid="input-plan-name"]').fill(uniqueName);
-    await adminPage.locator('[data-testid="input-plan-price"]').fill('49.99');
-    await adminPage.locator('[data-testid="input-plan-duration"]').fill('12');
+    await adminPage.locator('[data-testid="input-plan-price"]').fill("49.99");
+    await adminPage.locator('[data-testid="input-plan-duration"]').fill("12");
 
     const responsePromise = adminPage.waitForResponse(
-      (resp) => resp.url().includes('/api/payments/plans') && resp.request().method() === 'POST',
+      (resp) =>
+        resp.url().includes("/api/payments/plans") &&
+        resp.request().method() === "POST",
       { timeout: 10_000 },
     );
     await adminPage.locator('[data-testid="btn-submit-plan-form"]').click();
@@ -85,7 +104,7 @@ test.describe('Paiements — Flux admin', () => {
       ).toBeVisible({ timeout: 10_000 });
     } finally {
       await db
-        .query('DELETE FROM plans_tarifaires WHERE nom = ?', [uniqueName])
+        .query("DELETE FROM plans_tarifaires WHERE nom = ?", [uniqueName])
         .catch(() => {});
     }
   });
@@ -93,8 +112,11 @@ test.describe('Paiements — Flux admin', () => {
   // ----------------------------------------------------------
   // Test 5 : Modifier un plan tarifaire → modifications persistées
   // ----------------------------------------------------------
-  test('modifier un plan tarifaire → modifications persistées', async ({ adminPage, db }) => {
-    const id = await db.insertOne('plans_tarifaires', {
+  test("modifier un plan tarifaire → modifications persistées", async ({
+    adminPage,
+    db,
+  }) => {
+    const id = await db.insertOne("plans_tarifaires", {
       nom: `Plan Edit ${Date.now()}`,
       prix: 25.0,
       duree_mois: 1,
@@ -106,17 +128,23 @@ test.describe('Paiements — Flux admin', () => {
 
       await gotoPayments(adminPage);
       await adminPage.locator('[data-testid="tab-plans"]').click();
-      await adminPage.locator(`[data-testid="plan-card-${id}"]`).waitFor({ state: 'visible', timeout: 10_000 });
+      await adminPage
+        .locator(`[data-testid="plan-card-${id}"]`)
+        .waitFor({ state: "visible", timeout: 10_000 });
 
       await adminPage.locator(`[data-testid="btn-edit-plan-${id}"]`).click();
-      await adminPage.locator('[data-testid="plan-form-modal"]').waitFor({ state: 'visible', timeout: 10_000 });
+      await adminPage
+        .locator('[data-testid="plan-form-modal"]')
+        .waitFor({ state: "visible", timeout: 10_000 });
 
       const nameInput = adminPage.locator('[data-testid="input-plan-name"]');
       await nameInput.clear();
       await nameInput.fill(updatedName);
 
       const responsePromise = adminPage.waitForResponse(
-        (resp) => resp.url().includes('/api/payments/plans') && resp.request().method() === 'PUT',
+        (resp) =>
+          resp.url().includes("/api/payments/plans") &&
+          resp.request().method() === "PUT",
         { timeout: 10_000 },
       );
       await adminPage.locator('[data-testid="btn-submit-plan-form"]').click();
@@ -127,15 +155,20 @@ test.describe('Paiements — Flux admin', () => {
         adminPage.locator('[data-testid="plans-tab"]').getByText(updatedName),
       ).toBeVisible({ timeout: 10_000 });
     } finally {
-      await db.query('DELETE FROM plans_tarifaires WHERE id = ?', [id]).catch(() => {});
+      await db
+        .query("DELETE FROM plans_tarifaires WHERE id = ?", [id])
+        .catch(() => {});
     }
   });
 
   // ----------------------------------------------------------
   // Test 6 : Supprimer un plan tarifaire → plan absent
   // ----------------------------------------------------------
-  test('supprimer un plan tarifaire → plan absent', async ({ adminPage, db }) => {
-    const id = await db.insertOne('plans_tarifaires', {
+  test("supprimer un plan tarifaire → plan absent", async ({
+    adminPage,
+    db,
+  }) => {
+    const id = await db.insertOne("plans_tarifaires", {
       nom: `Plan Delete ${Date.now()}`,
       prix: 10.0,
       duree_mois: 1,
@@ -145,17 +178,23 @@ test.describe('Paiements — Flux admin', () => {
     try {
       await gotoPayments(adminPage);
       await adminPage.locator('[data-testid="tab-plans"]').click();
-      await adminPage.locator(`[data-testid="plan-card-${id}"]`).waitFor({ state: 'visible', timeout: 10_000 });
+      await adminPage
+        .locator(`[data-testid="plan-card-${id}"]`)
+        .waitFor({ state: "visible", timeout: 10_000 });
 
       // Première étape : clic sur icône supprimer → confirmation inline
       await adminPage.locator(`[data-testid="btn-delete-plan-${id}"]`).click();
 
       // Deuxième étape : confirmer la suppression
       const responsePromise = adminPage.waitForResponse(
-        (resp) => resp.url().includes('/api/payments/plans') && resp.request().method() === 'DELETE',
+        (resp) =>
+          resp.url().includes("/api/payments/plans") &&
+          resp.request().method() === "DELETE",
         { timeout: 10_000 },
       );
-      await adminPage.locator(`[data-testid="btn-confirm-delete-plan-${id}"]`).click();
+      await adminPage
+        .locator(`[data-testid="btn-confirm-delete-plan-${id}"]`)
+        .click();
       const resp = await responsePromise;
       expect(resp.status()).toBeLessThan(300);
 
@@ -163,18 +202,140 @@ test.describe('Paiements — Flux admin', () => {
         adminPage.locator(`[data-testid="plan-card-${id}"]`),
       ).not.toBeVisible({ timeout: 10_000 });
     } finally {
-      await db.query('DELETE FROM plans_tarifaires WHERE id = ?', [id]).catch(() => {});
+      await db
+        .query("DELETE FROM plans_tarifaires WHERE id = ?", [id])
+        .catch(() => {});
     }
   });
 
   // ----------------------------------------------------------
   // Test 7 : Onglet Échéances → liste ou état vide visible
   // ----------------------------------------------------------
-  test('onglet Échéances → liste ou état vide visible', async ({ adminPage }) => {
+  test("onglet Échéances → liste ou état vide visible", async ({
+    adminPage,
+  }) => {
     await gotoPayments(adminPage);
     await adminPage.locator('[data-testid="tab-schedules"]').click();
     await expect(
       adminPage.locator('[data-testid="schedules-tab"]'),
     ).toBeVisible({ timeout: 10_000 });
+  });
+
+  // ----------------------------------------------------------
+  // Test 8 : RecordPaymentModal → enregistrer un paiement manuel
+  // ----------------------------------------------------------
+  test("RecordPaymentModal → enregistrer un paiement manuel", async ({
+    adminPage,
+    db,
+  }) => {
+    // Récupérer l'ID interne du membre E2E
+    const memberRows = await db.query<{ id: number }>(
+      "SELECT id FROM utilisateurs WHERE userId = ?",
+      ["U-9999-0002"],
+    );
+    const memberDbId = memberRows[0]?.id;
+    expect(memberDbId, "Le membre E2E doit exister en DB").toBeDefined();
+
+    await gotoPayments(adminPage);
+    await adminPage.locator('[data-testid="tab-payments"]').click();
+    await adminPage
+      .locator('[data-testid="payments-tab"]')
+      .waitFor({ state: "visible", timeout: 10_000 });
+
+    // Cliquer sur le bouton "Enregistrer un paiement"
+    await adminPage
+      .locator('[data-testid="btn-record-payment"]')
+      .waitFor({ state: "visible", timeout: 10_000 });
+    await adminPage.locator('[data-testid="btn-record-payment"]').click();
+
+    // La modal doit s'ouvrir (le formulaire avec id="record-payment-form")
+    await adminPage.locator('[id="record-payment-form"]').waitFor({
+      state: "visible",
+      timeout: 5_000,
+    });
+
+    // Remplir le formulaire
+    await adminPage.locator("#user_id").selectOption(String(memberDbId));
+    await adminPage.locator("#montant").fill("25.00");
+    // Laisser methode_paiement par défaut (especes) et date_paiement par défaut (today)
+
+    // Soumettre
+    const responsePromise = adminPage.waitForResponse(
+      (resp) =>
+        resp.url().includes("/api/payments") &&
+        resp.request().method() === "POST",
+      { timeout: 10_000 },
+    );
+    await adminPage
+      .locator('[type="submit"][form="record-payment-form"]')
+      .click();
+    const resp = await responsePromise;
+    expect(resp.status()).toBeLessThan(300);
+
+    // Nettoyage
+    const body = await resp.json().catch(() => ({}));
+    const paiementId = body?.data?.id ?? body?.id ?? null;
+    if (paiementId) {
+      await db
+        .query("DELETE FROM paiements WHERE id = ?", [paiementId])
+        .catch(() => {});
+    }
+  });
+
+  // ----------------------------------------------------------
+  // Test 9 : Marquer une échéance en retard comme payée
+  // ----------------------------------------------------------
+  test("marquer une échéance en retard comme payée", async ({
+    adminPage,
+    db,
+  }) => {
+    // Récupérer l'ID interne du membre E2E
+    const memberRows = await db.query<{ id: number }>(
+      "SELECT id FROM utilisateurs WHERE userId = ?",
+      ["U-9999-0002"],
+    );
+    const memberDbId = memberRows[0]?.id;
+    expect(memberDbId, "Le membre E2E doit exister en DB").toBeDefined();
+
+    // Insérer une échéance en retard
+    const pastDate = new Date();
+    pastDate.setDate(pastDate.getDate() - 10);
+    const datePast = pastDate.toISOString().split("T")[0];
+
+    const echeanceId = await db.insertOne("echeances_paiements", {
+      user_id: memberDbId,
+      montant: 15.0,
+      date_echeance: datePast,
+      statut: "en_attente",
+    });
+
+    try {
+      await gotoPayments(adminPage);
+      await adminPage.locator('[data-testid="tab-schedules"]').click();
+      await adminPage
+        .locator('[data-testid="schedules-tab"]')
+        .waitFor({ state: "visible", timeout: 10_000 });
+
+      // Le bouton marquer comme payée doit être visible dans le bandeau overdue
+      const markPaidBtn = adminPage.locator(
+        `[data-testid="btn-mark-paid-${echeanceId}"]`,
+      );
+      await markPaidBtn.waitFor({ state: "visible", timeout: 10_000 });
+
+      const responsePromise = adminPage.waitForResponse(
+        (resp) =>
+          resp.url().includes("/api/payments/schedules/") &&
+          (resp.url().includes("/mark-paid") || resp.url().includes("/pay")) &&
+          resp.request().method() === "PATCH",
+        { timeout: 10_000 },
+      );
+      await markPaidBtn.click();
+      const resp = await responsePromise;
+      expect(resp.status()).toBeLessThan(300);
+    } finally {
+      await db
+        .query("DELETE FROM echeances_paiements WHERE id = ?", [echeanceId])
+        .catch(() => {});
+    }
   });
 });

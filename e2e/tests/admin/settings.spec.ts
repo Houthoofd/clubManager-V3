@@ -110,4 +110,69 @@ test.describe("Paramètres — Flux admin", () => {
     // Après le clic, on est toujours sur /settings (pas de redirection)
     await expect(adminPage).toHaveURL(/\/settings/, { timeout: 5_000 });
   });
+
+  // ----------------------------------------------------------
+  // Test 6 : Navigation vers l'onglet Horaires
+  // ----------------------------------------------------------
+  test("navigation vers l'onglet Horaires", async ({ adminPage }) => {
+    await gotoSettings(adminPage);
+
+    const horairesTab = adminPage.locator("#tab-horaires");
+    await expect(horairesTab).toBeVisible({ timeout: 10_000 });
+    await horairesTab.click();
+    await expect(horairesTab).toHaveAttribute("aria-selected", "true");
+
+    // Le bouton de sauvegarde de la section horaires doit être visible
+    await expect(
+      adminPage.locator('[data-testid="btn-save-horaires"]'),
+    ).toBeVisible({ timeout: 10_000 });
+  });
+
+  // ----------------------------------------------------------
+  // Test 7 : Navigation vers l'onglet Réseaux sociaux
+  // ----------------------------------------------------------
+  test("navigation vers l'onglet Réseaux sociaux", async ({ adminPage }) => {
+    await gotoSettings(adminPage);
+
+    const socialTab = adminPage.locator("#tab-social");
+    await expect(socialTab).toBeVisible({ timeout: 10_000 });
+    await socialTab.click();
+    await expect(socialTab).toHaveAttribute("aria-selected", "true");
+
+    await expect(
+      adminPage.locator('[data-testid="btn-save-social"]'),
+    ).toBeVisible({ timeout: 10_000 });
+  });
+
+  // ----------------------------------------------------------
+  // Test 8 : Navigation vers l'onglet Finance
+  // ----------------------------------------------------------
+  test("navigation vers l'onglet Finance", async ({ adminPage }) => {
+    await gotoSettings(adminPage);
+
+    const financeTab = adminPage.locator("#tab-finance");
+    await expect(financeTab).toBeVisible({ timeout: 10_000 });
+    await financeTab.click();
+    await expect(financeTab).toHaveAttribute("aria-selected", "true");
+
+    await expect(
+      adminPage.locator('[data-testid="btn-save-finance"]'),
+    ).toBeVisible({ timeout: 10_000 });
+  });
+
+  // ----------------------------------------------------------
+  // Test 9 : Navigation vers l'onglet Localisation
+  // ----------------------------------------------------------
+  test("navigation vers l'onglet Localisation", async ({ adminPage }) => {
+    await gotoSettings(adminPage);
+
+    const localisationTab = adminPage.locator("#tab-localisation");
+    await expect(localisationTab).toBeVisible({ timeout: 10_000 });
+    await localisationTab.click();
+    await expect(localisationTab).toHaveAttribute("aria-selected", "true");
+
+    await expect(
+      adminPage.locator('[data-testid="btn-save-localisation"]'),
+    ).toBeVisible({ timeout: 10_000 });
+  });
 });

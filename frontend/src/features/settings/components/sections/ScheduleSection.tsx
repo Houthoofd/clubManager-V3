@@ -62,6 +62,7 @@ export function ScheduleSection({
           onClick={handleSaveHoraires}
           loading={isSaving}
           variant="primary"
+          data-testid="btn-save-horaires"
         >
           {t("actions.save")}
         </Button>

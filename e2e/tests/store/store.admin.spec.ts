@@ -249,4 +249,140 @@ test.describe("Boutique — Flux admin", () => {
       adminPage.locator("text=/500|Internal Server Error/i"),
     ).not.toBeVisible({ timeout: 5_000 });
   });
+
+  // ----------------------------------------------------------
+  // Test 10 : Ajustement de stock via StockAdjustModal
+  // ----------------------------------------------------------
+  test("ajustement de stock → quantité mise à jour", async ({
+    adminPage,
+    db,
+  }) => {
+    // Récupérer un stock existant
+    const stockRows = await db.query<{ id: number; quantite: number }>(
+      "SELECT id, quantite FROM stocks LIMIT 1",
+    );
+    if (stockRows.length === 0) {
+      test.skip();
+      return;
+    }
+    const stock = stockRows[0];
+
+    await gotoStore(adminPage);
+    await adminPage.locator('[data-testid="tab-stocks"]').click();
+    // Attendre que l'onglet se charge
+    await adminPage.waitForTimeout(1000);
+    await expect(
+      adminPage.locator("text=/500|Internal Server Error/i"),
+    ).not.toBeVisible({ timeout: 5_000 });
+
+    // Cliquer sur le bouton d'ajustement de ce stock
+    const adjustBtn = adminPage.locator(
+      `[data-testid="btn-adjust-stock-${stock.id}"]`,
+    );
+    await adjustBtn.waitFor({ state: "visible", timeout: 10_000 });
+    await adjustBtn.click();
+
+    // La modal StockAdjustModal doit s'ouvrir
+    await adminPage.locator('[id="stock-adjust-form"]').waitFor({
+      state: "visible",
+      timeout: 5_000,
+    });
+
+    // Remplir la quantité (+1)
+    await adminPage.locator("#stock-quantite").fill("1");
+
+    // Soumettre
+    const responsePromise = adminPage.waitForResponse(
+      (resp) =>
+        resp.url().includes("/api/store/stocks") &&
+        resp.request().method() === "POST",
+      { timeout: 10_000 },
+    );
+    await adminPage
+      .locator('[type="submit"][form="stock-adjust-form"]')
+      .click();
+    const resp = await responsePromise;
+    expect(resp.status()).toBeLessThan(300);
+
+    // Restaurer la quantité initiale
+    await db
+      .query("UPDATE stocks SET quantite = ? WHERE id = ?", [
+        stock.quantite,
+        stock.id,
+      ])
+      .catch(() => {});
+  });
+
+  // ----------------------------------------------------------
+  // Test 11 : Changer le statut d'une commande via OrderDetailModal
+  // ----------------------------------------------------------
+  test("changer le statut d'une commande via modal", async ({
+    adminPage,
+    db,
+  }) => {
+    // Récupérer une commande en attente ou non-annulée
+    const orderRows = await db.query<{ id: number; statut: string }>(
+      "SELECT id, statut FROM commandes WHERE statut NOT IN ('annulee', 'livree') LIMIT 1",
+    );
+    if (orderRows.length === 0) {
+      test.skip();
+      return;
+    }
+    const order = orderRows[0];
+
+    await gotoStore(adminPage);
+    await adminPage.locator('[data-testid="tab-commandes"]').click();
+    await adminPage
+      .locator('[data-testid="orders-tab"]')
+      .waitFor({ state: "visible", timeout: 10_000 });
+
+    // Cliquer sur le bouton détail de cette commande
+    const detailBtn = adminPage.locator(
+      `[data-testid="btn-order-detail-${order.id}"]`,
+    );
+    await detailBtn.waitFor({ state: "visible", timeout: 10_000 });
+    await detailBtn.click();
+
+    // La modal OrderDetailModal doit s'ouvrir
+    await adminPage.locator('[role="dialog"]').waitFor({
+      state: "visible",
+      timeout: 5_000,
+    });
+
+    // Trouver un bouton de transition de statut (premier bouton dans la section admin)
+    const transitionBtn = adminPage
+      .locator('[role="dialog"]')
+      .getByRole("button")
+      .filter({ hasText: /payée|expédiée|livrée|marquer|annuler/i })
+      .first();
+
+    const btnVisible = await transitionBtn
+      .isVisible({ timeout: 5_000 })
+      .catch(() => false);
+
+    if (!btnVisible) {
+      // Fermer et skip si aucun bouton de transition disponible
+      await adminPage.keyboard.press("Escape");
+      test.skip();
+      return;
+    }
+
+    const responsePromise = adminPage.waitForResponse(
+      (resp) =>
+        resp.url().includes("/api/store/orders/") &&
+        (resp.url().includes("/status") || resp.request().method() === "PATCH"),
+      { timeout: 10_000 },
+    );
+    await transitionBtn.click();
+    const resp = await responsePromise;
+    expect(resp.status()).toBeLessThan(300);
+
+    // Restaurer le statut initial
+    await db
+      .query("UPDATE commandes SET statut = ? WHERE id = ?", [
+        order.statut,
+        order.id,
+      ])
+      .catch(() => {});
+  });
 });

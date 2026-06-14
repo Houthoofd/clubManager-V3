@@ -108,7 +108,12 @@ export function SocialSection({
       </div>
 
       <div className="flex justify-end pt-4 border-t border-gray-100">
-        <Button onClick={handleSaveSocial} loading={isSaving} variant="primary">
+        <Button
+          onClick={handleSaveSocial}
+          loading={isSaving}
+          variant="primary"
+          data-testid="btn-save-social"
+        >
           {t("actions.save")}
         </Button>
       </div>

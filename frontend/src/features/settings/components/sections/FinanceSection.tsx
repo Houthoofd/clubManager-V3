@@ -97,6 +97,7 @@ export function FinanceSection({
           onClick={handleSaveFinance}
           loading={isSaving}
           variant="primary"
+          data-testid="btn-save-finance"
         >
           {t("actions.save")}
         </Button>

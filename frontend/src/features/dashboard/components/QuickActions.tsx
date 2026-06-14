@@ -106,9 +106,7 @@ const ChatBubbleIcon: React.FC<{ className?: string }> = ({
   </svg>
 );
 
-const ChartBarIcon: React.FC<{ className?: string }> = ({
-  className = "",
-}) => (
+const ChartBarIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <svg
     className={className}
     fill="none"
@@ -240,7 +238,7 @@ export function QuickActions() {
   const navigate = useNavigate();
 
   return (
-    <section aria-labelledby="quick-actions-title">
+    <section aria-labelledby="quick-actions-title" data-testid="quick-actions">
       <h2
         id="quick-actions-title"
         className="text-base font-semibold text-gray-800 mb-3"
@@ -252,6 +250,7 @@ export function QuickActions() {
         {ACTIONS.map(({ route, labelKey, Icon, iconColor }) => (
           <div
             key={route}
+            data-testid={`quick-action-${route.slice(1)}`}
             role="button"
             tabIndex={0}
             onClick={() => navigate(route)}

@@ -498,7 +498,7 @@ export default function CoursesPage() {
                       {
                         key: "date_cours",
                         label: t("columns.date"),
-                        render: (session: CourseListItemDto) =>
+                        render: (_: any, session: CourseListItemDto) =>
                           formatDate(session.date_cours),
                       },
                       {
@@ -508,9 +508,9 @@ export default function CoursesPage() {
                       {
                         key: "horaire",
                         label: t("columns.schedule"),
-                        render: (session: CourseListItemDto) => (
+                        render: (_: any, session: CourseListItemDto) => (
                           <span>
-                            {formatTime(session.heure_debut)} –{" "}
+                            {formatTime(session.heure_debut)} {"-"}{" "}
                             {formatTime(session.heure_fin)}
                           </span>
                         ),
@@ -518,7 +518,7 @@ export default function CoursesPage() {
                       {
                         key: "recurrent",
                         label: t("columns.linkedPlanning"),
-                        render: (session: CourseListItemDto) =>
+                        render: (_: any, session: CourseListItemDto) =>
                           session.cours_recurrent_id ? (
                             <Badge variant="info" size="sm">
                               {t("status.yes")}
@@ -530,7 +530,7 @@ export default function CoursesPage() {
                       {
                         key: "status",
                         label: t("columns.status"),
-                        render: (session: CourseListItemDto) =>
+                        render: (_: any, session: CourseListItemDto) =>
                           session.annule ? (
                             <Badge variant="danger" size="sm">
                               {t("status.cancelled")}
@@ -545,7 +545,7 @@ export default function CoursesPage() {
                         key: "actions",
                         label: t("columns.actions"),
                         className: "text-right",
-                        render: (session: CourseListItemDto) => (
+                        render: (_: any, session: CourseListItemDto) => (
                           <div className="flex items-center justify-end gap-2">
                             <Button
                               variant="ghost"
@@ -616,7 +616,7 @@ export default function CoursesPage() {
                     {
                       key: "nom_complet",
                       label: t("columns.fullName"),
-                      render: (professor: ProfessorListItemDto) => (
+                      render: (_: any, professor: ProfessorListItemDto) => (
                         <div>
                           <p className="font-medium text-gray-900">
                             {professor.nom_complet}
@@ -632,7 +632,7 @@ export default function CoursesPage() {
                     {
                       key: "email",
                       label: t("columns.email"),
-                      render: (professor: ProfessorListItemDto) =>
+                      render: (_: any, professor: ProfessorListItemDto) =>
                         professor.email ? (
                           <a
                             href={`mailto:${professor.email}`}
@@ -647,7 +647,7 @@ export default function CoursesPage() {
                     {
                       key: "telephone",
                       label: t("columns.phone"),
-                      render: (professor: ProfessorListItemDto) =>
+                      render: (_: any, professor: ProfessorListItemDto) =>
                         professor.telephone || (
                           <span className="text-gray-400 text-sm">—</span>
                         ),
@@ -655,7 +655,7 @@ export default function CoursesPage() {
                     {
                       key: "actif",
                       label: t("columns.status"),
-                      render: (professor: ProfessorListItemDto) => (
+                      render: (_: any, professor: ProfessorListItemDto) => (
                         <Badge.Status
                           status={professor.actif ? "active" : "inactive"}
                         />
@@ -665,7 +665,7 @@ export default function CoursesPage() {
                       key: "actions",
                       label: t("columns.actions"),
                       className: "text-right",
-                      render: (professor: ProfessorListItemDto) => (
+                      render: (_: any, professor: ProfessorListItemDto) => (
                         <>
                           {isAdmin && (
                             <div className="flex items-center justify-end gap-1">

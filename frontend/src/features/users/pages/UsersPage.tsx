@@ -445,6 +445,7 @@ export function UsersPage() {
           {isAdmin && (
             <button
               type="button"
+              data-testid={`btn-assign-subscription-${row.id}`}
               onClick={async () => {
                 setPlansLoading(true);
                 try {
@@ -855,7 +856,10 @@ export function UsersPage() {
 
       {/* Modal : Assigner un abonnement */}
       {modal.type === "subscription" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div
+          data-testid="subscription-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        >
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-1">
               {t("subscription.title")}
@@ -870,6 +874,7 @@ export function UsersPage() {
               </p>
             ) : (
               <select
+                data-testid="subscription-plan-select"
                 value={selectedSubscriptionId ?? ""}
                 onChange={(e) =>
                   setSelectedSubscriptionId(
@@ -891,6 +896,7 @@ export function UsersPage() {
             <div className="flex justify-end gap-3">
               <button
                 type="button"
+                data-testid="btn-cancel-subscription"
                 onClick={closeModal}
                 disabled={isSubmitting}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -899,6 +905,7 @@ export function UsersPage() {
               </button>
               <button
                 type="button"
+                data-testid="btn-confirm-subscription"
                 onClick={handleSubscriptionSubmit}
                 disabled={isSubmitting}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"

@@ -157,6 +157,7 @@ export function DeletedUsersPage() {
           {/* Restaurer */}
           <button
             type="button"
+            data-testid={`btn-restore-${row.id}`}
             onClick={() => handleRestore(row)}
             title={t("deleted.restore")}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-green-200
@@ -201,7 +202,9 @@ export function DeletedUsersPage() {
                    text-gray-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200
                    transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        <ArrowPathIcon className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+        <ArrowPathIcon
+          className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+        />
       </button>
     </div>
   );
@@ -221,7 +224,7 @@ export function DeletedUsersPage() {
   // ── Rendu ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="deleted-users-page">
       {/* ── En-tête ── */}
       <PageHeader
         icon={<TrashIcon className="h-8 w-8 text-red-500" />}

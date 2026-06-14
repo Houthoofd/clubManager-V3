@@ -142,9 +142,15 @@ export default defineConfig({
     // ----------------------------------------------------------
     {
       name: "chromium-member",
-      // tests/admin/* → réservés chromium-admin (fixtures adminPage)
-      // tests/flows/* → réservés chromium-admin (évite double exécution)
-      testIgnore: [/tests\/auth\/.*/, /tests\/admin\/.*/, /tests\/flows\/.*/],
+      // tests/admin/*     → réservés chromium-admin (fixtures adminPage)
+      // tests/flows/*     → réservés chromium-admin (évite double exécution)
+      // tests/professor/* → réservés chromium-admin (fixtures professorPage)
+      testIgnore: [
+        /tests\/auth\/.*/,
+        /tests\/admin\/.*/,
+        /tests\/flows\/.*/,
+        /tests\/professor\/.*/,
+      ],
       use: {
         ...devices["Desktop Chrome"],
         storageState: STORAGE_STATE.member,
