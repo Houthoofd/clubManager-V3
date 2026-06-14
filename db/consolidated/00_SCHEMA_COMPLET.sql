@@ -64,7 +64,7 @@ USE clubmanager;
 CREATE TABLE genres (
     id         INT UNSIGNED  NOT NULL AUTO_INCREMENT,
     nom        VARCHAR(50)   NOT NULL,
-    code       VARCHAR(10)   DEFAULT NULL,
+    code       VARCHAR(20)   DEFAULT NULL,
     nom_en     VARCHAR(50)   DEFAULT NULL,
     ordre      INT           NOT NULL DEFAULT 99,
     actif      TINYINT(1)    NOT NULL DEFAULT 1,
