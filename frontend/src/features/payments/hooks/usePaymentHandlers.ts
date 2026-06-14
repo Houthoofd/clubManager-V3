@@ -77,7 +77,7 @@ export function usePaymentHandlers({
     await createPayment({
       user_id: data.user_id,
       montant: data.montant,
-      methode_paiement: data.methode_paiement,
+      methode_paiement_id: data.methode_paiement_id,
       plan_tarifaire_id: data.plan_tarifaire_id,
       description: data.description,
       date_paiement: data.date_paiement,

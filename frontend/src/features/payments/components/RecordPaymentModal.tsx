@@ -31,7 +31,7 @@ interface RecordPaymentModalProps {
 export interface RecordPaymentFormData {
   user_id: number;
   montant: number;
-  methode_paiement: string;
+  methode_paiement_id: number;
   plan_tarifaire_id?: number;
   description?: string;
   date_paiement: string;
@@ -70,7 +70,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     defaultValues: {
       user_id: undefined,
       montant: undefined,
-      methode_paiement: "especes",
+      methode_paiement_id: 1,
       plan_tarifaire_id: undefined,
       description: "",
       date_paiement: todayISO(),
@@ -83,7 +83,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
       reset({
         user_id: undefined,
         montant: undefined,
-        methode_paiement: "especes",
+        methode_paiement_id: 1,
         plan_tarifaire_id: undefined,
         description: "",
         date_paiement: todayISO(),
@@ -175,22 +175,25 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
             {/* Méthode */}
             <Input.Select
               label={t("fields.method")}
-              id="methode_paiement"
+              id="methode_paiement_id"
               required
               disabled={isSubmitting}
-              {...register("methode_paiement", { required: true })}
+              {...register("methode_paiement_id", {
+                required: true,
+                valueAsNumber: true,
+              })}
             >
               {methodesPaiement.length > 0 ? (
                 methodesPaiement.map((m) => (
-                  <option key={m.code} value={m.code}>
+                  <option key={m.id} value={m.id}>
                     {i18n.language === "en" && m.nom_en ? m.nom_en : m.nom}
                   </option>
                 ))
               ) : (
                 <>
-                  <option value="especes">{t("methods.cash")}</option>
-                  <option value="virement">{t("methods.transfer")}</option>
-                  <option value="autre">{t("methods.other")}</option>
+                  <option value="1">{t("methods.cash")}</option>
+                  <option value="2">{t("methods.transfer")}</option>
+                  <option value="4">{t("methods.other")}</option>
                 </>
               )}
             </Input.Select>

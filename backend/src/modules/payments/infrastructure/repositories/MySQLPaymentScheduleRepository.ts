@@ -40,6 +40,14 @@ interface CountRow extends RowDataPacket {
   total: number;
 }
 
+// Mapping code → statut_id (correspond aux IDs insérés dans statuts_echeance)
+const STATUT_ID: Record<string, number> = {
+  en_attente: 1,
+  paye: 2,
+  en_retard: 3,
+  annule: 4,
+};
+
 // ==================== BASE SELECT ====================
 
 const BASE_SELECT = `
@@ -48,7 +56,7 @@ const BASE_SELECT = `
     e.plan_tarifaire_id,
     e.montant,
     e.date_echeance,
-    e.statut,
+    se.code AS statut,
     e.paiement_id,
     e.created_at,
     e.updated_at,
@@ -58,13 +66,14 @@ const BASE_SELECT = `
     u.email       AS user_email,
     pt.nom        AS plan_nom,
     CASE
-      WHEN e.statut IN ('en_attente', 'en_retard') AND e.date_echeance < CURDATE()
+      WHEN se.code IN ('en_attente', 'en_retard') AND e.date_echeance < CURDATE()
         THEN DATEDIFF(CURDATE(), e.date_echeance)
       ELSE NULL
     END AS jours_retard
   FROM echeances_paiements e
-  LEFT JOIN utilisateurs     u  ON u.id = e.user_id
-  LEFT JOIN plans_tarifaires pt ON pt.id = e.plan_tarifaire_id
+  LEFT JOIN statuts_echeance  se ON se.id = e.statut_id
+  LEFT JOIN utilisateurs      u  ON u.id  = e.user_id
+  LEFT JOIN plans_tarifaires  pt ON pt.id = e.plan_tarifaire_id
 `;
 
 // ==================== REPOSITORY ====================
@@ -85,13 +94,13 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
       params.push(user_id);
     }
     if (statut) {
-      conditions.push("e.statut = ?");
+      conditions.push("se.code = ?");
       params.push(statut);
     }
     if (overdue) {
       // Filtre les échéances dont la date est dépassée et le statut non terminal
       conditions.push(
-        "e.date_echeance < CURDATE() AND e.statut IN ('en_attente', 'en_retard')",
+        "e.date_echeance < CURDATE() AND se.code IN ('en_attente', 'en_retard')",
       );
     }
 
@@ -157,7 +166,7 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
     const [rows] = await pool.query<ScheduleDbRow[]>(
       `${BASE_SELECT}
        WHERE e.date_echeance < CURDATE()
-         AND e.statut IN ('en_attente')
+         AND se.code IN ('en_attente')
        ORDER BY e.date_echeance ASC`,
     );
 
@@ -170,7 +179,7 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
   async markAsPaid(id: number, paiementId: number): Promise<void> {
     await pool.query(
       `UPDATE echeances_paiements
-       SET statut = 'paye', paiement_id = ?, updated_at = NOW()
+       SET statut_id = 2, paiement_id = ?, updated_at = NOW()
        WHERE id = ?`,
       [paiementId, id],
     );
@@ -180,9 +189,10 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
    * Met à jour le statut d'une échéance
    */
   async updateStatut(id: number, statut: string): Promise<void> {
+    const statutId = STATUT_ID[statut] ?? 1;
     await pool.query(
-      "UPDATE echeances_paiements SET statut = ?, updated_at = NOW() WHERE id = ?",
-      [statut, id],
+      "UPDATE echeances_paiements SET statut_id = ?, updated_at = NOW() WHERE id = ?",
+      [statutId, id],
     );
   }
 
@@ -190,16 +200,17 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
    * Crée une nouvelle échéance et retourne l'ID généré
    */
   async create(data: CreateScheduleInput): Promise<number> {
+    const statutId = STATUT_ID[data.statut ?? "en_attente"] ?? 1;
     const [result] = await pool.query<ResultSetHeader>(
       `INSERT INTO echeances_paiements
-         (user_id, plan_tarifaire_id, montant, date_echeance, statut, paiement_id)
+         (user_id, plan_tarifaire_id, montant, date_echeance, statut_id, paiement_id)
        VALUES (?, ?, ?, ?, ?, ?)`,
       [
         data.user_id,
         data.plan_tarifaire_id ?? null,
         data.montant,
         data.date_echeance,
-        data.statut ?? "en_attente",
+        statutId,
         data.paiement_id ?? null,
       ],
     );

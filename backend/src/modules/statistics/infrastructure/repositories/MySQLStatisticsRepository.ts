@@ -536,14 +536,15 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   ): Promise<FinancialStatistics> {
     const sql = `
       SELECT
-        SUM(CASE WHEN statut = 'valide' THEN montant ELSE 0 END) as total_revenus,
-        SUM(CASE WHEN statut = 'valide' THEN 1 ELSE 0 END) as total_paiements_valides,
-        SUM(CASE WHEN statut = 'en_attente' THEN 1 ELSE 0 END) as total_paiements_en_attente,
-        SUM(CASE WHEN statut = 'echoue' THEN 1 ELSE 0 END) as total_paiements_echoues,
-        SUM(CASE WHEN statut = 'en_attente' THEN montant ELSE 0 END) as montant_en_attente,
-        (SUM(CASE WHEN statut = 'valide' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)) as taux_paiement
-      FROM paiements
-      ${dateRange ? "WHERE date_paiement BETWEEN ? AND ?" : ""}
+        SUM(CASE WHEN sp.code = 'valide'     THEN p.montant ELSE 0 END) as total_revenus,
+        SUM(CASE WHEN sp.code = 'valide'     THEN 1 ELSE 0 END) as total_paiements_valides,
+        SUM(CASE WHEN sp.code = 'en_attente' THEN 1 ELSE 0 END) as total_paiements_en_attente,
+        SUM(CASE WHEN sp.code = 'echoue'     THEN 1 ELSE 0 END) as total_paiements_echoues,
+        SUM(CASE WHEN sp.code = 'en_attente' THEN p.montant ELSE 0 END) as montant_en_attente,
+        (SUM(CASE WHEN sp.code = 'valide'    THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)) as taux_paiement
+      FROM paiements p
+      LEFT JOIN statuts_paiement sp ON sp.id = p.statut_id
+      ${dateRange ? "WHERE p.date_paiement BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -575,14 +576,21 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   ): Promise<RevenueByPaymentMethod[]> {
     const sql = `
       SELECT
-        methode_paiement,
+        mp.code AS methode_paiement,
         COUNT(*) as total_paiements,
-        SUM(montant) as montant_total,
-        (SUM(montant) * 100.0 / (SELECT SUM(montant) FROM paiements WHERE statut = 'valide' ${dateRange ? "AND date_paiement BETWEEN ? AND ?" : ""})) as pourcentage
-      FROM paiements
-      WHERE statut = 'valide'
-      ${dateRange ? "AND date_paiement BETWEEN ? AND ?" : ""}
-      GROUP BY methode_paiement
+        SUM(p.montant) as montant_total,
+        (SUM(p.montant) * 100.0 / (
+          SELECT SUM(p2.montant) FROM paiements p2
+          LEFT JOIN statuts_paiement sp2 ON sp2.id = p2.statut_id
+          WHERE sp2.code = 'valide'
+          ${dateRange ? "AND p2.date_paiement BETWEEN ? AND ?" : ""}
+        )) as pourcentage
+      FROM paiements p
+      LEFT JOIN statuts_paiement   sp ON sp.id = p.statut_id
+      LEFT JOIN methodes_paiement  mp ON mp.id = p.methode_paiement_id
+      WHERE sp.code = 'valide'
+      ${dateRange ? "AND p.date_paiement BETWEEN ? AND ?" : ""}
+      GROUP BY mp.code, mp.nom
       ORDER BY montant_total DESC
     `;
 
@@ -616,10 +624,16 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         pt.nom AS plan_nom,
         COUNT(DISTINCT u.id) AS total_abonnes,
         SUM(p.montant) AS montant_total,
-        (SUM(p.montant) * 100.0 / NULLIF((SELECT SUM(montant) FROM paiements WHERE statut = 'valide' ${dateRange ? "AND date_paiement BETWEEN ? AND ?" : ""}), 0)) AS pourcentage
+        (SUM(p.montant) * 100.0 / NULLIF((
+          SELECT SUM(p2.montant) FROM paiements p2
+          LEFT JOIN statuts_paiement sp2 ON sp2.id = p2.statut_id
+          WHERE sp2.code = 'valide'
+          ${dateRange ? "AND p2.date_paiement BETWEEN ? AND ?" : ""}
+        ), 0)) AS pourcentage
       FROM plans_tarifaires pt
       LEFT JOIN utilisateurs u ON u.abonnement_id = pt.id
-      LEFT JOIN paiements p ON p.plan_tarifaire_id = pt.id AND p.statut = 'valide'
+      LEFT JOIN paiements p ON p.plan_tarifaire_id = pt.id
+      LEFT JOIN statuts_paiement sp ON sp.id = p.statut_id AND sp.code = 'valide'
       ${dateRange ? "WHERE p.date_paiement BETWEEN ? AND ?" : ""}
       GROUP BY pt.id, pt.nom
       ORDER BY montant_total DESC
@@ -658,8 +672,8 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
         e.date_echeance,
         DATEDIFF(CURDATE(), e.date_echeance) as jours_retard
       FROM echeances_paiements e
-      INNER JOIN utilisateurs u ON e.utilisateur_id = u.id
-      WHERE e.statut = 'en_attente'
+      INNER JOIN utilisateurs u ON e.user_id = u.id
+      WHERE e.statut_id = 1
       AND e.date_echeance < CURDATE()
       ORDER BY jours_retard DESC
       LIMIT 50
@@ -683,10 +697,11 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
    */
   async getTotalRevenue(dateRange?: AnalyticsDateRange): Promise<number> {
     const sql = `
-      SELECT SUM(montant) as total
-      FROM paiements
-      WHERE statut = 'valide'
-      ${dateRange ? "AND date_paiement BETWEEN ? AND ?" : ""}
+      SELECT SUM(p.montant) as total
+      FROM paiements p
+      LEFT JOIN statuts_paiement sp ON sp.id = p.statut_id
+      WHERE sp.code = 'valide'
+      ${dateRange ? "AND p.date_paiement BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -700,9 +715,10 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   async getPaymentSuccessRate(dateRange?: AnalyticsDateRange): Promise<number> {
     const sql = `
       SELECT
-        (SUM(CASE WHEN statut = 'valide' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)) as taux
-      FROM paiements
-      ${dateRange ? "WHERE date_paiement BETWEEN ? AND ?" : ""}
+        (SUM(CASE WHEN sp.code = 'valide' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)) as taux
+      FROM paiements p
+      LEFT JOIN statuts_paiement sp ON sp.id = p.statut_id
+      ${dateRange ? "WHERE p.date_paiement BETWEEN ? AND ?" : ""}
     `;
 
     const params = dateRange ? [dateRange.date_debut, dateRange.date_fin] : [];
@@ -717,7 +733,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
     const sql = `
       SELECT COUNT(*) as total
       FROM echeances_paiements
-      WHERE statut = 'en_attente'
+      WHERE statut_id = 1
       AND date_echeance < CURDATE()
     `;
 
@@ -732,7 +748,7 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
     const sql = `
       SELECT SUM(montant) as total
       FROM echeances_paiements
-      WHERE statut = 'en_attente'
+      WHERE statut_id = 1
       AND date_echeance < CURDATE()
     `;
 
@@ -1147,18 +1163,19 @@ export class MySQLStatisticsRepository implements IStatisticsRepository {
   async getRevenueTrend(
     dateRange: AnalyticsDateRange,
     periodType: PeriodType,
-  ): Promise<RevenueTrend> {
-    const formatSql = this.getPeriodFormatSql(periodType, "date_paiement");
+  ): Promise<RevenueTrend[]> {
+    const formatSql = this.getPeriodFormatSql(periodType, "p.date_paiement");
 
     const sql = `
       SELECT
         ${formatSql} as periode,
-        SUM(montant) as valeur,
-        MIN(date_paiement) as date_debut,
-        MAX(date_paiement) as date_fin
-      FROM paiements
-      WHERE statut = 'valide'
-      AND date_paiement BETWEEN ? AND ?
+        SUM(p.montant) as valeur,
+        MIN(p.date_paiement) as date_debut,
+        MAX(p.date_paiement) as date_fin
+      FROM paiements p
+      LEFT JOIN statuts_paiement sp ON sp.id = p.statut_id
+      WHERE sp.code = 'valide'
+      AND p.date_paiement BETWEEN ? AND ?
       GROUP BY periode
       ORDER BY periode
     `;
