@@ -23,7 +23,8 @@ export class CreatePaymentUseCase {
     if (!data.methode_paiement_id) {
       throw new Error("La méthode de paiement est requise");
     }
-    if (data.methode_paiement_id === 1) { // 1 = stripe
+    if (data.methode_paiement_id === 3) {
+      // 3 = stripe
       throw new Error(
         "Utilisez l'endpoint Stripe pour les paiements par carte bancaire",
       );
