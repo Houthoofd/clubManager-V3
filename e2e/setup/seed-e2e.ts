@@ -82,8 +82,12 @@ async function seedE2E(): Promise<void> {
 
     // status id=1 → "actif"
     await connection.execute(
-      `INSERT IGNORE INTO status (id, nom, description)
-       VALUES (1, 'actif', 'Compte actif')`,
+      `INSERT IGNORE INTO status (id, nom, description) VALUES
+       (1, 'actif',     'Compte actif'),
+       (2, 'inactif',   'Compte inactif'),
+       (3, 'suspendu',  'Compte suspendu temporairement'),
+       (4, 'en_attente','En attente de validation'),
+       (5, 'archive',   'Compte archivé')`,
     );
 
     // genre id=1 → "Non spécifié"

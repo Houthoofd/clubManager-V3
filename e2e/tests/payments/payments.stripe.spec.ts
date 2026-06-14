@@ -127,7 +127,7 @@ test.describe("Paiements — Flux Stripe membre", () => {
       user_id: memberId,
       montant: 49.99,
       date_echeance: dateEcheance,
-      statut: "en_attente",
+      statut_id: 1,
     });
 
     try {
@@ -167,7 +167,7 @@ test.describe("Paiements — Flux Stripe membre", () => {
       user_id: memberId,
       montant: 49.99,
       date_echeance: dateEcheance,
-      statut: "paye",
+      statut_id: 2,
     });
 
     try {
@@ -209,7 +209,7 @@ test.describe("Paiements — Flux Stripe membre", () => {
       user_id: memberId,
       montant: 29.99,
       date_echeance: dateEcheance,
-      statut: "en_attente",
+      statut_id: 1,
     });
 
     try {
@@ -264,7 +264,7 @@ test.describe("Paiements — Flux Stripe membre", () => {
       user_id: memberId,
       montant: 19.99,
       date_echeance: tomorrow.toISOString().split("T")[0],
-      statut: "en_attente",
+      statut_id: 1,
     });
 
     try {
@@ -360,7 +360,7 @@ test.describe("Paiements — Flux Stripe membre", () => {
       user_id: memberId,
       montant: 9.99,
       date_echeance: tomorrow.toISOString().split("T")[0],
-      statut: "en_retard",
+      statut_id: 3,
     });
 
     try {
@@ -458,7 +458,7 @@ test.describe("Paiements — Flux Stripe membre", () => {
       user_id: memberId,
       montant: 14.99,
       date_echeance: tomorrow.toISOString().split("T")[0],
-      statut: "en_attente",
+      statut_id: 1,
     });
 
     try {

@@ -476,6 +476,7 @@ CREATE TABLE utilisateurs (
     -- Statut compte
     active             BOOLEAN       NOT NULL DEFAULT TRUE,
     email_verified     BOOLEAN       NOT NULL DEFAULT FALSE,
+    email_verified_at  TIMESTAMP     NULL     COMMENT 'Date de vérification de l''email',
     photo_url          VARCHAR(255)  NULL,
 
     -- Soft Delete + RGPD (v4.1)

@@ -306,7 +306,7 @@ test.describe("Paiements — Flux admin", () => {
       user_id: memberDbId,
       montant: 15.0,
       date_echeance: datePast,
-      statut: "en_attente",
+      statut_id: 1,
     });
 
     try {

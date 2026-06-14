@@ -212,7 +212,10 @@ function AdminTab() {
               {t("errors.loadFailed")}
             </div>
           ) : alertTypes.length === 0 ? (
-            <div className="px-6 py-12 text-center">
+            <div
+              data-testid="alert-types-empty"
+              className="px-6 py-12 text-center"
+            >
               <p className="text-sm font-medium text-gray-900">
                 {t("alertTypes.empty.title")}
               </p>
