@@ -35,8 +35,8 @@ export class MarkScheduleAsPaidUseCase {
         user_id: schedule.user_id,
         plan_tarifaire_id: schedule.plan_tarifaire_id ?? null,
         montant: schedule.montant,
-        methode_paiement: "especes",
-        statut: "valide",
+        methode_paiement_id: 2, // 2 = especes
+        statut_id: 2, // 2 = valide
         description: `Règlement automatique de l'échéance #${scheduleId}`,
         date_paiement: new Date().toISOString().slice(0, 19).replace("T", " "),
       });

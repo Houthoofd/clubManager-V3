@@ -11,8 +11,8 @@ export interface PaymentRow {
   user_id: number;
   plan_tarifaire_id: number | null;
   montant: number;
-  methode_paiement: "stripe" | "especes" | "virement" | "autre";
-  statut: "en_attente" | "valide" | "echoue" | "rembourse";
+  methode_paiement_id: number;
+  statut_id: number;
   description: string | null;
   stripe_payment_intent_id: string | null;
   stripe_charge_id: string | null;
@@ -24,14 +24,19 @@ export interface PaymentRow {
   user_last_name?: string;
   user_email?: string;
   plan_nom?: string;
+  // Champs issus des JOINs avec methodes_paiement et statuts_paiement
+  methode_paiement_code?: string;
+  methode_paiement_nom?: string;
+  statut_code?: string;
+  statut_nom?: string;
 }
 
 export interface CreatePaymentInput {
   user_id: number;
   plan_tarifaire_id?: number | null;
   montant: number;
-  methode_paiement: "stripe" | "especes" | "virement" | "autre";
-  statut?: "en_attente" | "valide" | "echoue" | "rembourse";
+  methode_paiement_id: number;
+  statut_id?: number;
   description?: string | null;
   stripe_payment_intent_id?: string | null;
   date_paiement?: string | null;
@@ -76,7 +81,7 @@ export interface IPaymentRepository {
   create(data: CreatePaymentInput): Promise<number>;
 
   /** Met à jour le statut d'un paiement, et optionnellement le stripe_charge_id */
-  updateStatus(id: number, statut: string, stripeChargeId?: string): Promise<void>;
+  updateStatus(id: number, statut_id: number, stripeChargeId?: string): Promise<void>;
 
   /** Enregistre le PaymentIntent Stripe associé à un paiement */
   updateStripeIntent(id: number, paymentIntentId: string): Promise<void>;

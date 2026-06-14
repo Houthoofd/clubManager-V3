@@ -79,8 +79,8 @@ export class CreateStripePaymentIntentUseCase {
       user_id: data.user_id,
       plan_tarifaire_id: data.plan_tarifaire_id ?? null,
       montant: data.montant,
-      methode_paiement: "stripe",
-      statut: "en_attente",
+      methode_paiement_id: 1, // 1 = stripe
+      statut_id: 1, // 1 = en_attente
       description: data.description ?? null,
       stripe_payment_intent_id: paymentIntent.id,
     });

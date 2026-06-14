@@ -20,10 +20,10 @@ export class CreatePaymentUseCase {
     if (!data.montant || data.montant <= 0) {
       throw new Error("Le montant doit être supérieur à 0");
     }
-    if (!data.methode_paiement) {
+    if (!data.methode_paiement_id) {
       throw new Error("La méthode de paiement est requise");
     }
-    if (data.methode_paiement === "stripe") {
+    if (data.methode_paiement_id === 1) { // 1 = stripe
       throw new Error(
         "Utilisez l'endpoint Stripe pour les paiements par carte bancaire",
       );
@@ -31,7 +31,7 @@ export class CreatePaymentUseCase {
 
     return this.repo.create({
       ...data,
-      statut: "valide",
+      statut_id: 2, // 2 = valide
       date_paiement: data.date_paiement ?? new Date().toISOString(),
     });
   }

@@ -22,8 +22,8 @@ interface PaymentDbRow extends RowDataPacket {
   user_id: number;
   plan_tarifaire_id: number | null;
   montant: string; // DECIMAL retourné en string par MySQL
-  methode_paiement: "stripe" | "especes" | "virement" | "autre";
-  statut: "en_attente" | "valide" | "echoue" | "rembourse";
+  methode_paiement_id: number;
+  statut_id: number;
   description: string | null;
   stripe_payment_intent_id: string | null;
   stripe_charge_id: string | null;
@@ -35,6 +35,10 @@ interface PaymentDbRow extends RowDataPacket {
   user_last_name: string | null;
   user_email: string | null;
   plan_nom: string | null;
+  methode_paiement_code: string | null;
+  methode_paiement_nom: string | null;
+  statut_code: string | null;
+  statut_nom: string | null;
 }
 
 interface CountRow extends RowDataPacket {
@@ -48,8 +52,8 @@ const BASE_SELECT = `
     p.id,
     p.plan_tarifaire_id,
     p.montant,
-    p.methode_paiement,
-    p.statut,
+    p.methode_paiement_id,
+    p.statut_id,
     p.description,
     p.stripe_payment_intent_id,
     p.stripe_charge_id,
@@ -60,10 +64,16 @@ const BASE_SELECT = `
     u.first_name  AS user_first_name,
     u.last_name   AS user_last_name,
     u.email       AS user_email,
-    pt.nom        AS plan_nom
+    pt.nom        AS plan_nom,
+    mp.code       AS methode_paiement_code,
+    mp.nom        AS methode_paiement_nom,
+    sp.code       AS statut_code,
+    sp.nom        AS statut_nom
   FROM paiements p
   LEFT JOIN utilisateurs     u  ON u.id = p.user_id
   LEFT JOIN plans_tarifaires pt ON pt.id = p.plan_tarifaire_id
+  INNER JOIN methodes_paiement mp ON mp.id = p.methode_paiement_id
+  INNER JOIN statuts_paiement  sp ON sp.id = p.statut_id
 `;
 
 // ==================== REPOSITORY ====================
@@ -92,11 +102,11 @@ export class MySQLPaymentRepository implements IPaymentRepository {
       params.push(user_id);
     }
     if (statut) {
-      conditions.push("p.statut = ?");
+      conditions.push("sp.code = ?");
       params.push(statut);
     }
     if (methode) {
-      conditions.push("p.methode_paiement = ?");
+      conditions.push("mp.code = ?");
       params.push(methode);
     }
     if (date_debut) {
@@ -182,15 +192,15 @@ export class MySQLPaymentRepository implements IPaymentRepository {
   async create(data: CreatePaymentInput): Promise<number> {
     const [result] = await pool.query<ResultSetHeader>(
       `INSERT INTO paiements
-         (user_id, plan_tarifaire_id, montant, methode_paiement, statut,
+         (user_id, plan_tarifaire_id, montant, methode_paiement_id, statut_id,
           description, stripe_payment_intent_id, date_paiement)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.user_id,
         data.plan_tarifaire_id ?? null,
         data.montant,
-        data.methode_paiement,
-        data.statut ?? "en_attente",
+        data.methode_paiement_id,
+        data.statut_id ?? 1, // 1 = en_attente par défaut
         data.description ?? null,
         data.stripe_payment_intent_id ?? null,
         data.date_paiement ?? null,
@@ -206,22 +216,22 @@ export class MySQLPaymentRepository implements IPaymentRepository {
    */
   async updateStatus(
     id: number,
-    statut: string,
+    statut_id: number,
     stripeChargeId?: string,
   ): Promise<void> {
     if (stripeChargeId) {
       await pool.query(
         `UPDATE paiements
-         SET statut = ?, stripe_charge_id = ?, date_paiement = NOW(), updated_at = NOW()
+         SET statut_id = ?, stripe_charge_id = ?, date_paiement = NOW(), updated_at = NOW()
          WHERE id = ?`,
-        [statut, stripeChargeId, id],
+        [statut_id, stripeChargeId, id],
       );
     } else {
       await pool.query(
         `UPDATE paiements
-         SET statut = ?, updated_at = NOW()
+         SET statut_id = ?, updated_at = NOW()
          WHERE id = ?`,
-        [statut, id],
+        [statut_id, id],
       );
     }
   }
@@ -241,7 +251,7 @@ export class MySQLPaymentRepository implements IPaymentRepository {
    */
   async refund(id: number): Promise<void> {
     await pool.query(
-      `UPDATE paiements SET statut = 'rembourse', updated_at = NOW() WHERE id = ?`,
+      `UPDATE paiements SET statut_id = 4, updated_at = NOW() WHERE id = ?`,
       [id],
     );
   }
@@ -258,8 +268,8 @@ export class MySQLPaymentRepository implements IPaymentRepository {
       user_id: row.user_id,
       plan_tarifaire_id: row.plan_tarifaire_id,
       montant: Number(row.montant),
-      methode_paiement: row.methode_paiement,
-      statut: row.statut,
+      methode_paiement_id: row.methode_paiement_id,
+      statut_id: row.statut_id,
       description: row.description,
       stripe_payment_intent_id: row.stripe_payment_intent_id,
       stripe_charge_id: row.stripe_charge_id,
@@ -270,6 +280,10 @@ export class MySQLPaymentRepository implements IPaymentRepository {
       user_last_name: row.user_last_name ?? undefined,
       user_email: row.user_email ?? undefined,
       plan_nom: row.plan_nom ?? undefined,
+      methode_paiement_code: row.methode_paiement_code ?? undefined,
+      methode_paiement_nom: row.methode_paiement_nom ?? undefined,
+      statut_code: row.statut_code ?? undefined,
+      statut_nom: row.statut_nom ?? undefined,
     };
   }
 }

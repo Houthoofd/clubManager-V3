@@ -114,14 +114,14 @@ export class PaymentController {
    * GET /api/payments/user/:userId
    * POST /api/payments
    * Crée un paiement manuel (espèces, virement ou autre — pas Stripe)
-   * Body : { user_id, montant, methode_paiement, plan_tarifaire_id?, description?, date_paiement? }
+   * Body : { user_id, montant, methode_paiement_id, plan_tarifaire_id?, description?, date_paiement? }
    */
   async createPayment(req: AuthRequest, res: Response): Promise<void> {
     try {
       const {
         user_id,
         montant,
-        methode_paiement,
+        methode_paiement_id,
         plan_tarifaire_id,
         description,
         date_paiement,
@@ -130,7 +130,7 @@ export class PaymentController {
       const id = await createPaymentUC.execute({
         user_id: Number(user_id),
         montant: Number(montant),
-        methode_paiement,
+        methode_paiement_id: Number(methode_paiement_id),
         plan_tarifaire_id: plan_tarifaire_id ? Number(plan_tarifaire_id) : null,
         description: description ?? null,
         date_paiement: date_paiement ?? null,
@@ -249,7 +249,7 @@ export class PaymentController {
 
           const payment = await repo.findByStripeIntentId(paymentIntent.id);
           if (payment) {
-            await repo.updateStatus(payment.id, "valide", chargeId);
+            await repo.updateStatus(payment.id, 2, chargeId); // 2 = valide
             console.log(
               `[Webhook Stripe] Paiement #${payment.id} validé (intent: ${paymentIntent.id})`,
             );
@@ -266,7 +266,7 @@ export class PaymentController {
 
           const payment = await repo.findByStripeIntentId(paymentIntent.id);
           if (payment) {
-            await repo.updateStatus(payment.id, "echoue");
+            await repo.updateStatus(payment.id, 3); // 3 = echoue
             console.log(
               `[Webhook Stripe] Paiement #${payment.id} échoué (intent: ${paymentIntent.id})`,
             );

@@ -6,8 +6,8 @@ export class RefundPaymentUseCase {
   async execute(id: number): Promise<void> {
     const payment = await this.repo.findById(id);
     if (!payment) throw new Error("Paiement introuvable");
-    if (payment.statut === "rembourse") throw new Error("Ce paiement est déjà remboursé");
-    if (payment.statut === "echoue") throw new Error("Impossible de rembourser un paiement échoué");
+    if (payment.statut_id === 4) throw new Error("Ce paiement est déjà remboursé"); // 4 = rembourse
+    if (payment.statut_id === 3) throw new Error("Impossible de rembourser un paiement échoué"); // 3 = echoue
     await this.repo.refund(id);
   }
 }
