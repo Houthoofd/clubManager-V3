@@ -159,6 +159,55 @@ async function seedE2E(): Promise<void> {
     }
 
     // ----------------------------------------------------------
+    // 3c. Données de référence pour les tests store / paiements / utilisateurs
+    // ----------------------------------------------------------
+    console.log("🔧 Insertion des données de référence pour les tests...");
+
+    // plans_tarifaires — nécessaire pour le test 'assigner un abonnement'
+    await connection.execute(
+      `INSERT IGNORE INTO plans_tarifaires (nom, description, prix, duree_mois, actif)
+       VALUES
+         ('Mensuel Classique', 'Abonnement mensuel de base', 29.99, 1, 1),
+         ('Trimestriel', 'Abonnement 3 mois', 79.99, 3, 1),
+         ('Annuel', 'Abonnement annuel', 249.99, 12, 1)`,
+    );
+
+    // tailles — nécessaire pour les stocks
+    await connection.execute(
+      `INSERT IGNORE INTO tailles (nom, ordre) VALUES
+         ('XS', 1), ('S', 2), ('M', 3), ('L', 4), ('XL', 5)`,
+    );
+
+    // articles — nécessaire pour les stocks
+    await connection.execute(
+      `INSERT IGNORE INTO articles (nom, description, prix, actif)
+       VALUES ('Kimono E2E', 'Article de test E2E', 49.99, 1)`,
+    );
+
+    // stocks — nécessaire pour le test 'ajustement de stock'
+    await connection.execute(
+      `INSERT IGNORE INTO stocks (article_id, taille_id, quantite, stock_physique, stock_disponible)
+       SELECT a.id, t.id, 10, 10, 10
+       FROM articles a, tailles t
+       WHERE a.nom = 'Kimono E2E' AND t.nom = 'M'
+       LIMIT 1`,
+    );
+
+    // commandes — nécessaire pour le test 'changer le statut d\'une commande'
+    await connection.execute(
+      `INSERT IGNORE INTO commandes (unique_id, numero_commande, user_id, total, statut)
+       SELECT 'CMD-E2E-SEED-001', 'CMD-E2E-001',
+              u.id, 49.99, 'en_attente'
+       FROM utilisateurs u
+       WHERE u.userId = 'U-9999-0001'
+       LIMIT 1`,
+    );
+
+    console.log(
+      "   ✓ Données de référence (plans, tailles, articles, stocks, commandes) OK\n",
+    );
+
+    // ----------------------------------------------------------
     // 4. Insérer / mettre à jour les comptes E2E
     // ----------------------------------------------------------
     const accounts = [

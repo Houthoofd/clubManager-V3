@@ -310,9 +310,7 @@ export const storeApi = {
     id: number,
     data: { quantite: number; motif?: string },
   ): Promise<Stock> =>
-    apiClient
-      .post("/store/stocks/adjust", { id, ...data })
-      .then((r) => r.data.data),
+    apiClient.post(`/store/stocks/${id}/adjust`, data).then((r) => r.data.data),
 };
 
 // ─── Stock Movements ──────────────────────────────────────────────────────────

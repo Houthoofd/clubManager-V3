@@ -27,6 +27,7 @@ import { PaginationBar } from "../../../../shared/components/Navigation/Paginati
 import { SelectField } from "../../../../shared/components/Forms/SelectField";
 import { useOrders, useUpdateOrderStatus } from "../../hooks/useStore";
 import { useStoreUI } from "../../stores/storeStore";
+import { storeApi } from "../../api/storeApi";
 import { OrderDetailModal } from "../";
 import { OrderStatusBadge } from "../OrderStatusBadge";
 import {
@@ -188,9 +189,16 @@ export function OrdersTab() {
                           <div className="flex items-center gap-2">
                             <button
                               data-testid={`btn-order-detail-${order.id}`}
-                              onClick={() =>
-                                store.openOrderDetailModal(order as any)
-                              }
+                              onClick={async () => {
+                                try {
+                                  const fullOrder = await storeApi.getOrderById(
+                                    order.id,
+                                  );
+                                  store.openOrderDetailModal(fullOrder);
+                                } catch {
+                                  store.openOrderDetailModal(order as any);
+                                }
+                              }}
                               className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
                             >
                               {t("orders.actions.details")}
