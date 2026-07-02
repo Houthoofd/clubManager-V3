@@ -43,7 +43,7 @@ Le projet dispose de **4 couches de tests** correspondant à la pyramide classiq
 ```
         ┌───────────────────────────────┐
         │   E2E — Playwright            │  ← parcours utilisateur complet
-        │   199 / 207  ✅🔄             │     navigateur réel
+        │   254 / 254  ✅              │     navigateur réel
         ├───────────────────────────────┤
         │   Intégration — Jest/Supertest│  ← API endpoint → DB
         │   482 / 482  ✅              │     HTTP réel, pas de frontend
@@ -65,16 +65,16 @@ Le projet dispose de **4 couches de tests** correspondant à la pyramide classiq
 | **Intégration** | Jest + Supertest | Bug API complet (route → DB), auth, validation | Rendu React, navigation, état UI |
 | **E2E** | Playwright | Régression de flux complet, broken UI, routing cassé | Performance, charge, accessibilité |
 
-### État actuel (2026-06-02)
+### État actuel (2026-07-02)
 
 | Couche | Fichiers | Tests | État |
 |---|---|---|---|
 | Unitaires Frontend | 73 suites | 266 | ✅ 266/266 verts |
 | Unitaires Backend | 146 suites | 644 | ✅ 644/644 verts |
 | Intégration | 30 suites | 482 | ✅ 482/482 verts |
-| E2E Phases E1→E10 | 35+ suites | 207 | ✅ **203/207 verts** / 🔄 4 skipped (conditionnels) |
+| E2E Phases E1→E14 | 42+ suites | **254** | ✅ **254/254 verts** / 🔄 0 skipped / ❌ 0 failed |
 
-> **État :** la pyramide de tests est **100% verte**. Les 4 `test.fixme` (crash React 18 headless, tabs non-planning) ont été corrigés via `TabErrorBoundary` (auto-retry) dans `CoursesPage.tsx` — voir section 27.
+> **État :** la pyramide de tests est **100% verte**. Les derniers skips (TemplateEditorModal — shadowing `Input.tsx` sur `Input/`) ont été corrigés le 2026-07-02 — voir session 34.
 
 ---
 
