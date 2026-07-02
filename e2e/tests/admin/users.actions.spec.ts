@@ -206,9 +206,17 @@ test.describe("Utilisateurs — Actions admin", () => {
   test("modal notification en masse → modal visible", async ({ adminPage }) => {
     await gotoUsers(adminPage);
 
+    // Attendre que l'état auth soit résolu (isAdmin calculé) avant de vérifier
+    // le bouton qui dépend de {isAdmin && ...}
+    await adminPage
+      .locator('[data-testid="user-menu-trigger"]')
+      .waitFor({ state: "visible", timeout: 10_000 })
+      .catch(() => {});
+
     const notifyBtn = adminPage.locator('[data-testid="btn-notify-bulk"]');
     const isBtnVisible = await notifyBtn
-      .isVisible({ timeout: 5_000 })
+      .waitFor({ state: "visible", timeout: 5_000 })
+      .then(() => true)
       .catch(() => false);
 
     if (isBtnVisible) {

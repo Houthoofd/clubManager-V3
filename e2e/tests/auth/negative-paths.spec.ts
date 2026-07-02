@@ -128,10 +128,12 @@ test.describe("Chemins négatifs — Validation & Erreurs", () => {
     const emailInput = page.locator('[data-testid="register-email-input"]');
     await emailInput.waitFor({ state: "visible", timeout: 15_000 });
 
-    // Vérifier que le bouton submit est présent
+    // Vérifier que le bouton submit est présent — utiliser waitFor pour attendre
+    // que React finisse de rendre le formulaire (isVisible ne retry pas)
     const submitBtn = page.locator('[data-testid="register-submit-btn"]');
     const btnVisible = await submitBtn
-      .isVisible({ timeout: 5_000 })
+      .waitFor({ state: "visible", timeout: 5_000 })
+      .then(() => true)
       .catch(() => false);
 
     if (!btnVisible) {
@@ -209,11 +211,54 @@ test.describe("Chemins négatifs — Validation & Erreurs", () => {
   });
 
   // ----------------------------------------------------------
-  // N4 : Test intentionnellement skippé
-  // La simulation d'erreur réseau sur /dashboard nécessite un contexte
-  // authentifié (adminPage) avec page.route(). À implémenter séparément.
+  // N4 : Erreur réseau simulée sur le endpoint login
   // ----------------------------------------------------------
-  test("erreur réseau simulée → skippé intentionnellement", async () => {
-    test.skip(true, "Nécessite un contexte authentifié avec page.route()");
+  test("erreur réseau simulée → le frontend gère gracieusement la panne réseau", async ({
+    page,
+  }) => {
+    // Simuler une panne réseau sur le endpoint d'authentification uniquement
+    await page.route("**/api/auth/login", (route) => route.abort("failed"));
+
+    await page.goto("/login");
+    await page
+      .locator('[data-testid="login-submit-btn"]')
+      .waitFor({ state: "visible", timeout: 15_000 });
+
+    await page
+      .locator('[data-testid="login-userid-input"]')
+      .fill(E2E_DB_USER_IDS.admin); // "U-9999-0001"
+    await page
+      .locator('[data-testid="login-password-input"]')
+      .fill("Admin@E2E2024!");
+
+    await page.locator('[data-testid="login-submit-btn"]').click();
+
+    // Avec une panne réseau, le frontend doit afficher un retour visuel
+    // (toast d'erreur, message inline) OU rester sur la page login sans crash
+    const errorShown = await Promise.race([
+      page
+        .locator("[data-sonner-toast]")
+        .waitFor({ state: "visible", timeout: 8_000 })
+        .then(() => true),
+      page
+        .locator('[role="alert"]')
+        .waitFor({ state: "visible", timeout: 8_000 })
+        .then(() => true),
+      page
+        .getByText(/réseau|network|impossible|erreur|error|connexion/i)
+        .first()
+        .waitFor({ state: "visible", timeout: 8_000 })
+        .then(() => true),
+    ]).catch(() => false);
+
+    if (!errorShown) {
+      // Sans message d'erreur explicite, la page ne doit pas avoir crashé
+      // Le bouton de connexion doit rester visible et utilisable
+      await expect(
+        page.locator('[data-testid="login-submit-btn"]'),
+      ).toBeVisible({ timeout: 5_000 });
+    } else {
+      expect(errorShown).toBe(true);
+    }
   });
 });

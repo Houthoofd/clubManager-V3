@@ -26,6 +26,7 @@
  */
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { MODAL, SHADOWS } from "../../styles/designTokens";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
@@ -221,7 +222,7 @@ export function Modal({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
       className={`${MODAL.overlay} ${MODAL.animation.overlay.enter}`}
       role="dialog"
@@ -242,7 +243,8 @@ export function Modal({
       >
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

@@ -165,7 +165,7 @@ async function fetchTransitionsStatutCommande(): Promise<
   TransitionStatutCommande[]
 > {
   const response = await apiClient.get<TransitionStatutCommande[]>(
-    "/api/references/transitions_statut_commande",
+    "/references/transitions_statut_commande",
   );
   return response.data;
 }

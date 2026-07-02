@@ -102,6 +102,19 @@ async function seedE2E(): Promise<void> {
        VALUES (1, 'Blanche', 0, 'white')`,
     );
 
+    // types_cours — nécessaire pour les tests de cours (courses.admin.spec.ts, enrollment-flow.spec.ts)
+    await connection.execute(
+      `INSERT IGNORE INTO types_cours
+         (code, nom, nom_en, description, description_en, couleur, duree_defaut_minutes, ordre, actif)
+       VALUES
+         ('karate',    'Karaté',    'Karate',    'Art martial japonais traditionnel', 'Traditional Japanese martial art',  'blue',   60, 1,  1),
+         ('judo',      'Judo',      'Judo',      'Art martial et sport de combat',    'Martial art and combat sport',      'green',  60, 2,  1),
+         ('taekwondo', 'Taekwondo', 'Taekwondo', 'Art martial coréen',                'Korean martial art',                'red',    60, 3,  1),
+         ('aikido',    'Aïkido',    'Aikido',    'Art martial japonais défensif',     'Japanese defensive martial art',    'purple', 60, 4,  1),
+         ('kendo',     'Kendo',     'Kendo',     'Escrime japonaise',                 'Japanese fencing',                  'orange', 60, 5,  1),
+         ('autre',     'Autre',     'Other',     'Autre type de cours',               'Other course type',                 'gray',   60, 99, 1)`,
+    );
+
     console.log("   ✓ FK data OK\n");
 
     // ----------------------------------------------------------
@@ -193,18 +206,17 @@ async function seedE2E(): Promise<void> {
        LIMIT 1`,
     );
 
-    // commandes — nécessaire pour le test 'changer le statut d\'une commande'
+    // types_messages_personnalises — nécessaire pour messaging.templates.spec.ts
     await connection.execute(
-      `INSERT IGNORE INTO commandes (unique_id, numero_commande, user_id, total, statut)
-       SELECT 'CMD-E2E-SEED-001', 'CMD-E2E-001',
-              u.id, 49.99, 'en_attente'
-       FROM utilisateurs u
-       WHERE u.userId = 'U-9999-0001'
-       LIMIT 1`,
+      `INSERT IGNORE INTO types_messages_personnalises (nom, description, actif)
+       VALUES
+         ('Bienvenue',          'Message de bienvenue nouveau membre', 1),
+         ('Rappel cotisation',  'Rappel de paiement cotisation', 1),
+         ('Information',        'Information générale', 1)`,
     );
 
     console.log(
-      "   ✓ Données de référence (plans, tailles, articles, stocks, commandes) OK\n",
+      "   ✓ Données de référence (plans, tailles, articles, stocks, types_messages_personnalises) OK\n",
     );
 
     // ----------------------------------------------------------
@@ -276,7 +288,69 @@ async function seedE2E(): Promise<void> {
     }
 
     // ----------------------------------------------------------
-    // 5. Résumé
+    // 4b. Commandes E2E (après création des comptes — dépend de utilisateurs)
+    // ----------------------------------------------------------
+    console.log("🔧 Insertion de la commande E2E de test...");
+
+    // commandes — nécessaire pour le test 'changer le statut d'une commande'
+    // On réinitialise le statut à 'en_attente' si la commande existe déjà (test précédent l'a modifiée)
+    await connection.execute(
+      `INSERT INTO commandes (unique_id, numero_commande, user_id, total, statut)
+       SELECT 'CMD-E2E-SEED-001', 'CMD-E2E-001',
+              u.id, 49.99, 'en_attente'
+       FROM utilisateurs u
+       WHERE u.userId = 'U-9999-0001'
+       LIMIT 1
+       ON DUPLICATE KEY UPDATE statut = 'en_attente'`,
+    );
+
+    console.log("   ✓ Commande E2E insérée / réinitialisée");
+
+    // Insérer un article dans commande_articles si la commande n'en a pas encore
+    // (nécessaire pour que OrderDetailModal s'affiche correctement dans les tests)
+    await connection.execute(
+      `INSERT INTO commande_articles (commande_id, article_id, quantite, prix)
+       SELECT c.id, a.id, 1, a.prix
+       FROM commandes c
+       JOIN articles a ON a.nom LIKE 'Kimono%'
+       WHERE c.numero_commande = 'CMD-E2E-001'
+         AND NOT EXISTS (
+           SELECT 1 FROM commande_articles ca WHERE ca.commande_id = c.id
+         )
+       LIMIT 1`,
+    );
+
+    console.log("   ✓ Article E2E ajouté à la commande (si absent)\n");
+
+    // ----------------------------------------------------------
+    // 5. Créer une deuxième session (refresh token) pour le membre E2E
+    //    (section exécutée APRES la création des comptes pour garantir
+    //    que l'utilisateur existe en DB)
+    //    Nécessaire pour security.spec.ts qui requiert count > 1 sessions.
+    // ----------------------------------------------------------
+    console.log("🔧 Insertion d'une deuxième session pour le membre E2E...");
+
+    await connection.execute(
+      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at, revoked, ip_address, user_agent)
+       SELECT u.id,
+              SHA2(CONCAT('e2e-extra-session-', u.id, '-seed'), 256),
+              DATE_ADD(NOW(), INTERVAL 7 DAY),
+              FALSE,
+              '127.0.0.1',
+              'E2E-Extra-Session-Browser'
+       FROM utilisateurs u
+       WHERE u.userId = ?
+       LIMIT 1
+       ON DUPLICATE KEY UPDATE
+         expires_at = DATE_ADD(NOW(), INTERVAL 7 DAY),
+         revoked    = FALSE`,
+      [E2E_DB_USER_IDS.member],
+    );
+
+    console.log("   ✓ Deuxième session membre insérée / mise à jour\n");
+
+    // ----------------------------------------------------------
+    // 6. Résumé
     // ----------------------------------------------------------
     console.log("─".repeat(60));
     console.log("✅ Seed E2E terminé avec succès !");
@@ -291,6 +365,17 @@ async function seedE2E(): Promise<void> {
     console.log(
       `  Professor  : ${E2E_DB_USER_IDS.professor}  (${E2E_PROFESSOR.email})`,
     );
+    console.log("");
+    console.log(
+      "  Données de référence : status, genres, grades, types_cours,",
+    );
+    console.log(
+      "                         plans_tarifaires, tailles, articles, stocks,",
+    );
+    console.log(
+      "                         types_messages_personnalises, commandes,",
+    );
+    console.log("                         refresh_tokens (2e session membre)");
     console.log("");
     console.log("  Prochaine étape : lancer les tests avec");
     console.log("  → pnpm --filter @clubmanager/e2e test");

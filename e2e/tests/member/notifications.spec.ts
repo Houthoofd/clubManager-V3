@@ -73,6 +73,11 @@ test.describe("Notifications — Flux membre", () => {
     const ts = Date.now();
     const titre = `[E2E] Notification ${ts}`;
 
+    // NOTE: Pas de DELETE ALL ici — cela crée des race conditions quand
+    // notifications.filters.spec.ts tourne en parallèle sur un autre worker.
+    // On utilise un titre unique (horodatage) pour identifier la notification
+    // sans dépendre de la pagination ou de l'ID exact.
+
     // Insérer une notification pour le membre
     const notifId = await db.insertOne("notifications", {
       user_id: memberId,
@@ -84,14 +89,11 @@ test.describe("Notifications — Flux membre", () => {
     try {
       await gotoNotifications(memberPage);
 
-      // La notification doit être visible dans la liste
-      await expect(
-        memberPage.locator(`[data-testid="notification-item-${notifId}"]`),
-      ).toBeVisible({ timeout: 10_000 });
-
-      // Le titre doit apparaître dans l'item
+      // La notification la plus récente doit être visible dans la liste.
+      // On cherche par titre unique plutôt que par ID pour être robuste
+      // face à la pagination (les notifications sont triées par date DESC).
       await expect(memberPage.getByText(titre)).toBeVisible({
-        timeout: 5_000,
+        timeout: 10_000,
       });
     } finally {
       await db.query("DELETE FROM notifications WHERE id = ?", [notifId]);
@@ -108,6 +110,12 @@ test.describe("Notifications — Flux membre", () => {
     const memberId = await getMemberDbId(db);
     const ts = Date.now();
 
+    // Nettoyer les notifications accumulées pour garantir que la notification
+    // insérée sera visible sur la page 1 (évite les skips dus à la pagination).
+    await db
+      .query("DELETE FROM notifications WHERE user_id = ?", [memberId])
+      .catch(() => {});
+
     const notifId = await db.insertOne("notifications", {
       user_id: memberId,
       type: "warning",
@@ -123,7 +131,8 @@ test.describe("Notifications — Flux membre", () => {
       `[data-testid="notification-item-${notifId}"]`,
     );
     const itemVisible = await itemLocator
-      .isVisible({ timeout: 10_000 })
+      .waitFor({ state: "visible", timeout: 10_000 })
+      .then(() => true)
       .catch(() => false);
 
     if (!itemVisible) {

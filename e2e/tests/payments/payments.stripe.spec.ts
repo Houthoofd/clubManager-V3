@@ -314,13 +314,8 @@ test.describe("Paiements — Flux Stripe membre", () => {
       const submitBtn4 = memberPage.locator(
         '[data-testid="stripe-submit-btn"]',
       );
-      await submitBtn4.waitFor({ state: "visible", timeout: 8_000 });
-      // Si Stripe.js ne valide pas le formulaire en headless, le bouton reste disabled → skip
-      const isEnabled4 = await submitBtn4.isEnabled().catch(() => false);
-      if (!isEnabled4) {
-        test.skip();
-        return;
-      }
+      // Attendre que Stripe mock se charge et active le bouton (re-render React après stripePromise)
+      await expect(submitBtn4).toBeEnabled({ timeout: 8_000 });
       await submitBtn4.click();
       await expect(
         memberPage.locator('[data-testid="stripe-payment-modal"]'),
@@ -411,13 +406,8 @@ test.describe("Paiements — Flux Stripe membre", () => {
       const submitBtn5 = memberPage.locator(
         '[data-testid="stripe-submit-btn"]',
       );
-      await submitBtn5.waitFor({ state: "visible", timeout: 8_000 });
-      // Si Stripe.js ne valide pas le formulaire en headless, le bouton reste disabled → skip
-      const isEnabled5 = await submitBtn5.isEnabled().catch(() => false);
-      if (!isEnabled5) {
-        test.skip();
-        return;
-      }
+      // Attendre que Stripe mock se charge et active le bouton (re-render React après stripePromise)
+      await expect(submitBtn5).toBeEnabled({ timeout: 8_000 });
       await submitBtn5.click();
       await expect(
         memberPage.locator('[data-testid="stripe-error-message"]'),

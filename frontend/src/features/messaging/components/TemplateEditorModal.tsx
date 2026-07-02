@@ -17,7 +17,13 @@ import {
   PencilAltIcon,
   SaveIcon,
 } from "@patternfly/react-icons";
-import { Modal, Input, Button } from "../../../shared/components";
+import { Modal, Button } from "../../../shared/components";
+import { Input } from "../../../shared/components/Input/index";
+
+// Extraction des sous-composants
+const InputSelect = Input.Select;
+const InputTextarea = Input.Textarea;
+const InputCheckbox = Input.Checkbox;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -203,7 +209,7 @@ export const TemplateEditorModal = ({
           {/* ── Ligne : Catégorie + Titre ── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Catégorie */}
-            <Input.Select
+            <InputSelect
               id="tpl-type"
               label={t("templateEditor.fields.category")}
               required
@@ -227,7 +233,7 @@ export const TemplateEditorModal = ({
                   {t.nom}
                 </option>
               ))}
-            </Input.Select>
+            </InputSelect>
 
             {/* Titre */}
             <Input
@@ -256,7 +262,7 @@ export const TemplateEditorModal = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Colonne gauche : éditeur */}
             <div className="flex flex-col">
-              <Input.Textarea
+              <InputTextarea
                 id="tpl-contenu"
                 label={t("templateEditor.fields.content")}
                 required
@@ -379,7 +385,7 @@ export const TemplateEditorModal = ({
           )}
 
           {/* ── Checkbox actif ── */}
-          <Input.Checkbox
+          <InputCheckbox
             id="tpl-actif"
             label={t("templateEditor.fields.active")}
             checked={actif}

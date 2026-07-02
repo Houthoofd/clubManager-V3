@@ -16,7 +16,7 @@
     "generate:tests:dry": "unitix --dry-run",
     "generate:tests:backend": "unitix --workspace=backend",
     "generate:tests:frontend": "unitix --workspace=frontend",
-    "dev": "concurrently -n \"backend,frontend\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "dev": "pnpm --parallel --filter clubmanager-backend --filter @clubmanager/frontend dev",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",
     "build": "npm run build --workspaces",

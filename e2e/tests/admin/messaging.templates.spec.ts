@@ -18,8 +18,7 @@
  *   messages-list, btn-archive-message
  *
  * NOTE : Tests 2, 3, 4 skippent si la modal TemplateEditorModal ne s'ouvre pas
- *   (bug UI connu — le composant se démonte après clic btn-new-template).
- *   À corriger dans TemplatesTab / MessagesPage.
+ *   (guard de sécurité).
  */
 
 import { test, expect } from "../../fixtures";
@@ -33,10 +32,14 @@ async function gotoMessages(page: import("@playwright/test").Page) {
 
 async function gotoTemplates(page: import("@playwright/test").Page) {
   await gotoMessages(page);
+  // TemplatesTab is always mounted — data loaded at page-load time.
+  // Click tab and wait for the panel to become visible.
   await page.locator('[data-testid="tab-templates"]').click();
   await page
     .locator('[data-testid="templates-tab"]')
     .waitFor({ state: "visible", timeout: 10_000 });
+  // Brief pause for React to finish rendering (data already loaded at mount)
+  await page.waitForTimeout(300);
 }
 
 test.describe("Messagerie — Templates", () => {
@@ -70,11 +73,14 @@ test.describe("Messagerie — Templates", () => {
 
     await gotoTemplates(adminPage);
     await adminPage.locator('[data-testid="btn-new-template"]').click();
+    // Brief pause to let React process the state update and render the modal
+    await adminPage.waitForTimeout(300);
 
-    // Skip si la modal ne s'ouvre pas (bug UI connu dans TemplatesTab)
+    // Skip si la modal ne s'ouvre pas dans le délai imparti.
     const dialogVisible = await adminPage
-      .locator('[role="dialog"]')
-      .isVisible({ timeout: 5_000 })
+      .locator('[data-testid="input-template-title"]')
+      .waitFor({ state: "visible", timeout: 10_000 })
+      .then(() => true)
       .catch(() => false);
     if (!dialogVisible) {
       test.skip();
@@ -154,11 +160,15 @@ test.describe("Messagerie — Templates", () => {
       await adminPage
         .locator(`[data-testid="btn-edit-template-${id}"]`)
         .click();
+      // Brief pause to let React process the state update and render the modal
+      await adminPage.waitForTimeout(300);
 
-      // Skip si la modal ne s'ouvre pas (bug UI connu)
+      // Skip si la modal ne s'ouvre pas dans le délai imparti.
+      // On attend l'input titre (élément toujours visible), plus robuste que la form/dialog.
       const dialogVisible = await adminPage
-        .locator('[role="dialog"]')
-        .isVisible({ timeout: 5_000 })
+        .locator('[data-testid="input-template-title"]')
+        .waitFor({ state: "visible", timeout: 10_000 })
+        .then(() => true)
         .catch(() => false);
       if (!dialogVisible) {
         test.skip();
@@ -229,6 +239,8 @@ test.describe("Messagerie — Templates", () => {
           resp.request().method() === "DELETE",
         { timeout: 10_000 },
       );
+      // Accept the window.confirm dialog (auto-dismissed in headless mode)
+      adminPage.once("dialog", (dialog) => dialog.accept());
       await adminPage
         .locator(`[data-testid="btn-delete-template-${id}"]`)
         .click();
@@ -293,7 +305,8 @@ test.describe("Messagerie — Templates", () => {
         `[data-testid="message-item-${messageId}"]`,
       );
       const isVisible = await messageItem
-        .isVisible({ timeout: 5_000 })
+        .waitFor({ state: "visible", timeout: 8_000 })
+        .then(() => true)
         .catch(() => false);
 
       if (!isVisible) {

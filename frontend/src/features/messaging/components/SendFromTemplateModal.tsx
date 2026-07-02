@@ -20,12 +20,13 @@ import {
   ArrowLeftIcon,
   InfoCircleIcon,
 } from "@patternfly/react-icons";
-import { Modal, Input, Button } from "../../../shared/components";
+import { Modal, Button } from "../../../shared/components";
+import { Input } from "../../../shared/components/Input/index";
 
-// Extraction des sous-composants pour éviter les erreurs TypeScript
-// @ts-ignore - Les sous-composants existent mais TypeScript ne les détecte pas
+// Extraction des sous-composants
+// @ts-ignore
 const InputSelect = Input.Select;
-// @ts-ignore - Les sous-composants existent mais TypeScript ne les détecte pas
+// @ts-ignore
 const InputCheckbox = Input.Checkbox;
 
 // ─── Types internes ───────────────────────────────────────────────────────────

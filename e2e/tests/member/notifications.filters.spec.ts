@@ -75,6 +75,12 @@ test.describe("Notifications — filtres", () => {
     );
     const memberDbId = memberRow.id;
 
+    // Nettoyer les notifications accumulées pour garantir que le bouton
+    // "Tout supprimer" sera visible (il n'apparaît que si base.length > 0).
+    await db
+      .query("DELETE FROM notifications WHERE user_id = ?", [memberDbId])
+      .catch(() => {});
+
     // Insérer au moins une notification pour avoir le bouton "Tout supprimer"
     await db
       .insertOne("notifications", {
@@ -86,18 +92,27 @@ test.describe("Notifications — filtres", () => {
       })
       .catch(() => {});
 
+    // Attendre la réponse API des notifications avant de vérifier le bouton
+    const notifResponsePromise = memberPage.waitForResponse(
+      (resp) =>
+        resp.url().includes("/api/notifications") &&
+        resp.request().method() === "GET",
+      { timeout: 10_000 },
+    );
+
     await memberPage.goto("/notifications");
     await memberPage
       .locator('[data-testid="notifications-page"]')
       .waitFor({ state: "visible", timeout: 15_000 });
 
-    // Attendre que les notifications se chargent
-    await memberPage.waitForTimeout(1000);
+    // Attendre la réponse API pour s'assurer que les données sont chargées
+    await notifResponsePromise.catch(() => {});
 
     // Vérifier si le bouton "Tout supprimer" est visible
     const deleteBtn = memberPage.locator('[data-testid="delete-all-btn"]');
     const isBtnVisible = await deleteBtn
-      .isVisible({ timeout: 5_000 })
+      .waitFor({ state: "visible", timeout: 5_000 })
+      .then(() => true)
       .catch(() => false);
 
     if (isBtnVisible) {

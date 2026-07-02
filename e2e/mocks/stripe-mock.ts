@@ -85,11 +85,17 @@ export const STRIPE_MOCK_SCRIPT = `(function () {
         }
         return Promise.resolve({ paymentIntent: { id: 'pi_e2e_' + Date.now(), status: 'succeeded' } });
       },
+      createToken: function (typeOrOptions, data) {
+        return Promise.resolve({ token: { id: 'tok_e2e_' + Date.now(), type: 'card' } });
+      },
       createPaymentMethod: function (data) {
         return Promise.resolve({ paymentMethod: { id: 'pm_e2e_' + Date.now(), type: 'card' } });
       },
       retrievePaymentIntent: function (cs) {
         return Promise.resolve({ paymentIntent: { id: 'pi_e2e_' + Date.now(), status: 'succeeded' } });
+      },
+      createSource: function (typeOrOptions, data) {
+        return Promise.resolve({ source: { id: 'src_e2e_' + Date.now(), type: 'card' } });
       },
     };
   }

@@ -350,14 +350,19 @@ test.describe("Boutique — Flux admin", () => {
     });
 
     // Trouver un bouton de transition de statut (premier bouton dans la section admin)
+    // Regex bi-langue (FR + EN) car l'app peut s'afficher en anglais selon la locale du navigateur
     const transitionBtn = adminPage
       .locator('[role="dialog"]')
       .getByRole("button")
-      .filter({ hasText: /payée|expédiée|livrée|marquer|annuler/i })
+      .filter({
+        hasText:
+          /payée|expédiée|livrée|marquer|annuler|mark|cancel|paid|ship|deliver/i,
+      })
       .first();
 
     const btnVisible = await transitionBtn
-      .isVisible({ timeout: 5_000 })
+      .waitFor({ state: "visible", timeout: 8_000 })
+      .then(() => true)
       .catch(() => false);
 
     if (!btnVisible) {

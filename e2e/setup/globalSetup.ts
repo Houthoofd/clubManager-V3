@@ -235,6 +235,10 @@ async function loginAndSaveState(
               version: 0,
             }),
           },
+          {
+            name: "user-language",
+            value: "fr",
+          },
         ],
       },
     ],

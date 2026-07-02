@@ -231,9 +231,14 @@ export const MessagesPage = () => {
 
       {/* ================================================================
           Contenu -- Templates (pleine largeur)
+          Toujours monté (pour admin/prof) pour préserver l'état modal.
+          Caché avec display:none quand l'onglet n'est pas actif.
       ================================================================ */}
-      {activeTab === "templates" && (
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      {canSeeTemplates && (
+        <div
+          className="flex-1 flex flex-col min-w-0 overflow-hidden"
+          style={{ display: activeTab !== "templates" ? "none" : undefined }}
+        >
           <TemplatesTab />
         </div>
       )}

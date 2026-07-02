@@ -235,8 +235,9 @@ test.describe("Messagerie — Flux membre", () => {
     );
 
     // Liste ou état vide doit être rendu (pas d'erreur 500)
+    // NOTE: \b500\b évite de matcher des timestamps comme "1781465005923" qui contiennent "500"
     await expect(
-      memberPage.locator("text=/500|Internal Server Error/i"),
+      memberPage.locator("text=/\\b500\\b|Internal Server Error/i"),
     ).not.toBeVisible({ timeout: 5_000 });
     await memberPage.waitForTimeout(1000);
   });
@@ -249,10 +250,11 @@ test.describe("Messagerie — Flux membre", () => {
   }) => {
     await gotoMessages(memberPage);
 
-    // Vérifier que l'onglet Archivés existe
-    const archivedTab = memberPage.locator("#tab-archived, #tab-archive");
+    // Vérifier que l'onglet Archivés existe (data-testid plus fiable que le sélecteur CSS id)
+    const archivedTab = memberPage.locator('[data-testid="tab-archived"]');
     const tabExists = await archivedTab
-      .isVisible({ timeout: 5_000 })
+      .waitFor({ state: "visible", timeout: 5_000 })
+      .then(() => true)
       .catch(() => false);
 
     if (!tabExists) {
@@ -262,7 +264,7 @@ test.describe("Messagerie — Flux membre", () => {
 
     await archivedTab.click();
     await expect(
-      memberPage.locator("text=/500|Internal Server Error/i"),
+      memberPage.locator("text=/\\b500\\b|Internal Server Error/i"),
     ).not.toBeVisible({ timeout: 5_000 });
     await memberPage.waitForTimeout(1000);
   });

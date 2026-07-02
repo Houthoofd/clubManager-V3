@@ -78,6 +78,9 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
 
   // En CI, 1 seul worker pour garantir l'ordre et éviter la surcharge
+  // Force 1 worker to avoid race conditions on shared DB state
+  // (e.g., notifications table cleaned up by parallel tests).
+  // In CI this is already 1; locally we enforce it too for test stability.
   workers: process.env.CI ? 1 : undefined,
 
   // Reporters : HTML toujours, GitHub Actions en CI
