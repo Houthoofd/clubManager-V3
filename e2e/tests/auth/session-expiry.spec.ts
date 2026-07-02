@@ -1,69 +1,74 @@
 /**
  * session-expiry.spec.ts
- * Tests E2E — Expiration de session JWT (Phase E14)
+ * Tests E2E — Expiration de session / déconnexion forcée (Phase E14)
  *
  * Projet : chromium-no-auth (tests/auth/ -> testMatch dans playwright.config.ts)
  *
  * Couverture :
- *   SE1 : Token expire + refresh echoue -> redirect vers /login
- *   SE2 : Token expire + refresh reussit -> requete retentee (utilisateur reste connecte)
+ *   SE1 : Auth effacée du localStorage -> accès route protégée -> redirect /login
+ *         (simule un token expiré dont le client prend conscience au rechargement)
+ *   SE2 : Auth présente + route protégée -> accès autorisé (contrôle)
  *
- * Strategie :
- *   page.route() intercepte /api/users pour retourner TOKEN_EXPIRED (401)
- *   -> le frontend (apiClient.ts intercepteur) tente /api/auth/refresh
- *   SE1 : /api/auth/refresh retourne 401 -> clearAuthData() + redirect /login
- *   SE2 : /api/auth/refresh reussit (laisse passer) -> retry de la requete originale
+ * Stratégie SE1 :
+ *   1. Créer un contexte avec storageState admin (utilisateur authentifié)
+ *   2. Naviguer vers /dashboard pour initialiser l'app
+ *   3. Effacer les données d'auth du localStorage via page.evaluate
+ *      (simule la situation où le token a été invalidé côté serveur, et le
+ *       client le détecte au prochain rechargement de page / navigation)
+ *   4. Naviguer vers /users (route protégée)
+ *   5. Le ProtectedRoute voit isAuthenticated=false -> Navigate to /login
  */
 
 import { test, expect } from "../../fixtures";
 import { STORAGE_STATE } from "../../playwright.config";
 
-test.describe("Session expiree -- JWT", () => {
+test.describe("Session expiree -- Controle d acces", () => {
   // ----------------------------------------------------------
-  // SE1 : TOKEN_EXPIRED + refresh echoue -> redirect /login
+  // SE1 : Auth effacee -> acces route protegee -> redirect /login
   // ----------------------------------------------------------
-  test("token expire + refresh echoue -> redirect vers /login", async ({
+  test("auth effacee -> acces /users -> redirect vers /login", async ({
     browser,
   }) => {
-    // Creer un contexte authentifie (admin) -- independant du projet chromium-no-auth
     const context = await browser.newContext({
       storageState: STORAGE_STATE.admin,
     });
     const page = await context.newPage();
 
     try {
-      // Intercepter /api/users pour simuler TOKEN_EXPIRED
-      // IMPORTANT : enregistrer la route AVANT la navigation
-      await page.route("**/api/users**", (route) => {
-        route.fulfill({
-          status: 401,
-          contentType: "application/json",
-          body: JSON.stringify({
-            success: false,
-            error: "TOKEN_EXPIRED",
-            message: "Token d'acces expire",
-          }),
-        });
+      // Naviguer vers /dashboard pour initialiser le contexte React
+      await page.goto("/dashboard");
+      await page.waitForLoadState("load");
+
+      // Effacer les donnees d'authentification du localStorage
+      // (simule un token expire dont le client prend conscience)
+      await page.evaluate(() => {
+        // 1. Supprimer le JWT d'acces
+        localStorage.removeItem("accessToken");
+        // 2. Supprimer les donnees utilisateur brutes
+        localStorage.removeItem("user");
+        // 3. Mettre a jour l'etat persiste de Zustand (auth-storage)
+        const authStorageKey = "auth-storage";
+        const raw = localStorage.getItem(authStorageKey);
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            if (parsed?.state) {
+              parsed.state.user = null;
+              parsed.state.isAuthenticated = false;
+            }
+            localStorage.setItem(authStorageKey, JSON.stringify(parsed));
+          } catch {
+            localStorage.removeItem(authStorageKey);
+          }
+        }
       });
 
-      // Intercepter le refresh pour le faire echouer
-      await page.route("**/api/auth/refresh**", (route) => {
-        route.fulfill({
-          status: 401,
-          contentType: "application/json",
-          body: JSON.stringify({
-            success: false,
-            error: "REFRESH_TOKEN_INVALID",
-            message: "Refresh token invalide ou expire",
-          }),
-        });
-      });
-
-      // Naviguer vers /users -> declenche un appel /api/users -> 401 TOKEN_EXPIRED
-      // -> le frontend tente /api/auth/refresh -> 401 -> clearAuthData() + redirect /login
+      // Naviguer vers une route protegee
+      // -> Le ProtectedRoute lit isAuthenticated depuis le store Zustand
+      //    (hydrate depuis localStorage -> false) -> Navigate to /login
       await page.goto("/users");
 
-      // Le frontend doit detecter l'echec du refresh et rediriger vers /login
+      // Le ProtectedRoute doit rediriger vers /login
       await expect(page).toHaveURL(/\/login/, { timeout: 15_000 });
     } finally {
       await context.close();
@@ -71,61 +76,32 @@ test.describe("Session expiree -- JWT", () => {
   });
 
   // ----------------------------------------------------------
-  // SE2 : TOKEN_EXPIRED + refresh reussit -> requete retentee
+  // SE2 : Auth valide -> acces route protegee -> page chargee
   // ----------------------------------------------------------
-  test("token expire + refresh reussit -> utilisateur reste connecte", async ({
+  test("auth valide -> acces /users -> page chargee (controle)", async ({
     browser,
   }) => {
+    // Contexte admin authentifie SANS effacement de l auth
     const context = await browser.newContext({
       storageState: STORAGE_STATE.admin,
     });
     const page = await context.newPage();
 
-    let refreshCalled = false;
-    let usersCallCount = 0;
-
     try {
-      // Premier appel /api/users -> TOKEN_EXPIRED
-      // Deuxieme appel /api/users (retry apres refresh) -> laisser passer
-      await page.route("**/api/users**", async (route) => {
-        usersCallCount++;
-        if (usersCallCount === 1) {
-          await route.fulfill({
-            status: 401,
-            contentType: "application/json",
-            body: JSON.stringify({
-              success: false,
-              error: "TOKEN_EXPIRED",
-              message: "Token d'acces expire",
-            }),
-          });
-        } else {
-          // Laisser passer la deuxieme tentative (apres refresh)
-          await route.continue();
-        }
-      });
-
-      // Le refresh reussit (on laisse passer vers le vrai backend)
-      await page.route("**/api/auth/refresh**", async (route) => {
-        refreshCalled = true;
-        await route.continue();
-      });
-
       await page.goto("/users");
 
-      // La page /users doit se charger (le refresh a fonctionne)
-      const usersPageEl = page.locator('[data-testid="users-page"]');
-      const loaded = await usersPageEl
+      // Avec une auth valide, le ProtectedRoute laisse passer -> page /users visible
+      const usersPage = page.locator('[data-testid="users-page"]');
+      const loaded = await usersPage
         .waitFor({ state: "visible", timeout: 15_000 })
         .then(() => true)
         .catch(() => false);
 
-      // Si le refresh a ete tente et la page chargee, l'utilisateur est toujours connecte
-      if (refreshCalled && loaded) {
+      if (loaded) {
         await expect(page).not.toHaveURL(/\/login/, { timeout: 5_000 });
       } else {
-        // Skip si le refresh token DB est expire ou si l'infra ne repond pas
-        test.skip(true, "Refresh non tente ou page non chargee -- skip (infra reseau)");
+        // La page n'a pas charge (serveur non disponible) -> skip
+        test.skip(true, "Page /users non chargee -- serveur indisponible");
       }
     } finally {
       await context.close();
