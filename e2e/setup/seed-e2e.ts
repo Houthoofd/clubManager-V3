@@ -323,6 +323,37 @@ async function seedE2E(): Promise<void> {
     console.log("   ✓ Article E2E ajouté à la commande (si absent)\n");
 
     // ----------------------------------------------------------
+    // 4c. Utilisateurs de pagination (nécessaire pour pagination.spec.ts)
+    //     Le PaginationBar n'apparaît que si totalPages > 1 (> 20 users actifs).
+    //     On insère 20 comptes supplémentaires au format U-9998-XXXX (membre).
+    //     INSERT IGNORE : pas de doublon si seed relancé plusieurs fois.
+    // ----------------------------------------------------------
+    console.log("🔧 Insertion des utilisateurs de pagination...");
+
+    for (let i = 1; i <= 20; i++) {
+      const num = String(i).padStart(4, "0");
+      const userId = `U-9998-${num}`;
+      const email = `e2e_pag_${num}@test.local`;
+      await connection.execute(
+        `INSERT INTO utilisateurs
+           (userId, email, password, first_name, last_name,
+            role_app, status_id, genre_id, grade_id,
+            email_verified, active, peut_se_connecter)
+         VALUES (?, ?, '$2b$10$placeholder', 'Pag', ?, 'member', 1, 1, 1, 1, 1, 0)
+         ON DUPLICATE KEY UPDATE
+           active         = 1,
+           deleted_at     = NULL,
+           anonymized     = FALSE,
+           updated_at     = CURRENT_TIMESTAMP`,
+        [userId, email, `Pag${num}`],
+      );
+    }
+
+    console.log(
+      "   ✓ 20 utilisateurs de pagination insérés (U-9998-0001 à U-9998-0020)\n",
+    );
+
+    // ----------------------------------------------------------
     // 5. Créer une deuxième session (refresh token) pour le membre E2E
     //    (section exécutée APRES la création des comptes pour garantir
     //    que l'utilisateur existe en DB)
@@ -375,7 +406,10 @@ async function seedE2E(): Promise<void> {
     console.log(
       "                         types_messages_personnalises, commandes,",
     );
-    console.log("                         refresh_tokens (2e session membre)");
+    console.log("                         refresh_tokens (2e session membre),");
+    console.log(
+      "                         utilisateurs de pagination (U-9998-0001..0020)",
+    );
     console.log("");
     console.log("  Prochaine étape : lancer les tests avec");
     console.log("  → pnpm --filter @clubmanager/e2e test");

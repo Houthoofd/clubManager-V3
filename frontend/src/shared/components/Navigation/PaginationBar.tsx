@@ -178,6 +178,7 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
             <button
               onClick={handlePrevious}
               disabled={currentPage === 1}
+              data-testid="pagination-prev-btn"
               className={`
                 relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300
                 ${
@@ -229,6 +230,7 @@ export const PaginationBar: React.FC<PaginationBarProps> = ({
             <button
               onClick={handleNext}
               disabled={currentPage === totalPages}
+              data-testid="pagination-next-btn"
               className={`
                 relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300
                 ${

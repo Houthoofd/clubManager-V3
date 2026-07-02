@@ -8,9 +8,9 @@
  *   PAG1 : /users -- aller page 2 -> contenu different de page 1
  *   PAG2 : /users -- retour page 1 depuis page 2 -> contenu identique a l'origine
  *
- * Prerequis : > 20 utilisateurs actifs en DB (le seed en insere ~38)
- * Le PaginationBar utilise aria-label="Page suivante" / "Page precedente"
- * (cf. i18n locales/fr/common.json : pagination.nextPage / pagination.previousPage)
+ * Prerequis : > 20 utilisateurs actifs en DB (le seed en insere 23 : 3 E2E + 20 pagination)
+ * Selecteurs : data-testid="pagination-next-btn" / "pagination-prev-btn" sur les
+ * boutons desktop du PaginationBar (locale-independant).
  */
 
 import { test, expect } from "../../fixtures";
@@ -32,8 +32,8 @@ test.describe("Pagination -- Navigation multi-pages", () => {
       .waitForLoadState("networkidle", { timeout: 10_000 })
       .catch(() => {});
 
-    // Le bouton "Page suivante" n'apparait que si totalPages > 1 (> 20 utilisateurs)
-    const nextBtn = adminPage.locator('button[aria-label="Page suivante"]');
+    // Le bouton "suivant" n'apparait que si totalPages > 1 (> 20 utilisateurs)
+    const nextBtn = adminPage.locator('[data-testid="pagination-next-btn"]');
     const hasPagination = await nextBtn
       .waitFor({ state: "visible", timeout: 10_000 })
       .then(() => true)
@@ -62,8 +62,8 @@ test.describe("Pagination -- Navigation multi-pages", () => {
     const page2Text = await table.textContent();
     expect(page2Text).not.toBe(page1Text);
 
-    // Le bouton "Page precedente" doit maintenant etre actif (non disabled)
-    const prevBtn = adminPage.locator('button[aria-label="Page precedente"]');
+    // Le bouton "precedent" doit maintenant etre actif (non disabled)
+    const prevBtn = adminPage.locator('[data-testid="pagination-prev-btn"]');
     await prevBtn.waitFor({ state: "visible", timeout: 5_000 });
     await expect(prevBtn).not.toBeDisabled();
   });
@@ -83,7 +83,7 @@ test.describe("Pagination -- Navigation multi-pages", () => {
       .waitForLoadState("networkidle", { timeout: 10_000 })
       .catch(() => {});
 
-    const nextBtn = adminPage.locator('button[aria-label="Page suivante"]');
+    const nextBtn = adminPage.locator('[data-testid="pagination-next-btn"]');
     const hasPagination = await nextBtn
       .waitFor({ state: "visible", timeout: 10_000 })
       .then(() => true)
@@ -107,7 +107,7 @@ test.describe("Pagination -- Navigation multi-pages", () => {
     await adminPage.waitForTimeout(300);
 
     // Retour page 1
-    const prevBtn = adminPage.locator('button[aria-label="Page precedente"]');
+    const prevBtn = adminPage.locator('[data-testid="pagination-prev-btn"]');
     apiResp = adminPage.waitForResponse(
       (resp) => resp.url().includes("/api/users"),
       { timeout: 10_000 },

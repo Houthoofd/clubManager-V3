@@ -1,11 +1,25 @@
 # Tests E2E — Inventaire des skips
 
-> Dernière mise à jour : 2026-07-02 (session 5 — Phase E14)
-> Suite après Phase E14 : **259 passed · 0 failed · 4 skipped** (pagination conditionnelle)
+> Dernière mise à jour : 2026-07-02 (session 6 — Phase E14 finalisée)
+> **Suite finale : 263 passed · 0 failed · 0 skipped ✅**
 
 ---
 
-## Corrections appliquées (session 2026-07-02 — Phase E14)
+## 🏆 Objectif atteint — Pyramide 100% verte
+
+Toutes les phases E1 → E14 sont vertes. Aucun test n'est skippé, aucun n'est en échec.
+
+---
+
+## Corrections appliquées (session 2026-07-02 — Phase E14 finalisation)
+
+| Catégorie | Fix appliqué | Fichiers modifiés |
+|---|---|---|
+| PAG1/PAG2 — 4 skips conditionnels | Seed de 20 utilisateurs `U-9998-0001..0020` (`ON DUPLICATE KEY UPDATE deleted_at = NULL`) → seuil de 20 dépassé, bouton Page suivante disponible | `e2e/setup/seed-e2e.ts` |
+
+---
+
+## Corrections appliquées (session 2026-07-02 — session 5 — Phase E14)
 
 | Catégorie | Fix appliqué | Fichiers modifiés |
 |---|---|---|
@@ -16,6 +30,31 @@
 | SE2 — Contrôle session valide | Auth présente → page /users chargée | `session-expiry.spec.ts` (nouveau) |
 | PAG1/PAG2 — Pagination | Navigation page 2 → contenu différent ; retour page 1 → contenu identique | `pagination.spec.ts` (nouveau) |
 | Notifications flakiness | `DELETE FROM notifications` + `waitForResponse(DELETE)` pour stabiliser | `notifications.spec.ts` |
+
+---
+
+## Corrections appliquées (session 2026-06-14 — session 4)
+
+| Catégorie | Fix appliqué | Fichiers modifiés |
+|---|---|---|
+| `TemplateEditorModal` crash — `Input.Select/Textarea/Checkbox` undefined | Import `Input` directement depuis `shared/components/Input/index` au lieu du barrel racine (qui résolvait vers le legacy `Input.tsx` sans sous-composants) | `TemplateEditorModal.tsx`, `SendFromTemplateModal.tsx` |
+| Nettoyage code debug sessions précédentes | Suppression `data-editor-open`, debug logs, `@ts-ignore` inutiles, `force: true` sur click | `TemplatesTab.tsx`, `messaging.templates.spec.ts`, `Input/Input.tsx` |
+
+### Cause racine du crash `TemplateEditorModal`
+
+`shared/components/index.ts` fait `export * from './Input'`. Node/Vite résout `./Input` en priorité sur le fichier `Input.tsx` plutôt que le répertoire `Input/index.ts`. Or `Input.tsx` est un composant Input **legacy et simple** (sans sous-composants), alors que `Input/Input.tsx` est le composant **complet** avec `.Select`, `.Textarea`, `.Checkbox`. Résultat : `Input.Select` etc. étaient `undefined` dans `TemplateEditorModal`, provoquant un crash React "Element type is invalid: got undefined".
+
+**Fix** : import explicite depuis `shared/components/Input/index` dans les composants qui utilisent les sous-composants.
+
+---
+
+## Corrections appliquées (session 2026-06-14 — session 3)
+
+| Catégorie | Fix appliqué | Fichiers modifiés |
+|---|---|---|
+| Stripe Guard 2 — clé absente | `VITE_STRIPE_PUBLIC_KEY=pk_test_e2e_mock_playwright` ajouté dans `frontend/.env` | `frontend/.env` |
+| Stripe Guard 3 — bouton disabled | `expect(btn).toBeEnabled({ timeout: 8_000 })` avec retry + `createToken` ajouté au mock | `payments.stripe.spec.ts` (tests 4 & 5), `e2e/mocks/stripe-mock.ts` |
+| N4 réseau simulé | Implémentation réelle avec `page.route("**/api/auth/login", abort)` | `negative-paths.spec.ts` |
 
 ---
 
@@ -36,60 +75,35 @@
 
 ---
 
-## Corrections appliquées (session 2026-06-14 — session 3)
+## État actuel — Aucun skip ✅
 
-| Catégorie | Fix appliqué | Fichiers modifiés |
-|---|---|---|
-| Stripe Guard 2 — clé absente | `VITE_STRIPE_PUBLIC_KEY=pk_test_e2e_mock_playwright` ajouté dans `frontend/.env` | `frontend/.env` |
-| Stripe Guard 3 — bouton disabled | `expect(btn).toBeEnabled({ timeout: 8_000 })` avec retry + `createToken` ajouté au mock | `payments.stripe.spec.ts` (tests 4 & 5), `e2e/mocks/stripe-mock.ts` |
-| N4 réseau simulé | Implémentation réelle avec `page.route("**/api/auth/login", abort)` | `negative-paths.spec.ts` |
+> **263 passed · 0 failed · 0 skipped** — pyramide 100% verte.
 
----
+Tous les scénarios fonctionnels sont couverts. Les seuls tests hors scope restants (jamais dans la cible) sont :
 
-## Corrections appliquées (session 2026-07-02 — session 4)
-
-| Catégorie | Fix appliqué | Fichiers modifiés |
-|---|---|---|
-| `TemplateEditorModal` crash — `Input.Select/Textarea/Checkbox` undefined | Import `Input` directement depuis `shared/components/Input/index` au lieu du barrel racine (qui résolvait vers le legacy `Input.tsx` sans sous-composants) | `TemplateEditorModal.tsx`, `SendFromTemplateModal.tsx` |
-| Nettoyage code debug sessions précédentes | Suppression `data-editor-open`, debug logs, `@ts-ignore` inutiles, `force: true` sur click | `TemplatesTab.tsx`, `messaging.templates.spec.ts`, `Input/Input.tsx` |
-
-### Cause racine du crash `TemplateEditorModal`
-
-`shared/components/index.ts` fait `export * from './Input'`. Node/Vite résout `./Input` en priorité sur le fichier `Input.tsx` plutôt que le répertoire `Input/index.ts`. Or `Input.tsx` est un composant Input **legacy et simple** (sans sous-composants), alors que `Input/Input.tsx` est le composant **complet** avec `.Select`, `.Textarea`, `.Checkbox`. Résultat : `Input.Select` etc. étaient `undefined` dans `TemplateEditorModal`, provoquant un crash React "Element type is invalid: got undefined".
-
-**Fix**: import explicite depuis `shared/components/Input/index` dans les composants qui utilisent les sous-composants.
-
----
-
-## État actuel — 4 skips conditionnels
-
-> ✅ **0 skip structurel. La suite tourne à 259 passed · 0 failed · 4 skipped (conditionnels).**
-
-### Skips restants
-
-| Fichier | Test | Condition de skip |
-|---|---|---|
-| `navigation/pagination.spec.ts` | PAG1 (admin) | Bouton `Page suivante` absent si < 21 utilisateurs actifs en DB |
-| `navigation/pagination.spec.ts` | PAG1 (member) | idem |
-| `navigation/pagination.spec.ts` | PAG2 (admin) | idem |
-| `navigation/pagination.spec.ts` | PAG2 (member) | idem |
-
-**Solution** : insérer >17 utilisateurs supplémentaires dans `seed-e2e.ts` pour dépasser le seuil de 20 (page size) — les tests passent alors automatiquement.
+| Catégorie | Raison |
+|---|---|
+| Accessibilité (WCAG / axe-core) | Outils dédiés requis (axe-playwright, pa11y) |
+| Performance (LCP, TTFB) | k6, Lighthouse requis |
+| Multi-navigateurs (Firefox, Safari) | Playwright multi-projet possible mais non planifié |
+| Webhooks Stripe réels | Nécessite `stripe listen` CLI en CI |
+| Tests de charge / sécurité | Outils spécialisés (OWASP ZAP, k6, etc.) |
 
 ---
 
 ## Commandes utiles
 
 ```bash
-# Re-seeder les données E2E (à lancer avant les tests)
+# Re-seeder les données E2E (obligatoire après reset DB)
 pnpm --filter @clubmanager/e2e seed
 
-# Lancer la suite E2E complète
+# Lancer la suite E2E complète (résultat attendu : 263 passed, 0 failed, 0 skipped)
 pnpm --filter @clubmanager/e2e test
 
-# Lancer uniquement les tests templates (anciennement skippés)
-pnpm --filter @clubmanager/e2e test -- tests/admin/messaging.templates.spec.ts --project=chromium-admin
+# Lancer un fichier spécifique
+pnpm --filter @clubmanager/e2e test -- tests/auth/session-expiry.spec.ts
+pnpm --filter @clubmanager/e2e test -- tests/navigation/pagination.spec.ts --project=chromium-admin
 
-# Vérifier l'état de la DB après seed
-node -e "const mysql=require('./e2e/node_modules/mysql2/promise');mysql.createConnection({host:'localhost',port:3306,user:'root',password:'',database:'clubmanager'}).then(async c=>{const [r]=await c.query('SELECT COUNT(*) as n FROM types_messages_personnalises');console.log('types_messages_personnalises:', r[0].n);c.end()})"
+# Mode UI interactif
+pnpm --filter @clubmanager/e2e exec playwright test --ui
 ```
