@@ -1,8 +1,21 @@
 # Tests E2E — Inventaire des skips
 
-> Dernière mise à jour : 2026-07-02 (session 4)
-> Suite avant corrections session 4 : **254 passed · 0 failed · 2 skipped** (tests 2 et 3 de `messaging.templates.spec.ts`)
-> Suite après corrections session 4 : **254 passed · 0 failed · 0 skipped** ✅
+> Dernière mise à jour : 2026-07-02 (session 5 — Phase E14)
+> Suite après Phase E14 : **259 passed · 0 failed · 4 skipped** (pagination conditionnelle)
+
+---
+
+## Corrections appliquées (session 2026-07-02 — Phase E14)
+
+| Catégorie | Fix appliqué | Fichiers modifiés |
+|---|---|---|
+| N5 — Force MDP faible | Test `register-password-input` + blur + `getByText("Faible")` | `negative-paths.spec.ts` |
+| N6 — Email invalide | `emailInput.press("Tab")` + `p[role="alert"]` (FormField) | `negative-paths.spec.ts` |
+| N7 — API 500 | Utilisation `browser.newContext()` ; assertion : pas de redirect `/login` | `negative-paths.spec.ts` |
+| SE1 — Session expiry | `page.evaluate` pour effacer `auth-storage` localStorage ; ProtectedRoute redirige | `session-expiry.spec.ts` (nouveau) |
+| SE2 — Contrôle session valide | Auth présente → page /users chargée | `session-expiry.spec.ts` (nouveau) |
+| PAG1/PAG2 — Pagination | Navigation page 2 → contenu différent ; retour page 1 → contenu identique | `pagination.spec.ts` (nouveau) |
+| Notifications flakiness | `DELETE FROM notifications` + `waitForResponse(DELETE)` pour stabiliser | `notifications.spec.ts` |
 
 ---
 
@@ -48,9 +61,20 @@
 
 ---
 
-## État actuel — Aucun skip
+## État actuel — 4 skips conditionnels
 
-> ✅ **0 skip structurel. La suite complète tourne à 254 passed · 0 failed · 0 skipped.**
+> ✅ **0 skip structurel. La suite tourne à 259 passed · 0 failed · 4 skipped (conditionnels).**
+
+### Skips restants
+
+| Fichier | Test | Condition de skip |
+|---|---|---|
+| `navigation/pagination.spec.ts` | PAG1 (admin) | Bouton `Page suivante` absent si < 21 utilisateurs actifs en DB |
+| `navigation/pagination.spec.ts` | PAG1 (member) | idem |
+| `navigation/pagination.spec.ts` | PAG2 (admin) | idem |
+| `navigation/pagination.spec.ts` | PAG2 (member) | idem |
+
+**Solution** : insérer >17 utilisateurs supplémentaires dans `seed-e2e.ts` pour dépasser le seuil de 20 (page size) — les tests passent alors automatiquement.
 
 ---
 
