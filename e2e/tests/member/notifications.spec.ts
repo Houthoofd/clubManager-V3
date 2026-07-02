@@ -73,12 +73,14 @@ test.describe("Notifications — Flux membre", () => {
     const ts = Date.now();
     const titre = `[E2E] Notification ${ts}`;
 
-    // NOTE: Pas de DELETE ALL ici — cela crée des race conditions quand
-    // notifications.filters.spec.ts tourne en parallèle sur un autre worker.
-    // On utilise un titre unique (horodatage) pour identifier la notification
-    // sans dépendre de la pagination ou de l'ID exact.
+    // Nettoyer les notifications accumulees (broadcast admin, tests precedents)
+    // pour garantir que la notification inseree apparait sur la page 1.
+    // fullyParallel: false => pas de race condition avec d autres tests.
+    await db
+      .query("DELETE FROM notifications WHERE user_id = ?", [memberId])
+      .catch(() => {});
 
-    // Insérer une notification pour le membre
+    // Inserer une notification pour le membre
     const notifId = await db.insertOne("notifications", {
       user_id: memberId,
       type: "info",
@@ -147,7 +149,16 @@ test.describe("Notifications — Flux membre", () => {
     const deleteBtn = memberPage.locator(
       `[data-testid="notification-delete-${notifId}"]`,
     );
+
+    // Attendre la réponse API avant de vérifier la visibilité
+    const deletePromise = memberPage.waitForResponse(
+      (resp) =>
+        resp.url().includes("/api/notifications/") &&
+        resp.request().method() === "DELETE",
+      { timeout: 10_000 },
+    );
     await deleteBtn.click();
+    await deletePromise;
 
     // La notification doit disparaître de la liste
     await expect(itemLocator).not.toBeVisible({ timeout: 10_000 });
