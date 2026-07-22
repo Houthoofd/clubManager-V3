@@ -1,11 +1,7 @@
 /**
  * IgnoreAlertUseCase.test.ts
  * Tests unitaires — alerts / IgnoreAlertUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : Unitix v0.4
- * Module     : alerts
  */
-// @unitix-source-hash: 35c529e00cb996ff
 
 import { IgnoreAlertUseCase } from '../IgnoreAlertUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';

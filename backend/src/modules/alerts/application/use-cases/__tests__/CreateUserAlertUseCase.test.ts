@@ -1,11 +1,7 @@
 /**
  * CreateUserAlertUseCase.test.ts
  * Tests unitaires — alerts / CreateUserAlertUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : Unitix v0.4
- * Module     : alerts
  */
-// @unitix-source-hash: 0680af506537d8c4
 
 import { CreateUserAlertUseCase } from '../CreateUserAlertUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';

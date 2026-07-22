@@ -1,11 +1,7 @@
 /**
  * ResolveAlertUseCase.test.ts
  * Tests unitaires — alerts / ResolveAlertUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : Unitix v0.4
- * Module     : alerts
  */
-// @unitix-source-hash: 8ed7837073f974bd
 
 import { ResolveAlertUseCase } from '../ResolveAlertUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';

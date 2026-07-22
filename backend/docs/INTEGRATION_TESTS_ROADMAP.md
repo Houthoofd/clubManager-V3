@@ -1484,7 +1484,7 @@ Le rôle professor a un périmètre distinct — il n'est ni admin ni membre :
 backend/src/**/’__tests__’/*.test.ts
 ```
 
-Ces tests sont générés par `@houthoofd/unitix` et testent les **use-cases** et **repositories** en isolation via des mocks Jest.
+Ces tests couvrent les **use-cases** et **repositories** en isolation via des mocks Jest.
 
 ### Lancer les tests unitaires backend
 

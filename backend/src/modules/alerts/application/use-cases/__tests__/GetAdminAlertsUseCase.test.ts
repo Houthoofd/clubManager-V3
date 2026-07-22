@@ -1,11 +1,7 @@
 /**
  * GetAdminAlertsUseCase.test.ts
  * Tests unitaires — alerts / GetAdminAlertsUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : Unitix v0.4
- * Module     : alerts
  */
-// @unitix-source-hash: a2373135419a46a5
 
 import { GetAdminAlertsUseCase } from "../GetAdminAlertsUseCase";
 import type { IAlertRepository } from "../../../domain/repositories/IAlertRepository";

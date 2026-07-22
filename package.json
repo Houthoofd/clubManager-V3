@@ -12,10 +12,6 @@
     "e2e"
   ],
   "scripts": {
-    "generate:tests": "unitix",
-    "generate:tests:dry": "unitix --dry-run",
-    "generate:tests:backend": "unitix --workspace=backend",
-    "generate:tests:frontend": "unitix --workspace=frontend",
     "dev": "pnpm --parallel --filter clubmanager-backend --filter @clubmanager/frontend dev",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",
@@ -44,7 +40,6 @@
     "e2e:seed": "pnpm --filter @clubmanager/e2e seed"
   },
   "devDependencies": {
-    "@houthoofd/unitix": "^0.1.0",
     "concurrently": "^8.2.2",
     "rimraf": "^5.0.5"
   },

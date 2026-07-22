@@ -1,11 +1,7 @@
 /**
  * DeleteAlertTypeUseCase.test.ts
  * Tests unitaires — alerts / DeleteAlertTypeUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : Unitix v0.4
- * Module     : alerts
  */
-// @unitix-source-hash: c9061b0026eb7bcb
 
 import { DeleteAlertTypeUseCase } from '../DeleteAlertTypeUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';

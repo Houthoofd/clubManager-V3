@@ -1,11 +1,7 @@
 /**
  * GetUserAlertsUseCase.test.ts
  * Tests unitaires — alerts / GetUserAlertsUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : Unitix v0.4
- * Module     : alerts
  */
-// @unitix-source-hash: c0277471348e73b5
 
 import { GetUserAlertsUseCase } from '../GetUserAlertsUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';

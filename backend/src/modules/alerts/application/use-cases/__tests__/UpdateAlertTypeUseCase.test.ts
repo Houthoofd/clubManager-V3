@@ -1,11 +1,7 @@
 /**
  * UpdateAlertTypeUseCase.test.ts
  * Tests unitaires — alerts / UpdateAlertTypeUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : Unitix v0.4
- * Module     : alerts
  */
-// @unitix-source-hash: 215e18bf64ec1982
 
 import { UpdateAlertTypeUseCase } from '../UpdateAlertTypeUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';
