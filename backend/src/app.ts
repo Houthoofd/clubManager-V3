@@ -49,9 +49,19 @@ const createApp = (): Express => {
   // Helmet pour sécuriser les headers HTTP
   app.use(helmet());
 
-  // CORS configuration
+  // CORS configuration — supporte plusieurs origines séparées par des virgules
+  const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+
   const corsOptions = {
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Autoriser les requêtes sans origine (ex: curl, Postman, appels serveur-à-serveur)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS: origine non autorisée — ${origin}`));
+    },
     credentials: true,
     optionsSuccessStatus: 200,
   };

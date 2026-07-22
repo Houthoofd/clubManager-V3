@@ -50,10 +50,7 @@
     /* Path Mapping */
     "baseUrl": ".",
     "paths": {
-      "@/modules/*": ["src/modules/*"],
-      "@/shared/*": ["src/shared/*"],
-      "@/core/*": ["src/core/*"],
-      "@/config/*": ["src/config/*"],
+      "@/*": ["src/*"],
       "@clubmanager/types": ["../packages/types/src/index.ts"]
     }
   },
