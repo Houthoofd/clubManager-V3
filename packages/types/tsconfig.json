@@ -24,8 +24,10 @@
     "types/**/*"  // Inclut tous les fichiers de types externes si nécessaire
   ],
   "exclude": [
-    "node_modules",  // Exclut le dossier node_modules pour éviter de compiler des fichiers tiers
-    "dist"  // Exclut le dossier dist où la compilation se fait
+    "node_modules",
+    "dist",
+    "**/__tests__/**",
+    "**/*.test.ts"
   ]
 }
 // La configuration est correcte pour générer des imports/exports ESM avec .js
