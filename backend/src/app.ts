@@ -50,6 +50,7 @@ const createApp = (): Express => {
   app.use(helmet());
 
   // CORS configuration — supporte plusieurs origines séparées par des virgules
+  // + tous les ports localhost (pour les tests e2e dont le port est dynamique)
   const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
     .split(",")
     .map((o) => o.trim())
@@ -59,6 +60,8 @@ const createApp = (): Express => {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       // Autoriser les requêtes sans origine (ex: curl, Postman, appels serveur-à-serveur)
       if (!origin) return callback(null, true);
+      // Autoriser tous les ports localhost (tests e2e port dynamique)
+      if (/^http:\/\/localhost(:\d+)?$/.test(origin)) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       callback(new Error(`CORS: origine non autorisée — ${origin}`));
     },
