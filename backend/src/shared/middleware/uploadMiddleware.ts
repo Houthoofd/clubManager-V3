@@ -10,7 +10,7 @@
  */
 
 import multer from "multer";
-import type { Request } from "express";
+import type { Request, RequestHandler } from "express";
 import type { FileFilterCallback } from "multer";
 
 // ==================== CONSTANTES ====================
@@ -81,7 +81,7 @@ const upload = multer({
  * Usage dans une route :
  *   router.post("/articles/:id/images", uploadSingleImage, (req, res) => { ... })
  */
-export const uploadSingleImage = upload.single("image");
+export const uploadSingleImage: RequestHandler = upload.single("image");
 
 /**
  * Middleware pour l'upload de plusieurs images.
@@ -92,7 +92,7 @@ export const uploadSingleImage = upload.single("image");
  * Usage dans une route :
  *   router.post("/articles/:id/images/bulk", uploadMultipleImages, (req, res) => { ... })
  */
-export const uploadMultipleImages = upload.array("images", 10);
+export const uploadMultipleImages: RequestHandler = upload.array("images", 10);
 
 /**
  * Instance multer brute, utile si on veut configurer des champs personnalisés.

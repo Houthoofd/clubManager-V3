@@ -7,7 +7,7 @@ import { Router } from "express";
 import { MessagingController } from "../controllers/MessagingController.js";
 import { authMiddleware } from "@/shared/middleware/authMiddleware.js";
 
-const router = Router();
+const router: Router = Router();
 const ctrl = new MessagingController();
 
 // Toutes les routes necessitent une authentification

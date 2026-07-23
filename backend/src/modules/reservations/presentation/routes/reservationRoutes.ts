@@ -16,7 +16,7 @@ import {
 import { UserRole } from "@clubmanager/types";
 import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
 
-const router = Router();
+const router: Router = Router();
 const ctrl = new ReservationController();
 
 // All reservation routes require authentication

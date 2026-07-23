@@ -2,7 +2,7 @@
  * CreateScheduleUseCase
  * Crée une seule échéance de paiement manuellement (admin)
  */
-import type { IPaymentScheduleRepository } from "../../domain/repositories/IPaymentScheduleRepository.js";
+import type { IPaymentScheduleRepository } from "../../../domain/repositories/IPaymentScheduleRepository.js";
 
 export interface CreateScheduleDto {
   user_id: number;

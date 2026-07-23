@@ -13,7 +13,7 @@ import {
 import { UserRole } from "@clubmanager/types";
 
 // Créer le router
-const router = Router();
+const router: Router = Router();
 
 // Initialiser le repository et le controller
 const familyRepository = new MySQLFamilyRepository();

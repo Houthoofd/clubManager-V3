@@ -35,7 +35,7 @@ export class JwtService {
       issuer: "clubmanager",
       audience: "clubmanager-api",
       jwtid: randomUUID(), // unique ID — prevents hash collisions on fast token rotation
-    });
+    } as jwt.SignOptions);
   }
 
   /**
@@ -54,7 +54,7 @@ export class JwtService {
       issuer: "clubmanager",
       audience: "clubmanager-api",
       jwtid: randomUUID(), // unique ID — prevents hash collisions on fast token rotation
-    });
+    } as jwt.SignOptions);
   }
 
   /**

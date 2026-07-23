@@ -1,4 +1,4 @@
-import type { IPaymentRepository } from "../../domain/repositories/IPaymentRepository.js";
+import type { IPaymentRepository } from "../../../domain/repositories/IPaymentRepository.js";
 
 export class RefundPaymentUseCase {
   constructor(private repo: IPaymentRepository) {}

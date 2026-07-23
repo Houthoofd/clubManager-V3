@@ -134,7 +134,7 @@ export const closePool = async (): Promise<void> => {
  * @param values - Query parameters
  * @returns Promise with query results
  */
-export const query = async <T = any>(
+export const query = async <T extends mysql.QueryResult = mysql.RowDataPacket[]>(
   sql: string,
   values?: any[]
 ): Promise<[T, mysql.FieldPacket[]]> => {

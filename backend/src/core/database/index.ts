@@ -12,4 +12,4 @@ export {
   query,
 } from './connection.js';
 
-export default pool;
+export { pool as default } from './connection.js';

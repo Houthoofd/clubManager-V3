@@ -9,7 +9,7 @@ import { Router } from 'express';
 import { NotificationController } from '../controllers/NotificationController.js';
 import { authMiddleware } from '@/shared/middleware/authMiddleware.js';
 
-const router = Router();
+const router: Router = Router();
 const ctrl = new NotificationController();
 
 // All notification routes require authentication

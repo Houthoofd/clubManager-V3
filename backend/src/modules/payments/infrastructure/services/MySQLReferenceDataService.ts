@@ -4,14 +4,14 @@
  * Cache en mémoire pour optimiser les performances (tables en lecture seule)
  */
 
-import pool from "../../../../infrastructure/database/db";
+import { pool } from "@/core/database/connection.js";
 import { RowDataPacket } from "mysql2";
 import {
   IReferenceDataService,
   MethodePaiement,
   StatutPaiement,
   StatutEcheance,
-} from "../../domain/services/IReferenceDataService";
+} from "../../domain/services/IReferenceDataService.js";
 
 export class MySQLReferenceDataService implements IReferenceDataService {
   // Cache en mémoire
@@ -35,7 +35,7 @@ export class MySQLReferenceDataService implements IReferenceDataService {
        ORDER BY ordre ASC`,
     );
 
-    this.methodesPaiement = rows.map((row) => ({
+    this.methodesPaiement = rows.map((row: RowDataPacket) => ({
       id: row.id,
       code: row.code,
       nom: row.nom,
@@ -43,7 +43,7 @@ export class MySQLReferenceDataService implements IReferenceDataService {
       actif: Boolean(row.actif),
     }));
 
-    return this.methodesPaiement;
+    return this.methodesPaiement!;
   }
 
   async getMethodePaiementByCode(code: string): Promise<MethodePaiement | null> {
@@ -72,7 +72,7 @@ export class MySQLReferenceDataService implements IReferenceDataService {
        ORDER BY ordre ASC`,
     );
 
-    this.statutsPaiement = rows.map((row) => ({
+    this.statutsPaiement = rows.map((row: RowDataPacket) => ({
       id: row.id,
       code: row.code,
       nom: row.nom,
@@ -83,7 +83,7 @@ export class MySQLReferenceDataService implements IReferenceDataService {
       actif: Boolean(row.actif),
     }));
 
-    return this.statutsPaiement;
+    return this.statutsPaiement!;
   }
 
   async getStatutPaiementByCode(code: string): Promise<StatutPaiement | null> {
@@ -112,7 +112,7 @@ export class MySQLReferenceDataService implements IReferenceDataService {
        ORDER BY ordre ASC`,
     );
 
-    this.statutsEcheance = rows.map((row) => ({
+    this.statutsEcheance = rows.map((row: RowDataPacket) => ({
       id: row.id,
       code: row.code,
       nom: row.nom,
@@ -122,7 +122,7 @@ export class MySQLReferenceDataService implements IReferenceDataService {
       actif: Boolean(row.actif),
     }));
 
-    return this.statutsEcheance;
+    return this.statutsEcheance!;
   }
 
   async getStatutEcheanceByCode(code: string): Promise<StatutEcheance | null> {

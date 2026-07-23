@@ -8,7 +8,7 @@ import { TemplateController } from "../controllers/TemplateController.js";
 import { authMiddleware, requireRole } from "@/shared/middleware/authMiddleware.js";
 import { UserRole } from "@clubmanager/types";
 
-const router = Router();
+const router: Router = Router();
 const ctrl = new TemplateController();
 
 // Toutes les routes nécessitent une authentification

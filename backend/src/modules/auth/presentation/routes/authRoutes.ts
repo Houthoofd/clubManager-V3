@@ -9,7 +9,7 @@ import { MySQLAuthRepository } from "../../infrastructure/repositories/MySQLAuth
 import { authMiddleware } from "@/shared/middleware/authMiddleware.js";
 
 // Créer le router
-const router = Router();
+const router: Router = Router();
 
 // Initialiser le repository et le controller
 const authRepository = new MySQLAuthRepository();

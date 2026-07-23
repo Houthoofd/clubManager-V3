@@ -3,8 +3,8 @@
  * Génère automatiquement les échéances mensuelles pour un utilisateur
  * basé sur son plan tarifaire (abonnement_id → duree_mois échéances)
  */
-import type { IPaymentScheduleRepository } from "../../domain/repositories/IPaymentScheduleRepository.js";
-import type { IPricingPlanRepository } from "../../domain/repositories/IPricingPlanRepository.js";
+import type { IPaymentScheduleRepository } from "../../../domain/repositories/IPaymentScheduleRepository.js";
+import type { IPricingPlanRepository } from "../../../domain/repositories/IPricingPlanRepository.js";
 import type { IUserRepository } from "../../../../users/domain/repositories/IUserRepository.js";
 
 export class GenerateSchedulesUseCase {

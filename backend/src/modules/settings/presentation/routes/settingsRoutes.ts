@@ -8,7 +8,7 @@ import { authMiddleware, requireRole } from "@/shared/middleware/authMiddleware.
 import { UserRole } from "@clubmanager/types";
 import { SettingsController } from "../controllers/SettingsController.js";
 
-const router = Router();
+const router: Router = Router();
 const ctrl = new SettingsController();
 
 // Toutes les routes nécessitent d'être authentifié

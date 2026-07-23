@@ -12,7 +12,7 @@ import {
 import { UserRole } from "@clubmanager/types";
 import { RecoveryController } from "../controllers/RecoveryController.js";
 
-const router = Router();
+const router: Router = Router();
 const ctrl = new RecoveryController();
 
 // ============================================================

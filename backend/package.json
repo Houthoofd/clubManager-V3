@@ -9,7 +9,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "build:watch": "tsc --watch",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",

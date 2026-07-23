@@ -664,7 +664,7 @@ export class MySQLAuthRepository implements IAuthRepository {
       [tokenHash],
     );
 
-    if (rows.length === 0 || !rows[0].email) return null;
+    if (rows.length === 0 || !rows[0]!.email) return null;
 
     // Marquer comme utilisé (single-use)
     await pool.query(
@@ -673,8 +673,8 @@ export class MySQLAuthRepository implements IAuthRepository {
     );
 
     return {
-      userId: rows[0].user_id as number,
-      newEmail: rows[0].email as string,
+      userId: rows[0]!.user_id as number,
+      newEmail: rows[0]!.email as string,
     };
   }
 

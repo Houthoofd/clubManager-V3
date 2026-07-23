@@ -12,7 +12,7 @@ import {
 } from "@/shared/middleware/authMiddleware.js";
 import { UserRole } from "@clubmanager/types";
 
-const router = Router();
+const router: Router = Router();
 const ctrl = new GradeController();
 
 // ==================== ROUTES GRADES ====================

@@ -74,9 +74,12 @@ pnpm install
 nano backend/.env
 ```
 
-### 4. Importer le schéma SQL
+### 4. Importer le schéma SQL (dans l'ordre)
 ```bash
-mysql -u clubmanager -p clubmanager < db/creation/SCHEMA_CONSOLIDATE.sql
+mysql -u clubmanager -p clubmanager < db/consolidated/00_SCHEMA_COMPLET.sql
+mysql -u clubmanager -p clubmanager < db/consolidated/01_PROCEDURES.sql
+mysql -u clubmanager -p clubmanager < db/consolidated/02_TRIGGERS.sql
+mysql -u clubmanager -p clubmanager < db/consolidated/03_SEED_DATA.sql
 ```
 
 ### 5. Builder le projet

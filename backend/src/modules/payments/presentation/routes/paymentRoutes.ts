@@ -16,7 +16,7 @@ import {
 } from "@/shared/middleware/authMiddleware.js";
 import { UserRole } from "@clubmanager/types";
 
-const router = Router();
+const router: Router = Router();
 const planCtrl = new PricingPlanController();
 const paymentCtrl = new PaymentController();
 const scheduleCtrl = new PaymentScheduleController();

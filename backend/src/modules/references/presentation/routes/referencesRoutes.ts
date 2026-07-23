@@ -7,7 +7,7 @@
 import { Router } from "express";
 import { ReferencesController } from "../controllers/referencesController.js";
 
-const router = Router();
+const router: Router = Router();
 
 // ==================== INSTANTIATION DU CONTROLLER ====================
 
