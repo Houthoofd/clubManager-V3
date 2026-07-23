@@ -131,7 +131,7 @@ export class AuthController {
       // Définir le refresh token dans un cookie HTTP-only
       res.cookie("refreshToken", result.data.tokens.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.COOKIE_SECURE === "true",
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
       });
@@ -180,7 +180,7 @@ export class AuthController {
       // Mettre à jour le refresh token dans le cookie
       res.cookie("refreshToken", result.data.tokens.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.COOKIE_SECURE === "true",
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
       });

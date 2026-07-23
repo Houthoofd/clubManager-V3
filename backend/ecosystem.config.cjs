@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "clubmanager-backend",
       script: "./dist/server.js",
-      cwd: "/home/bartok-48/clubManager-V3/backend",
+      cwd: "/home/bartok-48/Documents/clubManager-V3/backend",
       instances: 1,
       autorestart: true,
       watch: false,
