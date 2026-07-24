@@ -8,6 +8,9 @@ import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.
 import { PasswordService } from "@/shared/services/PasswordService.js";
 import { TokenService } from "@/shared/services/TokenService.js";
 import { EmailService } from "../services/EmailService.js";
+import { MySQLInvitationRepository } from "@/modules/invitations/infrastructure/repositories/MySQLInvitationRepository.js";
+import { ValidateInvitationUseCase } from "@/modules/invitations/application/use-cases/ValidateInvitationUseCase.js";
+import { ConsumeInvitationUseCase } from "@/modules/invitations/application/use-cases/ConsumeInvitationUseCase.js";
 
 export interface RegisterResponse {
   success: boolean;
@@ -21,9 +24,14 @@ export interface RegisterResponse {
 
 export class RegisterUseCase {
   private emailService: EmailService;
+  private validateInvitationUC: ValidateInvitationUseCase;
+  private consumeInvitationUC: ConsumeInvitationUseCase;
 
   constructor(private authRepository: IAuthRepository) {
     this.emailService = new EmailService();
+    const invitationRepo = new MySQLInvitationRepository();
+    this.validateInvitationUC = new ValidateInvitationUseCase(invitationRepo);
+    this.consumeInvitationUC = new ConsumeInvitationUseCase(invitationRepo);
   }
 
   /**
@@ -34,6 +42,18 @@ export class RegisterUseCase {
   async execute(dto: RegisterDto): Promise<RegisterResponse> {
     // 1. Valider les données d'entrée
     this.validateInput(dto);
+
+    // 1b. Valider le token d'invitation (inscription sur invitation uniquement)
+    const invitationResult = await this.validateInvitationUC.execute({
+      token: dto.invitation_token,
+    });
+    if (!invitationResult.valid) {
+      throw new Error(invitationResult.error ?? "Token d'invitation invalide.");
+    }
+    // Vérifier que l'email du formulaire correspond à l'invitation
+    if (invitationResult.email && invitationResult.email.toLowerCase() !== dto.email.toLowerCase()) {
+      throw new Error("L'adresse email ne correspond pas à l'invitation.");
+    }
 
     // 2. Vérifier que l'email n'est pas déjà utilisé
     const emailTaken = await this.authRepository.emailExists(dto.email);
@@ -65,6 +85,9 @@ export class RegisterUseCase {
       genre_id: dto.genre_id,
       abonnement_id: dto.abonnement_id,
     });
+
+    // 4b. Consommer le token d'invitation
+    await this.consumeInvitationUC.execute({ token: dto.invitation_token });
 
     // 5. Générer et stocker le token de vérification email
     const emailVerificationToken =

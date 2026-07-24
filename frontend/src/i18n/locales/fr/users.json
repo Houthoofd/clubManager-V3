@@ -208,5 +208,14 @@
     "months": "mois",
     "updated": "Abonnement mis à jour",
     "error": "Erreur lors de la mise à jour de l'abonnement"
+  },
+  "inviteMember": "Inviter un membre",
+  "invite": {
+    "title": "Inviter un membre",
+    "emailLabel": "Adresse email",
+    "emailPlaceholder": "exemple@email.com",
+    "submit": "Envoyer l'invitation",
+    "success": "Invitation envoyée à {{email}}",
+    "error": "Impossible d'envoyer l'invitation"
   }
 }

@@ -33,6 +33,7 @@ export interface RegisterDto {
   date_of_birth: string; // YYYY-MM-DD
   genre_id: number;
   abonnement_id?: number;
+  invitation_token: string; // Obligatoire — inscription sur invitation uniquement
 }
 
 /**
