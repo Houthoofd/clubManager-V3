@@ -1,7 +1,7 @@
 # 📑 Index des fichiers SQL consolidés - ClubManager V3
 
-**Date de consolidation :** 2026-06-13  
-**Version de la base :** 5.1
+**Date de consolidation :** 2026-07-24
+**Version de la base :** 5.2
 
 ---
 
@@ -11,7 +11,7 @@
 
 | # | Fichier | Description | Lignes | Statut |
 |---|---------|-------------|--------|--------|
-| 0 | `00_SCHEMA_COMPLET.sql` | Schéma complet de la base de données (56 tables) - **v5.1 normalisé** | ~1550 | ✅ Production |
+| 0 | `00_SCHEMA_COMPLET.sql` | Schéma complet de la base de données (57 tables) - **v5.2 invitations** | ~1600 | ✅ Production |
 | 1 | `01_PROCEDURES.sql` | 10 procédures stockées consolidées | ~694 | ✅ Production |
 | 2 | `02_TRIGGERS.sql` | 6 triggers automatiques consolidés | ~200 | ✅ Production |
 | 3 | `03_SEED_DATA.sql` | Données initiales de référence | ~150 | ✅ Production |
@@ -41,6 +41,7 @@
 - 3 tables alertes
 - 2 tables groupes
 - 2 tables système
+- **1 table invitations** ✨ (nouveau v5.2)
 - ~55 Foreign Keys
 - ~120 Indexes
 
