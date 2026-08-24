@@ -1,0 +1,12 @@
+version: 2
+updates:
+  # Mises à jour pour pnpm (frontend & backend)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 10
