@@ -16,21 +16,37 @@
  * @playwright/test project: chromium-no-auth
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../../fixtures";
 import { E2E_ADMIN } from "../../setup/e2e-credentials";
+import crypto from "crypto";
 
 // ============================================================
 // Helpers
 // ============================================================
 
-/** URL de base du formulaire d'inscription */
-const REGISTER_URL = "/register";
-
-/** Naviguer vers la page d'inscription et attendre le chargement */
+/** Insère une invitation et retourne l'URL avec token */
 async function gotoRegister(
   page: import("@playwright/test").Page,
+  db: import("../../fixtures/db.fixture").DbHelper,
+  email: string
 ): Promise<void> {
-  await page.goto(REGISTER_URL);
+  const token = crypto.randomBytes(32).toString("hex");
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+  
+  const [adminRow] = await db.query<{ id: number }>(
+    "SELECT id FROM utilisateurs WHERE email = ?",
+    [E2E_ADMIN.email]
+  );
+
+  await db.insertOne("invitations", {
+    token_hash: tokenHash,
+    email: email,
+    invited_by: adminRow!.id,
+    status: "pending",
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  });
+
+  await page.goto(`/register?token=${token}`);
   await page.waitForLoadState("domcontentloaded");
 }
 
@@ -42,10 +58,13 @@ test.describe("Register — Inscription d'un utilisateur", () => {
   // ----------------------------------------------------------
   // Test 1 : Affichage du formulaire
   // ----------------------------------------------------------
-  test("afficher le formulaire d'inscription", async ({ page }) => {
-    await gotoRegister(page);
+  test("afficher le formulaire d'inscription", async ({ page, db }) => {
+    await gotoRegister(page, db, "test-display@test.local");
 
     // Vérifier que les champs clés sont visibles
+    const form = page.locator('[data-testid="register-form"]');
+    await form.waitFor({ state: "visible", timeout: 8000 });
+    
     await expect(
       page.locator('[data-testid="register-firstname-input"]'),
     ).toBeVisible();
@@ -65,11 +84,11 @@ test.describe("Register — Inscription d'un utilisateur", () => {
   // ----------------------------------------------------------
   test("inscription valide → redirection vers /login avec message succès", async ({
     page,
+    db
   }) => {
-    await gotoRegister(page);
-
     // Générer un email unique pour éviter les doublons
     const uniqueEmail = `e2e_register_${Date.now()}@test.local`;
+    await gotoRegister(page, db, uniqueEmail);
 
     await page.locator('[data-testid="register-firstname-input"]').fill("Test");
     // Note: le nom ne peut pas contenir de chiffres (regex /^[a-zA-ZÀ-ÿ\s'-]+$/)
@@ -77,8 +96,8 @@ test.describe("Register — Inscription d'un utilisateur", () => {
       .locator('[data-testid="register-lastname-input"]')
       .fill("Dupont");
     await page
-      .locator('[data-testid="register-email-input"]')
-      .fill(uniqueEmail);
+      .locator('[data-testid="register-username-input"]')
+      .fill(`test_user_${Date.now()}`);
 
     // Date de naissance (champ requis)
     const dobInput = page.locator('[data-testid="register-dob-input"]');
@@ -97,7 +116,17 @@ test.describe("Register — Inscription d'un utilisateur", () => {
       .locator('[data-testid="register-password-input"]')
       .fill("ValidPass@E2E2024!");
 
+    const responsePromise = page.waitForResponse(
+      (r) =>
+        r.url().includes("/api/auth/register") &&
+        r.request().method() === "POST",
+      { timeout: 15_000 },
+    );
     await page.locator('[data-testid="register-submit-btn"]').click();
+    const response = await responsePromise;
+    if (response.status() !== 201) {
+      console.log("API Error Body:", await response.text());
+    }
 
     // Après inscription, on doit être redirigé vers /login
     await expect(page).toHaveURL(/\/login/, { timeout: 15_000 });
@@ -106,8 +135,8 @@ test.describe("Register — Inscription d'un utilisateur", () => {
   // ----------------------------------------------------------
   // Test 3 : Email déjà utilisé → toast d'erreur
   // ----------------------------------------------------------
-  test("email déjà utilisé → toast d'erreur visible", async ({ page }) => {
-    await gotoRegister(page);
+  test("email déjà utilisé → toast d'erreur visible", async ({ page, db }) => {
+    await gotoRegister(page, db, E2E_ADMIN.email);
 
     // Utiliser l'email d'un compte E2E existant
     // Remplir TOUS les champs requis (genre + dob) pour passer la validation frontend
@@ -115,9 +144,7 @@ test.describe("Register — Inscription d'un utilisateur", () => {
       .locator('[data-testid="register-firstname-input"]')
       .fill("Duplique");
     await page.locator('[data-testid="register-lastname-input"]').fill("Test");
-    await page
-      .locator('[data-testid="register-email-input"]')
-      .fill(E2E_ADMIN.email);
+    
     await page.locator('[data-testid="register-dob-input"]').fill("1990-01-01");
     // Attendre que le select genre soit chargé et le remplir
     await page.waitForFunction(
@@ -148,14 +175,13 @@ test.describe("Register — Inscription d'un utilisateur", () => {
   // ----------------------------------------------------------
   // Test 4 : Champ prénom manquant → validation inline
   // ----------------------------------------------------------
-  test("champ prénom manquant → validation inline", async ({ page }) => {
-    await gotoRegister(page);
+  test("champ prénom manquant → validation inline", async ({ page, db }) => {
+    const email = `no_firstname_${Date.now()}@test.local`;
+    await gotoRegister(page, db, email);
 
     // Remplir tous les champs sauf le prénom
     await page.locator('[data-testid="register-lastname-input"]').fill("Test");
-    await page
-      .locator('[data-testid="register-email-input"]')
-      .fill(`no_firstname_${Date.now()}@test.local`);
+    
     await page
       .locator('[data-testid="register-password-input"]')
       .fill("ValidPass@E2E2024!");
@@ -172,8 +198,9 @@ test.describe("Register — Inscription d'un utilisateur", () => {
   // ----------------------------------------------------------
   test("mot de passe faible → indicateur de force visible", async ({
     page,
+    db
   }) => {
-    await gotoRegister(page);
+    await gotoRegister(page, db, `weak_pass_${Date.now()}@test.local`);
 
     // Taper un mot de passe très faible
     const passwordInput = page.locator(
@@ -192,8 +219,8 @@ test.describe("Register — Inscription d'un utilisateur", () => {
   // ----------------------------------------------------------
   // Test 6 : Lien "Se connecter" → navigation vers /login
   // ----------------------------------------------------------
-  test('lien "Se connecter" → navigation vers /login', async ({ page }) => {
-    await gotoRegister(page);
+  test('lien "Se connecter" → navigation vers /login', async ({ page, db }) => {
+    await gotoRegister(page, db, `login_link_${Date.now()}@test.local`);
 
     // Cliquer le lien qui pointe vers /login
     await page.locator('[data-testid="register-login-link"]').click();

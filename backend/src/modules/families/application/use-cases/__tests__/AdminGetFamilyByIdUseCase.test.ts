@@ -1,14 +1,11 @@
 /**
  * AdminGetFamilyByIdUseCase.test.ts
  * Tests unitaires — families / AdminGetFamilyByIdUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : families
  */
 
 import { AdminGetFamilyByIdUseCase } from '../AdminGetFamilyByIdUseCase';
 import type { IFamilyRepository } from '../../../domain/repositories/IFamilyRepository';
+import type { FamilyWithCount } from '../../../domain/adminTypes';
 
 // ─── Mock Repository ────────────────────────────────────────────
 
@@ -27,7 +24,6 @@ const mockRepo: jest.Mocked<IFamilyRepository> = {
   createChildUser:         jest.fn(),
 } as jest.Mocked<IFamilyRepository>;
 
-
 // ─── Setup ────────────────────────────────────────────────────
 
 let useCase: AdminGetFamilyByIdUseCase;
@@ -40,7 +36,6 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
 describe('AdminGetFamilyByIdUseCase', () => {
@@ -48,32 +43,36 @@ describe('AdminGetFamilyByIdUseCase', () => {
 
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait retourner la famille si elle existe', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
+      const mockFamily: FamilyWithCount = { id: 1, created_at: new Date(), updated_at: new Date(), membre_count: 3 };
+      mockRepo.findById.mockResolvedValue(mockFamily);
 
       // Act
-      // await useCase.execute(input);
+      const result = await useCase.execute(1);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockFamily);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait lancer une erreur si la famille n existe pas', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findById.mockResolvedValue(null);
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1)).rejects.toThrow('Famille introuvable');
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le repository échoue', async () => {
+      // Arrange
+      mockRepo.findById.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
 
   });
 });

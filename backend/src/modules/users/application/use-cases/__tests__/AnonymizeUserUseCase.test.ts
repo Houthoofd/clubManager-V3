@@ -45,35 +45,54 @@ afterEach(() => {
 
 describe('AnonymizeUserUseCase', () => {
   describe('execute', () => {
-
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait anonymiser l\'utilisateur si celui-ci est trouvé et soft-deleted', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.findById.mockResolvedValue({ id: 1, deleted_at: new Date() } as any);
+      mockRepo.anonymize.mockResolvedValue();
 
       // Act
-      // await useCase.execute(input);
+      await useCase.execute(1);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.anonymize).toHaveBeenCalledWith(1);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait lancer une erreur si l\'utilisateur est introuvable', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findById.mockResolvedValue(null);
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1)).rejects.toThrow('Utilisateur introuvable');
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.anonymize).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si l\'utilisateur n\'a pas de deleted_at', async () => {
+      // Arrange
+      mockRepo.findById.mockResolvedValue({ id: 1, deleted_at: null } as any);
 
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow("L'utilisateur doit d'abord être supprimé (soft delete) avant d'être anonymisé");
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.anonymize).not.toHaveBeenCalled();
+    });
+
+    it('devrait propager l\'erreur si le repository échoue (findById)', async () => {
+      // Arrange
+      mockRepo.findById.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
+
+    it('devrait propager l\'erreur si le repository échoue (anonymize)', async () => {
+      // Arrange
+      mockRepo.findById.mockResolvedValue({ id: 1, deleted_at: new Date() } as any);
+      mockRepo.anonymize.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
   });
 });

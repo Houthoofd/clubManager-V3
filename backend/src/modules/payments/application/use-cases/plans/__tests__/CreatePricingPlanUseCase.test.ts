@@ -8,7 +8,7 @@
  */
 
 import { CreatePricingPlanUseCase } from '../CreatePricingPlanUseCase';
-import type { IPricingPlanRepository } from '../../../../domain/repositories/IPricingPlanRepository';
+import type { IPricingPlanRepository, CreatePricingPlanInput } from '../../../../domain/repositories/IPricingPlanRepository';
 
 // ─── Mock Repository ────────────────────────────────────────────
 
@@ -20,7 +20,6 @@ const mockRepo: jest.Mocked<IPricingPlanRepository> = {
   toggleActive:   jest.fn(),
   delete:         jest.fn(),
 } as jest.Mocked<IPricingPlanRepository>;
-
 
 // ─── Setup ────────────────────────────────────────────────────
 
@@ -34,40 +33,60 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
 describe('CreatePricingPlanUseCase', () => {
   describe('execute', () => {
+    it('devrait créer un plan quand les données sont valides', async () => {
+      mockRepo.create.mockResolvedValue(1);
+      
+      const input: CreatePricingPlanInput = {
+        nom: ' Plan Premium ',
+        prix: 10,
+        duree_mois: 12,
+        is_active: true
+      };
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute(input);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { data: CreatePricingPlanInput } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.create).toHaveBeenCalledWith({
+        ...input,
+        nom: 'Plan Premium'
+      });
+      expect(result).toBe(1);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le nom est manquant', async () => {
+      const input = { prix: 10, duree_mois: 12 } as CreatePricingPlanInput;
+      await expect(useCase.execute(input)).rejects.toThrow("Le nom du plan est requis");
+    });
+
+    it('devrait lancer une erreur si le nom est vide ou que des espaces', async () => {
+      const input = { nom: '   ', prix: 10, duree_mois: 12 } as CreatePricingPlanInput;
+      await expect(useCase.execute(input)).rejects.toThrow("Le nom du plan est requis");
+    });
+
+    it('devrait lancer une erreur si le prix est manquant ou <= 0', async () => {
+      const input1 = { nom: 'Plan', prix: 0, duree_mois: 12 } as CreatePricingPlanInput;
+      await expect(useCase.execute(input1)).rejects.toThrow("Le prix doit être supérieur à 0");
+
+      const input2 = { nom: 'Plan', prix: -5, duree_mois: 12 } as CreatePricingPlanInput;
+      await expect(useCase.execute(input2)).rejects.toThrow("Le prix doit être supérieur à 0");
+    });
+
+    it('devrait lancer une erreur si la durée est manquante ou <= 0', async () => {
+      const input1 = { nom: 'Plan', prix: 10, duree_mois: 0 } as CreatePricingPlanInput;
+      await expect(useCase.execute(input1)).rejects.toThrow("La durée en mois doit être supérieure à 0");
+
+      const input2 = { nom: 'Plan', prix: 10, duree_mois: -1 } as CreatePricingPlanInput;
+      await expect(useCase.execute(input2)).rejects.toThrow("La durée en mois doit être supérieure à 0");
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      mockRepo.create.mockRejectedValue(new Error('DB error'));
+      const input: CreatePricingPlanInput = { nom: 'Plan', prix: 10, duree_mois: 12 };
+      
+      await expect(useCase.execute(input)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

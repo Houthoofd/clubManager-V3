@@ -251,6 +251,7 @@ export class MySQLCourseRepository implements ICourseRepository {
       FROM cours_recurrent cr
       LEFT JOIN cours_recurrent_professeur crp ON crp.cours_recurrent_id = cr.id
       LEFT JOIN professeurs p ON p.id = crp.professeur_id
+      WHERE cr.deleted_at IS NULL
       GROUP BY cr.id
       ORDER BY cr.jour_semaine, cr.heure_debut
     `);
@@ -296,7 +297,7 @@ export class MySQLCourseRepository implements ICourseRepository {
       LEFT JOIN cours_recurrent_professeur crp ON crp.cours_recurrent_id = cr.id
       LEFT JOIN professeurs p ON p.id = crp.professeur_id
       LEFT JOIN grades g ON g.id = p.grade_id
-      WHERE cr.id = ?
+      WHERE cr.id = ? AND cr.deleted_at IS NULL
       ORDER BY p.nom
     `,
       [id],
@@ -444,7 +445,7 @@ export class MySQLCourseRepository implements ICourseRepository {
    */
   async deleteCourseRecurrent(id: number): Promise<void> {
     await pool.query<ResultSetHeader>(
-      "DELETE FROM cours_recurrent WHERE id = ?",
+      "UPDATE cours_recurrent SET deleted_at = NOW() WHERE id = ?",
       [id],
     );
   }
@@ -487,6 +488,7 @@ export class MySQLCourseRepository implements ICourseRepository {
        WHERE jour_semaine = ?
          AND heure_debut  < ?
          AND heure_fin    > ?
+         AND deleted_at IS NULL
          AND (? IS NULL OR id != ?)
        LIMIT 1`,
       [
@@ -608,7 +610,7 @@ export class MySQLCourseRepository implements ICourseRepository {
       SELECT cr.id, cr.type_cours, cr.jour_semaine, cr.heure_debut, cr.heure_fin, cr.active
       FROM cours_recurrent_professeur crp
       JOIN cours_recurrent cr ON cr.id = crp.cours_recurrent_id
-      WHERE crp.professeur_id = ?
+      WHERE crp.professeur_id = ? AND cr.deleted_at IS NULL
       ORDER BY cr.jour_semaine, cr.heure_debut
     `,
       [id],

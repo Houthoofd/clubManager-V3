@@ -319,4 +319,43 @@ export class UserController {
       res.status(status).json({ success: false, message: error.message });
     }
   }
+
+  /**
+   * GET /api/users/:id/tutorials
+   */
+  async getSeenTutorials(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (req.user?.userId !== id && req.user?.role_app !== UserRole.ADMIN) {
+        res.status(403).json({ success: false, message: "Forbidden" });
+        return;
+      }
+      const tutorials = await repo.getSeenTutorials(id);
+      res.json({ success: true, tutorials });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * POST /api/users/:id/tutorials
+   */
+  async markTutorialAsSeen(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (req.user?.userId !== id && req.user?.role_app !== UserRole.ADMIN) {
+        res.status(403).json({ success: false, message: "Forbidden" });
+        return;
+      }
+      const { tutorialId } = req.body;
+      if (!tutorialId) {
+        res.status(400).json({ success: false, message: "tutorialId requis" });
+        return;
+      }
+      await repo.markTutorialAsSeen(id, tutorialId);
+      res.json({ success: true, message: "Tutoriel marqué comme vu" });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
 }

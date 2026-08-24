@@ -254,9 +254,11 @@ test.describe("Paiements — Flux admin", () => {
       timeout: 5_000,
     });
 
-    // Remplir le formulaire
-    await adminPage.locator("#user_id").selectOption(String(memberDbId));
-    await adminPage.locator("#montant").fill("25.00");
+    // Attendre que les options (utilisateurs) soient chargées dans le select
+    await adminPage.locator('[id="record-payment-form"] #user_id option').nth(1).waitFor({ state: "attached", timeout: 15000 });
+    // Sélectionner la 2ème option (la 1ère est le placeholder "Sélectionner un membre")
+    await adminPage.locator('[id="record-payment-form"] #user_id').selectOption({ index: 1 });
+    await adminPage.locator('[id="record-payment-form"]').locator("#montant").fill("25.00");
     // Laisser methode_paiement par défaut (especes) et date_paiement par défaut (today)
 
     // Soumettre

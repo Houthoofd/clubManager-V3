@@ -43,35 +43,56 @@ afterEach(() => {
 
 describe('CreateTemplateTypeUseCase', () => {
   describe('execute', () => {
-
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait retourner le résultat quand les données sont valides (avec description)', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { dto: CreateTemplateTypeDto } = { /* TODO: renseigner les paramètres */ };
+      const expectedResult = { id: 1, nom: 'Type 1', description: 'Desc 1' };
+      mockRepo.createType.mockResolvedValue(expectedResult as any);
 
       // Act
-      // await useCase.execute(input);
+      const result = await useCase.execute({ nom: ' Type 1 ', description: ' Desc 1 ' });
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.createType).toHaveBeenCalledWith({ nom: 'Type 1', description: 'Desc 1' });
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('devrait retourner le résultat quand les données sont valides (sans description)', async () => {
+      // Arrange
+      const expectedResult = { id: 1, nom: 'Type 1' };
+      mockRepo.createType.mockResolvedValue(expectedResult as any);
+
+      // Act
+      const result = await useCase.execute({ nom: 'Type 1' });
+
+      // Assert
+      expect(mockRepo.createType).toHaveBeenCalledWith({ nom: 'Type 1', description: undefined });
+      expect(result).toEqual(expectedResult);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
+    it('devrait lancer une erreur si le nom est manquant', async () => {
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute({ nom: '' })).rejects.toThrow('Le nom du type de template est requis');
+      await expect(useCase.execute({ nom: '   ' })).rejects.toThrow('Le nom du type de template est requis');
+      await expect(useCase.execute({ nom: undefined as any })).rejects.toThrow('Le nom du type de template est requis');
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le nom dépasse 100 caractères', async () => {
+      const longName = 'a'.repeat(101);
+      // Act & Assert
+      await expect(useCase.execute({ nom: longName })).rejects.toThrow('Le nom du type de template ne peut pas dépasser 100 caractères');
+    });
+
+    it('devrait lancer une erreur si le repository échoue', async () => {
+      // Arrange
+      mockRepo.createType.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute({ nom: 'Valid Name' })).rejects.toThrow('DB error');
+    });
 
   });
 });

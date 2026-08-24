@@ -2,7 +2,6 @@
  * GetRecoveryRequestsUseCase.test.ts
  * Tests unitaires — recovery / GetRecoveryRequestsUseCase
  * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
  * Sprint     : Tests 1 — Use-Cases Backend
  * Module     : recovery
  */
@@ -19,7 +18,6 @@ const mockRepo: jest.Mocked<IRecoveryRepository> = {
   create:         jest.fn(),
 } as jest.Mocked<IRecoveryRepository>;
 
-
 // ─── Setup ────────────────────────────────────────────────────
 
 let useCase: GetRecoveryRequestsUseCase;
@@ -32,40 +30,62 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
 describe('GetRecoveryRequestsUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { query: GetRecoveryRequestsQuery } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('should use default page and limit when not provided', async () => {
+      const mockResult = { items: [], total: 0, page: 1, limit: 20 };
+      mockRepo.findAll.mockResolvedValue(mockResult);
+      
+      const result = await useCase.execute({});
+      
+      expect(result).toEqual(mockResult);
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 20 });
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('should limit page to a minimum of 1', async () => {
+      const mockResult = { items: [], total: 0, page: 1, limit: 20 };
+      mockRepo.findAll.mockResolvedValue(mockResult);
+      
+      await useCase.execute({ page: 0 });
+      
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 20 });
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('should limit limit to a minimum of 1', async () => {
+      const mockResult = { items: [], total: 0, page: 1, limit: 1 };
+      mockRepo.findAll.mockResolvedValue(mockResult);
+      
+      await useCase.execute({ limit: 0 });
+      
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 1 });
+    });
+
+    it('should limit limit to a maximum of 100', async () => {
+      const mockResult = { items: [], total: 0, page: 1, limit: 100 };
+      mockRepo.findAll.mockResolvedValue(mockResult);
+      
+      await useCase.execute({ limit: 150 });
+      
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    });
+
+    it('should pass correct values when within bounds', async () => {
+      const mockResult = { items: [], total: 0, page: 2, limit: 50 };
+      mockRepo.findAll.mockResolvedValue(mockResult);
+      
+      await useCase.execute({ page: 2, limit: 50, status: 'pending' });
+      
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 2, limit: 50, status: 'pending' });
+    });
+
+    it('should propagate repository errors', async () => {
+      mockRepo.findAll.mockRejectedValue(new Error('DB error'));
+      
+      await expect(useCase.execute({})).rejects.toThrow('DB error');
+    });
 
   });
 });

@@ -79,10 +79,6 @@ test.describe("Paramètres — Flux admin", () => {
 
   // ----------------------------------------------------------
   // Test 5 : Le bouton de sauvegarde de la section Club est présent et cliquable
-  //
-  // Note : On ne vérifie PAS le toast de succès car la valeur de test
-  // peut être rejetée par la validation API selon la configuration du club.
-  // Ce test vérifie uniquement que l'UI expose bien le bouton de sauvegarde.
   // ----------------------------------------------------------
   test("bouton Sauvegarder de la section Club visible et cliquable", async ({
     adminPage,
@@ -122,7 +118,6 @@ test.describe("Paramètres — Flux admin", () => {
     await horairesTab.click();
     await expect(horairesTab).toHaveAttribute("aria-selected", "true");
 
-    // Le bouton de sauvegarde de la section horaires doit être visible
     await expect(
       adminPage.locator('[data-testid="btn-save-horaires"]'),
     ).toBeVisible({ timeout: 10_000 });
@@ -174,5 +169,111 @@ test.describe("Paramètres — Flux admin", () => {
     await expect(
       adminPage.locator('[data-testid="btn-save-localisation"]'),
     ).toBeVisible({ timeout: 10_000 });
+  });
+
+  // ----------------------------------------------------------
+  // Test 10 : Modification et sauvegarde - Apparence
+  // ----------------------------------------------------------
+  test("modification et sauvegarde des paramètres d'apparence", async ({ adminPage }) => {
+    await gotoSettings(adminPage);
+    const apparenceTab = adminPage.locator("#tab-apparence");
+    await apparenceTab.click();
+    
+    // Fill all empty fields to prevent 400 error from backend
+    const logoUrlInput = adminPage.locator("#club_logo_url");
+    await logoUrlInput.fill("https://example.com/logo.png");
+
+    const navbarNameInput = adminPage.locator("#navbar_name");
+    const testVal = "Test Navbar " + Date.now();
+    await navbarNameInput.fill(testVal);
+    
+    const saveBtn = adminPage.locator('button').filter({ hasText: /enregistrer|save|sauvegarder/i }).last();
+    
+    await Promise.all([
+      adminPage.waitForResponse(resp => resp.url().includes('/api/') && resp.request().method() !== 'GET'),
+      saveBtn.click()
+    ]);
+    
+    const toast = adminPage.locator('[data-sonner-toast]');
+    await expect(toast).toBeVisible({ timeout: 10000 });
+    // This will fail loudly if toast is an error
+    await expect(toast).toHaveAttribute('data-type', 'success', { timeout: 5000 });
+    
+    // Attendre une seconde pour être sûr que la DB a bien écrit
+    await adminPage.waitForTimeout(1000);
+    
+    await adminPage.reload();
+    await gotoSettings(adminPage);
+    await adminPage.locator("#tab-apparence").click();
+    
+    await expect(adminPage.locator("#navbar_name")).toHaveValue(testVal, { timeout: 15_000 });
+  });
+
+  // ----------------------------------------------------------
+  // Test 11 : Modification et sauvegarde - Réseaux Sociaux
+  // ----------------------------------------------------------
+  test("modification et sauvegarde des paramètres réseaux sociaux", async ({ adminPage }) => {
+    await gotoSettings(adminPage);
+    const socialTab = adminPage.locator("#tab-social");
+    await socialTab.click();
+    
+    // Fill all social inputs to prevent 400 error
+    await adminPage.locator("#social_facebook").fill("https://facebook.com/test");
+    await adminPage.locator("#social_twitter").fill("https://twitter.com/test");
+
+    const instagramInput = adminPage.locator("#social_instagram");
+    const testUrl = "https://instagram.com/test_" + Date.now();
+    await instagramInput.fill(testUrl);
+    
+    const saveBtn = adminPage.locator('[data-testid="btn-save-social"]');
+    
+    await Promise.all([
+      adminPage.waitForResponse(resp => resp.url().includes('/api/') && resp.request().method() !== 'GET'),
+      saveBtn.click()
+    ]);
+    
+    const toast = adminPage.locator('[data-sonner-toast]');
+    await expect(toast).toBeVisible({ timeout: 10000 });
+    await expect(toast).toHaveAttribute('data-type', 'success', { timeout: 5000 });
+    
+    await adminPage.waitForTimeout(1000);
+    
+    await adminPage.reload();
+    await gotoSettings(adminPage);
+    await adminPage.locator("#tab-social").click();
+    
+    await expect(adminPage.locator("#social_instagram")).toHaveValue(testUrl, { timeout: 15_000 });
+  });
+
+  // ----------------------------------------------------------
+  // Test 12 : Modification et sauvegarde - Localisation
+  // ----------------------------------------------------------
+  test("modification et sauvegarde des paramètres localisation", async ({ adminPage }) => {
+    await gotoSettings(adminPage);
+    const localisationTab = adminPage.locator("#tab-localisation");
+    await localisationTab.click();
+    
+    const timezoneInput = adminPage.locator("#timezone");
+    const testVal = "America/New_York";
+    await timezoneInput.selectOption(testVal);
+    
+    const saveBtn = adminPage.locator('[data-testid="btn-save-localisation"]');
+    
+    await Promise.all([
+      adminPage.waitForResponse(resp => resp.url().includes('/api/') && resp.request().method() !== 'GET'),
+      saveBtn.click()
+    ]);
+    
+    const toast = adminPage.locator('[data-sonner-toast]');
+    await expect(toast).toBeVisible({ timeout: 10000 });
+    await expect(toast).toHaveAttribute('data-type', 'success', { timeout: 5000 });
+    
+    await adminPage.waitForTimeout(1000);
+    
+    await adminPage.reload();
+    await gotoSettings(adminPage);
+    await adminPage.locator("#tab-localisation").click();
+    
+    await expect(adminPage.locator("#timezone")).toHaveValue(testVal, { timeout: 15_000 });
   });
 });

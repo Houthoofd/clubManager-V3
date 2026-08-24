@@ -1,79 +1,71 @@
 /**
  * GetUsersUseCase.test.ts
  * Tests unitaires — users / GetUsersUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : users
  */
 
 import { GetUsersUseCase } from '../GetUsersUseCase';
 import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
+import type { GetUsersQueryDto, PaginatedUsersResponseDto } from '@clubmanager/types';
 
 const mockRepo: jest.Mocked<IUserRepository> = {
-  findAll:              jest.fn(),
-  findById:             jest.fn(),
-  findProfile:          jest.fn(),
-  updateRole:           jest.fn(),
-  updateStatus:         jest.fn(),
-  updateLanguage:       jest.fn(),
-  updateProfile:        jest.fn(),
-  softDelete:           jest.fn(),
-  restore:              jest.fn(),
-  findDeleted:          jest.fn(),
-  anonymize:            jest.fn(),
-  updateSubscription:   jest.fn(),
+  findAll: jest.fn(),
+  findById: jest.fn(),
+  findProfile: jest.fn(),
+  updateRole: jest.fn(),
+  updateStatus: jest.fn(),
+  updateLanguage: jest.fn(),
+  updateProfile: jest.fn(),
+  softDelete: jest.fn(),
+  restore: jest.fn(),
+  findDeleted: jest.fn(),
+  anonymize: jest.fn(),
+  updateSubscription: jest.fn(),
 } as jest.Mocked<IUserRepository>;
 
-
-// ─── Setup ────────────────────────────────────────────────────
-
-let useCase: GetUsersUseCase;
-
-beforeEach(() => {
-  useCase = new GetUsersUseCase(mockRepo);
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('GetUsersUseCase', () => {
+  let useCase: GetUsersUseCase;
+
+  beforeEach(() => {
+    useCase = new GetUsersUseCase(mockRepo);
+    jest.clearAllMocks();
+  });
+
   describe('execute', () => {
+    it('devrait utiliser les valeurs par défaut si page et limit ne sont pas fournis', async () => {
+      const mockResult: PaginatedUsersResponseDto = { data: [], total: 0, page: 1, limit: 20, totalPages: 0 };
+      mockRepo.findAll.mockResolvedValue(mockResult);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const query: GetUsersQueryDto = {};
+      const result = await useCase.execute(query);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { query: GetUsersQueryDto } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 20 });
+      expect(result).toEqual(mockResult);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait contraindre la page à 1 minimum', async () => {
+      mockRepo.findAll.mockResolvedValue({ data: [], total: 0, page: 1, limit: 20, totalPages: 0 });
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      const query: GetUsersQueryDto = { page: -5, limit: 10 };
+      await useCase.execute(query);
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait contraindre la limit entre 1 et 100', async () => {
+      mockRepo.findAll.mockResolvedValue({ data: [], total: 0, page: 1, limit: 1, totalPages: 0 });
 
+      await useCase.execute({ page: 2, limit: 0 });
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 2, limit: 1 });
+
+      await useCase.execute({ page: 2, limit: 150 });
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 2, limit: 100 });
+    });
+
+    it('devrait utiliser les valeurs fournies si elles sont valides', async () => {
+      mockRepo.findAll.mockResolvedValue({ data: [], total: 0, page: 2, limit: 50, totalPages: 0 });
+
+      await useCase.execute({ page: 2, limit: 50 });
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 2, limit: 50 });
+    });
   });
 });

@@ -36,6 +36,9 @@ export * from "./statistics/index.js";
 // Lookup validators
 export * from "./lookup/index.js";
 
+// Events validators
+export * from "./events/index.js";
+
 /**
  * Re-export des types inférés les plus utilisés
  */

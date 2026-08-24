@@ -40,34 +40,53 @@ afterEach(() => {
 describe('GetUserReservationsUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait retourner les réservations d\'un utilisateur sans filtre de statut', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { userId: number, statut?: ReservationStatut } = { /* TODO: renseigner les paramètres */ };
+      const mockReservations = [{ id: 1, user_id: 10, cours_id: 2, statut: 'confirmee' }];
+      mockRepo.findAll.mockResolvedValue({
+        reservations: mockReservations,
+        pagination: { total: 1, limit: 100, offset: 0 }
+      } as any);
 
       // Act
-      // await useCase.execute(input);
+      const result = await useCase.execute(10);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findAll).toHaveBeenCalledWith({
+        user_id: 10,
+        statut: undefined,
+        limit: 100,
+      });
+      expect(result).toEqual(mockReservations);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait retourner les réservations d\'un utilisateur avec filtre de statut', async () => {
+      // Arrange
+      const mockReservations = [{ id: 2, user_id: 10, cours_id: 3, statut: 'annulee' }];
+      mockRepo.findAll.mockResolvedValue({
+        reservations: mockReservations,
+        pagination: { total: 1, limit: 100, offset: 0 }
+      } as any);
+
+      // Act
+      const result = await useCase.execute(10, 'annulee' as any);
+
+      // Assert
+      expect(mockRepo.findAll).toHaveBeenCalledWith({
+        user_id: 10,
+        statut: 'annulee',
+        limit: 100,
+      });
+      expect(result).toEqual(mockReservations);
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findAll.mockRejectedValue(new Error('DB error'));
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(10)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
 
   });
 });

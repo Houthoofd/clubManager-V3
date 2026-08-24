@@ -7,7 +7,7 @@
  * Module     : templates
  */
 
-jest.mock('../../services/TemplateEngineService.js');
+// removed mock
 
 import { PreviewTemplateUseCase } from '../PreviewTemplateUseCase';
 import type { ITemplateRepository } from '../../../domain/repositories/ITemplateRepository';
@@ -45,35 +45,64 @@ afterEach(() => {
 
 describe('PreviewTemplateUseCase', () => {
   describe('execute', () => {
-
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait retourner le rendu du template avec les données d\'exemple par défaut', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { templateId: number, dto: PreviewTemplateDto } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.getById.mockResolvedValueOnce({
+        id: 1,
+        type_id: 1,
+        titre: 'Bonjour {{prenom}}',
+        contenu: 'Votre id est {{userId}} et date: {{date}}',
+        actif: true,
+        created_at: new Date(),
+        updated_at: new Date()
+      } as any);
 
-      // Act
-      // await useCase.execute(input);
+      const result = await useCase.execute(1, {});
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getById).toHaveBeenCalledWith(1);
+      expect(result.titre).toBe('Bonjour Jean');
+      expect(result.contenu).toBe('Votre id est U-2025-0001 et date: {{date}}');
+      expect(result.auto_variables).toContain('prenom');
+      expect(result.auto_variables).toContain('userId');
+      expect(result.manual_variables).toContain('date');
+    });
+
+    it('devrait retourner le rendu du template avec des données d\'exemple fournies', async () => {
+      // Arrange
+      const expectedTemplate = { id: 1, type_id: 1, titre: 'Bonjour {{prenom}}', contenu: 'Votre id est {{userId}} et date: {{date}}', variables: ['prenom', 'userId', 'date'], actif: true };
+      mockRepo.getById.mockResolvedValue(expectedTemplate as any);
+
+      // Act
+      const result = await useCase.execute(1, {
+        recipient_example: { first_name: 'Alice', last_name: 'Bob', userId: 'A-123' },
+        manual_vars: { date: '12/12/2025' }
+      });
+
+      // Assert
+      expect(result.titre).toBe('Bonjour Alice');
+      expect(result.contenu).toBe('Votre id est A-123 et date: 12/12/2025');
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait lancer une erreur si le template n\'existe pas', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.getById.mockResolvedValue(null);
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1)).rejects.toThrow('Template introuvable');
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le repository échoue', async () => {
+      // Arrange
+      mockRepo.getById.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
 
   });
 });

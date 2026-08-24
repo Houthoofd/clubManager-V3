@@ -15,7 +15,7 @@
     "start": "node dist/server.js",
     "test": "node ../node_modules/jest/bin/jest.js",
     "test:watch": "node ../node_modules/jest/bin/jest.js --watch",
-    "test:coverage": "node ../node_modules/jest/bin/jest.js --coverage",
+    "test:coverage": "node ../node_modules/jest/bin/jest.js --coverage --runInBand --forceExit",
     "test:unit": "node ../node_modules/jest/bin/jest.js --testPathPattern='__tests__/.*.test.ts$'",
     "test:e2e": "node ../node_modules/jest/bin/jest.js --testPathPattern='tests/e2e/.*.test.ts$'",
     "test:integration": "node ../node_modules/jest/bin/jest.js --config jest.config.integration.cjs --forceExit --runInBand",

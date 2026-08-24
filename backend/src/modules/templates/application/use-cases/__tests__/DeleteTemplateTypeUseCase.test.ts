@@ -43,35 +43,62 @@ afterEach(() => {
 
 describe('DeleteTemplateTypeUseCase', () => {
   describe('execute', () => {
-
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait supprimer le type s\'il existe et qu\'il n\'a pas de templates actifs', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.getTypes.mockResolvedValue([{ id: 1, nom: 'Type 1' }] as any);
+      mockRepo.getAll.mockResolvedValue([]);
+      mockRepo.deleteType.mockResolvedValue(true);
 
       // Act
-      // await useCase.execute(input);
+      await useCase.execute(1);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getTypes).toHaveBeenCalled();
+      expect(mockRepo.getAll).toHaveBeenCalledWith(1, true);
+      expect(mockRepo.deleteType).toHaveBeenCalledWith(1);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait lancer une erreur si le type n\'existe pas', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.getTypes.mockResolvedValue([{ id: 2, nom: 'Type 2' }] as any);
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1)).rejects.toThrow('Type de template introuvable');
+      expect(mockRepo.getAll).not.toHaveBeenCalled();
+      expect(mockRepo.deleteType).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le type a des templates actifs', async () => {
+      // Arrange
+      mockRepo.getTypes.mockResolvedValue([{ id: 1, nom: 'Type 1' }] as any);
+      mockRepo.getAll.mockResolvedValue([{ id: 10, type_id: 1, titre: 'Titre', contenu: 'C', variables: [], actif: true }]);
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('Impossible de supprimer ce type : 1 template(s) actif(s) y sont rattachés. Désactivez ou supprimez ces templates avant de supprimer le type.');
+      expect(mockRepo.deleteType).not.toHaveBeenCalled();
+    });
+
+    it('devrait lancer une erreur si le repository (deleteType) échoue', async () => {
+      // Arrange
+      mockRepo.getTypes.mockResolvedValue([{ id: 1, nom: 'Type 1' }] as any);
+      mockRepo.getAll.mockResolvedValue([]);
+      mockRepo.deleteType.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
+
+    it('devrait lancer une erreur si le repository (getTypes) échoue', async () => {
+      // Arrange
+      mockRepo.getTypes.mockRejectedValue(new Error('DB error types'));
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('DB error types');
+    });
 
   });
 });

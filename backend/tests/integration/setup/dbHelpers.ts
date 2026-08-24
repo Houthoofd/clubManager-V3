@@ -106,8 +106,9 @@ export async function createTestUser(
   const pool = getTestPool();
   const n = nextCounter();
   const year = new Date().getFullYear();
-  const userId = `U-${year}-${n.toString().padStart(4, "0")}`;
-  const email = `test${n}_${Date.now()}@integration.test`;
+  const randomSuffix = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
+  const userId = `U-${year}-${randomSuffix}`;
+  const email = `test${n}_${Date.now()}_${randomSuffix}@integration.test`;
   const password = `Test@${n}1234!Secure`;
   const hashed = await bcrypt.hash(password, 10);
 

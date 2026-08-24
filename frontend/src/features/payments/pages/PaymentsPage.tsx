@@ -366,7 +366,11 @@ export function PaymentsPage() {
   return (
     <div className="space-y-6" data-testid="payments-page">
       {/* ── En-tête ── */}
-      <PageHeader title={t("title")} description={t("subtitle")} />
+      <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        icon={<CreditCardIcon className="w-8 h-8 text-blue-600" />}
+      />
 
       {/* ── Conteneur onglets ── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">

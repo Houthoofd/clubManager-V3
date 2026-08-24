@@ -45,34 +45,25 @@ afterEach(() => {
 
 describe('GetDeletedUsersUseCase', () => {
   describe('execute', () => {
-
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait retourner la liste des utilisateurs supprimés', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
+      const mockDeletedUsers = [{ id: 1 }, { id: 2 }];
+      mockRepo.findDeleted.mockResolvedValue(mockDeletedUsers as any);
 
       // Act
-      // await useCase.execute();
+      const result = await useCase.execute();
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findDeleted).toHaveBeenCalled();
+      expect(result).toEqual(mockDeletedUsers);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait propager l\'erreur si le repository échoue', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findDeleted.mockRejectedValue(new Error('DB error'));
 
       // Act & Assert
-      // await expect(useCase.execute()).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute()).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

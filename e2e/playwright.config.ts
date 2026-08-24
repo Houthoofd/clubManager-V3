@@ -133,6 +133,7 @@ export default defineConfig({
         /tests\/navigation\/profile\.spec\.ts/,
         /tests\/member\/.*/,
         /tests\/profile\/.*/,
+        /tests\/professor\/.*/,
       ],
       use: {
         ...devices["Desktop Chrome"],
@@ -157,6 +158,18 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         storageState: STORAGE_STATE.member,
+      },
+    },
+
+    // ----------------------------------------------------------
+    // 3.5 Tests professeur — contexte avec storageState professor
+    // ----------------------------------------------------------
+    {
+      name: "chromium-professor",
+      testMatch: /tests\/professor\/.*/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: STORAGE_STATE.professor,
       },
     },
 

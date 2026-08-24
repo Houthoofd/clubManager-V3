@@ -21,7 +21,6 @@ const mockRepo: jest.Mocked<IPricingPlanRepository> = {
   delete:         jest.fn(),
 } as jest.Mocked<IPricingPlanRepository>;
 
-
 // ─── Setup ────────────────────────────────────────────────────
 
 let useCase: GetPricingPlanByIdUseCase;
@@ -34,40 +33,33 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
 describe('GetPricingPlanByIdUseCase', () => {
   describe('execute', () => {
+    it('devrait retourner le plan si celui-ci existe', async () => {
+      const plan = {
+        id_plan: 1, nom: 'Plan', prix: 10, duree_mois: 12, is_active: true, created_at: new Date(), updated_at: new Date()
+      };
+      mockRepo.findById.mockResolvedValue(plan);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute(1);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(result).toEqual(plan);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le plan est introuvable', async () => {
+      mockRepo.findById.mockResolvedValue(null);
+
+      await expect(useCase.execute(999)).rejects.toThrow("Plan introuvable");
+      expect(mockRepo.findById).toHaveBeenCalledWith(999);
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findById.mockRejectedValue(new Error('DB error'));
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

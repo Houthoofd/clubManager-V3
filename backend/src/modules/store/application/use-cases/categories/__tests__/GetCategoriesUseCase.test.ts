@@ -8,7 +8,7 @@
  */
 
 import { GetCategoriesUseCase } from '../GetCategoriesUseCase';
-import type { ICategoryRepository } from '../../../../domain/repositories/ICategoryRepository';
+import type { ICategoryRepository, CategoryRow } from '../../../../domain/repositories/ICategoryRepository';
 
 // ─── Mock Repository ────────────────────────────────────────────
 
@@ -20,7 +20,6 @@ const mockRepo: jest.Mocked<ICategoryRepository> = {
   delete:     jest.fn(),
   reorder:    jest.fn(),
 } as jest.Mocked<ICategoryRepository>;
-
 
 // ─── Setup ────────────────────────────────────────────────────
 
@@ -34,7 +33,6 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
 describe('GetCategoriesUseCase', () => {
@@ -44,29 +42,30 @@ describe('GetCategoriesUseCase', () => {
 
     it('devrait retourner le résultat quand les données sont valides', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
+      const mockCategories: CategoryRow[] = [
+        { id: 1, nom: 'Cat 1', position: 1, parent_id: null },
+        { id: 2, nom: 'Cat 2', position: 2, parent_id: null }
+      ];
+      mockRepo.findAll.mockResolvedValue(mockCategories);
 
       // Act
-      // await useCase.execute();
+      const result = await useCase.execute();
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findAll).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(mockCategories);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
     it('devrait lancer une erreur si le repository échoue', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findAll.mockRejectedValue(new Error('DB error'));
 
       // Act & Assert
-      // await expect(useCase.execute()).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute()).rejects.toThrow('DB error');
+      expect(mockRepo.findAll).toHaveBeenCalledTimes(1);
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
 
   });
 });

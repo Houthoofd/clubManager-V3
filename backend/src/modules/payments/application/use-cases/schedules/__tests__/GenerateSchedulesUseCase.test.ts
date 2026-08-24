@@ -67,35 +67,38 @@ afterEach(() => {
 
 describe('GenerateSchedulesUseCase', () => {
   describe('execute', () => {
+    it('devrait générer les échéances correctement', async () => {
+      mockUserRepo.findById.mockResolvedValue({ id: 1, abonnement_id: 2 } as any);
+      mockPlanRepo.findById.mockResolvedValue({ id: 2, duree_mois: 3, prix: 50 } as any);
+      mockScheduleRepo.create.mockResolvedValueOnce(10).mockResolvedValueOnce(11).mockResolvedValueOnce(12);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute(1);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { userId: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockUserRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockPlanRepo.findById).toHaveBeenCalledWith(2);
+      expect(mockScheduleRepo.create).toHaveBeenCalledTimes(3);
+      expect(result).toEqual([10, 11, 12]);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si l\'utilisateur est introuvable', async () => {
+      mockUserRepo.findById.mockResolvedValue(null);
+      await expect(useCase.execute(1)).rejects.toThrow('Utilisateur introuvable');
+    });
+
+    it('devrait lancer une erreur si l\'utilisateur n\'a pas de plan tarifaire', async () => {
+      mockUserRepo.findById.mockResolvedValue({ id: 1, abonnement_id: null } as any);
+      await expect(useCase.execute(1)).rejects.toThrow('Cet utilisateur n\'a pas de plan tarifaire assigné');
+    });
+
+    it('devrait lancer une erreur si le plan tarifaire est introuvable', async () => {
+      mockUserRepo.findById.mockResolvedValue({ id: 1, abonnement_id: 99 } as any);
+      mockPlanRepo.findById.mockResolvedValue(null);
+      await expect(useCase.execute(1)).rejects.toThrow('Plan tarifaire introuvable');
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      mockUserRepo.findById.mockRejectedValue(new Error('DB Error'));
+      await expect(useCase.execute(1)).rejects.toThrow('DB Error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

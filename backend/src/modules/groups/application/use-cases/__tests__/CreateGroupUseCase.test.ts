@@ -1,16 +1,6 @@
-/**
- * CreateGroupUseCase.test.ts
- * Tests unitaires — groups / CreateGroupUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : groups
- */
-
 import { CreateGroupUseCase } from '../CreateGroupUseCase';
 import type { IGroupRepository } from '../../../domain/repositories/IGroupRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
+import type { Group, CreateGroupDto } from '../../../domain/types';
 
 const mockRepo: jest.Mocked<IGroupRepository> = {
   findAll:        jest.fn(),
@@ -22,10 +12,7 @@ const mockRepo: jest.Mocked<IGroupRepository> = {
   addMember:      jest.fn(),
   removeMember:   jest.fn(),
   isMember:       jest.fn(),
-} as jest.Mocked<IGroupRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+};
 
 let useCase: CreateGroupUseCase;
 
@@ -37,40 +24,58 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('CreateGroupUseCase', () => {
   describe('execute', () => {
+    it('devrait créer un groupe avec des données valides', async () => {
+      const input: CreateGroupDto = { nom: 'Group 1', description: 'Desc' };
+      const expectedGroup: Group = { id: 1, nom: 'Group 1', description: 'Desc' } as Group;
+      
+      mockRepo.create.mockResolvedValue(expectedGroup);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute(input);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { data: CreateGroupDto } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.create).toHaveBeenCalledWith({ nom: 'Group 1', description: 'Desc' });
+      expect(result).toEqual(expectedGroup);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait créer un groupe sans description', async () => {
+      const input: CreateGroupDto = { nom: 'Group 1' };
+      const expectedGroup: Group = { id: 1, nom: 'Group 1', description: null } as Group;
+      
+      mockRepo.create.mockResolvedValue(expectedGroup);
+
+      const result = await useCase.execute(input);
+
+      expect(mockRepo.create).toHaveBeenCalledWith({ nom: 'Group 1', description: null });
+      expect(result).toEqual(expectedGroup);
+    });
+
+    it('devrait lancer une erreur si le nom est manquant', async () => {
+      const input = { description: 'Desc' } as CreateGroupDto;
+
+      await expect(useCase.execute(input)).rejects.toThrow('Le nom du groupe est requis');
+      expect(mockRepo.create).not.toHaveBeenCalled();
+    });
+
+    it('devrait lancer une erreur si le nom est vide après trim', async () => {
+      const input: CreateGroupDto = { nom: '   ' };
+
+      await expect(useCase.execute(input)).rejects.toThrow('Le nom du groupe est requis');
+      expect(mockRepo.create).not.toHaveBeenCalled();
+    });
+
+    it('devrait lancer une erreur si le nom fait moins de 2 caractères', async () => {
+      const input: CreateGroupDto = { nom: 'A' };
+
+      await expect(useCase.execute(input)).rejects.toThrow('Le nom du groupe doit contenir au moins 2 caractères');
+      expect(mockRepo.create).not.toHaveBeenCalled();
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      const input: CreateGroupDto = { nom: 'Group 1' };
+      mockRepo.create.mockRejectedValue(new Error('DB error'));
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(input)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

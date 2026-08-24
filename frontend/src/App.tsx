@@ -16,6 +16,7 @@ import { Toaster } from "sonner";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./i18n";
 import { useAuthStore } from "./shared/stores/authStore";
+import { TutorialProvider } from "./shared/providers/TutorialProvider";
 
 // Layouts
 import { PublicLayout } from "./layouts/PublicLayout";
@@ -46,6 +47,11 @@ import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
 import { NotificationsPage } from "./features/notifications/pages";
 import { AlertsPage } from "./features/alerts/pages";
 import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
+import { ReservationsPage } from "./features/reservations/pages/ReservationsPage";
+
+import { EventsPage } from "./features/events/pages/EventsPage";
+import { CreateEventPage } from "./pages/admin/events/CreateEventPage";
+import { EventDetailsPage } from "./pages/member/events/EventDetailsPage";
 
 /**
  * AuthenticatedLayout Component
@@ -136,10 +142,11 @@ function App() {
 
   return (
     <I18nextProvider i18n={i18n}>
-      {/* Toaster pour les notifications */}
-      <Toaster position="top-right" richColors closeButton duration={4000} />
+      <TutorialProvider>
+        {/* Toaster pour les notifications */}
+        <Toaster position="top-right" richColors closeButton duration={4000} />
 
-      <BrowserRouter>
+        <BrowserRouter>
         <Routes>
           {/* Redirect root based on auth state */}
           <Route path="/" element={<RootRedirect />} />
@@ -232,6 +239,7 @@ function App() {
               }
             />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/reservations" element={<ReservationsPage />} />
             <Route path="/family" element={<FamilyPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/alerts" element={<AlertsPage />} />
@@ -244,12 +252,47 @@ function App() {
                 </RoleGuard>
               }
             />
+
+            {/* Events Routes */}
+            <Route
+              path="/admin/events"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                  <EventsPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/admin/events/create"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                  <CreateEventPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/events"
+              element={
+                  <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                    <EventsPage />
+                  </RoleGuard>
+              }
+            />
+            <Route
+              path="/events/:id"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.PROFESSOR, UserRole.MEMBER]}>
+                  <EventDetailsPage />
+                </RoleGuard>
+              }
+            />
           </Route>
 
           {/* 404 Not Found */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
+      </TutorialProvider>
     </I18nextProvider>
   );
 }

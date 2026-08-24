@@ -379,6 +379,7 @@ export function ReservationsPage() {
               <Button
                 variant="ghost"
                 size="sm"
+                data-testid="btn-clear-filters"
                 onClick={() => {
                   setFilterStatut("");
                   setFilterCoursId("");

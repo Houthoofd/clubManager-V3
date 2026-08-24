@@ -45,35 +45,57 @@ afterEach(() => {
 
 describe('AssignSubscriptionUseCase', () => {
   describe('execute', () => {
-
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait assigner un abonnement si l\'utilisateur existe', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { userId: number, abonnement_id: number | null } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.findById.mockResolvedValue({ id: 1 } as any);
+      mockRepo.updateSubscription.mockResolvedValue();
 
       // Act
-      // await useCase.execute(input);
+      await useCase.execute(1, 100);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.updateSubscription).toHaveBeenCalledWith(1, 100);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait retirer un abonnement (null) si l\'utilisateur existe', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findById.mockResolvedValue({ id: 1 } as any);
+      mockRepo.updateSubscription.mockResolvedValue();
+
+      // Act
+      await useCase.execute(1, null);
+
+      // Assert
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.updateSubscription).toHaveBeenCalledWith(1, null);
+    });
+
+    it('devrait lancer une erreur si l\'utilisateur est introuvable', async () => {
+      // Arrange
+      mockRepo.findById.mockResolvedValue(null);
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1, 100)).rejects.toThrow('Utilisateur introuvable');
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.updateSubscription).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait propager l\'erreur si le repository échoue (findById)', async () => {
+      // Arrange
+      mockRepo.findById.mockRejectedValue(new Error('DB error'));
 
+      // Act & Assert
+      await expect(useCase.execute(1, 100)).rejects.toThrow('DB error');
+    });
+
+    it('devrait propager l\'erreur si le repository échoue (updateSubscription)', async () => {
+      // Arrange
+      mockRepo.findById.mockResolvedValue({ id: 1 } as any);
+      mockRepo.updateSubscription.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute(1, 100)).rejects.toThrow('DB error');
+    });
   });
 });

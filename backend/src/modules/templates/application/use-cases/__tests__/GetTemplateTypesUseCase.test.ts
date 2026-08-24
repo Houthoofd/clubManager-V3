@@ -43,34 +43,30 @@ afterEach(() => {
 
 describe('GetTemplateTypesUseCase', () => {
   describe('execute', () => {
-
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait retourner les types de templates', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
+      const expectedTypes = [{ id: 1, nom: 'Type 1' }];
+      mockRepo.getTypes.mockResolvedValue(expectedTypes as any);
 
       // Act
-      // await useCase.execute();
+      const result = await useCase.execute();
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getTypes).toHaveBeenCalled();
+      expect(result).toEqual(expectedTypes);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
     it('devrait lancer une erreur si le repository échoue', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.getTypes.mockRejectedValue(new Error('DB error'));
 
       // Act & Assert
-      // await expect(useCase.execute()).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute()).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
 
   });
 });

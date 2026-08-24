@@ -57,35 +57,27 @@ afterEach(() => {
 
 describe('GetCourseByIdUseCase', () => {
   describe('execute', () => {
+    it('devrait retourner le cours quand l\'identifiant existe', async () => {
+      const mockCourse = { id: 1, type_cours: 'Judo' } as any;
+      mockRepo.getCourseById.mockResolvedValue(mockCourse);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute(1);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getCourseById).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockCourse);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le cours est introuvable', async () => {
+      mockRepo.getCourseById.mockResolvedValue(null);
+
+      await expect(useCase.execute(99)).rejects.toThrow('Cours introuvable');
+      expect(mockRepo.getCourseById).toHaveBeenCalledWith(99);
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      mockRepo.getCourseById.mockRejectedValue(new Error('DB error'));
+      
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

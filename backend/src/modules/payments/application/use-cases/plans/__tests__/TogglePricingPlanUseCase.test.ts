@@ -21,7 +21,6 @@ const mockRepo: jest.Mocked<IPricingPlanRepository> = {
   delete:         jest.fn(),
 } as jest.Mocked<IPricingPlanRepository>;
 
-
 // ─── Setup ────────────────────────────────────────────────────
 
 let useCase: TogglePricingPlanUseCase;
@@ -34,40 +33,67 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
 describe('TogglePricingPlanUseCase', () => {
   describe('execute', () => {
+    it('devrait basculer l\'état de actif à inactif', async () => {
+      mockRepo.findById
+        .mockResolvedValueOnce({ id_plan: 1, actif: true } as any)
+        .mockResolvedValueOnce({ id_plan: 1, actif: false } as any);
+      mockRepo.toggleActive.mockResolvedValue(undefined);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute(1);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenNthCalledWith(1, 1);
+      expect(mockRepo.toggleActive).toHaveBeenCalledWith(1, false);
+      expect(mockRepo.findById).toHaveBeenNthCalledWith(2, 1);
+      expect(result).toEqual({ id_plan: 1, actif: false });
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait basculer l\'état de inactif à actif', async () => {
+      mockRepo.findById
+        .mockResolvedValueOnce({ id_plan: 1, actif: false } as any)
+        .mockResolvedValueOnce({ id_plan: 1, actif: true } as any);
+      mockRepo.toggleActive.mockResolvedValue(undefined);
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      const result = await useCase.execute(1);
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenNthCalledWith(1, 1);
+      expect(mockRepo.toggleActive).toHaveBeenCalledWith(1, true);
+      expect(mockRepo.findById).toHaveBeenNthCalledWith(2, 1);
+      expect(result).toEqual({ id_plan: 1, actif: true });
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le plan est introuvable au début', async () => {
+      mockRepo.findById.mockResolvedValue(null);
 
+      await expect(useCase.execute(999)).rejects.toThrow("Plan introuvable");
+      expect(mockRepo.findById).toHaveBeenCalledWith(999);
+      expect(mockRepo.toggleActive).not.toHaveBeenCalled();
+    });
+
+    it('devrait lancer une erreur si le repository échoue (findById initial)', async () => {
+      mockRepo.findById.mockRejectedValue(new Error('DB error'));
+
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
+
+    it('devrait lancer une erreur si le repository échoue (toggleActive)', async () => {
+      mockRepo.findById.mockResolvedValue({ id_plan: 1, actif: true } as any);
+      mockRepo.toggleActive.mockRejectedValue(new Error('DB error'));
+
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
+
+    it('devrait lancer une erreur si le plan est supprimé entre-temps (findById final retourne null)', async () => {
+      mockRepo.findById
+        .mockResolvedValueOnce({ id_plan: 1, actif: true } as any)
+        .mockResolvedValueOnce(null);
+      mockRepo.toggleActive.mockResolvedValue(undefined);
+
+      const result = await useCase.execute(1);
+      expect(result).toBeNull();
+    });
   });
 });

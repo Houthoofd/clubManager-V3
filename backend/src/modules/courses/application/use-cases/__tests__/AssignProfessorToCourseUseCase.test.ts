@@ -1,46 +1,16 @@
 /**
  * AssignProfessorToCourseUseCase.test.ts
  * Tests unitaires — courses / AssignProfessorToCourseUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : courses
  */
 
 import { AssignProfessorToCourseUseCase } from '../AssignProfessorToCourseUseCase';
 import type { ICourseRepository } from '../../../domain/repositories/ICourseRepository';
 
-// ─── Mock Repository ────────────────────────────────────────────
-
-const mockRepo: jest.Mocked<ICourseRepository> = {
-  getCourseRecurrents:      jest.fn(),
-  getCourseRecurrentById:   jest.fn(),
-  createCourseRecurrent:    jest.fn(),
-  updateCourseRecurrent:    jest.fn(),
-  deleteCourseRecurrent:    jest.fn(),
-  hasTimeConflict:          jest.fn(),
-  assignProfessor:          jest.fn(),
-  unassignProfessor:        jest.fn(),
-  getProfessorsForCourse:   jest.fn(),
-  getProfessors:            jest.fn(),
-  getProfessorById:         jest.fn(),
-  createProfessor:          jest.fn(),
-  updateProfessor:          jest.fn(),
-  deleteProfessor:          jest.fn(),
-  getCourses:               jest.fn(),
-  getCourseById:            jest.fn(),
-  createCourse:             jest.fn(),
-  generateCourses:          jest.fn(),
-  getCourseInscriptions:    jest.fn(),
-  createInscription:        jest.fn(),
-  bulkUpdatePresence:       jest.fn(),
-  deleteInscription:        jest.fn(),
-  getAttendanceForExport:   jest.fn(),
-  getMyEnrollments:         jest.fn(),
-} as jest.Mocked<ICourseRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+const mockRepo = {
+  getCourseRecurrentById: jest.fn(),
+  getProfessorById: jest.fn(),
+  assignProfessor: jest.fn(),
+} as unknown as jest.Mocked<ICourseRepository>;
 
 let useCase: AssignProfessorToCourseUseCase;
 
@@ -52,40 +22,47 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('AssignProfessorToCourseUseCase', () => {
   describe('execute', () => {
+    it('devrait assigner le professeur avec succès', async () => {
+      mockRepo.getCourseRecurrentById.mockResolvedValue({ id: 1 } as any);
+      mockRepo.getProfessorById.mockResolvedValue({ id: 2 } as any);
+      mockRepo.assignProfessor.mockResolvedValue();
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      await useCase.execute(1, 2);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { coursRecurrentId: number, professorId: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getCourseRecurrentById).toHaveBeenCalledWith(1);
+      expect(mockRepo.getProfessorById).toHaveBeenCalledWith(2);
+      expect(mockRepo.assignProfessor).toHaveBeenCalledWith(1, 2);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le cours n\'existe pas', async () => {
+      mockRepo.getCourseRecurrentById.mockResolvedValue(null);
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1, 2)).rejects.toThrow('Cours récurrent introuvable');
+      
+      expect(mockRepo.getCourseRecurrentById).toHaveBeenCalledWith(1);
+      expect(mockRepo.getProfessorById).not.toHaveBeenCalled();
+      expect(mockRepo.assignProfessor).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le professeur n\'existe pas', async () => {
+      mockRepo.getCourseRecurrentById.mockResolvedValue({ id: 1 } as any);
+      mockRepo.getProfessorById.mockResolvedValue(null);
 
+      await expect(useCase.execute(1, 2)).rejects.toThrow('Professeur introuvable');
+      
+      expect(mockRepo.getCourseRecurrentById).toHaveBeenCalledWith(1);
+      expect(mockRepo.getProfessorById).toHaveBeenCalledWith(2);
+      expect(mockRepo.assignProfessor).not.toHaveBeenCalled();
+    });
+
+    it('devrait relayer l\'erreur si le repository échoue lors de l\'assignation', async () => {
+      mockRepo.getCourseRecurrentById.mockResolvedValue({ id: 1 } as any);
+      mockRepo.getProfessorById.mockResolvedValue({ id: 2 } as any);
+      mockRepo.assignProfessor.mockRejectedValue(new Error('DB error'));
+
+      await expect(useCase.execute(1, 2)).rejects.toThrow('DB error');
+    });
   });
 });

@@ -1,42 +1,57 @@
-/**
- * WelcomeBanner.test.tsx
- * Tests composant — dashboard / WelcomeBanner
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 2 — Composants Frontend
- * Feature    : dashboard
- */
-
-import { screen } from '@testing-library/react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 import { WelcomeBanner } from '../WelcomeBanner';
 
-// TODO: Importer les types de props si nécessaire
+// Mock du store
+vi.mock('@/shared/stores/authStore', () => ({
+  useAuthStore: vi.fn(),
+}));
 
-// Note: useTranslation est mocké via le wrapper de rendu
+// Mock de la traduction
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: any) => {
+      if (key === 'welcome.greeting') return `Bonjour ${options?.name || ''}`.trim();
+      if (key === 'welcome.today') return `Aujourd'hui : ${options?.date || ''}`;
+      if (key.startsWith('roles.')) return key.replace('roles.', '');
+      return key;
+    },
+    i18n: {
+      language: 'fr',
+    },
+  }),
+}));
+
+import { useAuthStore } from '@/shared/stores/authStore';
 
 describe('WelcomeBanner', () => {
-
-  it('devrait se rendre sans erreur avec les props minimales', () => {
-    // Arrange
-    // TODO: définir les props requises
-    // const props = { /* TODO: renseigner les props requises */ };
-
-    // Act
-    // render(<WelcomeBanner {...props} />);
-
-    // Assert
-    // expect(screen.getByRole(...)).toBeInTheDocument();
-    expect(true).toBe(true); // placeholder — à remplacer
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('devrait afficher le contenu correct selon les props', () => {
-    // TODO: tester les différentes valeurs possibles des props
-    // ex: prop = 'valeur_a' → classe CSS X, texte "Libellé A"
-    expect(true).toBe(true); // placeholder — à remplacer
+  it('devrait afficher le composant avec un utilisateur admin', () => {
+    (useAuthStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector: any) =>
+      selector({
+        user: { first_name: 'Jean', role_app: 'admin' },
+      })
+    );
+
+    render(<WelcomeBanner />);
+    
+    expect(screen.getByTestId('welcome-banner')).toBeInTheDocument();
+    expect(screen.getByText('Bonjour Jean')).toBeInTheDocument();
+    expect(screen.getByText('admin')).toBeInTheDocument();
   });
 
-  // TODO: Ajouter un test par prop optionnelle importante
-  // TODO: Tester les états disabled/loading si applicable
+  it('devrait fonctionner même si l\'utilisateur n\'a pas de prénom', () => {
+    (useAuthStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector: any) =>
+      selector({
+        user: { role_app: 'member' },
+      })
+    );
 
+    render(<WelcomeBanner />);
+    expect(screen.getByText('Bonjour')).toBeInTheDocument();
+    expect(screen.getByText('member')).toBeInTheDocument();
+  });
 });

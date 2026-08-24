@@ -5,6 +5,7 @@
 
 import { AddAlertActionUseCase } from '../AddAlertActionUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';
+import type { CreateAlertActionDto, AlertActionDto, AlertActionType } from '../../../domain/types';
 
 // ─── Mock Repository ────────────────────────────────────────────
 
@@ -22,8 +23,7 @@ const mockRepo: jest.Mocked<IAlertRepository> = {
   ignoreAlert:           jest.fn(),
   findAlertActions:      jest.fn().mockResolvedValue([]),
   addAlertAction:        jest.fn(),
-} as jest.Mocked<IAlertRepository>;
-
+} as unknown as jest.Mocked<IAlertRepository>;
 
 // ─── Setup ────────────────────────────────────────────────────
 
@@ -37,41 +37,90 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
 describe('AddAlertActionUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
     it('devrait retourner le résultat quand les données sont valides', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { data: CreateAlertActionDto } = { /* TODO: renseigner les paramètres */ };
+      const input: CreateAlertActionDto = {
+        alerte_user_id: 1,
+        action_type: 'message_envoye',
+        details: 'Détails action',
+        created_by: 2
+      };
+      const expectedOutput: AlertActionDto = {
+        id: 10,
+        alerte_user_id: 1,
+        action_type: 'message_envoye',
+        details: 'Détails action',
+        created_by: 2,
+        created_at: new Date()
+      };
+      mockRepo.addAlertAction.mockResolvedValue(expectedOutput);
 
       // Act
-      // const result = await useCase.execute(input);
+      const result = await useCase.execute(input);
 
       // Assert
-      // expect(result).toBeDefined();
-      // expect(result).toMatchObject({});
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(result).toEqual(expectedOutput);
+      expect(mockRepo.addAlertAction).toHaveBeenCalledWith(input);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer Error si une erreur interne survient', async () => {
+    it("devrait lancer une erreur si l'identifiant de l'alerte est manquant", async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('Not found'));
+      const input = {
+        action_type: 'message_envoye' as AlertActionType,
+      } as CreateAlertActionDto;
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow(Error);
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(input)).rejects.toThrow("L'identifiant de l'alerte est requis");
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it("devrait lancer une erreur si l'identifiant de l'alerte est <= 0", async () => {
+      // Arrange
+      const input = {
+        alerte_user_id: 0,
+        action_type: 'message_envoye' as AlertActionType,
+      } as CreateAlertActionDto;
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow("L'identifiant de l'alerte est requis");
+    });
+
+    it("devrait lancer une erreur si le type d'action est manquant", async () => {
+      // Arrange
+      const input = {
+        alerte_user_id: 1,
+      } as CreateAlertActionDto;
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow(/Type d'action invalide/);
+    });
+
+    it("devrait lancer une erreur si le type d'action est invalide", async () => {
+      // Arrange
+      const input = {
+        alerte_user_id: 1,
+        action_type: 'invalide' as AlertActionType,
+      } as CreateAlertActionDto;
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow(/Type d'action invalide/);
+    });
+
+    it('devrait remonter les erreurs du repository', async () => {
+      // Arrange
+      const input: CreateAlertActionDto = {
+        alerte_user_id: 1,
+        action_type: 'autre',
+      };
+      mockRepo.addAlertAction.mockRejectedValue(new Error('Repo error'));
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow('Repo error');
+    });
 
   });
 });

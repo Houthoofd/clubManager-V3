@@ -1,46 +1,15 @@
 /**
  * CreateProfessorUseCase.test.ts
  * Tests unitaires — courses / CreateProfessorUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : courses
  */
 
 import { CreateProfessorUseCase } from '../CreateProfessorUseCase';
 import type { ICourseRepository } from '../../../domain/repositories/ICourseRepository';
+import type { CreateProfessorDto } from "@clubmanager/types";
 
-// ─── Mock Repository ────────────────────────────────────────────
-
-const mockRepo: jest.Mocked<ICourseRepository> = {
-  getCourseRecurrents:      jest.fn(),
-  getCourseRecurrentById:   jest.fn(),
-  createCourseRecurrent:    jest.fn(),
-  updateCourseRecurrent:    jest.fn(),
-  deleteCourseRecurrent:    jest.fn(),
-  hasTimeConflict:          jest.fn(),
-  assignProfessor:          jest.fn(),
-  unassignProfessor:        jest.fn(),
-  getProfessorsForCourse:   jest.fn(),
-  getProfessors:            jest.fn(),
-  getProfessorById:         jest.fn(),
-  createProfessor:          jest.fn(),
-  updateProfessor:          jest.fn(),
-  deleteProfessor:          jest.fn(),
-  getCourses:               jest.fn(),
-  getCourseById:            jest.fn(),
-  createCourse:             jest.fn(),
-  generateCourses:          jest.fn(),
-  getCourseInscriptions:    jest.fn(),
-  createInscription:        jest.fn(),
-  bulkUpdatePresence:       jest.fn(),
-  deleteInscription:        jest.fn(),
-  getAttendanceForExport:   jest.fn(),
-  getMyEnrollments:         jest.fn(),
-} as jest.Mocked<ICourseRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+const mockRepo = {
+  createProfessor: jest.fn(),
+} as unknown as jest.Mocked<ICourseRepository>;
 
 let useCase: CreateProfessorUseCase;
 
@@ -52,40 +21,44 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('CreateProfessorUseCase', () => {
   describe('execute', () => {
+    
+    const validDto: CreateProfessorDto = {
+      nom: 'Doe',
+      prenom: 'John'
+    };
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+    it('devrait créer un professeur avec succès', async () => {
+      mockRepo.createProfessor.mockResolvedValue({ id: 1, ...validDto } as any);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { dto: CreateProfessorDto } = { /* TODO: renseigner les paramètres */ };
+      const result = await useCase.execute(validDto);
 
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.createProfessor).toHaveBeenCalledWith(validDto);
+      expect(result).toHaveProperty('id', 1);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le nom est manquant', async () => {
+      const dto = { ...validDto, nom: '   ' };
+      await expect(useCase.execute(dto)).rejects.toThrow("Le nom du professeur est obligatoire");
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      const dto2 = { ...validDto, nom: undefined } as unknown as CreateProfessorDto;
+      await expect(useCase.execute(dto2)).rejects.toThrow("Le nom du professeur est obligatoire");
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le prénom est manquant', async () => {
+      const dto = { ...validDto, prenom: '   ' };
+      await expect(useCase.execute(dto)).rejects.toThrow("Le prénom du professeur est obligatoire");
+
+      const dto2 = { ...validDto, prenom: undefined } as unknown as CreateProfessorDto;
+      await expect(useCase.execute(dto2)).rejects.toThrow("Le prénom du professeur est obligatoire");
+    });
+
+    it('devrait relayer l\'erreur si le repository échoue', async () => {
+      mockRepo.createProfessor.mockRejectedValue(new Error('DB error'));
+
+      await expect(useCase.execute(validDto)).rejects.toThrow('DB error');
+    });
 
   });
 });

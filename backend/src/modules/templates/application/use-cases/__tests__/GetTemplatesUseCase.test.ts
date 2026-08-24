@@ -43,35 +43,43 @@ afterEach(() => {
 
 describe('GetTemplatesUseCase', () => {
   describe('execute', () => {
-
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait retourner la liste des templates sans filtres', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { dto: GetTemplatesDto } = { /* TODO: renseigner les paramètres */ };
+      const expectedTemplates = [{ id: 1, type_id: 1, titre: 'Titre', contenu: 'C', variables: [], actif: true }];
+      mockRepo.getAll.mockResolvedValue(expectedTemplates as any);
 
       // Act
-      // await useCase.execute(input);
+      const result = await useCase.execute();
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getAll).toHaveBeenCalledWith(undefined, undefined);
+      expect(result).toEqual(expectedTemplates);
+    });
+
+    it('devrait retourner la liste des templates avec filtres', async () => {
+      // Arrange
+      const expectedTemplates = [{ id: 1, type_id: 1, titre: 'Titre', contenu: 'C', variables: [], actif: true }];
+      mockRepo.getAll.mockResolvedValue(expectedTemplates as any);
+
+      // Act
+      const result = await useCase.execute({ type_id: 1, actif: false });
+
+      // Assert
+      expect(mockRepo.getAll).toHaveBeenCalledWith(1, false);
+      expect(result).toEqual(expectedTemplates);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
     it('devrait lancer une erreur si le repository échoue', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.getAll.mockRejectedValue(new Error('DB error'));
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute()).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
 
   });
 });

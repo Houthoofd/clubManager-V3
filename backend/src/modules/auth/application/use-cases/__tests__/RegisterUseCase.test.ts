@@ -19,6 +19,8 @@ import { TokenService } from "@/shared/services/TokenService";
 // Mock des services
 jest.mock("@/shared/services/PasswordService");
 jest.mock("@/shared/services/TokenService");
+import { ValidateInvitationUseCase } from "@/modules/invitations/application/use-cases/ValidateInvitationUseCase";
+import { ConsumeInvitationUseCase } from "@/modules/invitations/application/use-cases/ConsumeInvitationUseCase";
 
 describe("RegisterUseCase", () => {
   let registerUseCase: RegisterUseCase;
@@ -34,6 +36,7 @@ describe("RegisterUseCase", () => {
     date_of_birth: "1990-01-15",
     genre_id: 1,
     abonnement_id: 1,
+    invitation_token: "valid-invitation-token-123",
   };
 
   const mockUser: User = {
@@ -70,6 +73,12 @@ describe("RegisterUseCase", () => {
   };
 
   beforeEach(() => {
+    // Reset des mocks
+    jest.clearAllMocks();
+
+    jest.spyOn(ValidateInvitationUseCase.prototype, "execute").mockResolvedValue({ valid: true });
+    jest.spyOn(ConsumeInvitationUseCase.prototype, "execute").mockResolvedValue({ success: true });
+
     // Créer un mock du repository
     mockAuthRepository = {
       createUser: jest.fn(),

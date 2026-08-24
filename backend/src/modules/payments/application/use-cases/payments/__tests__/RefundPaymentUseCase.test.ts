@@ -44,32 +44,64 @@ describe('RefundPaymentUseCase', () => {
 
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait rembourser le paiement avec succès', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.findById.mockResolvedValue({ id: 1, statut_id: 2 } as any);
+      mockRepo.refund.mockResolvedValue();
 
       // Act
-      // await useCase.execute(input);
+      await useCase.execute(1);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.refund).toHaveBeenCalledWith(1);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait lancer une erreur si le paiement n\'existe pas', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findById.mockResolvedValue(null);
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(99)).rejects.toThrow('Paiement introuvable');
+      expect(mockRepo.refund).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le paiement est déjà remboursé (statut 4)', async () => {
+      // Arrange
+      mockRepo.findById.mockResolvedValue({ id: 1, statut_id: 4 } as any);
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('Ce paiement est déjà remboursé');
+      expect(mockRepo.refund).not.toHaveBeenCalled();
+    });
+
+    it('devrait lancer une erreur si le paiement a échoué (statut 3)', async () => {
+      // Arrange
+      mockRepo.findById.mockResolvedValue({ id: 1, statut_id: 3 } as any);
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('Impossible de rembourser un paiement échoué');
+      expect(mockRepo.refund).not.toHaveBeenCalled();
+    });
+
+    it('devrait propager l\'erreur si la recherche échoue', async () => {
+      // Arrange
+      mockRepo.findById.mockRejectedValue(new Error('DB error on find'));
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('DB error on find');
+    });
+
+    it('devrait propager l\'erreur si le remboursement échoue', async () => {
+      // Arrange
+      mockRepo.findById.mockResolvedValue({ id: 1, statut_id: 2 } as any);
+      mockRepo.refund.mockRejectedValue(new Error('DB error on refund'));
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('DB error on refund');
+    });
 
   });
 });

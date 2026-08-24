@@ -1,14 +1,11 @@
 /**
  * AdminAddFamilyMemberUseCase.test.ts
  * Tests unitaires — families / AdminAddFamilyMemberUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : families
  */
 
 import { AdminAddFamilyMemberUseCase } from '../AdminAddFamilyMemberUseCase';
 import type { IFamilyRepository } from '../../../domain/repositories/IFamilyRepository';
+import type { AdminAddMemberDto } from '../../../domain/adminTypes';
 
 // ─── Mock Repository ────────────────────────────────────────────
 
@@ -27,7 +24,6 @@ const mockRepo: jest.Mocked<IFamilyRepository> = {
   createChildUser:         jest.fn(),
 } as jest.Mocked<IFamilyRepository>;
 
-
 // ─── Setup ────────────────────────────────────────────────────
 
 let useCase: AdminAddFamilyMemberUseCase;
@@ -40,40 +36,67 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
 describe('AdminAddFamilyMemberUseCase', () => {
   describe('execute', () => {
 
+    const dto: AdminAddMemberDto = {
+      familleId: 10,
+      userId: 5,
+      role: 'enfant',
+      estResponsable: false,
+      estTuteurLegal: false
+    };
+
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait ajouter le membre si la famille existe et que l utilisateur n est pas déjà membre', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { dto: AdminAddMemberDto } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.findById.mockResolvedValue({ id: 10, created_at: new Date(), updated_at: new Date() });
+      mockRepo.isMembre.mockResolvedValue(false);
+      mockRepo.adminAddMembre.mockResolvedValue();
 
       // Act
-      // await useCase.execute(input);
+      await useCase.execute(dto);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(10);
+      expect(mockRepo.isMembre).toHaveBeenCalledWith(10, 5);
+      expect(mockRepo.adminAddMembre).toHaveBeenCalledWith(dto);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait lancer une erreur si la famille n existe pas', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findById.mockResolvedValue(null);
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(dto)).rejects.toThrow('Famille introuvable');
+      expect(mockRepo.isMembre).not.toHaveBeenCalled();
+      expect(mockRepo.adminAddMembre).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si l utilisateur est déjà membre', async () => {
+      // Arrange
+      mockRepo.findById.mockResolvedValue({ id: 10, created_at: new Date(), updated_at: new Date() });
+      mockRepo.isMembre.mockResolvedValue(true);
+
+      // Act & Assert
+      await expect(useCase.execute(dto)).rejects.toThrow('Cet utilisateur est déjà membre de cette famille');
+      expect(mockRepo.adminAddMembre).not.toHaveBeenCalled();
+    });
+
+    it('devrait lancer une erreur si le repository échoue lors de l ajout', async () => {
+      // Arrange
+      mockRepo.findById.mockResolvedValue({ id: 10, created_at: new Date(), updated_at: new Date() });
+      mockRepo.isMembre.mockResolvedValue(false);
+      mockRepo.adminAddMembre.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute(dto)).rejects.toThrow('DB error');
+    });
 
   });
 });

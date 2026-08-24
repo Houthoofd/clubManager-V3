@@ -39,6 +39,9 @@ import { NotifyUsersModal } from "../components/NotifyUsersModal";
 import { InviteModal } from "../components/InviteModal";
 import { UserRole } from "@clubmanager/types";
 import type { UserListItemDto } from "@clubmanager/types";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useTutorial } from "../../../shared/providers/TutorialProvider";
+import { getUsersSteps } from "../../../shared/providers/tutorialsConfig";
 
 import { PageHeader } from "@/shared/components/Layout/PageHeader";
 import { DataTable } from "@/shared/components/Table/DataTable";
@@ -170,6 +173,22 @@ export function UsersPage() {
   >(null);
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(false);
+
+  const { runTutorial, isActive } = useTutorial();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const forceTutorial = params.get("tutorial");
+    console.log("[UsersPage] URL tutorial param:", forceTutorial, "isActive:", isActive);
+    if (forceTutorial?.includes("users") && !isActive) {
+      console.log("[UsersPage] Launching tutorial!");
+      runTutorial("users_admin_intro", getUsersSteps());
+      params.delete("tutorial");
+      navigate({ search: params.toString() }, { replace: true });
+    }
+  }, [location, isActive, runTutorial, navigate]);
 
   // ── Propagation de l'erreur du store vers le toast ────────────────────────
   useEffect(() => {

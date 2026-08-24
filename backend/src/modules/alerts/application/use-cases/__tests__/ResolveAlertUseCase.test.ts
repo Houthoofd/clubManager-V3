@@ -5,27 +5,23 @@
 
 import { ResolveAlertUseCase } from '../ResolveAlertUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
+import type { AlertUserDto } from '../../../domain/types';
 
 const mockRepo: jest.Mocked<IAlertRepository> = {
-  findAllAlertTypes:     jest.fn().mockResolvedValue([]),
-  findAlertTypeById:     jest.fn().mockResolvedValue(null),
-  findAlertTypeByCode:   jest.fn().mockResolvedValue(null),
+  findAllAlertTypes:     jest.fn(),
+  findAlertTypeById:     jest.fn(),
+  findAlertTypeByCode:   jest.fn(),
   createAlertType:       jest.fn(),
   updateAlertType:       jest.fn(),
-  deleteAlertType:       jest.fn().mockResolvedValue(false),
-  findUserAlerts:        jest.fn().mockResolvedValue([]),
-  findAllActiveAlerts:   jest.fn().mockResolvedValue([]),
+  deleteAlertType:       jest.fn(),
+  findUserAlerts:        jest.fn(),
+  findAllActiveAlerts:   jest.fn(),
   createUserAlert:       jest.fn(),
   resolveAlert:          jest.fn(),
   ignoreAlert:           jest.fn(),
-  findAlertActions:      jest.fn().mockResolvedValue([]),
+  findAlertActions:      jest.fn(),
   addAlertAction:        jest.fn(),
-} as jest.Mocked<IAlertRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+} as unknown as jest.Mocked<IAlertRepository>;
 
 let useCase: ResolveAlertUseCase;
 
@@ -37,41 +33,41 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('ResolveAlertUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+    it('devrait résoudre l\'alerte avec succès', async () => {
+      const mockAlert = { id: 1, statut: 'resolue' } as AlertUserDto;
+      mockRepo.resolveAlert.mockResolvedValue(mockAlert);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { alertId: number, resolvedBy: number, notes?: string } = { /* TODO: renseigner les paramètres */ };
+      const result = await useCase.execute(1, 2, 'notes');
 
-      // Act
-      // const result = await useCase.execute(input);
-
-      // Assert
-      // expect(result).toBeDefined();
-      // expect(result).toMatchObject({});
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(result).toEqual(mockAlert);
+      expect(mockRepo.resolveAlert).toHaveBeenCalledWith(1, 2, 'notes');
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait résoudre l\'alerte avec succès sans notes', async () => {
+      const mockAlert = { id: 1, statut: 'resolue' } as AlertUserDto;
+      mockRepo.resolveAlert.mockResolvedValue(mockAlert);
 
-    it('devrait lancer Error si une erreur interne survient', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('Not found'));
+      const result = await useCase.execute(1, 2);
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow(Error);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(result).toEqual(mockAlert);
+      expect(mockRepo.resolveAlert).toHaveBeenCalledWith(1, 2, undefined);
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it("devrait lancer une erreur si l'identifiant de l'alerte est invalide", async () => {
+      await expect(useCase.execute(0, 2)).rejects.toThrow("L'identifiant de l'alerte est invalide");
+    });
+
+    it("devrait lancer une erreur si l'identifiant du résolveur est invalide", async () => {
+      await expect(useCase.execute(1, 0)).rejects.toThrow("L'identifiant du résolveur est requis");
+    });
+
+    it("devrait remonter les erreurs du repository", async () => {
+      mockRepo.resolveAlert.mockRejectedValue(new Error('Repo error'));
+      await expect(useCase.execute(1, 2)).rejects.toThrow('Repo error');
+    });
 
   });
 });

@@ -47,34 +47,52 @@ afterEach(() => {
 describe('GetMessageUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+    it('devrait retourner le message et le marquer comme lu si destinataire et non lu', async () => {
+      const mockMsg = { id: 1, destinataire_id: 42, lu: false } as any;
+      mockRepo.getById.mockResolvedValue(mockMsg);
+      mockRepo.markAsRead.mockResolvedValue();
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { messageId: number, userId: number } = { /* TODO: renseigner les paramètres */ };
+      const result = await useCase.execute(1, 42);
 
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getById).toHaveBeenCalledWith(1, 42);
+      expect(mockRepo.markAsRead).toHaveBeenCalledWith(1, 42);
+      expect(result.lu).toBe(true);
+      expect(result.date_lecture).toBeInstanceOf(Date);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait retourner le message sans le marquer comme lu s\'il est déjà lu', async () => {
+      const dateLecture = new Date('2026-01-01');
+      const mockMsg = { id: 1, destinataire_id: 42, lu: true, date_lecture: dateLecture } as any;
+      mockRepo.getById.mockResolvedValue(mockMsg);
+
+      const result = await useCase.execute(1, 42);
+
+      expect(mockRepo.markAsRead).not.toHaveBeenCalled();
+      expect(result.lu).toBe(true);
+      expect(result.date_lecture).toBe(dateLecture);
+    });
+
+    it('devrait retourner le message sans le marquer comme lu si l\'utilisateur n\'est pas destinataire', async () => {
+      const mockMsg = { id: 1, destinataire_id: 99, expediteur_id: 42, lu: false } as any;
+      mockRepo.getById.mockResolvedValue(mockMsg);
+
+      const result = await useCase.execute(1, 42);
+
+      expect(mockRepo.markAsRead).not.toHaveBeenCalled();
+      expect(result.lu).toBe(false);
+    });
+
+    it('devrait lancer une erreur si le message est introuvable', async () => {
+      mockRepo.getById.mockResolvedValue(null);
+
+      await expect(useCase.execute(1, 42)).rejects.toThrow('Message introuvable ou accès refusé');
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.getById.mockRejectedValue(new Error('DB error'));
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1, 42)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
 
   });
 });

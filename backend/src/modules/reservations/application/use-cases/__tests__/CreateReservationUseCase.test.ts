@@ -40,34 +40,73 @@ afterEach(() => {
 describe('CreateReservationUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait créer une nouvelle réservation s\'il n\'y en a pas de précédente', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { data: { user_id: number; cours_id: number } } = { /* TODO: renseigner les paramètres */ };
+      const input = { user_id: 1, cours_id: 2 };
+      mockRepo.findByUserAndCours.mockResolvedValue(null);
+      const created = { id: 10, user_id: 1, cours_id: 2, statut: 'confirmee' };
+      mockRepo.create.mockResolvedValue(created as any);
 
       // Act
-      // await useCase.execute(input);
+      const result = await useCase.execute(input);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findByUserAndCours).toHaveBeenCalledWith(1, 2);
+      expect(mockRepo.create).toHaveBeenCalledWith({ user_id: 1, cours_id: 2, statut: 'confirmee' });
+      expect(result).toEqual(created);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait lancer une erreur si une réservation active existe déjà', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      const input = { user_id: 1, cours_id: 2 };
+      const existing = { id: 10, user_id: 1, cours_id: 2, statut: 'confirmee' };
+      mockRepo.findByUserAndCours.mockResolvedValue(existing as any);
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(input)).rejects.toThrow('Vous avez déjà une réservation pour ce cours');
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait réactiver une réservation si elle était annulée', async () => {
+      // Arrange
+      const input = { user_id: 1, cours_id: 2 };
+      const existing = { id: 10, user_id: 1, cours_id: 2, statut: 'annulee' };
+      const reactivated = { id: 10, user_id: 1, cours_id: 2, statut: 'confirmee' };
+      
+      mockRepo.findByUserAndCours.mockResolvedValue(existing as any);
+      mockRepo.updateStatus.mockResolvedValue(undefined);
+      mockRepo.findById.mockResolvedValue(reactivated as any);
+
+      // Act
+      const result = await useCase.execute(input);
+
+      // Assert
+      expect(mockRepo.updateStatus).toHaveBeenCalledWith(10, 'confirmee');
+      expect(mockRepo.findById).toHaveBeenCalledWith(10);
+      expect(result).toEqual(reactivated);
+    });
+
+    it('devrait lancer une erreur si la réactivation échoue (introuvable)', async () => {
+      // Arrange
+      const input = { user_id: 1, cours_id: 2 };
+      const existing = { id: 10, user_id: 1, cours_id: 2, statut: 'annulee' };
+      
+      mockRepo.findByUserAndCours.mockResolvedValue(existing as any);
+      mockRepo.updateStatus.mockResolvedValue(undefined);
+      mockRepo.findById.mockResolvedValue(null); // not found after update
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow('Erreur lors de la réactivation de la réservation');
+    });
+
+    it('devrait lancer une erreur si le repository échoue lors de la création', async () => {
+      // Arrange
+      const input = { user_id: 1, cours_id: 2 };
+      mockRepo.findByUserAndCours.mockResolvedValue(null);
+      mockRepo.create.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow('DB error');
+    });
 
   });
 });

@@ -381,7 +381,40 @@ async function seedE2E(): Promise<void> {
     console.log("   ✓ Deuxième session membre insérée / mise à jour\n");
 
     // ----------------------------------------------------------
-    // 6. Résumé
+    // 6. Données E2E pour les Réservations
+    // ----------------------------------------------------------
+    console.log("🔧 Insertion d'un cours et de réservations de test...");
+
+    // 6a. Créer un cours de test
+    await connection.execute(
+      `INSERT INTO cours (id, date_cours, type_cours, heure_debut, heure_fin)
+       VALUES (9999, DATE_ADD(CURDATE(), INTERVAL 7 DAY), 'karate', '10:00:00', '11:00:00')
+       ON DUPLICATE KEY UPDATE type_cours = 'karate'`
+    );
+    console.log("   ✓ Cours de test (id=9999) inséré");
+
+    // 6b. Créer une réservation pour le membre (pour le test membre)
+    await connection.execute(
+      `INSERT INTO reservations (user_id, cours_id, statut)
+       SELECT u.id, 9999, 'confirmee'
+       FROM utilisateurs u WHERE u.userId = ?
+       ON DUPLICATE KEY UPDATE statut = 'confirmee'`,
+      [E2E_DB_USER_IDS.member]
+    );
+    console.log("   ✓ Réservation 'confirmee' pour le membre insérée");
+
+    // 6c. Créer une réservation pour le professeur (pour le test admin)
+    await connection.execute(
+      `INSERT INTO reservations (user_id, cours_id, statut)
+       SELECT u.id, 9999, 'confirmee'
+       FROM utilisateurs u WHERE u.userId = ?
+       ON DUPLICATE KEY UPDATE statut = 'confirmee'`,
+      [E2E_DB_USER_IDS.professor]
+    );
+    console.log("   ✓ Réservation 'confirmee' pour le professeur insérée");
+
+    // ----------------------------------------------------------
+    // 7. Résumé
     // ----------------------------------------------------------
     console.log("─".repeat(60));
     console.log("✅ Seed E2E terminé avec succès !");

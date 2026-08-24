@@ -127,7 +127,7 @@ export class MessagingController {
       });
     } catch (error: any) {
       const isNotFound =
-        error.message === "Message introuvable ou acces refuse";
+        error.message === "Message introuvable ou accès refusé";
       res.status(isNotFound ? 404 : 500).json({
         success: false,
         message: error.message ?? "Erreur interne",
@@ -292,7 +292,7 @@ export class MessagingController {
       });
     } catch (error: any) {
       const isNotFound =
-        error.message === "Message introuvable ou acces refuse";
+        error.message === "Message introuvable ou accès refusé";
       res.status(isNotFound ? 404 : 500).json({
         success: false,
         message: error.message ?? "Erreur interne",
@@ -327,7 +327,7 @@ export class MessagingController {
       });
     } catch (error: any) {
       const isNotFound =
-        error.message === "Message introuvable ou acces refuse";
+        error.message === "Message introuvable ou accès refusé";
       res.status(isNotFound ? 404 : 500).json({
         success: false,
         message: error.message ?? "Erreur interne",

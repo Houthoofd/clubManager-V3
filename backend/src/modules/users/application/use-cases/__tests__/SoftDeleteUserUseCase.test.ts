@@ -1,79 +1,63 @@
 /**
  * SoftDeleteUserUseCase.test.ts
  * Tests unitaires — users / SoftDeleteUserUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : users
  */
 
 import { SoftDeleteUserUseCase } from '../SoftDeleteUserUseCase';
 import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
 
-// ─── Mock Repository ────────────────────────────────────────────
-
 const mockRepo: jest.Mocked<IUserRepository> = {
-  findAll:              jest.fn(),
-  findById:             jest.fn(),
-  findProfile:          jest.fn(),
-  updateRole:           jest.fn(),
-  updateStatus:         jest.fn(),
-  updateLanguage:       jest.fn(),
-  updateProfile:        jest.fn(),
-  softDelete:           jest.fn(),
-  restore:              jest.fn(),
-  findDeleted:          jest.fn(),
-  anonymize:            jest.fn(),
-  updateSubscription:   jest.fn(),
+  findAll: jest.fn(),
+  findById: jest.fn(),
+  findProfile: jest.fn(),
+  updateRole: jest.fn(),
+  updateStatus: jest.fn(),
+  updateLanguage: jest.fn(),
+  updateProfile: jest.fn(),
+  softDelete: jest.fn(),
+  restore: jest.fn(),
+  findDeleted: jest.fn(),
+  anonymize: jest.fn(),
+  updateSubscription: jest.fn(),
 } as jest.Mocked<IUserRepository>;
 
-
-// ─── Setup ────────────────────────────────────────────────────
-
-let useCase: SoftDeleteUserUseCase;
-
-beforeEach(() => {
-  useCase = new SoftDeleteUserUseCase(mockRepo);
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('SoftDeleteUserUseCase', () => {
+  let useCase: SoftDeleteUserUseCase;
+
+  beforeEach(() => {
+    useCase = new SoftDeleteUserUseCase(mockRepo);
+    jest.clearAllMocks();
+  });
+
   describe('execute', () => {
-
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { targetId: number, deletedBy: number, reason: string } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('devrait lancer une erreur si on essaie de supprimer son propre compte', async () => {
+      await expect(useCase.execute(1, 1, 'Raison')).rejects.toThrow('Vous ne pouvez pas supprimer votre propre compte');
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('devrait lancer une erreur si la raison est trop courte ou absente', async () => {
+      await expect(useCase.execute(2, 1, '')).rejects.toThrow("Une raison d'au moins 5 caractères est requise");
+      await expect(useCase.execute(2, 1, 'abc')).rejects.toThrow("Une raison d'au moins 5 caractères est requise");
+      await expect(useCase.execute(2, 1, '   ab   ')).rejects.toThrow("Une raison d'au moins 5 caractères est requise");
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si l\'utilisateur est introuvable', async () => {
+      mockRepo.findById.mockResolvedValue(null);
+      await expect(useCase.execute(2, 1, 'Raison valable')).rejects.toThrow('Utilisateur introuvable');
+    });
 
+    it('devrait lancer une erreur si l\'utilisateur est déjà supprimé', async () => {
+      mockRepo.findById.mockResolvedValue({ id: 2, deleted_at: new Date() } as any);
+      await expect(useCase.execute(2, 1, 'Raison valable')).rejects.toThrow('Utilisateur déjà supprimé');
+    });
+
+    it('devrait supprimer l\'utilisateur si tout est valide', async () => {
+      mockRepo.findById.mockResolvedValue({ id: 2, deleted_at: null } as any);
+      mockRepo.softDelete.mockResolvedValue(undefined);
+
+      await useCase.execute(2, 1, '  Raison valable  ');
+
+      expect(mockRepo.findById).toHaveBeenCalledWith(2);
+      expect(mockRepo.softDelete).toHaveBeenCalledWith(2, 1, 'Raison valable');
+    });
   });
 });

@@ -1,79 +1,46 @@
-/**
- * UpdateUserRoleUseCase.test.ts
- * Tests unitaires — users / UpdateUserRoleUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : users
- */
+import { UpdateUserRoleUseCase } from "../UpdateUserRoleUseCase.js";
+import type { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
+import { UserRole } from "@clubmanager/types";
 
-import { UpdateUserRoleUseCase } from '../UpdateUserRoleUseCase';
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
+describe("UpdateUserRoleUseCase", () => {
+  let mockRepo: jest.Mocked<IUserRepository>;
+  let useCase: UpdateUserRoleUseCase;
 
-// ─── Mock Repository ────────────────────────────────────────────
+  beforeEach(() => {
+    mockRepo = {
+      findById: jest.fn(),
+      updateRole: jest.fn(),
+    } as unknown as jest.Mocked<IUserRepository>;
 
-const mockRepo: jest.Mocked<IUserRepository> = {
-  findAll:              jest.fn(),
-  findById:             jest.fn(),
-  findProfile:          jest.fn(),
-  updateRole:           jest.fn(),
-  updateStatus:         jest.fn(),
-  updateLanguage:       jest.fn(),
-  updateProfile:        jest.fn(),
-  softDelete:           jest.fn(),
-  restore:              jest.fn(),
-  findDeleted:          jest.fn(),
-  anonymize:            jest.fn(),
-  updateSubscription:   jest.fn(),
-} as jest.Mocked<IUserRepository>;
+    useCase = new UpdateUserRoleUseCase(mockRepo);
+  });
 
+  it("should throw an error if target is requester", async () => {
+    await expect(
+      useCase.execute(1, UserRole.ADMIN, 1)
+    ).rejects.toThrow("Vous ne pouvez pas modifier votre propre rôle");
+  });
 
-// ─── Setup ────────────────────────────────────────────────────
+  it("should throw an error if role is invalid", async () => {
+    await expect(
+      useCase.execute(2, "superadmin", 1)
+    ).rejects.toThrow("Rôle invalide: superadmin");
+  });
 
-let useCase: UpdateUserRoleUseCase;
+  it("should throw an error if target user is not found", async () => {
+    mockRepo.findById.mockResolvedValue(null);
+    await expect(
+      useCase.execute(2, UserRole.ADMIN, 1)
+    ).rejects.toThrow("Utilisateur introuvable");
+  });
 
-beforeEach(() => {
-  useCase = new UpdateUserRoleUseCase(mockRepo);
-});
+  it("should update role successfully", async () => {
+    mockRepo.findById.mockResolvedValue({ id: 2 } as any);
+    mockRepo.updateRole.mockResolvedValue();
 
-afterEach(() => {
-  jest.clearAllMocks();
-});
+    await useCase.execute(2, UserRole.ADMIN, 1);
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
-describe('UpdateUserRoleUseCase', () => {
-  describe('execute', () => {
-
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { targetId: number, role_app: string, requesterId: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
-    });
-
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
-    });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
+    expect(mockRepo.findById).toHaveBeenCalledWith(2);
+    expect(mockRepo.updateRole).toHaveBeenCalledWith(2, UserRole.ADMIN);
   });
 });

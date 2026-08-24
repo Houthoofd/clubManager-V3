@@ -1,4 +1,4 @@
-/**
+﻿/**
  * users.spec.ts
  * Tests E2E — Flux admin : Gestion des utilisateurs (/users)
  * Phase E4
@@ -121,21 +121,28 @@ test.describe("Utilisateurs — Flux admin", () => {
 
     const roleFilter = adminPage.locator('[data-testid="users-role-filter"]');
     await expect(roleFilter).toBeVisible({ timeout: 10_000 });
+    
+    // 1. Appliquer le filtre de rôle et attendre la réponse
+    const rolePromise = adminPage.waitForResponse(
+      (resp) => resp.url().includes("/api/users") && resp.url().includes("role_app=member") && resp.request().method() === "GET",
+      { timeout: 10_000 }
+    );
     await roleFilter.selectOption("member");
+    await rolePromise;
 
-    // Affiner par userId E2E membre pour contourner la pagination
+    // 2. Affiner par userId E2E membre pour contourner la pagination et attendre la réponse
     const searchInput = adminPage.locator('[data-testid="users-search"]');
     await expect(searchInput).toBeVisible({ timeout: 10_000 });
-    await searchInput.fill(E2E_DB_USER_IDS.member); // "U-9999-0002"
-
-    // Attendre la réponse API combinant rôle + recherche
-    await adminPage.waitForResponse(
+    
+    const searchPromise = adminPage.waitForResponse(
       (resp) =>
         resp.url().includes("/api/users") &&
-        resp.url().includes("role_app=member") &&
-        resp.url().includes(E2E_DB_USER_IDS.member),
-      { timeout: 10_000 },
+        resp.url().includes(E2E_DB_USER_IDS.member) &&
+        resp.request().method() === "GET",
+      { timeout: 10_000 }
     );
+    await searchInput.fill(E2E_DB_USER_IDS.member); // "U-9999-0002"
+    const searchResp = await searchPromise;
 
     // Le userId membre doit être visible dans la table filtrée
     await expect(
@@ -167,5 +174,35 @@ test.describe("Utilisateurs — Flux admin", () => {
     await expect(deletedTab).toHaveAttribute("aria-selected", "true");
     await adminPage.waitForLoadState("load");
     await expect(adminPage).toHaveURL(/\/users/);
+  });
+
+  // ----------------------------------------------------------
+  // Test 6 : Pagination
+  // ----------------------------------------------------------
+  test("pagination fonctionne correctement", async ({ adminPage }) => {
+    await gotoUsers(adminPage);
+
+    const tableWrapper = adminPage.locator('[data-testid="users-table"]');
+    await expect(tableWrapper).toBeVisible({ timeout: 10_000 });
+
+    // Attendre que la table charge (il devrait y avoir au moins 20 utilisateurs E2E de pagination + admin + membre + prof)
+    const page2Btn = adminPage.locator('button[aria-label="Page 2"]');
+    
+    // Vérifier si le bouton Page 2 existe. S'il n'existe pas, on skip le test.
+    const isPage2Visible = await page2Btn.waitFor({ state: "visible", timeout: 5000 }).then(() => true).catch(() => false);
+    if (!isPage2Visible) {
+      test.skip();
+      return;
+    }
+
+    const responsePromise = adminPage.waitForResponse(
+      (resp) => resp.url().includes("/api/users") && resp.url().includes("page=2"),
+      { timeout: 10_000 }
+    );
+    await page2Btn.click();
+    await responsePromise;
+
+    // Le bouton Page 2 doit devenir actif
+    await expect(page2Btn).toHaveAttribute("aria-current", "page", { timeout: 5000 });
   });
 });

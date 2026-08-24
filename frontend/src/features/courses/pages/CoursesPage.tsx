@@ -15,11 +15,15 @@
  * - Button / SubmitButton : Boutons standardisés
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useTypesCours } from "../../../shared/hooks/useReferences";
 import type { TypeCours } from "../../../shared/hooks/useReferences";
+import { useTutorial } from "../../../shared/providers/TutorialProvider";
+import { getCoursesAdminSteps, getCoursesUserSteps } from "../../../shared/providers/tutorialsConfig";
+import type { Step } from "react-joyride";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   CalendarIcon,
   CalendarDaysIcon,
@@ -164,6 +168,38 @@ export default function CoursesPage() {
     clearError,
   } = useCourses({ attendanceCourseId });
 
+  const { runTutorial, hasSeenTutorial, advanceTutorial, isActive, stepIndex } = useTutorial();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Force l'onglet planning ou sessions pendant le tutoriel
+  useEffect(() => {
+    if (isActive) {
+      if (stepIndex === 2 || stepIndex === 3) {
+        setActiveTab("sessions");
+      } else {
+        setActiveTab("planning");
+      }
+    }
+  }, [isActive, stepIndex]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const forceTutorial = params.get("tutorial");
+    const tutorialId = isAdmin ? "courses_admin_intro" : "courses_user_intro";
+    
+    if (forceTutorial === tutorialId || !hasSeenTutorial(tutorialId)) {
+      const steps = isAdmin ? getCoursesAdminSteps() : getCoursesUserSteps();
+      runTutorial(tutorialId, steps);
+      
+      // Clean up the URL if it was forced
+      if (forceTutorial) {
+        params.delete("tutorial");
+        navigate({ search: params.toString() }, { replace: true });
+      }
+    }
+  }, [hasSeenTutorial, isAdmin, runTutorial, location.search, navigate]);
+
   // ─────────────────────────────────────────────────────────────────
   // Filtres & tri
   // ─────────────────────────────────────────────────────────────────
@@ -178,6 +214,7 @@ export default function CoursesPage() {
       await deleteCourseRecurrent(modal.item.id);
       toast.success(t("messages.success.recurrentCourseDeleted"));
       setModal({ type: "none" });
+      if (isActive) advanceTutorial();
     } catch (error: any) {
       toast.error(error.response?.data?.message ?? t("messages.error.generic"));
     } finally {
@@ -210,11 +247,13 @@ export default function CoursesPage() {
       id: "planning" as const,
       label: t("tabs.planning"),
       icon: <CalendarIcon className="h-5 w-5" />,
+      testId: "tab-planning",
     },
     {
       id: "sessions" as const,
       label: t("tabs.sessions"),
       icon: <ClipboardDocumentIcon className="h-5 w-5" />,
+      testId: "tab-sessions",
     },
     {
       id: "professeurs" as const,
@@ -257,7 +296,10 @@ export default function CoursesPage() {
                   variant="primary"
                   size="md"
                   icon={<PlusIcon className="h-5 w-5" />}
-                  onClick={() => setModal({ type: "createCourseRecurrent" })}
+                  onClick={() => {
+                    setModal({ type: "createCourseRecurrent" });
+                    if (isActive) setTimeout(advanceTutorial, 400);
+                  }}
                   data-testid="course-add-recurrent-btn"
                 >
                   {t("buttons.newRecurrentCourse")}
@@ -391,12 +433,13 @@ export default function CoursesPage() {
                                     {t("buttons.edit")}
                                   </button>
                                   <button
-                                    onClick={() =>
+                                    onClick={() => {
                                       setModal({
                                         type: "deleteCourseRecurrent",
                                         item: course,
-                                      })
-                                    }
+                                      });
+                                      if (isActive) setTimeout(advanceTutorial, 400);
+                                    }}
                                     className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
                                     title={t("buttons.delete")}
                                     data-testid={`course-delete-btn-${course.id}`}
@@ -494,6 +537,7 @@ export default function CoursesPage() {
                 <div data-testid="courses-sessions-table">
                   <DataTable
                     rowKey="id"
+                    pagination={{ pageSize: 15 }}
                     columns={[
                       {
                         key: "date_cours",

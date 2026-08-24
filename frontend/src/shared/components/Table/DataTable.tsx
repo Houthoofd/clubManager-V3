@@ -156,6 +156,13 @@ export interface DataTableProps<T> {
    * Classes CSS additionnelles pour le wrapper
    */
   className?: string;
+
+  /**
+   * Configuration de la pagination (optionnel)
+   */
+  pagination?: {
+    pageSize: number;
+  };
 }
 
 // ─── SKELETON LOADER ─────────────────────────────────────────────────────────
@@ -243,6 +250,7 @@ export function DataTable<T>({
   loading = false,
   emptyMessage = 'Aucune donnée à afficher',
   className = '',
+  pagination,
 }: DataTableProps<T>) {
   // ─── STATE ─────────────────────────────────────────────────────────────────
 
@@ -250,6 +258,8 @@ export function DataTable<T>({
     key: '',
     direction: null,
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
 
   // ─── HELPERS ───────────────────────────────────────────────────────────────
 
@@ -287,6 +297,7 @@ export function DataTable<T>({
     }
 
     setSortConfig({ key, direction });
+    setCurrentPage(1); // Reset to first page on sort
   };
 
   /**
@@ -315,6 +326,15 @@ export function DataTable<T>({
       return sortConfig.direction === 'asc' ? comparison : -comparison;
     });
   }, [data, sortConfig]);
+
+  // ─── PAGINATION ────────────────────────────────────────────────────────────
+
+  const totalPages = pagination ? Math.ceil(sortedData.length / pagination.pageSize) : 1;
+  const currentData = useMemo(() => {
+    if (!pagination) return sortedData;
+    const startIndex = (currentPage - 1) * pagination.pageSize;
+    return sortedData.slice(startIndex, startIndex + pagination.pageSize);
+  }, [sortedData, pagination, currentPage]);
 
   // ─── RENDER ────────────────────────────────────────────────────────────────
 
@@ -388,13 +408,10 @@ export function DataTable<T>({
 
           {/* Data rows */}
           {!loading &&
-            sortedData.map((row) => (
+            currentData.map((row) => (
               <tr
                 key={getRowKey(row)}
-                className={cn(
-                  TABLE.tr,
-                  onRowClick && 'cursor-pointer'
-                )}
+                className={cn(TABLE.tr, onRowClick && 'cursor-pointer')}
                 onClick={() => onRowClick?.(row)}
                 role={onRowClick ? 'button' : undefined}
                 tabIndex={onRowClick ? 0 : undefined}
@@ -410,21 +427,76 @@ export function DataTable<T>({
                 }
                 aria-label={onRowClick ? 'Cliquer pour voir les détails' : undefined}
               >
-                {columns.map((column) => {
-                  const value = getCellValue(row, column.key);
-                  return (
-                    <td
-                      key={String(column.key)}
-                      className={cn(TABLE.td, column.className)}
-                    >
-                      {column.render ? column.render(value, row) : value ?? '-'}
-                    </td>
-                  );
-                })}
+                {columns.map((column) => (
+                  <td
+                    key={String(column.key)}
+                    className={cn(TABLE.td, column.className)}
+                  >
+                    {column.render
+                      ? column.render(getCellValue(row, column.key), row)
+                      : getCellValue(row, column.key)}
+                  </td>
+                ))}
               </tr>
             ))}
         </tbody>
       </table>
+
+      {pagination && totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-b-xl">
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                Affichage de <span className="font-medium">{(currentPage - 1) * pagination.pageSize + 1}</span> à{' '}
+                <span className="font-medium">
+                  {Math.min(currentPage * pagination.pageSize, sortedData.length)}
+                </span>{' '}
+                sur <span className="font-medium">{sortedData.length}</span> résultats
+              </p>
+            </div>
+            <div>
+              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="sr-only">Précédent</span>
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="sr-only">Suivant</span>
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </nav>
+            </div>
+          </div>
+          <div className="flex flex-1 justify-between sm:hidden">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              Précédent
+            </button>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              Suivant
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

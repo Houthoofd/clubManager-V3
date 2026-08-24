@@ -57,35 +57,29 @@ afterEach(() => {
 
 describe('UnassignProfessorFromCourseUseCase', () => {
   describe('execute', () => {
+    it('devrait désassigner le professeur si le cours existe', async () => {
+      const mockCourse: any = { id: 1 };
+      mockRepo.getCourseRecurrentById.mockResolvedValue(mockCourse);
+      mockRepo.unassignProfessor.mockResolvedValue();
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      await useCase.execute(1, 2);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { coursRecurrentId: number, professorId: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getCourseRecurrentById).toHaveBeenCalledWith(1);
+      expect(mockRepo.unassignProfessor).toHaveBeenCalledWith(1, 2);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le cours est introuvable', async () => {
+      mockRepo.getCourseRecurrentById.mockResolvedValue(null);
+
+      await expect(useCase.execute(999, 2)).rejects.toThrow('Cours récurrent introuvable');
+      expect(mockRepo.getCourseRecurrentById).toHaveBeenCalledWith(999);
+      expect(mockRepo.unassignProfessor).not.toHaveBeenCalled();
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.getCourseRecurrentById.mockRejectedValue(new Error('DB error'));
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1, 2)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

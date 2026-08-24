@@ -8,7 +8,7 @@
  */
 
 import { UpdatePricingPlanUseCase } from '../UpdatePricingPlanUseCase';
-import type { IPricingPlanRepository } from '../../../../domain/repositories/IPricingPlanRepository';
+import type { IPricingPlanRepository, UpdatePricingPlanInput } from '../../../../domain/repositories/IPricingPlanRepository';
 
 // ─── Mock Repository ────────────────────────────────────────────
 
@@ -20,7 +20,6 @@ const mockRepo: jest.Mocked<IPricingPlanRepository> = {
   toggleActive:   jest.fn(),
   delete:         jest.fn(),
 } as jest.Mocked<IPricingPlanRepository>;
-
 
 // ─── Setup ────────────────────────────────────────────────────
 
@@ -34,40 +33,85 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
 describe('UpdatePricingPlanUseCase', () => {
   describe('execute', () => {
+    it('devrait mettre à jour le plan quand les données sont valides', async () => {
+      mockRepo.findById.mockResolvedValue({ id_plan: 1, nom: 'Ancien' } as any);
+      mockRepo.update.mockResolvedValue(undefined);
+      
+      const input: UpdatePricingPlanInput = {
+        nom: ' Nouveau Plan ',
+        prix: 15,
+        duree_mois: 24,
+      };
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      await useCase.execute(1, input);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number, data: UpdatePricingPlanInput } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.update).toHaveBeenCalledWith(1, {
+        ...input,
+        nom: 'Nouveau Plan' // trimed
+      });
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait mettre à jour avec un nom non fourni', async () => {
+      mockRepo.findById.mockResolvedValue({ id_plan: 1, nom: 'Ancien' } as any);
+      mockRepo.update.mockResolvedValue(undefined);
+      
+      const input: UpdatePricingPlanInput = {
+        prix: 15
+      };
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      await useCase.execute(1, input);
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.update).toHaveBeenCalledWith(1, {
+        prix: 15,
+        nom: undefined
+      });
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le plan est introuvable', async () => {
+      mockRepo.findById.mockResolvedValue(null);
+      await expect(useCase.execute(999, {})).rejects.toThrow("Plan introuvable");
+      expect(mockRepo.update).not.toHaveBeenCalled();
+    });
 
+    it('devrait lancer une erreur si le nom est vide ou que des espaces', async () => {
+      mockRepo.findById.mockResolvedValue({ id_plan: 1 } as any);
+      const input = { nom: '   ' } as UpdatePricingPlanInput;
+      await expect(useCase.execute(1, input)).rejects.toThrow("Le nom du plan ne peut pas être vide");
+    });
+
+    it('devrait lancer une erreur si le prix est <= 0', async () => {
+      mockRepo.findById.mockResolvedValue({ id_plan: 1 } as any);
+      const input1 = { prix: 0 } as UpdatePricingPlanInput;
+      await expect(useCase.execute(1, input1)).rejects.toThrow("Le prix doit être supérieur à 0");
+
+      const input2 = { prix: -5 } as UpdatePricingPlanInput;
+      await expect(useCase.execute(1, input2)).rejects.toThrow("Le prix doit être supérieur à 0");
+    });
+
+    it('devrait lancer une erreur si la durée est <= 0', async () => {
+      mockRepo.findById.mockResolvedValue({ id_plan: 1 } as any);
+      const input1 = { duree_mois: 0 } as UpdatePricingPlanInput;
+      await expect(useCase.execute(1, input1)).rejects.toThrow("La durée en mois doit être supérieure à 0");
+
+      const input2 = { duree_mois: -1 } as UpdatePricingPlanInput;
+      await expect(useCase.execute(1, input2)).rejects.toThrow("La durée en mois doit être supérieure à 0");
+    });
+
+    it('devrait lancer une erreur si le repository échoue (findById)', async () => {
+      mockRepo.findById.mockRejectedValue(new Error('DB error'));
+      await expect(useCase.execute(1, {})).rejects.toThrow('DB error');
+    });
+
+    it('devrait lancer une erreur si le repository échoue (update)', async () => {
+      mockRepo.findById.mockResolvedValue({ id_plan: 1 } as any);
+      mockRepo.update.mockRejectedValue(new Error('DB error update'));
+      await expect(useCase.execute(1, { prix: 10 })).rejects.toThrow('DB error update');
+    });
   });
 });

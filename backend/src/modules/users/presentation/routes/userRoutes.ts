@@ -48,6 +48,12 @@ router.get("/:id/profile", (req, res) => ctrl.getProfile(req as any, res));
 // PATCH /api/users/:id/profile — utilisateur authentifié (own profile ou admin)
 router.patch("/:id/profile", (req, res) => ctrl.updateProfile(req as any, res));
 
+// GET /api/users/:id/tutorials
+router.get("/:id/tutorials", (req, res) => ctrl.getSeenTutorials(req as any, res));
+
+// POST /api/users/:id/tutorials
+router.post("/:id/tutorials", (req, res) => ctrl.markTutorialAsSeen(req as any, res));
+
 // PATCH /api/users/:id/role — admin seulement
 router.patch("/:id/role", requireRole(UserRole.ADMIN), (req, res) =>
   ctrl.updateRole(req as any, res),

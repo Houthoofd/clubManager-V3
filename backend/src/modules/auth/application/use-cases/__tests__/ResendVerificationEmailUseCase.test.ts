@@ -1,97 +1,117 @@
-/**
- * ResendVerificationEmailUseCase.test.ts
- * Tests unitaires — auth / ResendVerificationEmailUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : auth
- */
 
-jest.mock('@/shared/services/TokenService.js');
-jest.mock('../../services/EmailService.js');
+import { ResendVerificationEmailUseCase } from "../ResendVerificationEmailUseCase.js";
+import { EmailService } from "../../services/EmailService.js";
+import { TokenService } from "@/shared/services/TokenService.js";
 
-import { ResendVerificationEmailUseCase } from '../ResendVerificationEmailUseCase';
-import type { IAuthRepository } from '../../../domain/repositories/IAuthRepository';
+jest.mock("../../services/EmailService.js");
+jest.mock("@/shared/services/TokenService.js");
 
-// ─── Mock Repository ────────────────────────────────────────────
+describe("ResendVerificationEmailUseCase", () => {
+  let useCase: ResendVerificationEmailUseCase;
+  let authRepositoryMock: any;
+  let emailServiceMock: any;
 
-const mockRepo: jest.Mocked<IAuthRepository> = {
-  createUser:                       jest.fn(),
-  findUserByEmail:                  jest.fn(),
-  findUserById:                     jest.fn(),
-  findUserByUserId:                 jest.fn(),
-  emailExists:                      jest.fn(),
-  updatePassword:                   jest.fn(),
-  updateLastLogin:                  jest.fn(),
-  markEmailAsVerified:              jest.fn(),
-  storeEmailVerificationToken:      jest.fn(),
-  validateEmailVerificationToken:   jest.fn(),
-  deleteEmailVerificationToken:     jest.fn(),
-  storePasswordResetToken:          jest.fn(),
-  validatePasswordResetToken:       jest.fn(),
-  deletePasswordResetToken:         jest.fn(),
-  deleteAllPasswordResetTokens:     jest.fn(),
-  storeRefreshToken:                jest.fn(),
-  validateRefreshToken:             jest.fn(),
-  deleteRefreshToken:               jest.fn(),
-  deleteAllRefreshTokens:           jest.fn(),
-  cleanupExpiredTokens:             jest.fn(),
-  getLoginAttempts:                 jest.fn(),
-  getAuthAttempts:                  jest.fn(),
-  getActiveSessions:                jest.fn(),
-  revokeSession:                    jest.fn(),
-  updateEmail:                      jest.fn(),
-  storeEmailChangeToken:            jest.fn(),
-  validateEmailChangeToken:         jest.fn(),
-} as jest.Mocked<IAuthRepository>;
+  beforeEach(() => {
+    authRepositoryMock = {
+      findUserByEmail: jest.fn(),
+      storeEmailVerificationToken: jest.fn(),
+    };
 
+    emailServiceMock = {
+      sendVerificationEmail: jest.fn().mockResolvedValue({ success: true }),
+    };
 
-// ─── Setup ────────────────────────────────────────────────────
+    (EmailService as any).mockImplementation(() => emailServiceMock);
 
-let useCase: ResendVerificationEmailUseCase;
-
-beforeEach(() => {
-  useCase = new ResendVerificationEmailUseCase(mockRepo);
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-
-// ─── Tests ────────────────────────────────────────────────────
-
-describe('ResendVerificationEmailUseCase', () => {
-  describe('execute', () => {
-
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { input: ResendVerificationEmailInput } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+    jest.spyOn(TokenService, "generateEmailVerificationToken").mockReturnValue({
+      token: "verify-token-123",
+      expiresAt: new Date(Date.now() + 3600000),
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    useCase = new ResendVerificationEmailUseCase(authRepositoryMock);
+  });
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+  describe("Validation", () => {
+    it("should throw error if email is missing", async () => {
+      await expect(useCase.execute({ email: "" })).rejects.toThrow("Email is required");
+      await expect(useCase.execute({ email: "   " })).rejects.toThrow("Email is required");
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it("should throw error if email format is invalid", async () => {
+      await expect(useCase.execute({ email: "invalid-email" })).rejects.toThrow("Invalid email format");
+    });
 
+    it("should throw error if email is too long", async () => {
+      const longEmail = "a".repeat(250) + "@test.com";
+      await expect(useCase.execute({ email: longEmail })).rejects.toThrow("Email is too long (max 255 characters)");
+    });
+  });
+
+  describe("Execution", () => {
+    const validInput = { email: "test@example.com" };
+
+    it("should return success without sending email if user not found (anti-enumeration)", async () => {
+      authRepositoryMock.findUserByEmail.mockResolvedValue(null);
+
+      const result = await useCase.execute(validInput);
+
+      expect(result.success).toBe(true);
+      expect(result.message).toContain("If an account exists");
+      expect(emailServiceMock.sendVerificationEmail).not.toHaveBeenCalled();
+    });
+
+    it("should throw error if email is already verified", async () => {
+      authRepositoryMock.findUserByEmail.mockResolvedValue({
+        id: "user-id",
+        email: validInput.email,
+        email_verified: true,
+      });
+
+      await expect(useCase.execute(validInput)).rejects.toThrow("Email is already verified. You can log in.");
+    });
+
+    it("should send verification email and return success for valid unverified user", async () => {
+      authRepositoryMock.findUserByEmail.mockResolvedValue({
+        id: "user-id",
+        userId: "ext-user-id",
+        email: validInput.email,
+        first_name: "Test",
+        email_verified: false,
+      });
+
+      const result = await useCase.execute(validInput);
+
+      expect(authRepositoryMock.storeEmailVerificationToken).toHaveBeenCalledWith(
+        "user-id",
+        "verify-token-123",
+        expect.any(Date),
+        validInput.email
+      );
+      expect(emailServiceMock.sendVerificationEmail).toHaveBeenCalledWith(
+        validInput.email,
+        "Test",
+        expect.stringContaining("verify-token-123"),
+        "ext-user-id"
+      );
+      expect(result.success).toBe(true);
+      expect(result.message).toContain("Verification email sent successfully");
+    });
+
+    it("should throw error if email sending fails", async () => {
+      authRepositoryMock.findUserByEmail.mockResolvedValue({
+        id: "user-id",
+        userId: "ext-user-id",
+        email: validInput.email,
+        first_name: "Test",
+        email_verified: false,
+      });
+
+      emailServiceMock.sendVerificationEmail.mockResolvedValue({
+        success: false,
+        error: new Error("SMTP error"),
+      });
+
+      await expect(useCase.execute(validInput)).rejects.toThrow("Failed to send verification email. Please try again later.");
+    });
   });
 });

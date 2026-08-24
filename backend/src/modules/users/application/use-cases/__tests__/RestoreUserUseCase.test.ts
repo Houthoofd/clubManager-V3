@@ -1,79 +1,52 @@
 /**
  * RestoreUserUseCase.test.ts
  * Tests unitaires — users / RestoreUserUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : users
  */
 
 import { RestoreUserUseCase } from '../RestoreUserUseCase';
 import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
 
-// ─── Mock Repository ────────────────────────────────────────────
-
 const mockRepo: jest.Mocked<IUserRepository> = {
-  findAll:              jest.fn(),
-  findById:             jest.fn(),
-  findProfile:          jest.fn(),
-  updateRole:           jest.fn(),
-  updateStatus:         jest.fn(),
-  updateLanguage:       jest.fn(),
-  updateProfile:        jest.fn(),
-  softDelete:           jest.fn(),
-  restore:              jest.fn(),
-  findDeleted:          jest.fn(),
-  anonymize:            jest.fn(),
-  updateSubscription:   jest.fn(),
+  findAll: jest.fn(),
+  findById: jest.fn(),
+  findProfile: jest.fn(),
+  updateRole: jest.fn(),
+  updateStatus: jest.fn(),
+  updateLanguage: jest.fn(),
+  updateProfile: jest.fn(),
+  softDelete: jest.fn(),
+  restore: jest.fn(),
+  findDeleted: jest.fn(),
+  anonymize: jest.fn(),
+  updateSubscription: jest.fn(),
 } as jest.Mocked<IUserRepository>;
 
-
-// ─── Setup ────────────────────────────────────────────────────
-
-let useCase: RestoreUserUseCase;
-
-beforeEach(() => {
-  useCase = new RestoreUserUseCase(mockRepo);
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('RestoreUserUseCase', () => {
+  let useCase: RestoreUserUseCase;
+
+  beforeEach(() => {
+    useCase = new RestoreUserUseCase(mockRepo);
+    jest.clearAllMocks();
+  });
+
   describe('execute', () => {
+    it('devrait restaurer l\'utilisateur s\'il existe', async () => {
+      mockRepo.findById.mockResolvedValue({ id: 1 } as any);
+      mockRepo.restore.mockResolvedValue(undefined);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      await useCase.execute(1);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { targetId: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.restore).toHaveBeenCalledWith(1);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si l\'utilisateur est introuvable', async () => {
+      mockRepo.findById.mockResolvedValue(null);
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(999)).rejects.toThrow('Utilisateur introuvable');
+      
+      expect(mockRepo.findById).toHaveBeenCalledWith(999);
+      expect(mockRepo.restore).not.toHaveBeenCalled();
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

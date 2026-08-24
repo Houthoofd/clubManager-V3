@@ -28,6 +28,10 @@ import { AlertActionsModal } from "../components/AlertActionsModal";
 import { UserAlertCard } from "../components/UserAlertCard";
 import { toast } from "sonner";
 
+import { PageHeader } from "../../../shared/components/Layout/PageHeader";
+import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
+import { BellAlertIcon, Cog6ToothIcon, BellIcon } from "@heroicons/react/24/outline";
+
 // ─── Icons ─────────────────────────────────────────────────────────────────────
 
 function PlusIcon() {
@@ -674,45 +678,44 @@ export function AlertsPage() {
     isAdmin ? "admin" : "myAlerts",
   );
 
-  const tabs: { key: MainTab; label: string }[] = [
-    ...(isAdmin ? [{ key: "admin" as MainTab, label: t("tabs.admin") }] : []),
-    { key: "myAlerts", label: t("tabs.myAlerts") },
+  const tabs: { key: MainTab; label: string; icon?: React.ReactNode }[] = [
+    ...(isAdmin ? [{ key: "admin" as MainTab, label: t("tabs.admin"), icon: <Cog6ToothIcon className="w-5 h-5" /> }] : []),
+    { key: "myAlerts", label: t("tabs.myAlerts"), icon: <BellIcon className="w-5 h-5" /> },
   ];
 
   return (
     <div
       data-testid="alerts-page"
-      className="max-w-7xl mx-auto space-y-6 px-4 py-6"
+      className="space-y-6 px-4 py-6"
     >
       {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t("page.title")}</h1>
-        <p className="text-sm text-gray-500 mt-1">{t("page.description")}</p>
-      </div>
+      <PageHeader
+        title={t("page.title")}
+        description={t("page.description")}
+        icon={<BellAlertIcon className="w-8 h-8 text-blue-600" />}
+      />
 
-      {/* Tab bar */}
-      <div className="border-b border-gray-200">
-        <nav className="flex gap-0" aria-label="Onglets alertes">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              data-testid={tab.key === "admin" ? "tab-admin" : "tab-my-alerts"}
-              onClick={() => setActiveTab(tab.key)}
-              className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === tab.key
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-      </div>
+      {/* Tabs & Content */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="border-b border-gray-200">
+          <TabGroup
+            tabs={tabs.map(t => ({ 
+              id: t.key, 
+              label: t.label, 
+              icon: t.icon,
+              testId: t.key === "admin" ? "tab-admin" : "tab-my-alerts" 
+            }))}
+            activeTab={activeTab}
+            onTabChange={(id) => setActiveTab(id as MainTab)}
+          />
+        </div>
 
-      {/* Tab content */}
-      {activeTab === "admin" && isAdmin && <AdminTab />}
-      {activeTab === "myAlerts" && <MyAlertsTab />}
+        {/* Tab content */}
+        <div className="p-6">
+          {activeTab === "admin" && isAdmin && <AdminTab />}
+          {activeTab === "myAlerts" && <MyAlertsTab />}
+        </div>
+      </div>
     </div>
   );
 }

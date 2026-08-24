@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useTypesCours } from "../../../../shared/hooks/useReferences";
 import type { TypeCours } from "../../../../shared/hooks/useReferences";
+import { useTutorial } from "../../../../shared/providers/TutorialProvider";
 import { Modal } from "../../../../shared/components/Modal/Modal";
 import { Input } from "../../../../shared/components/Input/Input";
 import { Button } from "../../../../shared/components/Button/Button";
@@ -55,6 +56,7 @@ export function CreateEditCourseRecurrentModal({
 }: CreateEditCourseRecurrentModalProps) {
   const { t, i18n } = useTranslation("courses");
   const typesCours: TypeCours[] = useTypesCours();
+  const { advanceTutorial, stopTutorial, isActive } = useTutorial();
   const [form, setForm] = useState({
     type_cours: "",
     jour_semaine: 1,
@@ -76,6 +78,15 @@ export function CreateEditCourseRecurrentModal({
           );
         }) ?? null)
       : null;
+
+  const selectedTypeCours = typesCours.find((t) => t.code === form.type_cours);
+  
+  const filteredProfessors = professors.filter((prof) => {
+    if (!selectedTypeCours) return false;
+    if (!prof.specialite) return false;
+    const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    return normalize(prof.specialite) === normalize(selectedTypeCours.nom);
+  });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -157,6 +168,7 @@ export function CreateEditCourseRecurrentModal({
         toast.success(t("messages.success.recurrentCourseCreated"));
       }
       onClose();
+      if (isActive) setTimeout(advanceTutorial, 400);
     } catch (error: any) {
       toast.error(error.response?.data?.message ?? t("messages.error.generic"));
     } finally {
@@ -219,7 +231,7 @@ export function CreateEditCourseRecurrentModal({
             }
             required
           >
-            <option value="">{t("fields.selectType")}</option>
+            <option value="">{t("placeholders.selectType")}</option>
             {typesCours.length > 0 ? (
               typesCours.map((type) => (
                 <option key={type.code} value={type.code}>
@@ -291,42 +303,55 @@ export function CreateEditCourseRecurrentModal({
             }
           />
 
-          {professors.length > 0 && (
+          {form.type_cours ? (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t("fields.professors")}
               </label>
-              <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
-                {professors.map((prof) => (
-                  <label
-                    key={prof.id}
-                    className="flex items-center gap-2 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={form.professeur_ids.includes(prof.id)}
-                      onChange={() => toggleProfessor(prof.id)}
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-700">
-                      {prof.nom_complet}
-                    </span>
-                    {prof.specialite && (
-                      <span className="text-xs text-gray-400">
-                        {t("labels.specialitySeparator")} {prof.specialite}
+              {filteredProfessors.length > 0 ? (
+                <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                  {filteredProfessors.map((prof) => (
+                    <label
+                      key={prof.id}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={form.professeur_ids.includes(prof.id)}
+                        onChange={() => toggleProfessor(prof.id)}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">
+                        {prof.nom_complet}
                       </span>
-                    )}
-                  </label>
-                ))}
-              </div>
+                      {prof.specialite && (
+                        <span className="text-xs text-gray-400">
+                          {t("labels.specialitySeparator")} {prof.specialite}
+                        </span>
+                      )}
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                  Aucun professeur disponible pour ce type de cours.
+                </p>
+              )}
             </div>
+          ) : (
+            <p className="text-sm text-gray-500 italic mt-2">
+              Veuillez sélectionner un type de cours pour voir les professeurs disponibles.
+            </p>
           )}
         </form>
       </Modal.Body>
       <Modal.Footer align="right">
         <Button
           variant="outline"
-          onClick={onClose}
+          onClick={() => {
+            onClose();
+            if (isActive) stopTutorial();
+          }}
           disabled={saving}
           data-testid="course-recurrent-cancel-btn"
         >

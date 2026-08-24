@@ -57,35 +57,30 @@ afterEach(() => {
 
 describe('DeleteProfessorUseCase', () => {
   describe('execute', () => {
+    it('devrait supprimer le professeur si celui-ci existe', async () => {
+      const existingProf = { id: 1, name: 'Jean' };
+      mockRepo.getProfessorById.mockResolvedValue(existingProf as any);
+      mockRepo.deleteProfessor.mockResolvedValue(undefined);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      await useCase.execute(1);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getProfessorById).toHaveBeenCalledWith(1);
+      expect(mockRepo.deleteProfessor).toHaveBeenCalledWith(1);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le professeur n\'existe pas', async () => {
+      mockRepo.getProfessorById.mockResolvedValue(null);
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(99)).rejects.toThrow('Professeur introuvable');
+      expect(mockRepo.deleteProfessor).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si la suppression échoue', async () => {
+      const existingProf = { id: 1, name: 'Jean' };
+      mockRepo.getProfessorById.mockResolvedValue(existingProf as any);
+      mockRepo.deleteProfessor.mockRejectedValue(new Error('DB error'));
 
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
   });
 });

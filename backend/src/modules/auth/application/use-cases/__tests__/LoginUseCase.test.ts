@@ -400,6 +400,25 @@ describe("LoginUseCase", () => {
       expect(mockAuthRepository.storeRefreshToken).not.toHaveBeenCalled();
       expect(mockAuthRepository.updateLastLogin).not.toHaveBeenCalled();
     });
+
+    it("should throw error if account cannot login directly (peut_se_connecter = false)", async () => {
+      const childUser = { ...mockUser, peut_se_connecter: false };
+      mockAuthRepository.findUserByUserId.mockResolvedValue(childUser);
+
+      await expect(loginUseCase.execute(validLoginDto)).rejects.toMatchObject({
+        code: "DIRECT_LOGIN_DISABLED",
+        statusCode: 403,
+      });
+    });
+
+    it("should throw error if user password hash is missing", async () => {
+      const noPasswordUser = { ...mockUser, password: "" };
+      mockAuthRepository.findUserByUserId.mockResolvedValue(noPasswordUser as any);
+
+      await expect(loginUseCase.execute(validLoginDto)).rejects.toThrow(
+        "Identifiant ou mot de passe invalide",
+      );
+    });
   });
 
   describe("execute - Edge cases", () => {

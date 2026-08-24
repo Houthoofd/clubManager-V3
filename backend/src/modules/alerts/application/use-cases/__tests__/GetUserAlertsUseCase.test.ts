@@ -5,27 +5,23 @@
 
 import { GetUserAlertsUseCase } from '../GetUserAlertsUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
+import type { AlertStatut } from '../../../domain/types';
 
 const mockRepo: jest.Mocked<IAlertRepository> = {
-  findAllAlertTypes:     jest.fn().mockResolvedValue([]),
-  findAlertTypeById:     jest.fn().mockResolvedValue(null),
-  findAlertTypeByCode:   jest.fn().mockResolvedValue(null),
+  findAllAlertTypes:     jest.fn(),
+  findAlertTypeById:     jest.fn(),
+  findAlertTypeByCode:   jest.fn(),
   createAlertType:       jest.fn(),
   updateAlertType:       jest.fn(),
-  deleteAlertType:       jest.fn().mockResolvedValue(false),
-  findUserAlerts:        jest.fn().mockResolvedValue([]),
-  findAllActiveAlerts:   jest.fn().mockResolvedValue([]),
+  deleteAlertType:       jest.fn(),
+  findUserAlerts:        jest.fn(),
+  findAllActiveAlerts:   jest.fn(),
   createUserAlert:       jest.fn(),
   resolveAlert:          jest.fn(),
   ignoreAlert:           jest.fn(),
-  findAlertActions:      jest.fn().mockResolvedValue([]),
+  findAlertActions:      jest.fn(),
   addAlertAction:        jest.fn(),
-} as jest.Mocked<IAlertRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+} as unknown as jest.Mocked<IAlertRepository>;
 
 let useCase: GetUserAlertsUseCase;
 
@@ -37,41 +33,39 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('GetUserAlertsUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { userId: number, statut?: AlertStatut } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // const result = await useCase.execute(input);
-
-      // Assert
-      // expect(result).toEqual(expect.arrayContaining([]));
-      // expect(Array.isArray(result)).toBe(true);
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('devrait retourner les alertes de l\'utilisateur sans statut', async () => {
+      mockRepo.findUserAlerts.mockResolvedValue([]);
+      const result = await useCase.execute(1);
+      expect(result).toEqual([]);
+      expect(mockRepo.findUserAlerts).toHaveBeenCalledWith(1, undefined);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer Error si une erreur interne survient', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('Not found'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow(Error);
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('devrait retourner les alertes de l\'utilisateur avec statut', async () => {
+      mockRepo.findUserAlerts.mockResolvedValue([]);
+      const result = await useCase.execute(1, 'active');
+      expect(result).toEqual([]);
+      expect(mockRepo.findUserAlerts).toHaveBeenCalledWith(1, 'active');
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it("devrait lancer une erreur si l'identifiant est invalide (<= 0)", async () => {
+      await expect(useCase.execute(0)).rejects.toThrow("L'identifiant de l'utilisateur est invalide");
+    });
+
+    it("devrait lancer une erreur si l'identifiant est manquant", async () => {
+      await expect(useCase.execute(undefined as unknown as number)).rejects.toThrow("L'identifiant de l'utilisateur est invalide");
+    });
+
+    it("devrait lancer une erreur si le statut est invalide", async () => {
+      await expect(useCase.execute(1, 'invalide' as AlertStatut)).rejects.toThrow(/Statut invalide/);
+    });
+
+    it("devrait remonter les erreurs du repository", async () => {
+      mockRepo.findUserAlerts.mockRejectedValue(new Error('Repo error'));
+      await expect(useCase.execute(1)).rejects.toThrow('Repo error');
+    });
 
   });
 });

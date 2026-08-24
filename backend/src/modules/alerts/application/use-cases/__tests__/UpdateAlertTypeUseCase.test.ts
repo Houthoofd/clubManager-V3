@@ -5,27 +5,23 @@
 
 import { UpdateAlertTypeUseCase } from '../UpdateAlertTypeUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
+import type { UpdateAlertTypeDto, AlertTypeDto, AlertPriorite } from '../../../domain/types';
 
 const mockRepo: jest.Mocked<IAlertRepository> = {
-  findAllAlertTypes:     jest.fn().mockResolvedValue([]),
-  findAlertTypeById:     jest.fn().mockResolvedValue(null),
-  findAlertTypeByCode:   jest.fn().mockResolvedValue(null),
+  findAllAlertTypes:     jest.fn(),
+  findAlertTypeById:     jest.fn(),
+  findAlertTypeByCode:   jest.fn(),
   createAlertType:       jest.fn(),
   updateAlertType:       jest.fn(),
-  deleteAlertType:       jest.fn().mockResolvedValue(false),
-  findUserAlerts:        jest.fn().mockResolvedValue([]),
-  findAllActiveAlerts:   jest.fn().mockResolvedValue([]),
+  deleteAlertType:       jest.fn(),
+  findUserAlerts:        jest.fn(),
+  findAllActiveAlerts:   jest.fn(),
   createUserAlert:       jest.fn(),
   resolveAlert:          jest.fn(),
   ignoreAlert:           jest.fn(),
-  findAlertActions:      jest.fn().mockResolvedValue([]),
+  findAlertActions:      jest.fn(),
   addAlertAction:        jest.fn(),
-} as jest.Mocked<IAlertRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+} as unknown as jest.Mocked<IAlertRepository>;
 
 let useCase: UpdateAlertTypeUseCase;
 
@@ -37,41 +33,42 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('UpdateAlertTypeUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+    it('devrait mettre à jour avec succès', async () => {
+      const data: UpdateAlertTypeDto = { nom: 'Nouveau', priorite: 'haute' };
+      const expectedOutput = { id: 1, ...data } as AlertTypeDto;
+      mockRepo.findAlertTypeById.mockResolvedValue({ id: 1 } as AlertTypeDto);
+      mockRepo.updateAlertType.mockResolvedValue(expectedOutput);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number, data: UpdateAlertTypeDto } = { /* TODO: renseigner les paramètres */ };
+      const result = await useCase.execute(1, data);
 
-      // Act
-      // const result = await useCase.execute(input);
-
-      // Assert
-      // expect(result).toBeDefined();
-      // expect(result).toMatchObject({});
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(result).toEqual(expectedOutput);
+      expect(mockRepo.updateAlertType).toHaveBeenCalledWith(1, data);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer Error si une erreur interne survient', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('Not found'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow(Error);
-      expect(true).toBe(true); // placeholder — à remplacer
+    it("devrait lancer une erreur si l'identifiant est invalide", async () => {
+      await expect(useCase.execute(0, {})).rejects.toThrow("L'identifiant du type d'alerte est invalide");
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it("devrait lancer une erreur si la priorité est invalide", async () => {
+      await expect(useCase.execute(1, { priorite: 'invalide' as AlertPriorite })).rejects.toThrow(/Priorité invalide/);
+    });
+
+    it("devrait lancer une erreur si le nom est vide", async () => {
+      await expect(useCase.execute(1, { nom: '   ' })).rejects.toThrow("Le nom du type d'alerte ne peut pas être vide");
+    });
+
+    it("devrait lancer une erreur si le type d'alerte est introuvable", async () => {
+      mockRepo.findAlertTypeById.mockResolvedValue(null);
+      await expect(useCase.execute(1, {})).rejects.toThrow("Type d'alerte introuvable (id: 1)");
+    });
+
+    it("devrait remonter les erreurs du repository", async () => {
+      mockRepo.findAlertTypeById.mockRejectedValue(new Error('Repo error'));
+      await expect(useCase.execute(1, {})).rejects.toThrow('Repo error');
+    });
 
   });
 });

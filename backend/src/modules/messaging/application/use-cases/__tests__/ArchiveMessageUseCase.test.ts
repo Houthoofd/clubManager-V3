@@ -49,32 +49,21 @@ describe('ArchiveMessageUseCase', () => {
 
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { messageId: number, userId: number } = { /* TODO: renseigner les paramètres */ };
+    it('devrait archiver le message', async () => {
+      mockRepo.archiveMessage.mockResolvedValue();
 
-      // Act
-      // await useCase.execute(input);
+      await useCase.execute(1, 42);
 
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.archiveMessage).toHaveBeenCalledWith(1, 42);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.archiveMessage.mockRejectedValue(new Error('DB error'));
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1, 42)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
 
   });
 });

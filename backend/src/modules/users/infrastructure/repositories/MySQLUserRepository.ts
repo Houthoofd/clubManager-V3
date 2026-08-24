@@ -524,4 +524,19 @@ export class MySQLUserRepository implements IUserRepository {
       status: { id: row.status_id, nom: row.status_nom },
     };
   }
+
+  async getSeenTutorials(userId: number): Promise<string[]> {
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      `SELECT tutoriel_id FROM tutoriels_vus WHERE utilisateur_id = ?`,
+      [userId]
+    );
+    return rows.map((r) => r.tutoriel_id);
+  }
+
+  async markTutorialAsSeen(userId: number, tutorialId: string): Promise<void> {
+    await pool.execute(
+      `INSERT IGNORE INTO tutoriels_vus (utilisateur_id, tutoriel_id) VALUES (?, ?)`,
+      [userId, tutorialId]
+    );
+  }
 }

@@ -43,35 +43,60 @@ afterEach(() => {
 
 describe('UpdateTemplateTypeUseCase', () => {
   describe('execute', () => {
-
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait mettre à jour le type de template si les données sont valides', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number, dto: UpdateTemplateTypeDto } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.getTypes.mockResolvedValue([{ id: 1, nom: 'Old' }] as any);
+      mockRepo.updateType.mockResolvedValue(true);
 
       // Act
-      // await useCase.execute(input);
+      await useCase.execute(1, { nom: ' New ', description: ' Desc ', actif: false });
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getTypes).toHaveBeenCalled();
+      expect(mockRepo.updateType).toHaveBeenCalledWith(1, { nom: 'New', description: 'Desc', actif: false });
+    });
+
+    it('devrait mettre à jour avec seulement un champ (description)', async () => {
+      // Arrange
+      mockRepo.getTypes.mockResolvedValue([{ id: 1, nom: 'Old' }] as any);
+      mockRepo.updateType.mockResolvedValue(true);
+
+      // Act
+      await useCase.execute(1, { description: 'New desc' });
+
+      // Assert
+      expect(mockRepo.updateType).toHaveBeenCalledWith(1, { nom: undefined, description: 'New desc', actif: undefined });
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('devrait lancer une erreur si aucun champ n\'est fourni', async () => {
+      await expect(useCase.execute(1, {})).rejects.toThrow('Au moins un champ doit être fourni pour la mise à jour');
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le nom est fourni mais vide', async () => {
+      await expect(useCase.execute(1, { nom: '   ' })).rejects.toThrow('Le nom du type ne peut pas être vide');
+      await expect(useCase.execute(1, { nom: '' })).rejects.toThrow('Le nom du type ne peut pas être vide');
+    });
+
+    it('devrait lancer une erreur si le type de template n\'existe pas', async () => {
+      // Arrange
+      mockRepo.getTypes.mockResolvedValue([{ id: 2, nom: 'Type 2' }] as any);
+
+      // Act & Assert
+      await expect(useCase.execute(1, { nom: 'New' })).rejects.toThrow('Type de template introuvable');
+    });
+
+    it('devrait lancer une erreur si le repository échoue', async () => {
+      // Arrange
+      mockRepo.getTypes.mockResolvedValue([{ id: 1, nom: 'Type 1' }] as any);
+      mockRepo.updateType.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute(1, { nom: 'New' })).rejects.toThrow('DB error');
+    });
 
   });
 });
