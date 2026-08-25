@@ -20,13 +20,15 @@ import { NotifyUsersUseCase } from "../../application/use-cases/NotifyUsersUseCa
 import { UpdateUserProfileUseCase } from "../../application/use-cases/UpdateUserProfileUseCase.js";
 import { GetUserProfileUseCase } from "../../application/use-cases/GetUserProfileUseCase.js";
 import { AssignSubscriptionUseCase } from "../../application/use-cases/AssignSubscriptionUseCase.js";
+import { EmailService } from "@/modules/auth/application/services/EmailService.js";
 
 const repo = new MySQLUserRepository();
+const emailService = new EmailService();
 const getUsersUC = new GetUsersUseCase(repo);
 const getUserByIdUC = new GetUserByIdUseCase(repo);
 const updateRoleUC = new UpdateUserRoleUseCase(repo);
 const updateStatusUC = new UpdateUserStatusUseCase(repo);
-const softDeleteUC = new SoftDeleteUserUseCase(repo);
+const softDeleteUC = new SoftDeleteUserUseCase(repo, emailService);
 const restoreUC = new RestoreUserUseCase(repo);
 const getDeletedUsersUC = new GetDeletedUsersUseCase(repo);
 const anonymizeUC = new AnonymizeUserUseCase(repo);

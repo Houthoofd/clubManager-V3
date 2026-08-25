@@ -15,6 +15,8 @@ describe('RegisterToEventUseCase', () => {
       registerToEvent: jest.fn(),
       getRegistration: jest.fn(),
       listRegistrations: jest.fn(),
+      getUserGradeId: jest.fn().mockResolvedValue(100),
+      getUserBasicInfo: jest.fn().mockResolvedValue({ email: 'test@test.com', first_name: 'Test' }),
     };
     useCase = new RegisterToEventUseCase(mockRepository);
   });

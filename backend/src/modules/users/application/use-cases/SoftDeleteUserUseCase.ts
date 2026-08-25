@@ -1,7 +1,11 @@
 import type { IUserRepository } from "../../domain/repositories/IUserRepository.js";
+import type { EmailService } from "@/modules/auth/application/services/EmailService.js";
 
 export class SoftDeleteUserUseCase {
-  constructor(private repo: IUserRepository) {}
+  constructor(
+    private repo: IUserRepository,
+    private emailService?: EmailService
+  ) {}
 
   async execute(targetId: number, deletedBy: number, reason: string): Promise<void> {
     if (targetId === deletedBy) {
@@ -14,5 +18,11 @@ export class SoftDeleteUserUseCase {
     if (!user) throw new Error("Utilisateur introuvable");
     if (user.deleted_at) throw new Error("Utilisateur déjà supprimé");
     await this.repo.softDelete(targetId, deletedBy, reason.trim());
+
+    if (this.emailService && user.email) {
+      this.emailService.sendAccountDeletionEmail(user.email, user.prenom || "Membre").catch(err => {
+        console.error("Failed to send deletion email:", err);
+      });
+    }
   }
 }

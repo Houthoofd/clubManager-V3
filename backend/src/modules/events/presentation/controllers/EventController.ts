@@ -64,6 +64,15 @@ export class EventController {
       const newPaymentStatus = registration.payment_status === 'PAID' ? 'REFUNDED' : registration.payment_status;
       await repository.updateRegistrationStatus(registration.id, 'CANCELLED', newPaymentStatus);
 
+      // Envoi d'email
+      const user = await repository.getUserBasicInfo(userId);
+      const event = await repository.findById(eventId);
+      if (user && event) {
+        emailService.sendCancellationConfirmation(user.email, user.nom, event.title).catch(err => {
+          console.error("Failed to send cancellation email", err);
+        });
+      }
+
       res.status(200).json({ success: true, message: "Désinscription réussie", payment_status: newPaymentStatus });
     } catch (error: any) {
       res.status(400).json({ error: error.message });

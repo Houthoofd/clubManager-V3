@@ -9,10 +9,12 @@ export class MessagingEmailService {
   private resend: Resend | null;
   private fromEmail: string;
   private readonly isDev: boolean;
+  private devEmailOverride: string | null = null;
 
   constructor() {
     const apiKey = process.env.RESEND_API_KEY;
     this.isDev = process.env.NODE_ENV !== "production";
+    this.devEmailOverride = process.env.DEV_EMAIL_OVERRIDE || null;
 
     if (!apiKey) {
       if (this.isDev) {
@@ -54,10 +56,12 @@ export class MessagingEmailService {
       return;
     }
 
+    const recipient = this.devEmailOverride ?? params.to;
+
     try {
       await this.resend.emails.send({
         from: this.fromEmail,
-        to: params.to,
+        to: recipient,
         subject,
         html: this.buildEmailHtml(
           params.recipientName,

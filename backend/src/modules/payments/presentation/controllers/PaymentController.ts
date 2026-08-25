@@ -10,6 +10,7 @@ import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
 import type Stripe from "stripe";
 import { MySQLPaymentRepository } from "../../infrastructure/repositories/MySQLPaymentRepository.js";
 import { StripeService } from "../../infrastructure/services/StripeService.js";
+import { PaymentEmailService } from "../../application/services/PaymentEmailService.js";
 import { GetPaymentsUseCase } from "../../application/use-cases/payments/GetPaymentsUseCase.js";
 import { GetPaymentByIdUseCase } from "../../application/use-cases/payments/GetPaymentByIdUseCase.js";
 import { GetUserPaymentsUseCase } from "../../application/use-cases/payments/GetUserPaymentsUseCase.js";
@@ -20,6 +21,7 @@ import { RefundPaymentUseCase } from "../../application/use-cases/payments/Refun
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 
 const repo = new MySQLPaymentRepository();
+const paymentEmailService = new PaymentEmailService();
 let stripeService: StripeService;
 try {
   stripeService = new StripeService();
@@ -137,6 +139,18 @@ export class PaymentController {
       });
 
       const payment = await getPaymentByIdUC.execute(id);
+
+      // Email receipt
+      if (payment && req.user?.email) {
+        paymentEmailService.sendPaymentReceipt(
+          req.user.email,
+          "Membre", // User info not immediately joined, fallback
+          payment.montant.toString(),
+          payment.methode_nom || "Autre",
+          payment.description || "Paiement"
+        ).catch(e => console.error(e));
+      }
+
       res.status(201).json({
         success: true,
         message: "Paiement créé",
@@ -194,7 +208,21 @@ export class PaymentController {
   async refund(req: AuthRequest, res: Response): Promise<void> {
     try {
       const id = Number(req.params.id);
+      
+      const payment = await getPaymentByIdUC.execute(id);
+      
       await refundPaymentUC.execute(id);
+
+      // Email refund
+      if (payment && req.user?.email) {
+        paymentEmailService.sendRefundNotification(
+          req.user.email,
+          "Membre",
+          payment.montant.toString(),
+          payment.description || "Paiement"
+        ).catch(e => console.error(e));
+      }
+
       res.json({ success: true, message: "Paiement remboursé" });
     } catch (error: any) {
       const status = error.message.includes("introuvable") ? 404

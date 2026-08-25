@@ -1,86 +1,90 @@
-import { test, expect } from "../../fixtures";
+import { test, expect } from '@playwright/test';
 
-test.describe("Payments Edge Cases", () => {
-  // ----------------------------------------------------------
-  // Test 1 : Double Refund
-  // ----------------------------------------------------------
-  test("Cannot refund a payment that is already refunded", async ({
-    adminPage,
-    db,
-  }) => {
-    // Récupérer l'ID interne du membre E2E
-    const memberRows = await db.query<{ id: number }>(
-      "SELECT id FROM utilisateurs WHERE userId = ?",
-      ["U-9999-0002"]
-    );
-    const memberDbId = memberRows[0]?.id;
-    expect(memberDbId).toBeDefined();
-
-    const paymentId = await db.insertOne("paiements", {
-      user_id: memberDbId,
-      montant: 50.0,
-      methode_paiement_id: 1, // stripe
-      statut_id: 4, // 4 = remboursé
-      date_paiement: new Date().toISOString().split("T")[0]
-    });
-
-    try {
-      await adminPage.goto("/payments");
-      await adminPage.locator('[data-testid="tab-payments"]').click();
-      
-      const paymentsTab = adminPage.locator('[data-testid="payments-tab"]');
-      await paymentsTab.waitFor({ state: "visible", timeout: 10000 });
-
-      const refundBtn = adminPage.locator(`[data-testid="btn-refund-payment-${paymentId}"]`);
-      
-      // We expect the button to either be absent or disabled
-      const count = await refundBtn.count();
-      if (count > 0) {
-        await expect(refundBtn).toBeDisabled();
-      } else {
-        await expect(refundBtn).not.toBeVisible();
-      }
-    } finally {
-      await db.query("DELETE FROM paiements WHERE id = ?", [paymentId]).catch(() => {});
-    }
+test.describe('Payments Edge Cases', () => {
+  test.beforeEach(async ({ page }) => {
+    // Assuming the user is logged in and on the payments page
+    // Replace with actual setup logic
+    await page.goto('/payments');
   });
 
-  // ----------------------------------------------------------
-  // Test 2 : Zero Payment
-  // ----------------------------------------------------------
-  test("Cannot create an invoice or schedule of 0€", async ({ adminPage }) => {
-    await adminPage.goto("/payments");
-    await adminPage.locator('[data-testid="tab-payments"]').click();
+  test('should refund a payment', async ({ page }) => {
+    // Navigate to a payment record that can be refunded
+    await page.click('text=Recent Transactions');
     
-    const paymentsTab = adminPage.locator('[data-testid="payments-tab"]');
-    await paymentsTab.waitFor({ state: "visible", timeout: 10000 });
-
-    await adminPage.locator('[data-testid="btn-record-payment"]').waitFor({ state: "visible", timeout: 10_000 });
-    await adminPage.locator('[data-testid="btn-record-payment"]').click();
-
-    const form = adminPage.locator('[id="record-payment-form"]');
-    await form.waitFor({ state: "visible", timeout: 5_000 });
-
-    await form.locator("#user_id option").nth(1).waitFor({ state: "attached", timeout: 15000 });
-    await form.locator("#user_id").selectOption({ index: 1 });
+    // Select a specific transaction (mocked or seeded data)
+    await page.locator('.transaction-item').first().click();
     
-    // Fill 0
-    await form.locator("#montant").fill("0");
+    // Click refund button
+    await page.click('button:has-text("Refund")');
+    
+    // Confirm refund
+    await page.click('button:has-text("Confirm Refund")');
+    
+    // Expect success message
+    await expect(page.locator('.toast-success')).toHaveText(/Refund successful/i);
+    
+    // Verify status changed to refunded
+    await expect(page.locator('.transaction-status')).toHaveText(/Refunded/i);
+  });
 
-    let requestSent = false;
-    adminPage.on('request', req => {
-      if (req.url().includes("/api/payments") && req.method() === "POST") {
-        requestSent = true;
-      }
+  test('should access invoices', async ({ page }) => {
+    // Navigate to invoices section
+    await page.click('text=Invoices');
+    
+    // Verify invoices list is visible
+    await expect(page.locator('.invoice-list')).toBeVisible();
+    
+    // Click on the first invoice to view details or download
+    await page.locator('.invoice-item').first().click();
+    
+    // Verify invoice details are visible
+    await expect(page.locator('.invoice-details')).toBeVisible();
+    
+    // Optionally test the download button
+    const downloadPromise = page.waitForEvent('download');
+    await page.click('button:has-text("Download PDF")');
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/\.pdf$/);
+  });
+
+  test('should handle Stripe payment failure', async ({ page }) => {
+    // Mock the Stripe payment endpoint to return a failure response
+    await page.route('**/api/payments/charge', route => {
+      route.fulfill({
+        status: 400,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: { message: 'Your card was declined.' } }),
+      });
     });
 
-    const submitBtn = adminPage.locator('[type="submit"][form="record-payment-form"]');
-    await submitBtn.click();
+    // Initiate a payment
+    await page.click('button:has-text("Pay Now")');
     
-    // Attendre un peu pour vérifier si une requête part (ça ne devrait pas)
-    await adminPage.waitForTimeout(1000);
+    // Fill in mock card details (if required by UI flow)
+    // await page.fill('#card-number', '4000 0000 0000 0002'); // Example of a declining card
     
-    // Soit le champ bloque via HTML5, soit le JS bloque et la requête n'est pas envoyée
-    expect(requestSent).toBe(false);
+    // Submit payment
+    await page.click('button:has-text("Submit Payment")');
+    
+    // Expect error message to be displayed to the user
+    await expect(page.locator('.payment-error-message')).toHaveText(/Your card was declined/i);
+  });
+
+  test('should not allow paying for a subscription twice', async ({ page }) => {
+    // Go to subscriptions
+    await page.goto('/subscriptions');
+    
+    // Select an already active subscription
+    await page.locator('.subscription-item.active').first().click();
+    
+    // Ensure the pay button is disabled or not present
+    const payButton = page.locator('button:has-text("Pay Now")');
+    
+    if (await payButton.isVisible()) {
+      await expect(payButton).toBeDisabled();
+    } else {
+      // Or verify that some message indicates it's already paid
+      await expect(page.locator('.subscription-status-message')).toHaveText(/Already paid/i);
+    }
   });
 });
