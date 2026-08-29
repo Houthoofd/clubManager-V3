@@ -41,12 +41,12 @@ export class MessagingEmailService {
     recipientName: string;
     senderName: string;
     subject: string | null;
-    contentPreview: string; // premiers 200 chars du message
+    contentPreview: string; // Message content
   }): Promise<void> {
     const subject = `[ClubManager] ${params.senderName} vous a envoyé un message`;
     const preview =
-      params.contentPreview.substring(0, 200) +
-      (params.contentPreview.length > 200 ? "..." : "");
+      params.contentPreview.substring(0, 2000) +
+      (params.contentPreview.length > 2000 ? "..." : "");
 
     if (!this.resend) {
       console.log(
