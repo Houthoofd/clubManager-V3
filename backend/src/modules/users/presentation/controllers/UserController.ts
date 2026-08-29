@@ -355,7 +355,10 @@ export class UserController {
     try {
       const id = Number(req.params.id);
       const { abonnement_id } = req.body;
-      await assignSubscriptionUC.execute(id, abonnement_id ?? null);
+      
+      const parsedAboId = abonnement_id ? Number(abonnement_id) : null;
+      
+      await assignSubscriptionUC.execute(id, parsedAboId);
       res.json({ success: true, message: "Abonnement mis à jour" });
     } catch (error: any) {
       const status = error.message.includes("introuvable") ? 404 : 500;
