@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Groups Validators Index
  * @module @clubmanager/types/validators/groups

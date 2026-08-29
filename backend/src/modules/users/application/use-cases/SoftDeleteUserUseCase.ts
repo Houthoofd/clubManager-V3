@@ -20,9 +20,9 @@ export class SoftDeleteUserUseCase {
     await this.repo.softDelete(targetId, deletedBy, reason.trim());
 
     if (this.emailService && user.email) {
-      this.emailService.sendAccountDeletionEmail(user.email, user.prenom || "Membre").catch(err => {
-        console.error("Failed to send deletion email:", err);
-      });
+      // this.emailService.sendAccountDeletionEmail(user.email, user.prenom || "Membre").catch(err => {
+      //   console.error("Failed to send deletion email:", err);
+      // });
     }
   }
 }

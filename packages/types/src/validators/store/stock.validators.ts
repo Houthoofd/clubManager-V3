@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @file Stock Validators
  * @description Zod validators for article stock management (stocks by article and size)

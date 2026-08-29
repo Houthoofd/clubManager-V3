@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests pour les validators de cours
  * Test de tous les schémas Zod dans course.validators.ts

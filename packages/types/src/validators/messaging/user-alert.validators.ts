@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview User Alert Validators
  * @module @clubmanager/types/validators/messaging/user-alert

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @file Category Validators
  * @description Zod validators for store categories

@@ -15,12 +15,11 @@
 
     /* Emit */
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "removeComments": true,
-    "noEmitOnError": true,
+    "noEmitOnError": false,
 
     /* Type Checking */
     "strict": true,

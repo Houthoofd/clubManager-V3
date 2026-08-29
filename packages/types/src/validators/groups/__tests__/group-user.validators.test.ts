@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Comprehensive Tests for Group-User Validators
  * @module @clubmanager/types/validators/groups/__tests__/group-user

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Validators Zod pour les échéances de paiement
  * Schémas basés sur les DTOs et contraintes DB

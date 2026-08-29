@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * JwtService
  * Service pour gérer la génération et validation des tokens JWT

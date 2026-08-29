@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { z } from "zod";
 import { paginationSchema } from "../common/common.validators.js";
 

@@ -5,11 +5,11 @@
  */
 
 import { Router } from "express";
-import { CategoryController } from "../controllers/CategoryController";
-import { SizeController } from "../controllers/SizeController";
-import { ArticleController } from "../controllers/ArticleController";
-import { OrderController } from "../controllers/OrderController";
-import { StockController } from "../controllers/StockController";
+import { CategoryController } from "../controllers/CategoryController.js";
+import { SizeController } from "../controllers/SizeController.js";
+import { ArticleController } from "../controllers/ArticleController.js";
+import { OrderController } from "../controllers/OrderController.js";
+import { StockController } from "../controllers/StockController.js";
 import {
   authMiddleware,
   requireRole,

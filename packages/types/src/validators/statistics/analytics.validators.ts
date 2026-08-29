@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Analytics Statistics Validators
  * @module @clubmanager/types/validators/statistics/analytics

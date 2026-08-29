@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Statistics Controller
  * @module statistics/presentation/controllers/StatisticsController

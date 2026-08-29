@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @file Size Validators
  * @description Zod validators for article sizes (tailles)

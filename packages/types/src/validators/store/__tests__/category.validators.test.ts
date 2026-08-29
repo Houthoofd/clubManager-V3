@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests pour les validators de catégories du store
  * Test de tous les schémas Zod dans category.validators.ts

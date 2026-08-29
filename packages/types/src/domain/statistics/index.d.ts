@@ -1,0 +1,3 @@
+export type { Statistic, CreateStatistic, CreateStatisticWithJson, UpdateStatistic, StatisticResponse, StatisticsListResponse, StatisticsSummary, AggregatedStatistics, } from '../../validators/statistics/statistic.validators.js';
+export type { Information, CreateInformation, UpdateInformation, InformationResponse, InformationsListResponse, InformationStats, GroupedInformations, } from '../../validators/statistics/information.validators.js';
+//# sourceMappingURL=index.d.ts.map

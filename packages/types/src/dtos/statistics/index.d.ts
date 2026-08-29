@@ -1,0 +1,3 @@
+export type { CreateStatistic, CreateStatisticWithJson, UpdateStatistic, StatisticResponse, StatisticsListResponse, StatisticsSummary, AggregatedStatistics, ListStatisticsQuery, StatisticsByTypeQuery, StatisticsByDateRangeQuery, BulkCreateStatistics, BulkDeleteStatistics, } from '../../validators/statistics/statistic.validators.js';
+export type { CreateInformation, UpdateInformation, InformationResponse, InformationsListResponse, InformationStats, GroupedInformations, ListInformationsQuery, GetInformationByKey, BulkUpsertInformations, BulkDeleteInformations, } from '../../validators/statistics/information.validators.js';
+//# sourceMappingURL=index.d.ts.map

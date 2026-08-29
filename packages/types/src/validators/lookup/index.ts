@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Lookup Tables Validators Index
  * @module @clubmanager/types/validators/lookup

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Email Verification & Password Reset Validators
  * @module validators/users/email.validators

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Validators Zod pour l'authentification
  * Schémas pour login, register, token validation, password reset

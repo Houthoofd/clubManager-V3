@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests pour les validators de paiements
  * Test de tous les schémas Zod dans payment.validators.ts

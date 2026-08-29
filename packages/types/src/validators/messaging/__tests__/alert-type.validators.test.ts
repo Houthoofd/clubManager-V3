@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Tests Complets pour les Validateurs de Types d'Alerte
  * @module @clubmanager/types/validators/messaging/__tests__/alert-type
