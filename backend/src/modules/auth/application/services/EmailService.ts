@@ -913,6 +913,12 @@ ClubManager - Sports Club Management Made Easy
         html: this.getInvitationEmailHtml(invitedByName, registrationUrl, expiryStr),
         text: this.getInvitationEmailText(invitedByName, registrationUrl, expiryStr),
       });
+      if (result.error) {
+        console.error("[EmailService] Failed to send invitation email:", result.error);
+        return { success: false, error: result.error.message || "Unknown error occurred" };
+      }
+      
+      console.log(`[EmailService] Invitation email sent successfully to ${to}. Message ID: ${result.data?.id}`);
       return { success: true, messageId: result.data?.id ?? "sent" };
     } catch (error) {
       console.error("[EmailService] Failed to send invitation email:", error);
