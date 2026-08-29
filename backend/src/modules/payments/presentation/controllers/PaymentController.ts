@@ -22,6 +22,9 @@ import { MarkScheduleAsPaidUseCase } from "../../application/use-cases/schedules
 import { MySQLOrderRepository } from "../../../store/infrastructure/repositories/MySQLOrderRepository.js";
 import { MarkOrderAsPaidUseCase } from "../../../store/application/use-cases/orders/MarkOrderAsPaidUseCase.js";
 
+import { GetQuickPayDataUseCase } from "../../application/use-cases/payments/GetQuickPayDataUseCase.js";
+import jwt from "jsonwebtoken";
+
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 
 const repo = new MySQLPaymentRepository();
@@ -29,6 +32,7 @@ const scheduleRepo = new MySQLPaymentScheduleRepository();
 const orderRepo = new MySQLOrderRepository();
 const markScheduleAsPaidUC = new MarkScheduleAsPaidUseCase(scheduleRepo, repo);
 const markOrderAsPaidUC = new MarkOrderAsPaidUseCase(orderRepo);
+const getQuickPayDataUC = new GetQuickPayDataUseCase(scheduleRepo, orderRepo);
 const paymentEmailService = new PaymentEmailService();
 let stripeService: StripeService;
 try {
@@ -53,6 +57,61 @@ const refundPaymentUC = new RefundPaymentUseCase(repo);
 // ==================== CONTROLLER ====================
 
 export class PaymentController {
+  
+  /**
+   * GET /api/payments/public/quick-pay?token=...
+   */
+  async getQuickPayData(req: Request, res: Response): Promise<void> {
+    try {
+      const token = req.query.token as string;
+      if (!token) {
+        res.status(400).json({ success: false, message: "Token manquant" });
+        return;
+      }
+      
+      const items = await getQuickPayDataUC.execute(token);
+      res.json({ success: true, data: items });
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * POST /api/payments/stripe/public/intent
+   */
+  async createPublicStripeIntent(req: Request, res: Response): Promise<void> {
+    try {
+      const { token, commande_id, echeance_id, montant, description } = req.body;
+      if (!token) {
+        res.status(400).json({ success: false, message: "Token manquant" });
+        return;
+      }
+
+      const secret = process.env.JWT_SECRET || "fallback_secret";
+      let decoded: any;
+      try {
+        decoded = jwt.verify(token, secret);
+      } catch (e) {
+        res.status(400).json({ success: false, message: "Lien invalide ou expiré" });
+        return;
+      }
+      
+      const userId = decoded.id;
+
+      const result = await createStripeIntentUC.execute({
+        user_id: Number(userId),
+        montant: Number(montant),
+        plan_tarifaire_id: null,
+        commande_id: commande_id ? Number(commande_id) : null,
+        echeance_id: echeance_id ? Number(echeance_id) : null,
+        description: description ?? null,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  }
   /**
    * GET /api/payments
    * Retourne la liste paginée des paiements avec filtres optionnels

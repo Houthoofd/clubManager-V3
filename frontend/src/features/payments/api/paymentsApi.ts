@@ -364,3 +364,34 @@ export const deleteSchedule = async (scheduleId: number): Promise<void> => {
 export const refundPayment = async (id: number): Promise<void> => {
   await apiClient.post(`/payments/${id}/refund`);
 };
+
+// ==================== QUICK PAY (PUBLIC) ====================
+
+export interface QuickPayItem {
+  id: number;
+  type: "cotisation" | "boutique";
+  montant: number;
+  description: string;
+}
+
+export const getQuickPayData = async (token: string): Promise<QuickPayItem[]> => {
+  const response = await apiClient.get<{ data: QuickPayItem[] }>(`/payments/public/quick-pay?token=${token}`);
+  return response.data.data;
+};
+
+export const createPublicStripeIntent = async (data: {
+  token: string;
+  montant: number;
+  commande_id?: number | null;
+  echeance_id?: number | null;
+  description?: string;
+}): Promise<{
+  client_secret: string;
+  payment_intent_id: string;
+}> => {
+  const response = await apiClient.post<{ data: any }>(
+    "/payments/stripe/public/intent",
+    data,
+  );
+  return response.data.data;
+};

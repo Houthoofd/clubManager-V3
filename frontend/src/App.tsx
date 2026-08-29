@@ -40,6 +40,7 @@ import { ConfirmEmailChangePage } from "./features/users/pages/ConfirmEmailChang
 import { MessagesPage } from "./features/messaging/pages";
 import { SettingsPage } from "./features/settings/pages";
 import { PaymentsPage } from "./features/payments/pages";
+import { QuickPayPage } from "./features/payments/pages/QuickPayPage";
 import { CoursesPage } from "./features/courses/pages";
 
 import { InvitationsPage } from "./features/invitations/pages/InvitationsPage";
@@ -154,6 +155,7 @@ function App() {
 
           {/* Public Routes */}
           <Route element={<PublicLayout />}>
+            <Route path="/quick-pay" element={<QuickPayPage />} />
             <Route
               path="/login"
               element={

@@ -182,6 +182,7 @@ export class SendFromTemplateUseCase {
 
       // 4b. Construire les variables auto depuis le profil
       const autoVars = TemplateEngineService.buildAutoVars({
+        id: recipient.id,
         first_name: recipient.first_name,
         last_name: recipient.last_name,
         userId: userIdString,
