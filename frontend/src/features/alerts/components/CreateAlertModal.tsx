@@ -3,11 +3,12 @@
  * Modal pour créer une alerte pour un utilisateur (admin)
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { AlertTypeDto } from "../api/alertsApi";
 import { useCreateUserAlert } from "../hooks/useAlerts";
+import { apiClient } from "../../../shared/api/apiClient";
 
 interface CreateAlertModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export function CreateAlertModal({
   alertTypes,
 }: CreateAlertModalProps) {
   const { t } = useTranslation("alerts");
+  const [users, setUsers] = useState<any[]>([]);
   const [form, setForm] = useState({
     user_id: "",
     alerte_type_id: "",
@@ -28,6 +30,16 @@ export function CreateAlertModal({
     donnees_contexte: "",
   });
   const [contextError, setContextError] = useState("");
+
+  // Charger les utilisateurs
+  useEffect(() => {
+    if (isOpen) {
+      apiClient.get('/users?limit=1000').then((res) => {
+        // ApiResponse -> PaginatedUsers (which has data array)
+        setUsers(res.data.data.data || []);
+      }).catch(console.error);
+    }
+  }, [isOpen]);
 
   const { mutate: createAlert, isPending } = useCreateUserAlert();
 
@@ -113,17 +125,22 @@ export function CreateAlertModal({
               {t("userAlerts.modal.fields.userId")}{" "}
               <span className="text-red-500">*</span>
             </label>
-            <input
-              data-testid="input-alert-user-id"
-              type="number"
+            <select
+              data-testid="select-alert-user-id"
               value={form.user_id}
               onChange={(e) =>
                 setForm((f) => ({ ...f, user_id: e.target.value }))
               }
               required
-              min={1}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            >
+              <option value="">-- Choisir un utilisateur --</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.first_name} {u.last_name} ({u.email || u.userId})
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
