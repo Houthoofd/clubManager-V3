@@ -39,7 +39,7 @@ export function CreateAlertModal({
       import("../../../features/users/api/usersApi").then(({ getUsers }) => {
         getUsers({ limit: 1000 })
           .then((res) => {
-            setUsers(res.data || []);
+            setUsers(res.users || []);
           })
           .catch(console.error);
       });
