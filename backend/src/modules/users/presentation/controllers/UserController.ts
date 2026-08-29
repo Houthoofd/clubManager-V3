@@ -361,7 +361,8 @@ export class UserController {
       await assignSubscriptionUC.execute(id, parsedAboId);
       res.json({ success: true, message: "Abonnement mis à jour" });
     } catch (error: any) {
-      const status = error.message.includes("introuvable") ? 404 : 500;
+      console.error("[UserController] Error in assignSubscription:", error);
+      const status = error.message?.includes("introuvable") ? 404 : 500;
       res.status(status).json({ success: false, message: error.message });
     }
   }
