@@ -9,7 +9,7 @@
  * Variables auto-remplies depuis le profil du destinataire
  * Ces variables n'ont pas besoin d'être fournies manuellement
  */
-export const AUTO_VARIABLES = ['prenom', 'nom', 'nom_complet', 'userId'] as const;
+export const AUTO_VARIABLES = ['prenom', 'nom', 'nom_complet', 'userId', 'lien_paiement'] as const;
 export type AutoVariable = typeof AUTO_VARIABLES[number];
 
 // ==================== INTERFACES ====================
@@ -79,11 +79,13 @@ export class TemplateEngineService {
    *   // => { prenom: 'Jean', nom: 'Dupont', nom_complet: 'Jean Dupont', userId: 'U-2025-0001' }
    */
   static buildAutoVars(recipient: RecipientData): Record<string, string> {
+    const frontendUrl = process.env.FRONTEND_URL || 'https://club-management.com';
     return {
       prenom: recipient.first_name,
       nom: recipient.last_name,
       nom_complet: `${recipient.first_name} ${recipient.last_name}`,
       userId: recipient.userId,
+      lien_paiement: `${frontendUrl}/payments`,
     };
   }
 
