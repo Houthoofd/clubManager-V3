@@ -13,6 +13,7 @@ export interface Event {
   price: number;
   visibility: EventVisibility;
   min_grade_id: number | null;
+  image_url: string | null;
   created_at: Date;
   updated_at: Date;
 }

@@ -108,6 +108,47 @@ export class UserController {
    * Met à jour le profil d'un utilisateur
    * Un utilisateur peut modifier son propre profil ; l'admin peut modifier n'importe lequel
    */
+  
+  /**
+   * POST /api/users/:id/avatar
+   * Upload de la photo de profil
+   */
+  async uploadAvatar(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const targetId = Number(req.params.id);
+      const requesterId = req.user!.userId;
+      const requesterRole = req.user!.role_app ?? "";
+      
+      if (targetId !== requesterId && requesterRole !== "admin") {
+        res.status(403).json({ success: false, message: "Accès refusé" });
+        return;
+      }
+      
+      const file = req.file;
+      if (!file) {
+        res.status(400).json({ success: false, message: "Aucune image fournie" });
+        return;
+      }
+
+      const storage = getStorageService();
+      // On sauvegarde dans le dossier avatars
+      const url = await storage.upload(file, "avatars");
+
+      // On met à jour le profil avec la nouvelle photo
+      const profile = await updateProfileUC.execute(
+        targetId,
+        requesterId,
+        requesterRole,
+        { photo_url: url }
+      );
+      
+      res.json({ success: true, message: "Avatar mis à jour", photo_url: url });
+    } catch (error: any) {
+      console.error("[UploadAvatar Error]:", error);
+      res.status(400).json({ success: false, message: error.message });
+    }
+  }
+
   async updateProfile(req: AuthRequest, res: Response): Promise<void> {
     try {
       const targetId = Number(req.params.id);

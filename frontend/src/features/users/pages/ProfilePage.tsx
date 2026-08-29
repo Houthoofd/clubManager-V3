@@ -30,6 +30,7 @@ import { Button } from "@/shared/components/Button/Button";
 import { AlertBanner } from "@/shared/components/Feedback/AlertBanner";
 import { FormField } from "@/shared/components/Forms/FormField";
 import { SelectField } from "@/shared/components/Forms/SelectField";
+import { ImageUpload } from "@/shared/components/ui/ImageUpload";
 import { cn, INPUT } from "@/shared/styles/designTokens";
 
 // ─── Local types ──────────────────────────────────────────────────────────────
@@ -238,6 +239,20 @@ export function ProfilePage() {
   });
 
   // ── Validation ───────────────────────────────────────────────────────────
+
+  const avatarMutation = useMutation({
+    mutationFn: (file: File) => profileApi.uploadAvatar(userId, file),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile", userId] });
+      toast.success(t("profile.avatarSaved", "Photo de profil mise à jour"));
+      setFormValues(prev => ({ ...prev, photo_url: data.photo_url }));
+    },
+    onError: (error: Error) => {
+      const msg = (error as any)?.response?.data?.message ?? error.message;
+      toast.error(msg);
+    },
+  });
+
   function validate(): boolean {
     const errors: FormErrors = {};
 

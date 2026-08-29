@@ -42,6 +42,7 @@ import { SettingsPage } from "./features/settings/pages";
 import { PaymentsPage } from "./features/payments/pages";
 import { CoursesPage } from "./features/courses/pages";
 
+import { InvitationsPage } from "./features/invitations/pages/InvitationsPage";
 import { StorePage } from "./features/store/pages";
 import { StatisticsRouter } from "./features/statistics/StatisticsRouter";
 import { NotificationsPage } from "./features/notifications/pages";
@@ -224,6 +225,16 @@ function App() {
               element={
                 <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.MEMBER]}>
                   <PaymentsPage />
+                </RoleGuard>
+              }
+            />
+
+            
+            <Route
+              path="/invitations"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.PROFESSOR]}>
+                  <InvitationsPage />
                 </RoleGuard>
               }
             />

@@ -9,8 +9,8 @@ interface EventRegistrationRow extends RowDataPacket, EventRegistration {}
 export class MySQLEventRepository implements IEventRepository {
   async createEvent(data: CreateEventDto): Promise<Event> {
     const [result] = await pool.execute<ResultSetHeader>(
-      `INSERT INTO events (title, description, location, start_date, end_date, capacity, price, visibility, min_grade_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO events (title, description, location, start_date, end_date, capacity, price, visibility, min_grade_id, image_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.title,
         data.description || null,
@@ -20,7 +20,8 @@ export class MySQLEventRepository implements IEventRepository {
         data.capacity || null,
         data.price || 0.00,
         data.visibility || 'MEMBERS_ONLY',
-        data.min_grade_id || null
+        data.min_grade_id || null,
+        data.image_url || null
       ]
     );
 
@@ -93,6 +94,10 @@ export class MySQLEventRepository implements IEventRepository {
     if (data.min_grade_id !== undefined) {
       updates.push("min_grade_id = ?");
       params.push(data.min_grade_id);
+    }
+    if (data.image_url !== undefined) {
+      updates.push("image_url = ?");
+      params.push(data.image_url);
     }
 
     if (updates.length > 0) {

@@ -26,7 +26,29 @@ export interface UserProfileDto {
   genre: { id: number; nom: string } | null;
   grade: { id: number; nom: string; couleur: string | null } | null;
   abonnement: { id: number; nom: string; prix: number } | null;
-  status: { id: number; nom: string };
+  status: { id: number; nom: string 
+  /**
+   * Upload de la photo de profil (Avatar)
+   */
+  uploadAvatar: async (
+    userId: number,
+    file: File,
+  ): Promise<{ photo_url: string }> => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const res = await apiClient.post<{
+      success: boolean;
+      photo_url: string;
+    }>(`/users/${userId}/avatar`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  },
+
+};
 }
 
 export interface UpdateUserProfileDto {

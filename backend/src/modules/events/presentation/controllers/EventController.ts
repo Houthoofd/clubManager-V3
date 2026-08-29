@@ -3,6 +3,7 @@ import { CreateEventUseCase } from '../../application/use-cases/CreateEventUseCa
 import { GetEventsUseCase } from '../../application/use-cases/GetEventsUseCase.js';
 import { RegisterToEventUseCase } from '../../application/use-cases/RegisterToEventUseCase.js';
 import { MySQLEventRepository } from '../../infrastructure/repositories/MySQLEventRepository.js';
+import { getStorageService } from '@/shared/storage/StorageServiceFactory.js';
 
 const repository = new MySQLEventRepository();
 const createEventUseCase = new CreateEventUseCase(repository);
@@ -66,7 +67,7 @@ export class EventController {
 
       // Envoi d'email
       const user = await repository.getUserBasicInfo(userId);
-      const event = await repository.findById(eventId);
+      const event = await repository.getEventById(eventId);
       if (user && event) {
         emailService.sendCancellationConfirmation(user.email, user.nom, event.title).catch(err => {
           console.error("Failed to send cancellation email", err);
@@ -88,6 +89,32 @@ export class EventController {
       res.status(200).json(registration || { status: 'NOT_REGISTERED' });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
+    }
+  }
+
+  async uploadImage(req: Request, res: Response) {
+    try {
+      const eventId = parseInt(req.params.id, 10);
+      const file = req.file;
+
+      if (!file) {
+        return res.status(400).json({ error: "Aucun fichier fourni" });
+      }
+
+      const event = await repository.getEventById(eventId);
+      if (!event) {
+        return res.status(404).json({ error: "Événement introuvable" });
+      }
+
+      const storage = getStorageService();
+      const imageUrl = await storage.upload(file, "events");
+
+      await repository.updateEvent(eventId, { image_url: imageUrl });
+
+      res.status(200).json({ image_url: imageUrl });
+    } catch (error: any) {
+      console.error("[UploadImage Error]:", error);
+      res.status(500).json({ error: error.message });
     }
   }
 }

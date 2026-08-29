@@ -4,10 +4,12 @@
  * Utilise react-hook-form pour la gestion du formulaire.
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Modal, Button } from "../../../shared/components";
+import { ImageUpload } from "../../../shared/components/ui/ImageUpload";
+import { storeApi } from "../api/storeApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,6 +54,7 @@ interface ArticleFormData {
   description?: string;
   categorie_id?: number;
   actif: boolean;
+  image_url?: string;
 }
 
 // ─── Composant ────────────────────────────────────────────────────────────────
@@ -72,11 +75,14 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
 }) => {
   const { t } = useTranslation("store");
   const isEditMode = !!article;
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ArticleFormData>({
     defaultValues: {
@@ -85,8 +91,11 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
       description: article?.description ?? "",
       categorie_id: article?.categorie_id ?? undefined,
       actif: article?.actif ?? true,
+      image_url: article?.image_url ?? undefined,
     },
   });
+
+  const currentImageUrl = watch("image_url");
 
   // ── Synchronise les valeurs quand l'article change ou que la modal s'ouvre ──
   useEffect(() => {
@@ -97,7 +106,9 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
         description: article?.description ?? "",
         categorie_id: article?.categorie_id ?? ("" as unknown as number),
         actif: article?.actif ?? true,
+        image_url: article?.image_url ?? undefined,
       });
+      setIsUploadingImage(false);
     }
   }, [isOpen, article, reset]);
 
@@ -109,15 +120,45 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
       description?: string;
       categorie_id?: number;
       actif?: boolean;
+      image_url?: string;
     } = {
       nom: data.nom,
       prix: Number(data.prix),
       description: data.description || undefined,
       categorie_id: data.categorie_id || undefined,
       actif: data.actif,
+      image_url: data.image_url || undefined,
     };
     await onSubmit(payload);
     onClose();
+  };
+
+  // ── Upload Image ──────────────────────────────────────────────────────────
+  const handleImageSelected = async (file: File | null) => {
+    if (!file) {
+      setValue("image_url", "");
+      return;
+    }
+
+    if (!article?.id) {
+      // In create mode, we can't upload directly to /articles/:id/images
+      // Alternatively, we could save the file in state and upload after creation
+      // But based on the instructions, we trigger API call immediately.
+      // If we don't have an ID, we might just not allow it or mock it.
+      alert("Veuillez créer l'article d'abord pour pouvoir uploader une image.");
+      return;
+    }
+
+    try {
+      setIsUploadingImage(true);
+      const res = await storeApi.uploadArticleImage(article.id, file);
+      setValue("image_url", res.url);
+    } catch (error) {
+      console.error("Failed to upload image", error);
+      alert("Erreur lors de l'upload de l'image");
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   // ── Rendu ─────────────────────────────────────────────────────────────────
@@ -245,6 +286,21 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Image */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Image
+              <span className="ml-1 text-xs text-gray-400 font-normal">
+                (Optionnel)
+              </span>
+            </label>
+            <ImageUpload
+              currentImageUrl={currentImageUrl}
+              onImageSelected={handleImageSelected}
+              isUploading={isUploadingImage}
+            />
           </div>
 
           {/* Description */}

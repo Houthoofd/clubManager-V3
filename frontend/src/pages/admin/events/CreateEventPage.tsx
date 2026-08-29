@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { CalendarAltIcon, ArrowLeftIcon } from "@patternfly/react-icons";
+import { ImageUpload } from "../../../shared/components/ui/ImageUpload";
 
 import { useEvents } from "../../../features/events/hooks/useEvents";
 
 export const CreateEventPage: React.FC = () => {
   const navigate = useNavigate();
-  const { createEvent, isCreating } = useEvents();
+  const { createEvent, isCreating, uploadEventImage, isUploadingImage } = useEvents();
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     date: "",
@@ -24,7 +26,7 @@ export const CreateEventPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createEvent({
+      const newEvent = await createEvent({
         ...formData,
         start_date: new Date(formData.date),
         end_date: new Date(new Date(formData.date).getTime() + 2 * 60 * 60 * 1000), // Default +2h
@@ -32,6 +34,11 @@ export const CreateEventPage: React.FC = () => {
         price: formData.price ? parseInt(formData.price) : undefined,
         min_grade_id: formData.min_grade_id ? parseInt(formData.min_grade_id) : undefined,
       });
+
+      if (imageFile && newEvent.id) {
+        await uploadEventImage({ eventId: newEvent.id, file: imageFile });
+      }
+
       navigate("/events");
     } catch (err) {
       console.error(err);
@@ -130,6 +137,14 @@ export const CreateEventPage: React.FC = () => {
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
                 placeholder="ID du grade"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block mb-1.5 font-medium text-gray-700">Image de l'évènement (Optionnel)</label>
+              <ImageUpload
+                onImageSelected={setImageFile}
+                isUploading={isUploadingImage}
               />
             </div>
           </div>

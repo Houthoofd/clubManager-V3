@@ -32,5 +32,14 @@ export const eventsService = {
   cancelRegistration: async (eventId: number, userId: number): Promise<any> => {
     const response = await api.post(`/events/${eventId}/cancel`, { user_id: userId });
     return response.data;
+  },
+
+  uploadEventImage: async (eventId: number, file: File): Promise<{ image_url: string }> => {
+    const formData = new FormData();
+    formData.append("image", file);
+    const response = await api.post(`/events/${eventId}/image`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    return response.data;
   }
 };

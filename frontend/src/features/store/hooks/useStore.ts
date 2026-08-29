@@ -242,7 +242,7 @@ export function useUpdateArticle() {
       data,
     }: {
       id: number;
-      data: Partial<{ nom: string; prix: number; description: string; categorie_id: number; actif: boolean }>;
+      data: Partial<{ nom: string; prix: number; description: string; categorie_id: number; actif: boolean; image_url: string }>;
     }) => storeApi.updateArticle(id, data),
     onSuccess: (_data, variables) => {
       toast.success('Article mis à jour');

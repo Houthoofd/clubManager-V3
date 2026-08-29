@@ -35,6 +35,15 @@ export const useEvents = () => {
     },
   });
 
+  const uploadEventImageMutation = useMutation({
+    mutationFn: ({ eventId, file }: { eventId: number, file: File }) =>
+      eventsService.uploadEventImage(eventId, file),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["events", variables.eventId] });
+    }
+  });
+
   const getEvent = (id?: number) => useQuery({
     queryKey: ["events", id],
     queryFn: () => id ? eventsService.getEventById(id) : null,
@@ -59,5 +68,7 @@ export const useEvents = () => {
     isCanceling: cancelRegistrationMutation.isPending,
     getEvent,
     getRegistrationStatus,
+    uploadEventImage: uploadEventImageMutation.mutateAsync,
+    isUploadingImage: uploadEventImageMutation.isPending,
   };
 };

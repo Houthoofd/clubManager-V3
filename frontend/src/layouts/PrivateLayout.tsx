@@ -235,6 +235,14 @@ const PrivateLayout: React.FC = () => {
   };
 
   const menuItems = [
+
+    {
+      name: t("navigation.invitations", { defaultValue: "Invitations" }),
+      path: "/invitations",
+      icon: <EnvelopeIcon />, // We reuse the EnvelopeIcon since it fits well, or UserIcon
+      roles: [UserRole.ADMIN, UserRole.PROFESSOR],
+      category: "administratif"
+    },
     {
       name: t("navigation.dashboard"),
       path: "/dashboard",
