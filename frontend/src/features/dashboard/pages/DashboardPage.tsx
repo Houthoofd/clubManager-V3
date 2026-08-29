@@ -9,6 +9,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useTutorial } from "../../../shared/providers/TutorialProvider";
 import { getDashboardSteps } from "../../../shared/providers/tutorialsConfig";
+import { useAuth } from "../../../shared/hooks/useAuth";
+import { UserRole } from "@clubmanager/types";
 
 import { WelcomeBanner } from "../components/WelcomeBanner";
 import { KpiGrid } from "../components/KpiGrid";
@@ -19,7 +21,9 @@ import { RecentNotifications } from "../components/RecentNotifications";
 
 export function DashboardPage() {
   const { t } = useTranslation("dashboard");
-  const { data, isLoading, error } = useDashboardAnalytics();
+  const { user } = useAuth();
+  const isAdminOrProf = user?.role_app === UserRole.ADMIN || user?.role_app === UserRole.PROFESSOR;
+  const { data, isLoading, error } = useDashboardAnalytics(undefined, isAdminOrProf);
   const { runTutorial, isActive } = useTutorial();
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,20 +46,24 @@ export function DashboardPage() {
       <WelcomeBanner />
 
       {/* 2. KPIs — ou banner d'erreur stats si l'API échoue */}
-      {error ? (
-        <AlertBanner
-          variant="error"
-          title={t("errors.stats")}
-          message={error.message}
-        />
-      ) : (
-        <div data-testid="kpi-grid">
-          <KpiGrid />
-        </div>
+      {isAdminOrProf && (
+        error ? (
+          <AlertBanner
+            variant="error"
+            title={t("errors.stats")}
+            message={error.message}
+          />
+        ) : (
+          <div data-testid="kpi-grid">
+            <KpiGrid />
+          </div>
+        )
       )}
 
       {/* 3. Alertes (paiements, stock) — visible uniquement si alertes */}
-      <AlertsSection data={data} isLoading={isLoading} />
+      {isAdminOrProf && (
+        <AlertsSection data={data} isLoading={isLoading} />
+      )}
 
       {/* 4. Accès rapides */}
       <div data-testid="quick-actions">
