@@ -1,10 +1,10 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getQuickPayData, createPublicStripeIntent, QuickPayItem } from "../api/paymentsApi";
 import { StripePaymentModal } from "../components/StripePaymentModal";
 import { formatCurrency } from "../../../../shared/utils";
 import { useTranslation } from "react-i18next";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 export function QuickPayPage() {
   const [searchParams] = useSearchParams();
@@ -84,7 +84,7 @@ export function QuickPayPage() {
         ) : (
           <div className="space-y-4">
             {items.map((item) => (
-              <div key=${item.type}- className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+              <div key={`${item.type}-${item.id}`} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                 <div>
                   <h3 className="font-medium text-gray-900">{item.description}</h3>
                   <p className="text-sm text-gray-500">{item.type === "cotisation" ? "Cotisation" : "Boutique"}</p>
