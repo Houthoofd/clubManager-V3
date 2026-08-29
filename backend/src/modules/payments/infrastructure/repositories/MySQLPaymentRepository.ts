@@ -21,6 +21,8 @@ interface PaymentDbRow extends RowDataPacket {
   id: number;
   user_id: number;
   plan_tarifaire_id: number | null;
+  commande_id?: number | null;
+  echeance_id?: number | null;
   montant: string; // DECIMAL retourné en string par MySQL
   methode_paiement_id: number;
   statut_id: number;
@@ -192,12 +194,14 @@ export class MySQLPaymentRepository implements IPaymentRepository {
   async create(data: CreatePaymentInput): Promise<number> {
     const [result] = await pool.query<ResultSetHeader>(
       `INSERT INTO paiements
-         (user_id, plan_tarifaire_id, montant, methode_paiement_id, statut_id,
+         (user_id, plan_tarifaire_id, commande_id, echeance_id, montant, methode_paiement_id, statut_id,
           description, stripe_payment_intent_id, date_paiement)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.user_id,
         data.plan_tarifaire_id ?? null,
+        data.commande_id ?? null,
+        data.echeance_id ?? null,
         data.montant,
         data.methode_paiement_id,
         data.statut_id ?? 1, // 1 = en_attente par défaut
@@ -267,6 +271,8 @@ export class MySQLPaymentRepository implements IPaymentRepository {
       id: row.id,
       user_id: row.user_id,
       plan_tarifaire_id: row.plan_tarifaire_id,
+      commande_id: row.commande_id ?? null,
+      echeance_id: row.echeance_id ?? null,
       montant: Number(row.montant),
       methode_paiement_id: row.methode_paiement_id,
       statut_id: row.statut_id,

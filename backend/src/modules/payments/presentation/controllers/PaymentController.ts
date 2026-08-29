@@ -17,10 +17,18 @@ import { GetUserPaymentsUseCase } from "../../application/use-cases/payments/Get
 import { CreatePaymentUseCase } from "../../application/use-cases/payments/CreatePaymentUseCase.js";
 import { CreateStripePaymentIntentUseCase } from "../../application/use-cases/payments/CreateStripePaymentIntentUseCase.js";
 import { RefundPaymentUseCase } from "../../application/use-cases/payments/RefundPaymentUseCase.js";
+import { MySQLPaymentScheduleRepository } from "../../infrastructure/repositories/MySQLPaymentScheduleRepository.js";
+import { MarkScheduleAsPaidUseCase } from "../../application/use-cases/schedules/MarkScheduleAsPaidUseCase.js";
+import { MySQLOrderRepository } from "../../../store/infrastructure/repositories/MySQLOrderRepository.js";
+import { MarkOrderAsPaidUseCase } from "../../../store/application/use-cases/orders/MarkOrderAsPaidUseCase.js";
 
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 
 const repo = new MySQLPaymentRepository();
+const scheduleRepo = new MySQLPaymentScheduleRepository();
+const orderRepo = new MySQLOrderRepository();
+const markScheduleAsPaidUC = new MarkScheduleAsPaidUseCase(scheduleRepo, repo);
+const markOrderAsPaidUC = new MarkOrderAsPaidUseCase(orderRepo);
 const paymentEmailService = new PaymentEmailService();
 let stripeService: StripeService;
 try {
@@ -174,12 +182,14 @@ export class PaymentController {
    */
   async createStripeIntent(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { user_id, montant, plan_tarifaire_id, description } = req.body;
+      const { user_id, montant, plan_tarifaire_id, commande_id, echeance_id, description } = req.body;
 
       const result = await createStripeIntentUC.execute({
         user_id: Number(user_id),
         montant: Number(montant),
         plan_tarifaire_id: plan_tarifaire_id ? Number(plan_tarifaire_id) : null,
+        commande_id: commande_id ? Number(commande_id) : null,
+        echeance_id: echeance_id ? Number(echeance_id) : null,
         description: description ?? null,
       });
 
@@ -278,6 +288,15 @@ export class PaymentController {
           const payment = await repo.findByStripeIntentId(paymentIntent.id);
           if (payment) {
             await repo.updateStatus(payment.id, 2, chargeId); // 2 = valide
+            
+            // Lier le paiement au bon module si nécessaire
+            if (payment.echeance_id) {
+              await markScheduleAsPaidUC.execute(payment.echeance_id, payment.id);
+            }
+            if (payment.commande_id) {
+              await markOrderAsPaidUC.execute(payment.commande_id);
+            }
+
             console.log(
               `[Webhook Stripe] Paiement #${payment.id} validé (intent: ${paymentIntent.id})`,
             );

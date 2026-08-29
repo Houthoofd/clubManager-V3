@@ -120,11 +120,12 @@ export const MyPaymentsPage: React.FC = () => {
     try {
       const result = await paymentsApi.createStripeIntent({
         user_id: user.id,
-        montant: Math.round(schedule.montant * 100),
+        montant: schedule.montant, // Ne pas faire * 100 ici, c'est le backend qui le fait
         plan_tarifaire_id: schedule.plan_tarifaire_id,
+        echeance_id: schedule.id,
       });
       setStripeClientSecret(result.client_secret);
-      setStripeAmount(result.amount);
+      setStripeAmount(schedule.montant);
       setStripeOpen(true);
     } catch {
       toast.error(t("myPayments.paymentError"));

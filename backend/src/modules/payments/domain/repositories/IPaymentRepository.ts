@@ -10,6 +10,8 @@ export interface PaymentRow {
   id: number;
   user_id: number;
   plan_tarifaire_id: number | null;
+  commande_id: number | null;
+  echeance_id: number | null;
   montant: number;
   methode_paiement_id: number;
   statut_id: number;
@@ -34,6 +36,8 @@ export interface PaymentRow {
 export interface CreatePaymentInput {
   user_id: number;
   plan_tarifaire_id?: number | null;
+  commande_id?: number | null;
+  echeance_id?: number | null;
   montant: number;
   methode_paiement_id: number;
   statut_id?: number;

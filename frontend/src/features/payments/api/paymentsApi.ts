@@ -236,7 +236,9 @@ export const createPayment = async (data: {
 export const createStripeIntent = async (data: {
   user_id: number;
   montant: number;
-  plan_tarifaire_id?: number;
+  plan_tarifaire_id?: number | null;
+  commande_id?: number | null;
+  echeance_id?: number | null;
   description?: string;
 }): Promise<{
   client_secret: string;
