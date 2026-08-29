@@ -32,7 +32,7 @@ export class EventEmailService {
     }
 
     try {
-      await this.resend.emails.send({
+      const result = await this.resend.emails.send({
         from: this.fromEmail,
         to: targetEmail,
         subject,
@@ -44,7 +44,11 @@ export class EventEmailService {
           <p>L'équipe ClubManager</p>
         `,
       });
-      console.log(`[EventEmailService] Email envoyé avec succès à ${targetEmail}`);
+      if (result.error) {
+        console.error("[EventEmailService] Erreur Resend :", result.error);
+      } else {
+        console.log(`[EventEmailService] Email envoyé avec succès à ${targetEmail}`);
+      }
     } catch (error) {
       console.error("[EventEmailService] Erreur lors de l'envoi de l'email :", error);
     }
@@ -64,7 +68,7 @@ export class EventEmailService {
     }
 
     try {
-      await this.resend.emails.send({
+      const result = await this.resend.emails.send({
         from: this.fromEmail,
         to: targetEmail,
         subject,
@@ -75,7 +79,11 @@ export class EventEmailService {
           <p>L'équipe ClubManager</p>
         `,
       });
-      console.log(`[EventEmailService] Email d'annulation envoyé avec succès à ${targetEmail}`);
+      if (result.error) {
+        console.error("[EventEmailService] Erreur Resend :", result.error);
+      } else {
+        console.log(`[EventEmailService] Email d'annulation envoyé avec succès à ${targetEmail}`);
+      }
     } catch (error) {
       console.error("[EventEmailService] Erreur lors de l'envoi de l'email :", error);
     }
