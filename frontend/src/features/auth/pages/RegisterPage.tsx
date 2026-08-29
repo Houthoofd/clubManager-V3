@@ -40,7 +40,6 @@ import { SubmitButton } from "../../../shared/components/Button";
 type RegisterFormData = {
   first_name: string;
   last_name: string;
-  nom_utilisateur?: string;
   email: string;
   password: string;
   date_of_birth: string;
@@ -110,13 +109,6 @@ export const RegisterPage = () => {
       .min(2, t("errors.lastNameTooShort"))
       .max(50, t("errors.lastNameTooLong"))
       .regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, t("errors.lastNameInvalidChars")),
-    nom_utilisateur: z
-      .string()
-      .min(3, t("errors.usernameTooShort"))
-      .max(30, t("errors.usernameTooLong"))
-      .regex(/^[a-zA-Z0-9_-]+$/, t("errors.usernameInvalidChars"))
-      .optional()
-      .or(z.literal("")),
     email: z.string().email(t("errors.emailInvalid")),
     password: z
       .string()
@@ -245,7 +237,6 @@ export const RegisterPage = () => {
       const registerData: RegisterDto = {
         first_name: data.first_name,
         last_name: data.last_name,
-        nom_utilisateur: data.nom_utilisateur || undefined,
         email: data.email,
         password: data.password,
         date_of_birth: data.date_of_birth,
@@ -495,23 +486,6 @@ export const RegisterPage = () => {
             )}
           />
         </div>
-
-        {/* Nom d'utilisateur (optionnel) */}
-        <FormField
-          id="nom_utilisateur"
-          label={t("register.username")}
-          error={errors.nom_utilisateur?.message}
-          helpText={t("register.usernameHelp")}
-        >
-          <Input
-            id="nom_utilisateur"
-            type="text"
-            autoComplete="username"
-            placeholder={t("register.usernamePlaceholder")}
-            data-testid="register-username-input"
-            {...register("nom_utilisateur")}
-          />
-        </FormField>
 
         {/* Mot de passe avec indicateur de force et exigences */}
         <FormField

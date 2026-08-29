@@ -74,11 +74,18 @@ export class RegisterUseCase {
     // 3. Hasher le mot de passe
     const hashedPassword = await PasswordService.hash(dto.password);
 
+    // Auto-générer le nom d'utilisateur
+    const cleanFirstName = dto.first_name.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const cleanLastName = dto.last_name.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const baseUsername = `${cleanFirstName}.${cleanLastName}`.substring(0, 45);
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const generatedUsername = `${baseUsername}${randomSuffix}`;
+
     // 4. Créer l'utilisateur
     const user = await this.authRepository.createUser({
       first_name: dto.first_name,
       last_name: dto.last_name,
-      nom_utilisateur: dto.nom_utilisateur,
+      nom_utilisateur: generatedUsername,
       email: dto.email,
       password: hashedPassword,
       date_of_birth: new Date(dto.date_of_birth),
