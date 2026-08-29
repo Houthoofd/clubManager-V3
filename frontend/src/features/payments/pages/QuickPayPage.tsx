@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getQuickPayData, createPublicStripeIntent, QuickPayItem } from "../api/paymentsApi";
 import { StripePaymentModal } from "../components/StripePaymentModal";
-import { formatCurrency } from "../../../../shared/utils";
+import { formatCurrency } from "../../../shared/utils";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
