@@ -109,6 +109,7 @@ export class PaymentController {
 
       res.json({ success: true, data: result });
     } catch (error: any) {
+      console.error("[PaymentController] Error in createPublicStripeIntent:", error);
       res.status(400).json({ success: false, message: error.message });
     }
   }
