@@ -36,10 +36,13 @@ export function CreateAlertModal({
   // Charger les utilisateurs
   useEffect(() => {
     if (isOpen) {
-      apiClient.get('/users?limit=1000').then((res) => {
-        // ApiResponse -> PaginatedUsers (which has data array)
-        setUsers(res.data.data.data || []);
-      }).catch(console.error);
+      import("../../../features/users/api/usersApi").then(({ getUsers }) => {
+        getUsers({ limit: 1000 })
+          .then((res) => {
+            setUsers(res.data || []);
+          })
+          .catch(console.error);
+      });
     }
   }, [isOpen]);
 
