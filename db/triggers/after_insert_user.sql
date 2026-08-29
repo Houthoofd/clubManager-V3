@@ -58,8 +58,8 @@ BEGIN
                 END IF;
 
                 -- Insérer l'échéance
-                INSERT INTO echeances_paiements (utilisateur_id, abonnement_id, date_echeance, montant, statut)
-                VALUES (NEW.id, v_abonnement_id, v_date_echeance, v_montant, 'en attente');
+                INSERT INTO echeances_paiements (user_id, plan_tarifaire_id, date_echeance, montant, statut_id)
+                VALUES (NEW.id, v_abonnement_id, v_date_echeance, v_montant, 1);
             END IF;
 
             SET v_n = v_n + 1;

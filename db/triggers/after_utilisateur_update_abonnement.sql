@@ -18,7 +18,7 @@ BEGIN
     -- Vérifier si l'abonnement a changé
     IF OLD.abonnement_id != NEW.abonnement_id THEN
         -- Supprimer les anciennes échéances de paiement
-        DELETE FROM echeances_paiements WHERE utilisateur_id = NEW.id;
+        DELETE FROM echeances_paiements WHERE user_id = NEW.id;
 
         -- Récupérer le nouvel abonnement
         SET v_new_abonnement_id = NEW.abonnement_id;
@@ -65,8 +65,8 @@ BEGIN
                     END IF;
 
                     -- Insérer la nouvelle échéance
-                    INSERT INTO echeances_paiements (utilisateur_id, abonnement_id, date_echeance, montant, statut)
-                    VALUES (NEW.id, v_new_abonnement_id, v_date_echeance, v_montant, 'en attente');
+                    INSERT INTO echeances_paiements (user_id, plan_tarifaire_id, date_echeance, montant, statut_id)
+                    VALUES (NEW.id, v_new_abonnement_id, v_date_echeance, v_montant, 1);
                 END IF;
 
                 SET v_n = v_n + 1;
