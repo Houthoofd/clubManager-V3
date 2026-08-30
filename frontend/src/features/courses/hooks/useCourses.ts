@@ -83,7 +83,7 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
 
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const isMember = user?.role_app === "membre";
+  const isMember = user?.role_app === "member";
 
   // État UI pur (filtres) -> Zustand, pas React Query
   const { sessionFilters, setSessionFilter } = useCourseStore();
@@ -123,19 +123,18 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
   const sessionsQuery = useQuery({
     queryKey: courseKeys.sessions({ ...sessionFilters, isMember }),
     queryFn: () => {
+      let date_debut = sessionFilters.date_debut || undefined;
       let date_fin = sessionFilters.date_fin || undefined;
       
       if (isMember) {
+        date_debut = new Date().toISOString().split("T")[0];
         const maxDate = new Date();
         maxDate.setMonth(maxDate.getMonth() + 2);
-        const maxDateStr = maxDate.toISOString().split("T")[0];
-        if (!date_fin || date_fin > maxDateStr) {
-          date_fin = maxDateStr;
-        }
+        date_fin = maxDate.toISOString().split("T")[0];
       }
 
       return coursesApi.getCourses({
-        date_debut: sessionFilters.date_debut || undefined,
+        date_debut,
         date_fin,
         type_cours: sessionFilters.type_cours || undefined,
       });
