@@ -11,6 +11,7 @@ import {
 import { Button } from "../../../shared/components/Button/Button";
 import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
 import { EmptyState } from "../../../shared/components/Layout/EmptyState";
+import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 
 function formatDateLong(dateStr: string, lang: string): string {
   const d = new Date(dateStr);
@@ -47,12 +48,19 @@ export function MemberCoursesView() {
 
   if (futureSessions.length === 0) {
     return (
-      <div className="p-6">
-        <EmptyState
-          icon={<CalendarIcon className="h-12 w-12" />}
-          title={t("empty.noSessions")}
-          description={t("empty.noSessionsDesc")}
+      <div className="space-y-6" data-testid="courses-member-page">
+        <PageHeader
+          title={t("page.title")}
+          description="Inscrivez-vous aux prochaines séances de votre club."
+          icon={<CalendarIcon className="h-8 w-8" />}
         />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <EmptyState
+            icon={<CalendarIcon className="h-12 w-12" />}
+            title="Aucune séance"
+            description="Il n'y a aucune séance prévue pour le moment."
+          />
+        </div>
       </div>
     );
   }
@@ -89,13 +97,15 @@ export function MemberCoursesView() {
   }, {} as Record<string, typeof sessions>);
 
   return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Catalogue des séances</h1>
-        <p className="text-gray-500 mt-1">Inscrivez-vous aux prochaines séances de votre club.</p>
-      </div>
+    <div className="space-y-6" data-testid="courses-member-page">
+      <PageHeader
+        title={t("page.title")}
+        description="Inscrivez-vous aux prochaines séances de votre club."
+        icon={<CalendarIcon className="h-8 w-8" />}
+      />
 
-      {Object.entries(groupedSessions).map(([date, daySessions]) => (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 space-y-8">
+        {Object.entries(groupedSessions).map(([date, daySessions]) => (
         <div key={date} className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
             {formatDateLong(date, i18n.language)}
@@ -166,6 +176,7 @@ export function MemberCoursesView() {
           </div>
         </div>
       ))}
+      </div>
     </div>
   );
 }

@@ -92,7 +92,7 @@ router.get(
 
 router.post(
   "/sessions/:id/inscriptions",
-  requireRole(UserRole.ADMIN, UserRole.PROFESSOR),
+  requireRole(UserRole.ADMIN, UserRole.PROFESSOR, UserRole.MEMBER),
   (req, res) => ctrl.createInscription(req as any, res),
 );
 
