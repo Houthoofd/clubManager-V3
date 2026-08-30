@@ -69,7 +69,7 @@ export function MemberCoursesView() {
     if (!user) return;
     try {
       await createInscription(cours_id, {
-        utilisateur_id: user.userId,
+        utilisateur_id: user.id,
         cours_id,
       });
       toast.success(t("messages.success.inscriptionCreated"));
