@@ -119,7 +119,7 @@ export default function CoursesPage() {
   const typesCours: TypeCours[] = useTypesCours();
   const { user } = useAuth();
   const isAdmin = user?.role_app === "admin";
-  const isMember = user?.role_app === "membre";
+  const isMember = user?.role_app === "member";
 
   if (isMember) {
     return <MemberCoursesView />;
