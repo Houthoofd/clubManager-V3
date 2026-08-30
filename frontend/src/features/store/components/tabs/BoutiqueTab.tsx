@@ -129,10 +129,10 @@ export function BoutiqueTab() {
       </div>
 
       {/* Filtres - MIGRATION : SelectField */}
-      <div className="p-4 border-b border-gray-50">
-        <div className="grid gap-3 md:grid-cols-2">
+      <div className="p-4 border-b border-gray-50 flex justify-center">
+        <div className="flex flex-col md:flex-row gap-3 w-full max-w-2xl">
           {/* Barre de recherche */}
-          <div className="relative">
+          <div className="relative flex-1">
             <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
               <svg
                 className="h-4 w-4 text-gray-400"
@@ -152,27 +152,29 @@ export function BoutiqueTab() {
               value={store.articleSearch}
               onChange={(event) => store.setArticleSearch(event.target.value)}
               placeholder={t("boutique.filters.search")}
-              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="w-full pl-9 pr-3 py-2 text-sm text-center border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
           {/* Filtre catégorie - MIGRATION : SelectField */}
-          <SelectField
-            id="boutique-category-filter"
-            label=""
-            placeholder={t("boutique.filters.allCategories")}
-            options={
-              categoriesQuery.data?.map((cat) => ({
-                value: cat.id,
-                label: cat.nom,
-              })) ?? []
-            }
-            value={store.articleCategoryFilter ?? ""}
-            onChange={(value) =>
-              store.setArticleCategoryFilter(value ? Number(value) : null)
-            }
-            className="[&>label]:hidden"
-          />
+          <div className="flex-1">
+            <SelectField
+              id="boutique-category-filter"
+              label=""
+              placeholder={t("boutique.filters.allCategories")}
+              options={
+                categoriesQuery.data?.map((cat) => ({
+                  value: cat.id,
+                  label: cat.nom,
+                })) ?? []
+              }
+              value={store.articleCategoryFilter ?? ""}
+              onChange={(value) =>
+                store.setArticleCategoryFilter(value ? Number(value) : null)
+              }
+              className="[&>label]:hidden [&_select]:text-center"
+            />
+          </div>
         </div>
       </div>
 

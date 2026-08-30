@@ -207,22 +207,9 @@ export function CatalogueTab() {
                   data-testid={`article-card-${article.id}`}
                   className="flex flex-col justify-between rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md"
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Miniature */}
-                    <div className="h-16 w-16 flex-shrink-0 rounded-lg bg-gray-100 overflow-hidden border border-gray-200">
-                      {article.image_url ? (
-                        <img src={article.image_url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-gray-400">
-                          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                    
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex justify-between items-start">
+                      <div className="flex justify-between items-start gap-2">
                         <div>
                           <h3 className="font-semibold text-gray-900">
                             {article.nom}
@@ -246,6 +233,27 @@ export function CatalogueTab() {
                             : t("catalogue.card.inactive")}
                         </span>
                       </div>
+                    </div>
+
+                    {/* Miniatures alignées à droite */}
+                    <div className="flex flex-wrap justify-end gap-1.5 max-w-[45%]">
+                      {article.images && article.images.length > 0 ? (
+                        article.images.map((img) => (
+                          <div key={img.id} className="h-10 w-10 flex-shrink-0 rounded-md bg-gray-100 overflow-hidden border border-gray-200 shadow-sm">
+                            <img src={img.url} alt="" className="h-full w-full object-cover" />
+                          </div>
+                        ))
+                      ) : article.image_url ? (
+                        <div className="h-10 w-10 flex-shrink-0 rounded-md bg-gray-100 overflow-hidden border border-gray-200 shadow-sm">
+                          <img src={article.image_url} alt="" className="h-full w-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-400 shadow-sm">
+                          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
                     </div>
                   </div>
 
