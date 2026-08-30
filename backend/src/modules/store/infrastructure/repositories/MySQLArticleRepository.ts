@@ -28,6 +28,7 @@ interface ArticleDbRow extends RowDataPacket {
   description: string | null;
   prix: string; // DECIMAL retourné en string par MySQL
   image_url: string | null; // Champ virtuel (subquery)
+  images?: any; // JSON Array issu de IMAGES_JSON_SUBQUERY
   categorie_id: number | null;
   categorie_nom: string | null;
   actif: boolean | number;
@@ -61,6 +62,21 @@ const IMAGE_URL_SUBQUERY = `(
 )`;
 
 /**
+ * Subquery pour obtenir la liste complète des images en JSON
+ */
+const IMAGES_JSON_SUBQUERY = `(
+  SELECT JSON_ARRAYAGG(
+    JSON_OBJECT('id', id, 'article_id', article_id, 'url', url, 'ordre', ordre)
+  )
+  FROM (
+    SELECT id, article_id, url, ordre
+    FROM images
+    WHERE article_id = a.id
+    ORDER BY ordre ASC
+  ) as sorted_images
+)`;
+
+/**
  * SELECT de base pour les articles avec image_url virtuelle et catégorie
  */
 const BASE_SELECT = `
@@ -70,6 +86,7 @@ const BASE_SELECT = `
     a.description,
     a.prix,
     ${IMAGE_URL_SUBQUERY} AS image_url,
+    IFNULL(${IMAGES_JSON_SUBQUERY}, '[]') AS images,
     a.categorie_id,
     c.nom AS categorie_nom,
     a.actif,
@@ -304,20 +321,29 @@ export class MySQLArticleRepository implements IArticleRepository {
    * Convertit une row MySQL brute en objet ArticleRow typé
    * Cast DECIMAL prix en number
    */
-  private mapRow(row: ArticleDbRow): ArticleRow {
-    return {
-      id: row.id,
-      nom: row.nom,
-      description: row.description,
-      prix: Number(row.prix),
-      image_url: row.image_url,
-      categorie_id: row.categorie_id,
-      categorie_nom: row.categorie_nom,
-      actif: Boolean(row.actif),
-      created_at: new Date(row.created_at),
-      updated_at: row.updated_at ? new Date(row.updated_at) : null,
-    };
-  }
+    private mapRow(row: ArticleDbRow): ArticleRow {
+      let parsedImages = [];
+      if (row.images) {
+        try {
+          parsedImages = typeof row.images === 'string' ? JSON.parse(row.images) : row.images;
+        } catch (e) {
+          console.warn('Failed to parse images JSON for article', row.id);
+        }
+      }
+      return {
+        id: row.id,
+        nom: row.nom,
+        description: row.description,
+        prix: Number(row.prix),
+        image_url: row.image_url,
+        images: parsedImages,
+        categorie_id: row.categorie_id,
+        categorie_nom: row.categorie_nom,
+        actif: Boolean(row.actif),
+        created_at: new Date(row.created_at),
+        updated_at: row.updated_at ? new Date(row.updated_at) : null,
+      };
+    }
 
   /**
    * Convertit une row image MySQL en objet ArticleImageRow typé

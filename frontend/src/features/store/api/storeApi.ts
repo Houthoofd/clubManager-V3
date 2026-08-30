@@ -35,6 +35,7 @@ export interface Article {
   description?: string | null;
   prix: number;
   image_url?: string | null;
+  images?: ArticleImage[];
   categorie_id?: number | null;
   categorie_nom?: string | null;
   actif: boolean;

@@ -12,6 +12,7 @@ export interface ArticleRow {
   description: string | null;
   prix: number;
   image_url: string | null; // Champ virtuel (JOIN avec images table)
+  images?: ArticleImageRow[]; // Liste des images en JSON
   categorie_id: number | null;
   categorie_nom: string | null;
   actif: boolean;

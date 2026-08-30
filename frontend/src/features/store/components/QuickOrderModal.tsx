@@ -153,8 +153,12 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
     }
   };
 
-  // Image principale de l'article
-  const mainImage = article.images?.[0]?.url || article.image_url;
+  // Image(s) de l'article
+  const imagesList = article.images && article.images.length > 0 
+    ? article.images 
+    : article.image_url ? [{ url: article.image_url, id: 'fallback' }] : [];
+  
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // ── Rendu ─────────────────────────────────────────────────────────────────
   return (
@@ -172,14 +176,58 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
       />
 
       <Modal.Body>
-        {/* Image de l'article */}
-        {mainImage && (
-          <div className="mb-5 rounded-lg overflow-hidden bg-gray-50">
-            <img
-              src={mainImage}
-              alt={article.nom}
-              className="w-full h-48 object-cover"
-            />
+        {/* Galerie d'images */}
+        {imagesList.length > 0 && (
+          <div className="mb-5">
+            <div className="relative rounded-lg overflow-hidden bg-gray-50 aspect-video w-full flex items-center justify-center">
+              <img
+                src={imagesList[currentImageIndex]?.url}
+                alt={article.nom}
+                className="w-full h-48 md:h-64 object-cover"
+              />
+              {imagesList.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/70 transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : imagesList.length - 1));
+                    }}
+                  >
+                    &larr;
+                  </button>
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/70 transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentImageIndex((prev) => (prev < imagesList.length - 1 ? prev + 1 : 0));
+                    }}
+                  >
+                    &rarr;
+                  </button>
+                </>
+              )}
+            </div>
+            
+            {/* Thumbnails */}
+            {imagesList.length > 1 && (
+              <div className="flex gap-2 mt-3 overflow-x-auto pb-2 px-1">
+                {imagesList.map((img, idx) => (
+                  <button
+                    key={img.id}
+                    type="button"
+                    onClick={() => setCurrentImageIndex(idx)}
+                    className={\`relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-colors \${
+                      idx === currentImageIndex ? "border-blue-600" : "border-transparent hover:border-gray-300"
+                    }\`}
+                  >
+                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

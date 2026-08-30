@@ -134,17 +134,22 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
   };
 
   // ── Upload Image ──────────────────────────────────────────────────────────
-  const handleImageSelected = async (file: File | null) => {
-    if (!file) {
-      setValue("image_url", "");
-      return;
+  const [localImages, setLocalImages] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (article?.images) {
+      setLocalImages(article.images);
+    } else if (article?.image_url) {
+      setLocalImages([{ id: 'fallback', url: article.image_url }]);
+    } else {
+      setLocalImages([]);
     }
+  }, [article]);
+
+  const handleImageSelected = async (file: File | null) => {
+    if (!file) return;
 
     if (!article?.id) {
-      // In create mode, we can't upload directly to /articles/:id/images
-      // Alternatively, we could save the file in state and upload after creation
-      // But based on the instructions, we trigger API call immediately.
-      // If we don't have an ID, we might just not allow it or mock it.
       alert("Veuillez créer l'article d'abord pour pouvoir uploader une image.");
       return;
     }
@@ -152,12 +157,25 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
     try {
       setIsUploadingImage(true);
       const res = await storeApi.uploadArticleImage(article.id, file);
-      setValue("image_url", res.url);
+      setLocalImages((prev) => [...prev, res]);
     } catch (error) {
       console.error("Failed to upload image", error);
       alert("Erreur lors de l'upload de l'image");
     } finally {
       setIsUploadingImage(false);
+    }
+  };
+
+  const handleDeleteImage = async (imageId: number) => {
+    if (!article?.id) return;
+    if (!confirm("Voulez-vous vraiment supprimer cette image ?")) return;
+
+    try {
+      await storeApi.deleteArticleImage(article.id, imageId);
+      setLocalImages((prev) => prev.filter((img) => img.id !== imageId));
+    } catch (error) {
+      console.error("Failed to delete image", error);
+      alert("Erreur lors de la suppression de l'image");
     }
   };
 
@@ -291,16 +309,46 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
           {/* Image */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Image
+              Images
               <span className="ml-1 text-xs text-gray-400 font-normal">
                 (Optionnel)
               </span>
             </label>
-            <ImageUpload
-              currentImageUrl={currentImageUrl}
-              onImageSelected={handleImageSelected}
-              isUploading={isUploadingImage}
-            />
+            
+            {localImages.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                {localImages.map((img) => (
+                  <div key={img.id} className="relative group rounded-lg overflow-hidden border border-gray-200 aspect-square">
+                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    {img.id !== 'fallback' && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteImage(img.id)}
+                        className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Supprimer"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {article?.id && (
+              <ImageUpload
+                currentImageUrl={null}
+                onImageSelected={handleImageSelected}
+                isUploading={isUploadingImage}
+              />
+            )}
+            {!article?.id && (
+              <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
+                Vous pourrez ajouter des images une fois l'article créé.
+              </div>
+            )}
           </div>
 
           {/* Description */}
