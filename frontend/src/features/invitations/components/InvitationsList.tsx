@@ -9,7 +9,6 @@ import { type Invitation } from "../api/invitationApi";
 import { ConfirmDialog } from "../../../shared/components/Modal/ConfirmDialog";
 import { DataTable } from "@/shared/components/Table/DataTable";
 import { PaginationBar } from "@/shared/components/Navigation/PaginationBar";
-import { EmptyState } from "@/shared/components/Feedback/EmptyState";
 import { Button } from "@/shared/components/Button/Button";
 import { EnvelopeOpenIcon } from "@heroicons/react/24/outline";
 
@@ -127,11 +126,11 @@ export const InvitationsList: React.FC = () => {
     <div className="flex flex-col h-full">
       <div className="flex-1">
         {data.invitations.length === 0 ? (
-          <EmptyState
-            icon={<EnvelopeOpenIcon className="h-12 w-12 text-gray-400" />}
-            title="Aucune invitation"
-            description="Il n'y a aucune invitation pour le moment."
-          />
+          <div className="flex flex-col items-center justify-center p-12 text-center">
+            <EnvelopeOpenIcon className="h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900">Aucune invitation</h3>
+            <p className="mt-1 text-sm text-gray-500">Il n'y a aucune invitation pour le moment.</p>
+          </div>
         ) : (
           <DataTable
             columns={columns}
