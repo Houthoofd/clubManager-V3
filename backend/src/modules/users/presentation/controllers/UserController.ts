@@ -4,6 +4,7 @@
  */
 
 import type { Response } from "express";
+import { getStorageService } from "@/shared/storage/StorageServiceFactory.js";
 import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
 import { UserRole } from "@clubmanager/types";
 import { GetUsersUseCase } from "../../application/use-cases/GetUsersUseCase.js";
