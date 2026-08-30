@@ -50,7 +50,10 @@ function calcDuration(debut: string, fin: string): number {
 
 /** Format a Date object or date string to YYYY-MM-DD */
 function toDateString(d: Date): string {
-  return d.toISOString().split("T")[0]!;
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 /**
@@ -1013,7 +1016,7 @@ export class MySQLCourseRepository implements ICourseRepository {
     while (currentUtc <= endUtc) {
       const currentDate = new Date(currentUtc);
       if (currentDate.getUTCDay() === jsTargetDay) {
-        const dateStr = currentDate.toISOString().split("T")[0]!;
+        const dateStr = toDateString(currentDate);
         if (!excludeDates.has(dateStr)) {
           const [res] = await pool.query<ResultSetHeader>(
             `INSERT INTO cours (cours_recurrent_id, date_cours, type_cours, heure_debut, heure_fin)
@@ -1365,7 +1368,10 @@ export class MySQLCourseRepository implements ICourseRepository {
     return rows.map((row) => ({
       inscription_id: row.inscription_id,
       cours_id: row.cours_id,
-      date_cours: new Date(row.date_cours).toISOString().split("T")[0]!,
+      date_cours: (() => {
+        const d = new Date(row.date_cours);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      })(),
       type_cours: row.type_cours,
       heure_debut: row.heure_debut,
       heure_fin: row.heure_fin,

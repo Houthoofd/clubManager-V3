@@ -14,7 +14,9 @@ import { EmptyState } from "../../../shared/components/Layout/EmptyState";
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 
 function formatDateLong(dateStr: string, lang: string): string {
-  const d = new Date(dateStr);
+  const parts = dateStr.split("T")[0]?.split("-") || [];
+  if (parts.length !== 3) return dateStr;
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   return new Intl.DateTimeFormat(lang, { weekday: "long", year: "numeric", month: "long", day: "numeric" }).format(d);
 }
 
