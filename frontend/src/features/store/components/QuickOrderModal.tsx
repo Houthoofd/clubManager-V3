@@ -219,9 +219,9 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
                     key={img.id}
                     type="button"
                     onClick={() => setCurrentImageIndex(idx)}
-                    className={\`relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-colors \${
+                    className={`relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-colors ${
                       idx === currentImageIndex ? "border-blue-600" : "border-transparent hover:border-gray-300"
-                    }\`}
+                    }`}
                   >
                     <img src={img.url} alt="" className="w-full h-full object-cover" />
                   </button>
