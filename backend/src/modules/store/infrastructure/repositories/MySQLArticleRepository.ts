@@ -68,12 +68,8 @@ const IMAGES_JSON_SUBQUERY = `(
   SELECT JSON_ARRAYAGG(
     JSON_OBJECT('id', id, 'article_id', article_id, 'url', url, 'ordre', ordre)
   )
-  FROM (
-    SELECT id, article_id, url, ordre
-    FROM images
-    WHERE article_id = a.id
-    ORDER BY ordre ASC
-  ) as sorted_images
+  FROM images
+  WHERE article_id = a.id
 )`;
 
 /**
@@ -326,6 +322,9 @@ export class MySQLArticleRepository implements IArticleRepository {
       if (row.images) {
         try {
           parsedImages = typeof row.images === 'string' ? JSON.parse(row.images) : row.images;
+          if (Array.isArray(parsedImages)) {
+            parsedImages.sort((a: any, b: any) => a.ordre - b.ordre);
+          }
         } catch (e) {
           console.warn('Failed to parse images JSON for article', row.id);
         }
