@@ -496,6 +496,24 @@ export default function CoursesPage() {
 
               {/* Filtres */}
               <div className="flex flex-wrap gap-3">
+                <Input
+                  type="date"
+                  label={t("columns.date", "Date")}
+                  id="filter-date-debut"
+                  value={sessionFilters.date_debut ?? ""}
+                  onChange={(e) => setSessionFilter("date_debut", e.target.value)}
+                  size="sm"
+                  containerClassName="w-40"
+                />
+                <Input
+                  type="date"
+                  label="Au"
+                  id="filter-date-fin"
+                  value={sessionFilters.date_fin ?? ""}
+                  onChange={(e) => setSessionFilter("date_fin", e.target.value)}
+                  size="sm"
+                  containerClassName="w-40"
+                />
                 <Input.Select
                   label={t("filters.filterByType")}
                   id="filter-type"
