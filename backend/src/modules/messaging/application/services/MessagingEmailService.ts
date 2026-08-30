@@ -43,7 +43,7 @@ export class MessagingEmailService {
     subject: string | null;
     contentPreview: string; // Message content
   }): Promise<void> {
-    const subject = `[ClubManager] ${params.senderName} vous a envoyé un message`;
+    const subject = params.subject ? `[ClubManager] ${params.subject}` : `[ClubManager] ${params.senderName} vous a envoyé un message`;
     const preview =
       params.contentPreview.substring(0, 2000) +
       (params.contentPreview.length > 2000 ? "..." : "");

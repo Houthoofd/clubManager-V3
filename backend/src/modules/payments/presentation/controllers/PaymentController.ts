@@ -69,7 +69,9 @@ export class PaymentController {
         return;
       }
       
-      const items = await getQuickPayDataUC.execute(token);
+      const type = req.query.type as string | undefined;
+      const idParam = req.query.id ? Number(req.query.id) : undefined;
+      const items = await getQuickPayDataUC.execute(token, type, idParam);
       res.json({ success: true, data: items });
     } catch (error: any) {
       res.status(400).json({ success: false, message: error.message });
@@ -81,31 +83,55 @@ export class PaymentController {
    */
   async createPublicStripeIntent(req: Request, res: Response): Promise<void> {
     try {
-      const { token, commande_id, echeance_id, montant, description } = req.body;
+      const { token, item_type, item_id } = req.body;
       if (!token) {
         res.status(400).json({ success: false, message: "Token manquant" });
         return;
       }
 
       const secret = process.env.JWT_SECRET || "fallback_secret";
+      const accessSecret = process.env.JWT_ACCESS_SECRET || "your-super-secret-access-key-change-this-in-production";
       let decoded: any;
+      
       try {
         decoded = jwt.verify(token, secret);
-      } catch (e) {
-        res.status(400).json({ success: false, message: "Lien invalide ou expiré" });
+      } catch (e1) {
+        try {
+          decoded = jwt.verify(token, accessSecret, { issuer: "clubmanager", audience: "clubmanager-api" });
+        } catch (e2) {
+          res.status(400).json({ success: false, message: "Lien invalide ou expiré" });
+          return;
+        }
+      }
+      
+      const userId = decoded.id || decoded.userId;
+
+      let commande_id = null;
+      let echeance_id = null;
+      
+      if (item_type === "boutique") {
+        commande_id = Number(item_id);
+      } else if (item_type === "cotisation") {
+        echeance_id = Number(item_id);
+      }
+
+      const items = await getQuickPayDataUC.execute(token, item_type, Number(item_id));
+      if (!items || items.length === 0) {
+        res.status(400).json({ success: false, message: "Élément introuvable ou déjà payé" });
         return;
       }
       
-      const userId = decoded.id;
+      const montant = items[0].montant;
+      const description = items[0].description;
 
       const result = await createStripeIntentUC.execute({
-        user_id: Number(userId),
-        montant: Number(montant),
-        plan_tarifaire_id: null,
-        commande_id: commande_id ? Number(commande_id) : null,
-        echeance_id: echeance_id ? Number(echeance_id) : null,
-        description: description ?? null,
-      });
+        user_id: userId,
+        montant,
+        description,
+        commande_id,
+        echeance_id,
+        mode_paiement: "stripe"
+      } as any);
 
       res.json({ success: true, data: result });
     } catch (error: any) {
@@ -113,6 +139,7 @@ export class PaymentController {
       res.status(400).json({ success: false, message: error.message });
     }
   }
+  
   /**
    * GET /api/payments
    * Retourne la liste paginée des paiements avec filtres optionnels
@@ -310,6 +337,62 @@ export class PaymentController {
    *   - payment_intent.payment_failed → statut 'echoue'
    * Route PUBLIQUE : pas d'authentification JWT
    */
+  
+  async verifyPublicPayment(req: Request, res: Response): Promise<void> {
+    try {
+      const { payment_intent, item_type, item_id } = req.body;
+      const payment_intent_id = payment_intent || req.body.payment_intent_id;
+      
+      if (!payment_intent_id) {
+        res.status(400).json({ success: false, message: "payment_intent manquant" });
+        return;
+      }
+
+      console.log("[verifyPublicPayment] Verifying intent:", payment_intent_id);
+      const intent = await stripeService.stripe.paymentIntents.retrieve(payment_intent_id);
+      
+      if (intent.status === "succeeded") {
+        const repo = new MySQLPaymentRepository();
+        const payment = await repo.findByStripeIntentId(intent.id);
+        
+        console.log("[verifyPublicPayment] Found payment:", payment?.id, "statut:", payment?.statut_code);
+        
+        if (payment && payment.statut_code !== "valide") {
+          const chargeId = typeof intent.latest_charge === "string" ? intent.latest_charge : undefined;
+          await repo.updateStatus(payment.id, 2, chargeId);
+
+          if (payment.echeance_id) {
+            await markScheduleAsPaidUC.execute(payment.echeance_id, payment.id);
+            console.log("[verifyPublicPayment] Marked schedule as paid:", payment.echeance_id);
+          }
+          if (payment.commande_id) {
+            await markOrderAsPaidUC.execute(payment.commande_id);
+            console.log("[verifyPublicPayment] Marked order as paid:", payment.commande_id);
+          }
+
+          if (payment.user_email) {
+            console.log("[verifyPublicPayment] Sending receipt to:", payment.user_email);
+            await paymentEmailService.sendPaymentReceipt(
+              payment.user_email,
+              payment.user_first_name || "Membre",
+              payment.montant.toString(),
+              payment.methode_nom || "Stripe",
+              payment.description || "Paiement"
+            );
+          } else {
+            console.log("[verifyPublicPayment] No email found for user.");
+          }
+        }
+      } else {
+        console.log("[verifyPublicPayment] Intent not succeeded, status:", intent.status);
+      }
+      res.json({ success: true, status: intent.status });
+    } catch (error: any) {
+      console.error("[PaymentController] Error verifying payment:", error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
   async handleStripeWebhook(req: Request, res: Response): Promise<void> {
     const signature = req.headers["stripe-signature"];
 

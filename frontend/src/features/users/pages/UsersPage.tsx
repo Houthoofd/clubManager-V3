@@ -492,7 +492,7 @@ export function UsersPage() {
                 } finally {
                   setPlansLoading(false);
                 }
-                setSelectedSubscriptionId(null);
+                setSelectedSubscriptionId(row.abonnement_id ?? null);
                 setModal({ type: "subscription", user: row });
               }}
               title={t("subscription.assign")}

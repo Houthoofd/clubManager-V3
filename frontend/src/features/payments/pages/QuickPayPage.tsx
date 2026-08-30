@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { getQuickPayData, createPublicStripeIntent, QuickPayItem } from "../api/paymentsApi";
+import { getQuickPayData, createPublicStripeIntent, verifyPublicPayment, QuickPayItem } from "../api/paymentsApi";
 import { StripePaymentModal } from "../components/StripePaymentModal";
 import { formatCurrency } from "../../../shared/utils";
 import { useTranslation } from "react-i18next";
@@ -9,6 +9,8 @@ import { toast } from "sonner";
 export function QuickPayPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
+  const filterType = searchParams.get("type");
+  const filterId = searchParams.get("id");
   const { t } = useTranslation();
 
   const [items, setItems] = useState<QuickPayItem[]>([]);
@@ -19,35 +21,55 @@ export function QuickPayPage() {
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<QuickPayItem | null>(null);
 
-  useEffect(() => {
+    useEffect(() => {
     if (!token) {
       setError("Lien de paiement invalide.");
       setLoading(false);
       return;
     }
 
-    getQuickPayData(token)
-      .then((data) => {
-        setItems(data);
-      })
-      .catch((err) => {
-        setError("Ce lien est invalide ou expirÃ©.");
-      })
-      .finally(() => setLoading(false));
-  }, [token]);
+    const paymentIntent = searchParams.get("payment_intent");
+
+    const fetchOrders = () => {
+      getQuickPayData(token, filterType, filterId)
+        .then((data) => {
+          setItems(data);
+        })
+        .catch((err) => {
+          setError("Ce lien est invalide ou expiré.");
+        })
+        .finally(() => setLoading(false));
+    };
+
+    if (paymentIntent && filterType && filterId) {
+      // Un paiement vient d'être redirigé par Stripe
+      verifyPublicPayment(token, paymentIntent, filterType as any, Number(filterId))
+        .then(() => {
+          toast.success("Paiement validé avec succès !");
+          searchParams.delete("payment_intent");
+          searchParams.delete("payment_intent_client_secret");
+          searchParams.delete("redirect_status");
+          fetchOrders();
+        })
+        .catch((err) => {
+          console.error("Verification failed", err);
+          fetchOrders();
+        });
+    } else {
+      fetchOrders();
+    }
+  }, [token, filterType, filterId]);
 
   const handlePay = async (item: QuickPayItem) => {
     if (!token) return;
     try {
       const intent = await createPublicStripeIntent({
-        token,
-        montant: item.montant,
-        commande_id: item.type === "boutique" ? item.id : null,
-        echeance_id: item.type === "cotisation" ? item.id : null,
-        description: item.description,
-      });
+          token,
+          item_type: item.type,
+          item_id: item.id
+        } as any);
       setSelectedItem(item);
-      setStripeClientSecret(intent.client_secret);
+      setStripeClientSecret((intent as any).clientSecret || (intent as any).client_secret);
       setStripeOpen(true);
     } catch (err) {
       toast.error("Erreur lors de l'initialisation du paiement.");
@@ -77,6 +99,18 @@ export function QuickPayPage() {
       <div className="bg-white shadow rounded-lg p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">Paiement Rapide</h1>
         
+        {import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith("pk_test_") && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+            <strong className="font-semibold block mb-1">🛠 Mode Test Activé</strong>
+            Utilisez la fausse carte de test ci-dessous pour simuler un paiement réussi :
+            <ul className="mt-2 space-y-1 list-disc list-inside text-yellow-700">
+              <li><strong>Carte :</strong> <span className="font-mono bg-yellow-100 px-1 py-0.5 rounded">4242 4242 4242 4242</span></li>
+              <li><strong>Date d'expiration :</strong> <span className="font-mono bg-yellow-100 px-1 py-0.5 rounded">12/30</span> (ou n'importe quelle date future)</li>
+              <li><strong>CVC :</strong> <span className="font-mono bg-yellow-100 px-1 py-0.5 rounded">123</span></li>
+            </ul>
+          </div>
+        )}
+
         {items.length === 0 ? (
           <div className="text-center text-gray-500 py-8">
             Vous n'avez aucun paiement en attente.
