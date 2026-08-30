@@ -56,7 +56,7 @@ import {
 } from "../components/modals";
 import { MyCoursesPage } from "./MyCoursesPage";
 import { MemberCoursesView } from "./MemberCoursesView";
-import { ReservationsPage } from "../../reservations/pages/ReservationsPage";
+
 import { TabErrorBoundary } from "../../../shared/components/Feedback/TabErrorBoundary";
 import type {
   CourseRecurrentListItemDto,
@@ -83,7 +83,7 @@ type TabId =
   | "sessions"
   | "professeurs"
   | "myEnrollments"
-  | "reservations";
+  ;
 
 type ModalState =
   | { type: "none" }
@@ -135,7 +135,7 @@ export default function CoursesPage() {
       "sessions",
       "professeurs",
       "myEnrollments",
-      "reservations",
+      
     ];
     return tab && validTabs.includes(tab as TabId)
       ? (tab as TabId)
@@ -271,11 +271,7 @@ export default function CoursesPage() {
       label: t("tabs.myEnrollments"),
       icon: <ClipboardDocumentListIcon className="h-5 w-5" />,
     },
-    {
-      id: "reservations" as const,
-      label: t("tabs.reservations"),
-      icon: <CalendarDaysIcon className="h-5 w-5" />,
-    },
+    
   ];
 
   return (
@@ -797,11 +793,7 @@ export default function CoursesPage() {
         )}
 
         {/* ──────────────────────────────── TAB 5 : Réservations */}
-        {activeTab === "reservations" && (
-          <TabErrorBoundary tabKey={activeTab}>
-            <ReservationsPage />
-          </TabErrorBoundary>
-        )}
+        
       </div>
 
       {/* ───────────────────────────────────────────────────────────── */}
