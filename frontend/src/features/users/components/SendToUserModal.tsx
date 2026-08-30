@@ -95,7 +95,7 @@ const SpinnerIcon = ({ className }: { className?: string }) => (
 
 type Mode = "custom" | "template";
 
-const AUTO_RESOLVED_VARS = ["prenom", "nom", "nom_complet", "userId"];
+const AUTO_RESOLVED_VARS = ["prenom", "nom", "nom_complet", "userId", "lien_paiement"];
 
 interface SendToUserModalProps {
   user: UserListItemDto | null;

@@ -43,35 +43,72 @@ afterEach(() => {
 
 describe('CreateTemplateUseCase', () => {
   describe('execute', () => {
-
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
     it('devrait retourner le résultat quand les données sont valides', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { dto: CreateTemplateDto } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.getTypes.mockResolvedValue([{ id: 1, nom: 'Type 1' }] as any);
+      const expectedTemplate = { id: 10, type_id: 1, titre: 'Titre 1', contenu: 'Contenu 1', variables: [], actif: true };
+      mockRepo.create.mockResolvedValue(expectedTemplate as any);
 
       // Act
-      // await useCase.execute(input);
+      const result = await useCase.execute({ type_id: 1, titre: ' Titre 1 ', contenu: ' Contenu 1 ' });
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.create).toHaveBeenCalledWith({ type_id: 1, titre: 'Titre 1', contenu: 'Contenu 1', actif: true });
+      expect(result).toEqual(expectedTemplate);
+    });
+
+    it('devrait retourner le résultat avec actif false si spécifié', async () => {
+      // Arrange
+      mockRepo.getTypes.mockResolvedValue([{ id: 1, nom: 'Type 1' }] as any);
+      const expectedTemplate = { id: 10, type_id: 1, titre: 'Titre 1', contenu: 'Contenu 1', variables: [], actif: false };
+      mockRepo.create.mockResolvedValue(expectedTemplate as any);
+
+      // Act
+      const result = await useCase.execute({ type_id: 1, titre: 'Titre 1', contenu: 'Contenu 1', actif: false });
+
+      // Assert
+      expect(mockRepo.create).toHaveBeenCalledWith({ type_id: 1, titre: 'Titre 1', contenu: 'Contenu 1', actif: false });
+      expect(result).toEqual(expectedTemplate);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('devrait lancer une erreur si le titre est manquant', async () => {
+      await expect(useCase.execute({ type_id: 1, titre: '', contenu: 'c' })).rejects.toThrow('Le titre du template est requis');
+      await expect(useCase.execute({ type_id: 1, titre: '   ', contenu: 'c' })).rejects.toThrow('Le titre du template est requis');
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le titre dépasse 255 caractères', async () => {
+      const longTitle = 'a'.repeat(256);
+      await expect(useCase.execute({ type_id: 1, titre: longTitle, contenu: 'c' })).rejects.toThrow('Le titre du template ne peut pas dépasser 255 caractères');
+    });
+
+    it('devrait lancer une erreur si le contenu est manquant', async () => {
+      await expect(useCase.execute({ type_id: 1, titre: 't', contenu: '' })).rejects.toThrow('Le contenu du template est requis');
+      await expect(useCase.execute({ type_id: 1, titre: 't', contenu: '   ' })).rejects.toThrow('Le contenu du template est requis');
+    });
+
+    it('devrait lancer une erreur si le type_id est invalide', async () => {
+      await expect(useCase.execute({ type_id: 0, titre: 't', contenu: 'c' })).rejects.toThrow('Le type du template est requis');
+      await expect(useCase.execute({ type_id: -1, titre: 't', contenu: 'c' })).rejects.toThrow('Le type du template est requis');
+      await expect(useCase.execute({ type_id: NaN, titre: 't', contenu: 'c' })).rejects.toThrow('Le type du template est requis');
+    });
+
+    it('devrait lancer une erreur si le type de template n\'existe pas', async () => {
+      mockRepo.getTypes.mockResolvedValue([{ id: 2, nom: 'Type 2' }] as any);
+      await expect(useCase.execute({ type_id: 1, titre: 't', contenu: 'c' })).rejects.toThrow('Type de template introuvable');
+    });
+
+    it('devrait lancer une erreur si le repository échoue', async () => {
+      // Arrange
+      mockRepo.getTypes.mockResolvedValue([{ id: 1, nom: 'Type 1' }] as any);
+      mockRepo.create.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute({ type_id: 1, titre: 't', contenu: 'c' })).rejects.toThrow('DB error');
+    });
 
   });
 });

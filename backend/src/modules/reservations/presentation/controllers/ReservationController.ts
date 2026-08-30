@@ -13,10 +13,14 @@ import { GetReservationsUseCase } from "../../application/use-cases/GetReservati
 import { GetUserReservationsUseCase } from "../../application/use-cases/GetUserReservationsUseCase.js";
 import { CreateReservationUseCase } from "../../application/use-cases/CreateReservationUseCase.js";
 import { CancelReservationUseCase } from "../../application/use-cases/CancelReservationUseCase.js";
+import { ReservationEmailService } from "../../application/services/ReservationEmailService.js";
+import { MySQLUserRepository } from "@/modules/users/infrastructure/repositories/MySQLUserRepository.js";
 
 // ==================== MODULE-SCOPE INSTANTIATION ====================
 
 const repo = new MySQLReservationRepository();
+const userRepo = new MySQLUserRepository();
+const emailService = new ReservationEmailService();
 
 const getReservationsUC     = new GetReservationsUseCase(repo);
 const getUserReservationsUC = new GetUserReservationsUseCase(repo);
@@ -129,6 +133,21 @@ export class ReservationController {
         cours_id: Number(cours_id),
       });
 
+      // Email d'inscription
+      try {
+        const user = await userRepo.findById(user_id);
+        if (user && user.email) {
+          await emailService.sendConfirmationEmail(
+            user.email,
+            user.prenom || "Membre",
+            `Cours #${cours_id}`, // A real impl would fetch the course name
+            "prochainement"
+          );
+        }
+      } catch (err) {
+        console.error("Email send failed", err);
+      }
+
       res.status(201).json({
         success: true,
         message: "Réservation créée",
@@ -163,6 +182,21 @@ export class ReservationController {
         req.user!.userId,
         req.user!.role_app ?? "",
       );
+
+      // Fetch user email for cancellation
+      try {
+        const user = await userRepo.findById(req.user!.userId);
+        if (user && user.email) {
+          await emailService.sendCancellationEmail(
+            user.email,
+            user.prenom || "Membre",
+            `Réservation #${id}`,
+            "annulé"
+          );
+        }
+      } catch (err) {
+        console.error("Cancellation email failed", err);
+      }
 
       res.json({
         success: true,

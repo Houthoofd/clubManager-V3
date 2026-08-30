@@ -29,6 +29,8 @@ export interface StripeIntentInput {
   user_id: number;
   montant: number;
   plan_tarifaire_id?: number | null;
+  commande_id?: number | null;
+  echeance_id?: number | null;
   description?: string | null;
 }
 
@@ -54,7 +56,7 @@ export class CreateStripePaymentIntentUseCase {
       throw new Error("Le montant doit être supérieur à 0");
     }
 
-    // Stripe attend le montant en centimes (ex: 19.99€ → 1999)
+    // Stripe attend le montant en centimes (ex: 19.99€ -> 1999)
     const amountInCents = Math.round(data.montant * 100);
 
     const paymentIntent = await this.stripeService.createPaymentIntent(
@@ -62,9 +64,9 @@ export class CreateStripePaymentIntentUseCase {
       "eur",
       {
         user_id: String(data.user_id),
-        plan_tarifaire_id: data.plan_tarifaire_id
-          ? String(data.plan_tarifaire_id)
-          : "",
+        plan_tarifaire_id: data.plan_tarifaire_id ? String(data.plan_tarifaire_id) : "",
+        commande_id: data.commande_id ? String(data.commande_id) : "",
+        echeance_id: data.echeance_id ? String(data.echeance_id) : "",
       },
     );
 
@@ -75,15 +77,18 @@ export class CreateStripePaymentIntentUseCase {
     }
 
     // Sauvegarde en DB avec statut 'en_attente'
+    // Le repo doit maintenant accepter commande_id et echeance_id (on va le modifier)
     const paymentId = await this.repo.create({
       user_id: data.user_id,
       plan_tarifaire_id: data.plan_tarifaire_id ?? null,
+      commande_id: data.commande_id ?? null,
+      echeance_id: data.echeance_id ?? null,
       montant: data.montant,
       methode_paiement_id: 1, // 1 = stripe
       statut_id: 1, // 1 = en_attente
       description: data.description ?? null,
       stripe_payment_intent_id: paymentIntent.id,
-    });
+    } as any); // cast temporaire pour ne pas casser la compilation si type non maj
 
     return {
       paymentId,

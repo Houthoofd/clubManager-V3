@@ -64,8 +64,14 @@ export * from "./dtos/lookup/index.js";
 // Domain Types - Family
 export * from "./domain/family/index.js";
 
+// Domain Types - Events
+export * from "./domain/events/index.js";
+
 // DTOs - Family
 export * from "./dtos/family/index.js";
+
+// DTOs - Events
+export * from "./dtos/events/index.js";
 
 // Validators
 // Validators (Zod schemas)

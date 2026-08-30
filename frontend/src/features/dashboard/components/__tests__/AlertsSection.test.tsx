@@ -1,44 +1,76 @@
-/**
- * AlertsSection.test.tsx
- * Tests composant — dashboard / AlertsSection
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 2 — Composants Frontend
- * Feature    : dashboard
- */
-
-import { screen } from '@testing-library/react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 import { AlertsSection } from '../AlertsSection';
+import type { DashboardAnalytics } from '@clubmanager/types';
 
-// TODO: Importer les types de props si nécessaire
+// Mock de useTranslation
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: any) => {
+      const translations: Record<string, string> = {
+        'alerts.latePayments': 'Paiements en retard',
+        'alerts.lowStock': 'Stock bas',
+      };
+      if (key === 'alerts.latePaymentsMessage') {
+        return `${options?.count} paiements en retard (${options?.amount})`;
+      }
+      if (key === 'alerts.lowStockMessage') {
+        return `${options?.count} articles en stock bas`;
+      }
+      return translations[key] || key;
+    },
+  }),
+}));
 
-// Note: useTranslation est mocké via le wrapper de rendu
-// Props détectées : data, isLoading
+vi.mock('@/features/statistics/utils/formatting', () => ({
+  formatCurrency: (val: number) => `${val} €`,
+}));
 
 describe('AlertsSection', () => {
-
-  it('devrait se rendre sans erreur avec les props minimales', () => {
-    // Arrange
-    // TODO: définir les props requises
-    // const props = { data: /* valeur */, isLoading: /* valeur */ };
-
-    // Act
-    // render(<AlertsSection {...props} />);
-
-    // Assert
-    // expect(screen.getByRole(...)).toBeInTheDocument();
-    expect(true).toBe(true); // placeholder — à remplacer
+  it('ne rend rien pendant le chargement', () => {
+    const { container } = render(<AlertsSection data={undefined} isLoading={true} />);
+    expect(container).toBeEmptyDOMElement();
   });
 
-  it('devrait afficher le contenu correct selon les props', () => {
-    // TODO: tester les différentes valeurs possibles des props
-    // ex: data = '<valeur_a>' → résultat attendu A
-    // ex: data = '<valeur_b>' → résultat attendu B
-    expect(true).toBe(true); // placeholder — à remplacer
+  it('ne rend rien si aucune alerte', () => {
+    const mockData = {
+      finance: { overview: { nombre_echeances_retard: 0, montant_echeances_retard: 0 } },
+      store: { low_stock: [] },
+    } as unknown as DashboardAnalytics;
+    
+    const { container } = render(<AlertsSection data={mockData} isLoading={false} />);
+    expect(container).toBeEmptyDOMElement();
   });
 
-  // TODO: Ajouter un test par prop optionnelle importante
-  // TODO: Tester les états disabled/loading si applicable
+  it('affiche les paiements en retard', () => {
+    const mockData = {
+      finance: { overview: { nombre_echeances_retard: 3, montant_echeances_retard: 150 } },
+      store: { low_stock: [] },
+    } as unknown as DashboardAnalytics;
+    
+    render(<AlertsSection data={mockData} isLoading={false} />);
+    expect(screen.getByText('Paiements en retard')).toBeInTheDocument();
+    expect(screen.getByText('3 paiements en retard (150 €)')).toBeInTheDocument();
+  });
 
+  it('affiche les articles en stock bas', () => {
+    const mockData = {
+      finance: { overview: { nombre_echeances_retard: 0, montant_echeances_retard: 0 } },
+      store: { low_stock: [{ id: 1 }, { id: 2 }] },
+    } as unknown as DashboardAnalytics;
+    
+    render(<AlertsSection data={mockData} isLoading={false} />);
+    expect(screen.getByText('Stock bas')).toBeInTheDocument();
+    expect(screen.getByText('2 articles en stock bas')).toBeInTheDocument();
+  });
+
+  it('affiche plusieurs alertes', () => {
+    const mockData = {
+      finance: { overview: { nombre_echeances_retard: 2, montant_echeances_retard: 100 } },
+      store: { low_stock: [{ id: 1 }] },
+    } as unknown as DashboardAnalytics;
+    
+    render(<AlertsSection data={mockData} isLoading={false} />);
+    expect(screen.getAllByRole('alert')).toHaveLength(2);
+  });
 });

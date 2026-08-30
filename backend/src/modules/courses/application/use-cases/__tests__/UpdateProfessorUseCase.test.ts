@@ -57,35 +57,26 @@ afterEach(() => {
 
 describe('UpdateProfessorUseCase', () => {
   describe('execute', () => {
+    it('devrait retourner le professeur mis à jour', async () => {
+      const mockProf: any = { id: 1, name: 'John Doe' };
+      mockRepo.updateProfessor.mockResolvedValue(mockProf);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute({ id: 1, name: 'John Doe' } as any);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { dto: UpdateProfessorDto } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.updateProfessor).toHaveBeenCalledWith({ id: 1, name: 'John Doe' });
+      expect(result).toEqual(mockProf);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le professeur est introuvable', async () => {
+      mockRepo.updateProfessor.mockResolvedValue(null);
+
+      await expect(useCase.execute({ id: 999 } as any)).rejects.toThrow('Professeur introuvable');
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.updateProfessor.mockRejectedValue(new Error('DB error'));
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute({ id: 1 } as any)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

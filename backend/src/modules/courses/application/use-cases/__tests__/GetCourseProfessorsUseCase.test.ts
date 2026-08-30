@@ -58,34 +58,36 @@ afterEach(() => {
 describe('GetCourseProfessorsUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
     it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { coursRecurrentId: number } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.getCourseRecurrentById.mockResolvedValue({ id: 1 } as any);
+      mockRepo.getProfessorsForCourse.mockResolvedValue([10, 20]);
 
-      // Act
-      // await useCase.execute(input);
+      const result = await useCase.execute(1);
 
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getCourseRecurrentById).toHaveBeenCalledWith(1);
+      expect(mockRepo.getProfessorsForCourse).toHaveBeenCalledWith(1);
+      expect(result).toEqual([10, 20]);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le cours est introuvable', async () => {
+      mockRepo.getCourseRecurrentById.mockResolvedValue(null as any);
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(99)).rejects.toThrow('Cours récurrent introuvable');
+      expect(mockRepo.getProfessorsForCourse).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le repository échoue lors de la récupération du cours', async () => {
+      mockRepo.getCourseRecurrentById.mockRejectedValue(new Error('DB error'));
+
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
+
+    it('devrait lancer une erreur si le repository échoue lors de la récupération des profs', async () => {
+      mockRepo.getCourseRecurrentById.mockResolvedValue({ id: 1 } as any);
+      mockRepo.getProfessorsForCourse.mockRejectedValue(new Error('DB error'));
+
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
 
   });
 });

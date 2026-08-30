@@ -6,7 +6,7 @@ FOR EACH ROW
 BEGIN
     DECLARE v_abonnement_id INT;
     DECLARE v_date_inscription DATE;
-    DECLARE v_periode VARCHAR(20);
+    DECLARE v_duree_mois INT;
     DECLARE v_prix DECIMAL(10, 2);
     DECLARE v_n INT DEFAULT 0;
     DECLARE v_date_echeance DATE;
@@ -19,7 +19,7 @@ BEGIN
 
     -- Vérifier si l'utilisateur a un abonnement
     IF v_abonnement_id IS NOT NULL THEN
-        SELECT periode, prix INTO v_periode, v_prix FROM plans_tarifaires WHERE id = v_abonnement_id;
+        SELECT duree_mois, prix INTO v_duree_mois, v_prix FROM plans_tarifaires WHERE id = v_abonnement_id;
 
         -- Utiliser la date d'inscription ou le début de la saison, selon ce qui est le plus récent
         SET v_date_inscription = GREATEST(NEW.date_inscription, v_season_start);
@@ -27,11 +27,11 @@ BEGIN
         -- Générer les échéances en fonction de la période de l'abonnement
         WHILE v_n <= 12 DO
             CASE
-                WHEN v_periode = 'mois' THEN
+                WHEN v_duree_mois = 1 THEN
                     SET v_date_echeance = LAST_DAY(DATE_ADD(v_date_inscription, INTERVAL v_n MONTH));
-                WHEN v_periode = 'trimestre' THEN
+                WHEN v_duree_mois = 3 THEN
                     SET v_date_echeance = LAST_DAY(DATE_ADD(v_date_inscription, INTERVAL v_n*3 MONTH));
-                WHEN v_periode = 'an' THEN
+                WHEN v_duree_mois = 12 THEN
                     SET v_date_echeance = LAST_DAY(DATE_ADD(v_date_inscription, INTERVAL v_n YEAR));
             END CASE;
 
@@ -41,13 +41,13 @@ BEGIN
                 IF v_n = 0 THEN
                     SET v_montant = ROUND(
                         v_prix *
-                        CASE v_periode
-                            WHEN 'mois' THEN
+                        CASE v_duree_mois
+                            WHEN 1 THEN
                                 (DAY(LAST_DAY(v_date_inscription)) - DAY(v_date_inscription) + 1) / DAY(LAST_DAY(v_date_inscription))
-                            WHEN 'trimestre' THEN
+                            WHEN 3 THEN
                                 (DATEDIFF(LAST_DAY(DATE_ADD(v_date_inscription, INTERVAL 2 MONTH)), v_date_inscription) + 1) /
                                 DATEDIFF(LAST_DAY(DATE_ADD(v_date_inscription, INTERVAL 2 MONTH)), DATE_SUB(v_date_inscription, INTERVAL 3 MONTH))
-                            WHEN 'an' THEN
+                            WHEN 12 THEN
                                 (DATEDIFF(LAST_DAY(DATE_ADD(v_date_inscription, INTERVAL 11 MONTH)), v_date_inscription) + 1) /
                                 DATEDIFF(LAST_DAY(DATE_ADD(v_date_inscription, INTERVAL 11 MONTH)), DATE_SUB(v_date_inscription, INTERVAL 1 YEAR))
                         END,
@@ -58,8 +58,8 @@ BEGIN
                 END IF;
 
                 -- Insérer l'échéance
-                INSERT INTO echeances_paiements (utilisateur_id, abonnement_id, date_echeance, montant, statut)
-                VALUES (NEW.id, v_abonnement_id, v_date_echeance, v_montant, 'en attente');
+                INSERT INTO echeances_paiements (user_id, plan_tarifaire_id, date_echeance, montant, statut_id)
+                VALUES (NEW.id, v_abonnement_id, v_date_echeance, v_montant, 1);
             END IF;
 
             SET v_n = v_n + 1;

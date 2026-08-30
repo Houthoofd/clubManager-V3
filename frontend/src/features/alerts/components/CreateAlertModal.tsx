@@ -3,11 +3,12 @@
  * Modal pour créer une alerte pour un utilisateur (admin)
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { AlertTypeDto } from "../api/alertsApi";
 import { useCreateUserAlert } from "../hooks/useAlerts";
+import { apiClient } from "../../../shared/api/apiClient";
 
 interface CreateAlertModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export function CreateAlertModal({
   alertTypes,
 }: CreateAlertModalProps) {
   const { t } = useTranslation("alerts");
+  const [users, setUsers] = useState<any[]>([]);
   const [form, setForm] = useState({
     user_id: "",
     alerte_type_id: "",
@@ -28,6 +30,21 @@ export function CreateAlertModal({
     donnees_contexte: "",
   });
   const [contextError, setContextError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Charger les utilisateurs
+  useEffect(() => {
+    if (isOpen) {
+      import("../../../features/users/api/usersApi").then(({ getUsers }) => {
+        getUsers({ limit: 1000 })
+          .then((res) => {
+            setUsers(res.users || []);
+          })
+          .catch(console.error);
+      });
+    }
+  }, [isOpen]);
 
   const { mutate: createAlert, isPending } = useCreateUserAlert();
 
@@ -108,22 +125,46 @@ export function CreateAlertModal({
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {t("userAlerts.modal.fields.userId")}{" "}
               <span className="text-red-500">*</span>
             </label>
             <input
-              data-testid="input-alert-user-id"
-              type="number"
-              value={form.user_id}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, user_id: e.target.value }))
-              }
-              required
-              min={1}
+              type="text"
+              placeholder="Rechercher un utilisateur (nom, prénom...)"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setIsDropdownOpen(true);
+                if (!e.target.value) setForm((f) => ({ ...f, user_id: "" }));
+              }}
+              onFocus={() => setIsDropdownOpen(true)}
+              required={!form.user_id}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {isDropdownOpen && searchQuery && (
+              <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                {users.filter((u) => `${u.first_name} ${u.last_name} ${u.email || ""}`.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
+                  <li className="px-4 py-2 text-sm text-gray-500">Aucun utilisateur trouvé</li>
+                ) : (
+                  users.filter((u) => `${u.first_name} ${u.last_name} ${u.email || ""}`.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 20).map((u) => (
+                    <li
+                      key={u.id}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                      onClick={() => {
+                        setForm((f) => ({ ...f, user_id: String(u.id) }));
+                        setSearchQuery(`${u.first_name} ${u.last_name}`);
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      {u.first_name} {u.last_name}{" "}
+                      <span className="text-gray-500 text-xs">({u.email || u.userId})</span>
+                    </li>
+                  ))
+                )}
+              </ul>
+            )}
           </div>
 
           <div>

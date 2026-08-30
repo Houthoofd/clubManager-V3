@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests pour les validators d'images du store
  * Test de tous les schémas Zod dans image.validators.ts

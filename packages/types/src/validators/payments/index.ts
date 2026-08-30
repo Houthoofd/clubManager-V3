@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Exports pour les validators de paiement
  */

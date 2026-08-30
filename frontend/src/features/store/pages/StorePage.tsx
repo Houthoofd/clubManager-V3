@@ -128,9 +128,10 @@ export function StorePage() {
         title={t("page.title")}
         description={
           canManageStore
-            ? t("page.descriptionAdmin")
-            : t("page.descriptionMember")
+            ? t("page.description.admin")
+            : t("page.description.member")
         }
+        icon={<ShoppingBagIcon className="w-8 h-8 text-blue-600" />}
       />
 
       {/* ── Conteneur onglets ── */}

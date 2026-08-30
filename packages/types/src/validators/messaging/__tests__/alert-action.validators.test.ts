@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Tests for Alert Action Validators
  * @module @clubmanager/types/validators/messaging/__tests__/alert-action

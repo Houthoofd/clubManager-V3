@@ -43,35 +43,49 @@ afterEach(() => {
 
 describe('DeleteTemplateUseCase', () => {
   describe('execute', () => {
-
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait supprimer le template s\'il existe', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.getById.mockResolvedValue({ id: 1, type_id: 1, titre: 'Titre', contenu: 'C', variables: [], actif: true });
+      mockRepo.delete.mockResolvedValue(true);
 
       // Act
-      // await useCase.execute(input);
+      await useCase.execute(1);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getById).toHaveBeenCalledWith(1);
+      expect(mockRepo.delete).toHaveBeenCalledWith(1);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait lancer une erreur si le template n\'existe pas', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.getById.mockResolvedValue(null);
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1)).rejects.toThrow('Template introuvable');
+      expect(mockRepo.delete).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le repository (getById) échoue', async () => {
+      // Arrange
+      mockRepo.getById.mockRejectedValue(new Error('DB error get'));
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('DB error get');
+      expect(mockRepo.delete).not.toHaveBeenCalled();
+    });
+
+    it('devrait lancer une erreur si le repository (delete) échoue', async () => {
+      // Arrange
+      mockRepo.getById.mockResolvedValue({ id: 1, type_id: 1, titre: 'Titre', contenu: 'C', variables: [], actif: true });
+      mockRepo.delete.mockRejectedValue(new Error('DB error delete'));
+
+      // Act & Assert
+      await expect(useCase.execute(1)).rejects.toThrow('DB error delete');
+    });
 
   });
 });

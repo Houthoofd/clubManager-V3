@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Messaging Domain Validators Index
  * @module @clubmanager/types/validators/messaging

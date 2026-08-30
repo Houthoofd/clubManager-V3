@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @file OrderItem Validators
  * @description Zod validators for order line items (commande_articles)

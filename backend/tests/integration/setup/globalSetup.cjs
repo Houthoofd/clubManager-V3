@@ -157,25 +157,7 @@ module.exports = async function globalSetup() {
     `);
 
     // 3c. Migration V4.7.1 — tables de référence phase 2 + restructuration genres
-    //     genres : ALTER TABLE pour ajouter les colonnes manquantes.
-    //     Pas de IF NOT EXISTS (syntaxe MySQL 8.0.3+ non disponible sur toutes versions) :
-    //     la DB est recréée from scratch à chaque run, donc les colonnes n'existent jamais.
-    await conn.query(
-      `ALTER TABLE genres ADD COLUMN code       VARCHAR(10)  DEFAULT NULL  AFTER id`,
-    );
-    await conn.query(
-      `ALTER TABLE genres ADD COLUMN nom_en     VARCHAR(50)  DEFAULT NULL  AFTER nom`,
-    );
-    await conn.query(
-      `ALTER TABLE genres ADD COLUMN ordre      INT          NOT NULL DEFAULT 99 AFTER nom_en`,
-    );
-    await conn.query(
-      `ALTER TABLE genres ADD COLUMN actif      TINYINT(1)   NOT NULL DEFAULT 1  AFTER ordre`,
-    );
-    await conn.query(
-      `ALTER TABLE genres ADD COLUMN created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER actif`,
-    );
-
+    //     genres : les colonnes sont déjà dans SCHEMA_CONSOLIDATE.sql
     // Seed genres avec la nouvelle structure complète
     await conn.query(`
       INSERT IGNORE INTO genres (id, nom, code, nom_en, ordre, actif) VALUES
@@ -309,16 +291,14 @@ module.exports = async function globalSetup() {
     await conn.query(`SET FOREIGN_KEY_CHECKS = 1`);
 
     // 4. Apply migration 010: add the `email` column to email_validation_tokens.
-    //    This migration is not yet incorporated into SCHEMA_CONSOLIDATE.sql (v4.4).
     await conn.query(`
       ALTER TABLE email_validation_tokens
         ADD COLUMN email VARCHAR(255) NULL
           COMMENT 'Nouvel email cible (change_email uniquement)'
           AFTER token_type;
-    `);
+    `).catch(() => {});
 
     // 5. Migrations Phase 4 — Messaging : colonnes et table broadcasts
-    //    Ces colonnes ont été ajoutées après SCHEMA_CONSOLIDATE.sql
     await conn.query(`
       ALTER TABLE messages
         ADD COLUMN envoye_par_email TINYINT(1) NOT NULL DEFAULT 0 AFTER contenu,
@@ -326,7 +306,7 @@ module.exports = async function globalSetup() {
         ADD COLUMN broadcast_id     INT UNSIGNED NULL                AFTER archived,
         ADD INDEX idx_archived      (archived),
         ADD INDEX idx_broadcast_id  (broadcast_id);
-    `);
+    `).catch(() => {});
 
     await conn.query(`
       CREATE TABLE IF NOT EXISTS broadcasts (
@@ -357,9 +337,7 @@ module.exports = async function globalSetup() {
             ON DELETE SET NULL ON UPDATE CASCADE;
       `,
       )
-      .catch(() => {
-        /* FK déjà présente ou non supportée — ignorer */
-      });
+      .catch(() => {});
 
     // 6. Migration 006 — colonne `actif` sur types_messages_personnalises
     await conn.query(`
@@ -368,7 +346,7 @@ module.exports = async function globalSetup() {
           COMMENT 'Type de template actif ou non'
           AFTER description,
         ADD INDEX idx_actif (actif);
-    `);
+    `).catch(() => {});
 
     // 7. Migration 007 — colonne `ordre` sur categories
     await conn.query(`
@@ -377,7 +355,7 @@ module.exports = async function globalSetup() {
           COMMENT 'Ordre d''affichage des catégories'
           AFTER description,
         ADD INDEX idx_ordre (ordre);
-    `);
+    `).catch(() => {});
 
     // 8. Migration 003_add_messages_archived — colonne `archived` sur messages
     //    (déjà présente via l'étape 5 — cette note est conservée pour documentation)

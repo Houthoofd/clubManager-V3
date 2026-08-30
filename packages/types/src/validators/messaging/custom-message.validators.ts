@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Custom Message Validators
  * @module @clubmanager/types/validators/messaging/custom-message

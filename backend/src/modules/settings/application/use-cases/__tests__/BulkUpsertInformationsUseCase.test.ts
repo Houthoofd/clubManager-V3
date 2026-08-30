@@ -1,76 +1,69 @@
-/**
- * BulkUpsertInformationsUseCase.test.ts
- * Tests unitaires — settings / BulkUpsertInformationsUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : settings
- */
-
-import { BulkUpsertInformationsUseCase } from '../BulkUpsertInformationsUseCase';
-import type { IInformationRepository } from '../../../domain/repositories/IInformationRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
-
-const mockRepo: jest.Mocked<IInformationRepository> = {
-  findAll:      jest.fn(),
-  findByKey:    jest.fn(),
-  findById:     jest.fn(),
-  create:       jest.fn(),
-  update:       jest.fn(),
-  upsert:       jest.fn(),
-  bulkUpsert:   jest.fn(),
-  delete:       jest.fn(),
-  keyExists:    jest.fn(),
-} as jest.Mocked<IInformationRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
-
-let useCase: BulkUpsertInformationsUseCase;
-
-beforeEach(() => {
-  useCase = new BulkUpsertInformationsUseCase(mockRepo);
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-
-// ─── Tests ────────────────────────────────────────────────────
+import { BulkUpsertInformationsUseCase } from '../BulkUpsertInformationsUseCase.js';
+import type { IInformationRepository } from '../../../domain/repositories/IInformationRepository.js';
 
 describe('BulkUpsertInformationsUseCase', () => {
-  describe('execute', () => {
+  let mockRepo: jest.Mocked<IInformationRepository>;
+  let useCase: BulkUpsertInformationsUseCase;
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+  beforeEach(() => {
+    mockRepo = {
+      findById: jest.fn(),
+      findByKey: jest.fn(),
+      findAll: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      upsert: jest.fn(),
+      bulkUpsert: jest.fn(),
+    };
+    useCase = new BulkUpsertInformationsUseCase(mockRepo);
+  });
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { informations: CreateInformation[] } = { /* TODO: renseigner les paramètres */ };
+  it('should throw an error if no informations are provided', async () => {
+    await expect(useCase.execute([])).rejects.toThrow('Au moins une information doit être fournie');
+    await expect(useCase.execute(null as any)).rejects.toThrow('Au moins une information doit être fournie');
+  });
 
-      // Act
-      // await useCase.execute(input);
+  it('should throw an error if more than 50 informations are provided', async () => {
+    const infos = Array.from({ length: 51 }, (_, i) => ({ cle: `key${i}`, valeur: `val${i}` }));
+    await expect(useCase.execute(infos)).rejects.toThrow('Vous ne pouvez pas créer/modifier plus de 50 informations à la fois');
+  });
 
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
-    });
+  it('should throw an error if a key is missing or empty', async () => {
+    const infos = [{ cle: '', valeur: 'val1' }];
+    await expect(useCase.execute(infos)).rejects.toThrow('Chaque entrée doit avoir une clé (cle) valide');
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    const infos2 = [{ cle: '   ', valeur: 'val1' }];
+    await expect(useCase.execute(infos2)).rejects.toThrow('Chaque entrée doit avoir une clé (cle) valide');
+    
+    const infos3 = [{ valeur: 'val1' } as any];
+    await expect(useCase.execute(infos3)).rejects.toThrow('Chaque entrée doit avoir une clé (cle) valide');
+  });
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+  it('should throw an error if a value is missing or empty', async () => {
+    const infos = [{ cle: 'key1', valeur: '' }];
+    await expect(useCase.execute(infos)).rejects.toThrow("La valeur est requise pour la clé 'key1'");
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
-    });
+    const infos2 = [{ cle: 'key1', valeur: '   ' }];
+    await expect(useCase.execute(infos2)).rejects.toThrow("La valeur est requise pour la clé 'key1'");
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    const infos3 = [{ cle: 'key1' } as any];
+    await expect(useCase.execute(infos3)).rejects.toThrow("La valeur est requise pour la clé 'key1'");
+  });
 
+  it('should bulk upsert successfully', async () => {
+    const infos = [
+      { cle: 'key1', valeur: 'val1' },
+      { cle: 'key2', valeur: 'val2' },
+    ];
+    mockRepo.bulkUpsert.mockResolvedValue([
+      { id_information: 1, cle: 'key1', valeur: 'val1', description: null, created_at: new Date(), updated_at: new Date() },
+      { id_information: 2, cle: 'key2', valeur: 'val2', description: null, created_at: new Date(), updated_at: new Date() },
+    ]);
+    
+    const result = await useCase.execute(infos);
+    
+    expect(mockRepo.bulkUpsert).toHaveBeenCalledWith(infos);
+    expect(result).toHaveLength(2);
   });
 });

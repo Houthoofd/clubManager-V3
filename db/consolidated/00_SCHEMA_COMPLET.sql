@@ -1,8 +1,8 @@
 -- ============================================================
--- CLUBMANAGER - SCHÉMA BASE DE DONNÉES v5.1
+-- CLUBMANAGER - SCHÉMA BASE DE DONNÉES v5.2
 -- ============================================================
--- Version     : 5.1 — Normalisation références paiements (ENUM → FK)
--- Date        : 2025-05-19
+-- Version     : 5.2 — Système d'invitation (inscription contrôlée)
+-- Date        : 2026-07-24
 -- Auteur      : Benoit Houthoofd
 -- Database    : MySQL 8.0+ / MariaDB 10.6+
 -- Encoding    : UTF8MB4
@@ -1548,14 +1548,50 @@ CREATE TABLE membres_famille (
 COMMENT='Liens entre utilisateurs et familles avec rôles et responsabilités';
 
 -- ============================================================
--- FIN DU SCHÉMA v5.0
+-- 11. TABLE INVITATIONS (1 table)
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- 11.1 invitations — Tokens d'invitation pour l'inscription contrôlée
+-- ------------------------------------------------------------
+CREATE TABLE invitations (
+  id            INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+  token_hash    VARCHAR(64)     NOT NULL           COMMENT 'SHA-256 du token en clair (jamais stocké)',
+  email         VARCHAR(255)    NOT NULL           COMMENT 'Email de la personne invitée',
+  invited_by    INT UNSIGNED    NOT NULL           COMMENT 'FK vers l\'admin ayant envoyé l\'invitation',
+  status        ENUM('pending','accepted','revoked')
+                                NOT NULL DEFAULT 'pending'
+                                COMMENT 'pending = en attente | accepted = utilisée | revoked = révoquée',
+  expires_at    TIMESTAMP       NOT NULL           COMMENT 'Date d\'expiration (7 jours après création)',
+  used_at       TIMESTAMP       NULL     DEFAULT NULL
+                                COMMENT 'Date d\'utilisation (NULL si non encore utilisée)',
+  created_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (id),
+
+  CONSTRAINT uq_invitations_token   UNIQUE (token_hash),
+
+  CONSTRAINT fk_invitations_invited_by
+    FOREIGN KEY (invited_by) REFERENCES utilisateurs(id)
+    ON DELETE CASCADE,
+
+  INDEX idx_invitations_email  (email),
+  INDEX idx_invitations_status (status),
+  INDEX idx_invitations_expires (expires_at)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci
+  COMMENT='Tokens d\'invitation à usage unique pour contrôler l\'accès à l\'inscription';
+
+-- ============================================================
+-- FIN DU SCHÉMA v5.2
 -- ============================================================
 -- Récapitulatif :
---   56 tables créées
---   ~55 Foreign Keys
+--   57 tables créées
+--   ~56 Foreign Keys
 --   ~200+ index stratégiques
 --   14 CHECK constraints
 --   Support Soft Delete + RGPD
 --   Tables de référence bilingues (fr/en)
---   Toutes les migrations v4.2 → v4.8 intégrées
+--   Toutes les migrations v4.2 → v5.2 intégrées
 -- ============================================================

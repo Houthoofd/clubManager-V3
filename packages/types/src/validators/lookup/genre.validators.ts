@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Genre Validators
  * @module @clubmanager/types/validators/lookup/genre

@@ -307,7 +307,7 @@ export class TokenService {
     }
 
     return {
-      allowed: true,
+      allowed,
       attemptsCount,
     };
   }

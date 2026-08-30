@@ -41,35 +41,40 @@ afterEach(() => {
 
 describe('DeleteScheduleUseCase', () => {
   describe('execute', () => {
+    it('devrait supprimer l\'échéance si elle n\'est pas payée', async () => {
+      mockRepo.findById.mockResolvedValue({ id: 1, statut: 'en_attente' } as any);
+      mockRepo.delete.mockResolvedValue(undefined);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      await useCase.execute(1);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.delete).toHaveBeenCalledWith(1);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si l\'échéance n\'existe pas', async () => {
+      mockRepo.findById.mockResolvedValue(null);
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(99)).rejects.toThrow('Échéance introuvable');
+      expect(mockRepo.delete).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si l\'échéance est déjà payée', async () => {
+      mockRepo.findById.mockResolvedValue({ id: 2, statut: 'paye' } as any);
 
+      await expect(useCase.execute(2)).rejects.toThrow('Impossible de supprimer une échéance déjà payée');
+      expect(mockRepo.delete).not.toHaveBeenCalled();
+    });
+
+    it('devrait lancer une erreur si le repository échoue lors du fetch', async () => {
+      mockRepo.findById.mockRejectedValue(new Error('DB error'));
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
+
+    it('devrait lancer une erreur si le repository échoue lors de la suppression', async () => {
+      mockRepo.findById.mockResolvedValue({ id: 1, statut: 'en_attente' } as any);
+      mockRepo.delete.mockRejectedValue(new Error('DB delete error'));
+      
+      await expect(useCase.execute(1)).rejects.toThrow('DB delete error');
+    });
   });
 });

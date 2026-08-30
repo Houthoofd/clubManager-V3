@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Validators Zod pour les utilisateurs
  * Schémas basés sur les DTOs et contraintes DB

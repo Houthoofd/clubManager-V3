@@ -1,16 +1,6 @@
-/**
- * GetGroupByIdUseCase.test.ts
- * Tests unitaires — groups / GetGroupByIdUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : groups
- */
-
 import { GetGroupByIdUseCase } from '../GetGroupByIdUseCase';
 import type { IGroupRepository } from '../../../domain/repositories/IGroupRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
+import type { Group } from '../../../domain/types';
 
 const mockRepo: jest.Mocked<IGroupRepository> = {
   findAll:        jest.fn(),
@@ -22,10 +12,7 @@ const mockRepo: jest.Mocked<IGroupRepository> = {
   addMember:      jest.fn(),
   removeMember:   jest.fn(),
   isMember:       jest.fn(),
-} as jest.Mocked<IGroupRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+};
 
 let useCase: GetGroupByIdUseCase;
 
@@ -37,40 +24,29 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('GetGroupByIdUseCase', () => {
   describe('execute', () => {
+    it('devrait retourner le groupe si le groupe existe', async () => {
+      const mockGroup: Group = { id: 1, nom: 'Group 1' } as Group;
+      mockRepo.findById.mockResolvedValue(mockGroup);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute(1);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockGroup);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le groupe est introuvable', async () => {
+      mockRepo.findById.mockResolvedValue(null);
+
+      await expect(useCase.execute(1)).rejects.toThrow('Groupe introuvable');
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findById.mockRejectedValue(new Error('DB error'));
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

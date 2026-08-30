@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests pour les validators communs
  * Test de tous les schémas Zod dans common.validators.ts

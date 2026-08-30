@@ -1,77 +1,49 @@
-/**
- * GetNotificationsUseCase.test.ts
- * Tests unitaires — notifications / GetNotificationsUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : notifications
- */
-
 import { GetNotificationsUseCase } from '../GetNotificationsUseCase';
 import type { INotificationRepository } from '../../../domain/repositories/INotificationRepository';
 
-// ─── Mock Repository ────────────────────────────────────────────
-
-const mockRepo: jest.Mocked<INotificationRepository> = {
-  findByUserId:        jest.fn(),
-  getUnreadCount:      jest.fn(),
-  markAsRead:          jest.fn(),
-  markAllAsRead:       jest.fn(),
-  create:              jest.fn(),
-  deleteOld:           jest.fn(),
-  deleteById:          jest.fn(),
-  deleteAll:           jest.fn(),
-  getUserIdsByCible:   jest.fn(),
-  createBulk:          jest.fn(),
-} as jest.Mocked<INotificationRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
-
-let useCase: GetNotificationsUseCase;
-
-beforeEach(() => {
-  useCase = new GetNotificationsUseCase(mockRepo);
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('GetNotificationsUseCase', () => {
+  let useCase: GetNotificationsUseCase;
+  let mockRepo: jest.Mocked<INotificationRepository>;
+
+  beforeEach(() => {
+    mockRepo = {
+      findByUserId: jest.fn(),
+      getUnreadCount: jest.fn(),
+      markAsRead: jest.fn(),
+      markAllAsRead: jest.fn(),
+      create: jest.fn(),
+      deleteOld: jest.fn(),
+      deleteById: jest.fn(),
+      deleteAll: jest.fn(),
+      getUserIdsByCible: jest.fn(),
+      createBulk: jest.fn(),
+    } as unknown as jest.Mocked<INotificationRepository>;
+
+    useCase = new GetNotificationsUseCase(mockRepo);
+  });
+
   describe('execute', () => {
+    it('should get all notifications for a user', async () => {
+      mockRepo.findByUserId.mockResolvedValue([]);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute(1);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { userId: number, onlyUnread?: boolean } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findByUserId).toHaveBeenCalledWith(1, undefined);
+      expect(result).toEqual([]);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('should get only unread notifications if specified', async () => {
+      mockRepo.findByUserId.mockResolvedValue([]);
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      const result = await useCase.execute(1, true);
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findByUserId).toHaveBeenCalledWith(1, true);
+      expect(result).toEqual([]);
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
+    it('should throw if repository fails', async () => {
+      mockRepo.findByUserId.mockRejectedValue(new Error('DB error'));
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
+    });
   });
 });

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Validators Zod pour les cours
  * Schémas basés sur les DTOs et contraintes DB

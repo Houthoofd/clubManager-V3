@@ -2,7 +2,6 @@
  * CreateRecoveryRequestUseCase.test.ts
  * Tests unitaires — recovery / CreateRecoveryRequestUseCase
  * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
  * Sprint     : Tests 1 — Use-Cases Backend
  * Module     : recovery
  */
@@ -19,7 +18,6 @@ const mockRepo: jest.Mocked<IRecoveryRepository> = {
   create:         jest.fn(),
 } as jest.Mocked<IRecoveryRepository>;
 
-
 // ─── Setup ────────────────────────────────────────────────────
 
 let useCase: CreateRecoveryRequestUseCase;
@@ -32,40 +30,50 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
 describe('CreateRecoveryRequestUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { dto: CreateRecoveryRequestDto } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('should create a recovery request when inputs are valid', async () => {
+      const dto = { email: 'test@example.com', reason: 'J ai perdu mon accès', ip_address: '127.0.0.1' };
+      mockRepo.create.mockResolvedValue(undefined);
+      
+      await useCase.execute(dto);
+      
+      expect(mockRepo.create).toHaveBeenCalledWith(dto);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('should throw an error if email is missing', async () => {
+      const dto = { email: '', reason: 'J ai perdu mon accès', ip_address: '127.0.0.1' };
+      
+      await expect(useCase.execute(dto)).rejects.toThrow('Adresse email invalide');
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('should throw an error if email does not contain @', async () => {
+      const dto = { email: 'testexample.com', reason: 'J ai perdu mon accès', ip_address: '127.0.0.1' };
+      
+      await expect(useCase.execute(dto)).rejects.toThrow('Adresse email invalide');
+    });
+
+    it('should throw an error if reason is missing', async () => {
+      const dto = { email: 'test@example.com', reason: '', ip_address: '127.0.0.1' };
+      
+      await expect(useCase.execute(dto)).rejects.toThrow('La raison doit contenir au moins 10 caractères');
+    });
+
+    it('should throw an error if reason length is less than 10', async () => {
+      const dto = { email: 'test@example.com', reason: 'tropcourt', ip_address: '127.0.0.1' };
+      
+      await expect(useCase.execute(dto)).rejects.toThrow('La raison doit contenir au moins 10 caractères');
+    });
+
+    it('should propagate repository errors', async () => {
+      const dto = { email: 'test@example.com', reason: 'J ai perdu mon accès', ip_address: '127.0.0.1' };
+      mockRepo.create.mockRejectedValue(new Error('DB error'));
+      
+      await expect(useCase.execute(dto)).rejects.toThrow('DB error');
+    });
 
   });
 });

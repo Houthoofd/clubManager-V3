@@ -24,6 +24,7 @@ import {
   BellAlertIcon,
   ExclamationTriangleIcon,
   UserGroupIcon,
+  UserPlusIcon,
 } from "@heroicons/react/24/outline";
 
 import { getPlans } from "../../payments/api/paymentsApi";
@@ -35,8 +36,12 @@ import { UserRoleBadge } from "../components/UserRoleBadge";
 import { UserStatusBadge } from "../components/UserStatusBadge";
 import { SendToUserModal } from "../components/SendToUserModal";
 import { NotifyUsersModal } from "../components/NotifyUsersModal";
+import { InviteModal } from "../components/InviteModal";
 import { UserRole } from "@clubmanager/types";
 import type { UserListItemDto } from "@clubmanager/types";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useTutorial } from "../../../shared/providers/TutorialProvider";
+import { getUsersSteps } from "../../../shared/providers/tutorialsConfig";
 
 import { PageHeader } from "@/shared/components/Layout/PageHeader";
 import { DataTable } from "@/shared/components/Table/DataTable";
@@ -60,6 +65,7 @@ type ModalState =
   | { type: "delete"; user: UserListItemDto }
   | { type: "sendEmail"; user: UserListItemDto }
   | { type: "notifyBulk" }
+  | { type: "invite" }
   | { type: "subscription"; user: UserListItemDto };
 
 // ─── Type onglet actif ──────────────────────────────────────────────────────────
@@ -167,6 +173,22 @@ export function UsersPage() {
   >(null);
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(false);
+
+  const { runTutorial, isActive } = useTutorial();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const forceTutorial = params.get("tutorial");
+    console.log("[UsersPage] URL tutorial param:", forceTutorial, "isActive:", isActive);
+    if (forceTutorial?.includes("users") && !isActive) {
+      console.log("[UsersPage] Launching tutorial!");
+      runTutorial("users_admin_intro", getUsersSteps());
+      params.delete("tutorial");
+      navigate({ search: params.toString() }, { replace: true });
+    }
+  }, [location, isActive, runTutorial, navigate]);
 
   // ── Propagation de l'erreur du store vers le toast ────────────────────────
   useEffect(() => {
@@ -340,6 +362,20 @@ export function UsersPage() {
           <span className="hidden sm:inline">{t("notifyUsers")}</span>
         </button>
       )}
+      {isAdmin && (
+        <button
+          type="button"
+          onClick={() => setModal({ type: "invite" })}
+          data-testid="btn-invite-member"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-green-200
+                     bg-green-50 text-green-700 text-sm font-medium
+                     hover:bg-green-100 hover:border-green-300 transition-colors"
+          title={t("inviteMember")}
+        >
+          <UserPlusIcon className="h-4 w-4" />
+          <span className="hidden sm:inline">{t("inviteMember")}</span>
+        </button>
+      )}
       <button
         type="button"
         onClick={refetch}
@@ -456,7 +492,7 @@ export function UsersPage() {
                 } finally {
                   setPlansLoading(false);
                 }
-                setSelectedSubscriptionId(null);
+                setSelectedSubscriptionId(row.abonnement_id ?? null);
                 setModal({ type: "subscription", user: row });
               }}
               title={t("subscription.assign")}
@@ -851,6 +887,12 @@ export function UsersPage() {
       {/* Modal : Notification en masse */}
       <NotifyUsersModal
         isOpen={modal.type === "notifyBulk"}
+        onClose={closeModal}
+      />
+
+      {/* Modal : Inviter un membre */}
+      <InviteModal
+        isOpen={modal.type === "invite"}
         onClose={closeModal}
       />
 

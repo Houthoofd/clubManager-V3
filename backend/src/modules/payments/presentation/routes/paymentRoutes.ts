@@ -36,6 +36,21 @@ router.post(
 );
 
 // ============================================================
+// QUICK PAY - PUBLIC
+// ============================================================
+
+router.get(
+  "/public/quick-pay",
+  (req, res) => paymentCtrl.getQuickPayData(req, res)
+);
+
+router.post(
+  "/stripe/public/intent",
+  express.json(), // Au cas où
+  (req, res) => paymentCtrl.createPublicStripeIntent(req, res)
+);
+
+// ============================================================
 // PLANS TARIFAIRES
 // Routes statiques (/plans et /plans/:id) avant /:id
 // ============================================================

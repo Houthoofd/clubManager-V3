@@ -143,6 +143,7 @@ i18n
         groups: groupsFr,
         reservations: reservationsFr,
         templates: templatesFr,
+        alerts: alertsFr,
       },
       en: {
         common: commonEn,
@@ -160,6 +161,7 @@ i18n
         groups: groupsEn,
         reservations: reservationsEn,
         templates: templatesEn,
+        alerts: alertsEn,
       },
     },
 

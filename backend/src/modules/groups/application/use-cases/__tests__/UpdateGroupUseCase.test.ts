@@ -1,16 +1,6 @@
-/**
- * UpdateGroupUseCase.test.ts
- * Tests unitaires — groups / UpdateGroupUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : groups
- */
-
 import { UpdateGroupUseCase } from '../UpdateGroupUseCase';
 import type { IGroupRepository } from '../../../domain/repositories/IGroupRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
+import type { Group, UpdateGroupDto } from '../../../domain/types';
 
 const mockRepo: jest.Mocked<IGroupRepository> = {
   findAll:        jest.fn(),
@@ -22,10 +12,7 @@ const mockRepo: jest.Mocked<IGroupRepository> = {
   addMember:      jest.fn(),
   removeMember:   jest.fn(),
   isMember:       jest.fn(),
-} as jest.Mocked<IGroupRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+};
 
 let useCase: UpdateGroupUseCase;
 
@@ -37,40 +24,75 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('UpdateGroupUseCase', () => {
   describe('execute', () => {
+    it('devrait mettre à jour un groupe existant avec un nouveau nom', async () => {
+      const mockGroup: Group = { id: 1, nom: 'Ancien Nom', description: 'Desc' } as Group;
+      const expectedGroup: Group = { id: 1, nom: 'Nouveau Nom', description: 'Desc' } as Group;
+      const input: UpdateGroupDto = { id: 1, nom: '  Nouveau Nom  ' };
+      
+      mockRepo.findById.mockResolvedValue(mockGroup);
+      mockRepo.update.mockResolvedValue(expectedGroup);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute(input);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { data: UpdateGroupDto } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.update).toHaveBeenCalledWith({ id: 1, nom: 'Nouveau Nom' });
+      expect(result).toEqual(expectedGroup);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait mettre à jour un groupe existant sans changer le nom', async () => {
+      const mockGroup: Group = { id: 1, nom: 'Nom', description: 'Desc' } as Group;
+      const expectedGroup: Group = { id: 1, nom: 'Nom', description: 'Nouvelle Desc' } as Group;
+      const input: UpdateGroupDto = { id: 1, description: 'Nouvelle Desc' };
+      
+      mockRepo.findById.mockResolvedValue(mockGroup);
+      mockRepo.update.mockResolvedValue(expectedGroup);
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      const result = await useCase.execute(input);
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.update).toHaveBeenCalledWith({ id: 1, description: 'Nouvelle Desc' });
+      expect(result).toEqual(expectedGroup);
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le groupe est introuvable', async () => {
+      const input: UpdateGroupDto = { id: 1, nom: 'Nouveau Nom' };
+      mockRepo.findById.mockResolvedValue(null);
 
+      await expect(useCase.execute(input)).rejects.toThrow('Groupe introuvable');
+      
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.update).not.toHaveBeenCalled();
+    });
+
+    it('devrait lancer une erreur si le nouveau nom fait moins de 2 caractères', async () => {
+      const mockGroup: Group = { id: 1, nom: 'Ancien Nom', description: 'Desc' } as Group;
+      const input: UpdateGroupDto = { id: 1, nom: ' A ' };
+      
+      mockRepo.findById.mockResolvedValue(mockGroup);
+
+      await expect(useCase.execute(input)).rejects.toThrow('Le nom du groupe doit contenir au moins 2 caractères');
+      
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.update).not.toHaveBeenCalled();
+    });
+
+    it('devrait lancer une erreur si le repository échoue lors de la recherche', async () => {
+      const input: UpdateGroupDto = { id: 1, nom: 'Nouveau Nom' };
+      mockRepo.findById.mockRejectedValue(new Error('DB error'));
+
+      await expect(useCase.execute(input)).rejects.toThrow('DB error');
+    });
+
+    it('devrait lancer une erreur si le repository échoue lors de la mise à jour', async () => {
+      const mockGroup: Group = { id: 1, nom: 'Ancien Nom', description: 'Desc' } as Group;
+      const input: UpdateGroupDto = { id: 1, nom: 'Nouveau Nom' };
+      
+      mockRepo.findById.mockResolvedValue(mockGroup);
+      mockRepo.update.mockRejectedValue(new Error('DB error update'));
+
+      await expect(useCase.execute(input)).rejects.toThrow('DB error update');
+    });
   });
 });

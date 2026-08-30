@@ -1,79 +1,39 @@
-/**
- * UpdateUserStatusUseCase.test.ts
- * Tests unitaires — users / UpdateUserStatusUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : users
- */
+import { UpdateUserStatusUseCase } from "../UpdateUserStatusUseCase.js";
+import type { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
 
-import { UpdateUserStatusUseCase } from '../UpdateUserStatusUseCase';
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
+describe("UpdateUserStatusUseCase", () => {
+  let mockRepo: jest.Mocked<IUserRepository>;
+  let useCase: UpdateUserStatusUseCase;
 
-// ─── Mock Repository ────────────────────────────────────────────
+  beforeEach(() => {
+    mockRepo = {
+      findById: jest.fn(),
+      updateStatus: jest.fn(),
+    } as unknown as jest.Mocked<IUserRepository>;
 
-const mockRepo: jest.Mocked<IUserRepository> = {
-  findAll:              jest.fn(),
-  findById:             jest.fn(),
-  findProfile:          jest.fn(),
-  updateRole:           jest.fn(),
-  updateStatus:         jest.fn(),
-  updateLanguage:       jest.fn(),
-  updateProfile:        jest.fn(),
-  softDelete:           jest.fn(),
-  restore:              jest.fn(),
-  findDeleted:          jest.fn(),
-  anonymize:            jest.fn(),
-  updateSubscription:   jest.fn(),
-} as jest.Mocked<IUserRepository>;
+    useCase = new UpdateUserStatusUseCase(mockRepo);
+  });
 
+  it("should throw an error if target is requester", async () => {
+    await expect(
+      useCase.execute(1, 2, 1)
+    ).rejects.toThrow("Vous ne pouvez pas modifier votre propre statut");
+  });
 
-// ─── Setup ────────────────────────────────────────────────────
+  it("should throw an error if target user is not found", async () => {
+    mockRepo.findById.mockResolvedValue(null);
+    await expect(
+      useCase.execute(2, 2, 1)
+    ).rejects.toThrow("Utilisateur introuvable");
+  });
 
-let useCase: UpdateUserStatusUseCase;
+  it("should update status successfully", async () => {
+    mockRepo.findById.mockResolvedValue({ id: 2 } as any);
+    mockRepo.updateStatus.mockResolvedValue();
 
-beforeEach(() => {
-  useCase = new UpdateUserStatusUseCase(mockRepo);
-});
+    await useCase.execute(2, 3, 1);
 
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-
-// ─── Tests ────────────────────────────────────────────────────
-
-describe('UpdateUserStatusUseCase', () => {
-  describe('execute', () => {
-
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { targetId: number, status_id: number, requesterId: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
-    });
-
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
-    });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
+    expect(mockRepo.findById).toHaveBeenCalledWith(2);
+    expect(mockRepo.updateStatus).toHaveBeenCalledWith(2, 3);
   });
 });

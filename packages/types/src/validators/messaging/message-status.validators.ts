@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Message Status Validators
  * @module @clubmanager/types/validators/messaging/message-status

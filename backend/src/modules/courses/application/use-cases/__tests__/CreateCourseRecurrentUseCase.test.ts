@@ -1,46 +1,16 @@
 /**
  * CreateCourseRecurrentUseCase.test.ts
  * Tests unitaires — courses / CreateCourseRecurrentUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : courses
  */
 
 import { CreateCourseRecurrentUseCase } from '../CreateCourseRecurrentUseCase';
 import type { ICourseRepository } from '../../../domain/repositories/ICourseRepository';
+import type { CreateCourseRecurrentDto } from "@clubmanager/types";
 
-// ─── Mock Repository ────────────────────────────────────────────
-
-const mockRepo: jest.Mocked<ICourseRepository> = {
-  getCourseRecurrents:      jest.fn(),
-  getCourseRecurrentById:   jest.fn(),
-  createCourseRecurrent:    jest.fn(),
-  updateCourseRecurrent:    jest.fn(),
-  deleteCourseRecurrent:    jest.fn(),
-  hasTimeConflict:          jest.fn(),
-  assignProfessor:          jest.fn(),
-  unassignProfessor:        jest.fn(),
-  getProfessorsForCourse:   jest.fn(),
-  getProfessors:            jest.fn(),
-  getProfessorById:         jest.fn(),
-  createProfessor:          jest.fn(),
-  updateProfessor:          jest.fn(),
-  deleteProfessor:          jest.fn(),
-  getCourses:               jest.fn(),
-  getCourseById:            jest.fn(),
-  createCourse:             jest.fn(),
-  generateCourses:          jest.fn(),
-  getCourseInscriptions:    jest.fn(),
-  createInscription:        jest.fn(),
-  bulkUpdatePresence:       jest.fn(),
-  deleteInscription:        jest.fn(),
-  getAttendanceForExport:   jest.fn(),
-  getMyEnrollments:         jest.fn(),
-} as jest.Mocked<ICourseRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+const mockRepo = {
+  hasTimeConflict: jest.fn(),
+  createCourseRecurrent: jest.fn(),
+} as unknown as jest.Mocked<ICourseRepository>;
 
 let useCase: CreateCourseRecurrentUseCase;
 
@@ -52,40 +22,81 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('CreateCourseRecurrentUseCase', () => {
   describe('execute', () => {
+    
+    const validDto: CreateCourseRecurrentDto = {
+      type_cours: 'Judo',
+      jour_semaine: 3, // Mercredi
+      heure_debut: '14:00:00',
+      heure_fin: '16:00:00'
+    };
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+    it('devrait créer un cours avec succès', async () => {
+      mockRepo.hasTimeConflict.mockResolvedValue(null);
+      mockRepo.createCourseRecurrent.mockResolvedValue({ id: 1, ...validDto } as any);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { dto: CreateCourseRecurrentDto } = { /* TODO: renseigner les paramètres */ };
+      const result = await useCase.execute(validDto);
 
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.hasTimeConflict).toHaveBeenCalledWith(3, '14:00:00', '16:00:00');
+      expect(mockRepo.createCourseRecurrent).toHaveBeenCalledWith(validDto);
+      expect(result).toHaveProperty('id', 1);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le type_cours est vide ou manquant', async () => {
+      const dto = { ...validDto, type_cours: '   ' };
+      await expect(useCase.execute(dto)).rejects.toThrow("Le type de cours est obligatoire");
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      const dto2 = { ...validDto, type_cours: undefined } as unknown as CreateCourseRecurrentDto;
+      await expect(useCase.execute(dto2)).rejects.toThrow("Le type de cours est obligatoire");
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le jour_semaine est invalide', async () => {
+      const dto = { ...validDto, jour_semaine: 8 };
+      await expect(useCase.execute(dto)).rejects.toThrow("Le jour de la semaine doit être un entier entre 1 (Lundi) et 7 (Dimanche)");
+
+      const dto2 = { ...validDto, jour_semaine: 0 };
+      await expect(useCase.execute(dto2)).rejects.toThrow("Le jour de la semaine doit être un entier entre 1 (Lundi) et 7 (Dimanche)");
+
+      const dto3 = { ...validDto, jour_semaine: 3.5 };
+      await expect(useCase.execute(dto3)).rejects.toThrow("Le jour de la semaine doit être un entier entre 1 (Lundi) et 7 (Dimanche)");
+      
+      const dto4 = { ...validDto, jour_semaine: undefined } as unknown as CreateCourseRecurrentDto;
+      await expect(useCase.execute(dto4)).rejects.toThrow("Le jour de la semaine doit être un entier entre 1 (Lundi) et 7 (Dimanche)");
+    });
+
+    it('devrait lancer une erreur si l\'heure_debut ou l\'heure_fin est manquante', async () => {
+      const dto = { ...validDto, heure_debut: undefined } as unknown as CreateCourseRecurrentDto;
+      await expect(useCase.execute(dto)).rejects.toThrow("L'heure de début et l'heure de fin sont obligatoires");
+
+      const dto2 = { ...validDto, heure_fin: undefined } as unknown as CreateCourseRecurrentDto;
+      await expect(useCase.execute(dto2)).rejects.toThrow("L'heure de début et l'heure de fin sont obligatoires");
+    });
+
+    it('devrait lancer une erreur si l\'heure_fin n\'est pas postérieure à l\'heure_debut', async () => {
+      const dto = { ...validDto, heure_debut: '16:00:00', heure_fin: '14:00:00' };
+      await expect(useCase.execute(dto)).rejects.toThrow("L'heure de fin doit être postérieure à l'heure de début");
+
+      const dto2 = { ...validDto, heure_debut: '14:00:00', heure_fin: '14:00:00' };
+      await expect(useCase.execute(dto2)).rejects.toThrow("L'heure de fin doit être postérieure à l'heure de début");
+    });
+
+    it('devrait lancer une erreur s\'il y a un conflit de créneau', async () => {
+      mockRepo.hasTimeConflict.mockResolvedValue({
+        type_cours: 'Karaté',
+        heure_debut: '14:00:00',
+        heure_fin: '16:00:00'
+      } as any);
+
+      await expect(useCase.execute(validDto)).rejects.toThrow('Ce créneau est déjà occupé par le cours "Karaté" (14:00–16:00)');
+    });
+
+    it('devrait relayer l\'erreur si le repository échoue', async () => {
+      mockRepo.hasTimeConflict.mockResolvedValue(null);
+      mockRepo.createCourseRecurrent.mockRejectedValue(new Error('DB error'));
+
+      await expect(useCase.execute(validDto)).rejects.toThrow('DB error');
+    });
 
   });
 });

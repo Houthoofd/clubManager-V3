@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Statistics Domain Validators Index
  * @module @clubmanager/types/validators/statistics

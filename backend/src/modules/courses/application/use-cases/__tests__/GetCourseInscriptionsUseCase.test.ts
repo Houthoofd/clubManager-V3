@@ -58,34 +58,26 @@ afterEach(() => {
 describe('GetCourseInscriptionsUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
     it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { cours_id: number } = { /* TODO: renseigner les paramètres */ };
+      const mockResult = {
+        course: { id: 1 },
+        professors: [],
+        inscriptions: [],
+        stats: { total: 0, presents: 0, absents: 0, non_renseignes: 0 }
+      } as any;
+      mockRepo.getCourseInscriptions.mockResolvedValue(mockResult);
 
-      // Act
-      // await useCase.execute(input);
+      const result = await useCase.execute(1);
 
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getCourseInscriptions).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockResult);
     });
-
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.getCourseInscriptions.mockRejectedValue(new Error('DB error'));
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
 
   });
 });

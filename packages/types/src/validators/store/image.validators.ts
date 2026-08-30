@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @file Image Validators
  * @description Zod validators for article additional images

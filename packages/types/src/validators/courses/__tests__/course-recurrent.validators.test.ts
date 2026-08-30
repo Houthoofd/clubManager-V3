@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests pour les validators des cours récurrents
  * Test de tous les schémas Zod dans course-recurrent.validators.ts

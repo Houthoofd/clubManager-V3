@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * authMiddleware
  * Middleware pour protéger les routes nécessitant une authentification

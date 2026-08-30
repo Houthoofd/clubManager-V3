@@ -332,11 +332,13 @@ export const SettingsPage = () => {
         icon={<Cog6ToothIcon className="h-8 w-8" />}
       />
 
-      <TabGroup
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={(tabId) => setActiveTab(tabId as TabId)}
-      />
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <TabGroup
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={(tabId) => setActiveTab(tabId as TabId)}
+        />
+        <div className="p-6">
 
       {/* ─── Onglet: Informations du club ─────────────────────────────────── */}
       {activeTab === "club" && (
@@ -410,13 +412,14 @@ export const SettingsPage = () => {
 
       {/* ─── Onglet: Grades / Ceintures ─────────────────────────────────────── */}
       {activeTab === "grades" && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <GradesManager />
-        </div>
+        <GradesManager />
       )}
 
       {/* ─── Onglet: Sécurité / Audit ─────────────────────────────────────── */}
       {activeTab === "security" && <SecuritySection />}
+      
+        </div>
+      </div>
     </div>
   );
 };

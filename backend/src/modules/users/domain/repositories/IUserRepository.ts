@@ -78,4 +78,6 @@ export interface IUserRepository {
   anonymize(id: number): Promise<void>;
   /** Met à jour l'abonnement (plan tarifaire) d'un utilisateur */
   updateSubscription(id: number, abonnement_id: number | null): Promise<void>;
+  getSeenTutorials(userId: number): Promise<string[]>;
+  markTutorialAsSeen(userId: number, tutorialId: string): Promise<void>;
 }

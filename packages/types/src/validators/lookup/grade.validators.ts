@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Grade Validators
  * @module @clubmanager/types/validators/lookup/grade

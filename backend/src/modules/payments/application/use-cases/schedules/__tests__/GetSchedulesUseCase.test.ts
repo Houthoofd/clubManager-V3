@@ -41,35 +41,45 @@ afterEach(() => {
 
 describe('GetSchedulesUseCase', () => {
   describe('execute', () => {
+    it('devrait retourner les échéances avec les valeurs par défaut de pagination', async () => {
+      const mockResult = { data: [], total: 0, page: 1, limit: 20 };
+      mockRepo.findAll.mockResolvedValue(mockResult as any);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute({});
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { query: ScheduleQuery } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 20 });
+      expect(result).toEqual(mockResult);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait retourner les échéances avec la pagination demandée', async () => {
+      const mockResult = { data: [{ id: 1 }], total: 1, page: 2, limit: 10 };
+      mockRepo.findAll.mockResolvedValue(mockResult as any);
+
+      const result = await useCase.execute({ page: 2, limit: 10 });
+
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 2, limit: 10 });
+      expect(result).toEqual(mockResult);
+    });
+
+    it('devrait limiter page à un minimum de 1', async () => {
+      mockRepo.findAll.mockResolvedValue({} as any);
+      await useCase.execute({ page: 0, limit: 10 });
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
+    });
+
+    it('devrait limiter limit à un minimum de 1 et maximum de 100', async () => {
+      mockRepo.findAll.mockResolvedValue({} as any);
+      
+      await useCase.execute({ limit: 0 });
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 1 });
+
+      await useCase.execute({ limit: 200 });
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      mockRepo.findAll.mockRejectedValue(new Error('DB error'));
+      await expect(useCase.execute({})).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

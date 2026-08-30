@@ -1,94 +1,49 @@
-/**
- * VerifyEmailUseCase.test.ts
- * Tests unitaires — auth / VerifyEmailUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : auth
- */
 
-import { VerifyEmailUseCase } from '../VerifyEmailUseCase';
-import type { IAuthRepository } from '../../../domain/repositories/IAuthRepository';
+import { VerifyEmailUseCase } from "../VerifyEmailUseCase.js";
 
-// ─── Mock Repository ────────────────────────────────────────────
+describe("VerifyEmailUseCase", () => {
+  let useCase: VerifyEmailUseCase;
+  let authRepositoryMock: any;
 
-const mockRepo: jest.Mocked<IAuthRepository> = {
-  createUser:                       jest.fn(),
-  findUserByEmail:                  jest.fn(),
-  findUserById:                     jest.fn(),
-  findUserByUserId:                 jest.fn(),
-  emailExists:                      jest.fn(),
-  updatePassword:                   jest.fn(),
-  updateLastLogin:                  jest.fn(),
-  markEmailAsVerified:              jest.fn(),
-  storeEmailVerificationToken:      jest.fn(),
-  validateEmailVerificationToken:   jest.fn(),
-  deleteEmailVerificationToken:     jest.fn(),
-  storePasswordResetToken:          jest.fn(),
-  validatePasswordResetToken:       jest.fn(),
-  deletePasswordResetToken:         jest.fn(),
-  deleteAllPasswordResetTokens:     jest.fn(),
-  storeRefreshToken:                jest.fn(),
-  validateRefreshToken:             jest.fn(),
-  deleteRefreshToken:               jest.fn(),
-  deleteAllRefreshTokens:           jest.fn(),
-  cleanupExpiredTokens:             jest.fn(),
-  getLoginAttempts:                 jest.fn(),
-  getAuthAttempts:                  jest.fn(),
-  getActiveSessions:                jest.fn(),
-  revokeSession:                    jest.fn(),
-  updateEmail:                      jest.fn(),
-  storeEmailChangeToken:            jest.fn(),
-  validateEmailChangeToken:         jest.fn(),
-} as jest.Mocked<IAuthRepository>;
+  beforeEach(() => {
+    authRepositoryMock = {
+      validateEmailVerificationToken: jest.fn(),
+      markEmailAsVerified: jest.fn(),
+    };
 
+    useCase = new VerifyEmailUseCase(authRepositoryMock);
+  });
 
-// ─── Setup ────────────────────────────────────────────────────
-
-let useCase: VerifyEmailUseCase;
-
-beforeEach(() => {
-  useCase = new VerifyEmailUseCase(mockRepo);
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-
-// ─── Tests ────────────────────────────────────────────────────
-
-describe('VerifyEmailUseCase', () => {
-  describe('execute', () => {
-
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { input: VerifyEmailInput } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+  describe("Validation", () => {
+    it("should throw error if token is missing", async () => {
+      await expect(useCase.execute({ token: "" })).rejects.toThrow("Verification token is required");
+      await expect(useCase.execute({ token: "   " })).rejects.toThrow("Verification token is required");
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it("should throw error if token is too long", async () => {
+      const longToken = "a".repeat(501);
+      await expect(useCase.execute({ token: longToken })).rejects.toThrow("Invalid verification token");
+    });
+  });
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+  describe("Execution", () => {
+    const validInput = { token: "valid-token" };
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+    it("should throw error if token is invalid or expired", async () => {
+      authRepositoryMock.validateEmailVerificationToken.mockResolvedValue(null);
+
+      await expect(useCase.execute(validInput)).rejects.toThrow("Invalid or expired verification token. Please request a new verification email.");
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it("should mark email as verified and return success if token is valid", async () => {
+      authRepositoryMock.validateEmailVerificationToken.mockResolvedValue("user-id");
 
+      const result = await useCase.execute(validInput);
+
+      expect(authRepositoryMock.validateEmailVerificationToken).toHaveBeenCalledWith("valid-token");
+      expect(authRepositoryMock.markEmailAsVerified).toHaveBeenCalledWith("user-id");
+      expect(result.success).toBe(true);
+      expect(result.message).toBe("Email verified successfully. You can now log in.");
+    });
   });
 });

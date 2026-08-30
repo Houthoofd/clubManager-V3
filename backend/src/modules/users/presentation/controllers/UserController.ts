@@ -20,13 +20,15 @@ import { NotifyUsersUseCase } from "../../application/use-cases/NotifyUsersUseCa
 import { UpdateUserProfileUseCase } from "../../application/use-cases/UpdateUserProfileUseCase.js";
 import { GetUserProfileUseCase } from "../../application/use-cases/GetUserProfileUseCase.js";
 import { AssignSubscriptionUseCase } from "../../application/use-cases/AssignSubscriptionUseCase.js";
+import { EmailService } from "@/modules/auth/application/services/EmailService.js";
 
 const repo = new MySQLUserRepository();
+const emailService = new EmailService();
 const getUsersUC = new GetUsersUseCase(repo);
 const getUserByIdUC = new GetUserByIdUseCase(repo);
 const updateRoleUC = new UpdateUserRoleUseCase(repo);
 const updateStatusUC = new UpdateUserStatusUseCase(repo);
-const softDeleteUC = new SoftDeleteUserUseCase(repo);
+const softDeleteUC = new SoftDeleteUserUseCase(repo, emailService);
 const restoreUC = new RestoreUserUseCase(repo);
 const getDeletedUsersUC = new GetDeletedUsersUseCase(repo);
 const anonymizeUC = new AnonymizeUserUseCase(repo);
@@ -106,6 +108,47 @@ export class UserController {
    * Met à jour le profil d'un utilisateur
    * Un utilisateur peut modifier son propre profil ; l'admin peut modifier n'importe lequel
    */
+  
+  /**
+   * POST /api/users/:id/avatar
+   * Upload de la photo de profil
+   */
+  async uploadAvatar(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const targetId = Number(req.params.id);
+      const requesterId = req.user!.userId;
+      const requesterRole = req.user!.role_app ?? "";
+      
+      if (targetId !== requesterId && requesterRole !== "admin") {
+        res.status(403).json({ success: false, message: "Accès refusé" });
+        return;
+      }
+      
+      const file = req.file;
+      if (!file) {
+        res.status(400).json({ success: false, message: "Aucune image fournie" });
+        return;
+      }
+
+      const storage = getStorageService();
+      // On sauvegarde dans le dossier avatars
+      const url = await storage.upload(file, "avatars");
+
+      // On met à jour le profil avec la nouvelle photo
+      const profile = await updateProfileUC.execute(
+        targetId,
+        requesterId,
+        requesterRole,
+        { photo_url: url }
+      );
+      
+      res.json({ success: true, message: "Avatar mis à jour", photo_url: url });
+    } catch (error: any) {
+      console.error("[UploadAvatar Error]:", error);
+      res.status(400).json({ success: false, message: error.message });
+    }
+  }
+
   async updateProfile(req: AuthRequest, res: Response): Promise<void> {
     try {
       const targetId = Number(req.params.id);
@@ -312,11 +355,54 @@ export class UserController {
     try {
       const id = Number(req.params.id);
       const { abonnement_id } = req.body;
-      await assignSubscriptionUC.execute(id, abonnement_id ?? null);
+      
+      const parsedAboId = abonnement_id ? Number(abonnement_id) : null;
+      
+      await assignSubscriptionUC.execute(id, parsedAboId);
       res.json({ success: true, message: "Abonnement mis à jour" });
     } catch (error: any) {
-      const status = error.message.includes("introuvable") ? 404 : 500;
+      console.error("[UserController] Error in assignSubscription:", error);
+      const status = error.message?.includes("introuvable") ? 404 : 500;
       res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * GET /api/users/:id/tutorials
+   */
+  async getSeenTutorials(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (req.user?.userId !== id && req.user?.role_app !== UserRole.ADMIN) {
+        res.status(403).json({ success: false, message: "Forbidden" });
+        return;
+      }
+      const tutorials = await repo.getSeenTutorials(id);
+      res.json({ success: true, tutorials });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  /**
+   * POST /api/users/:id/tutorials
+   */
+  async markTutorialAsSeen(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (req.user?.userId !== id && req.user?.role_app !== UserRole.ADMIN) {
+        res.status(403).json({ success: false, message: "Forbidden" });
+        return;
+      }
+      const { tutorialId } = req.body;
+      if (!tutorialId) {
+        res.status(400).json({ success: false, message: "tutorialId requis" });
+        return;
+      }
+      await repo.markTutorialAsSeen(id, tutorialId);
+      res.json({ success: true, message: "Tutoriel marqué comme vu" });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 }

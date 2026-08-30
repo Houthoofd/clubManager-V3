@@ -5,27 +5,23 @@
 
 import { GetAlertTypesUseCase } from '../GetAlertTypesUseCase';
 import type { IAlertRepository } from '../../../domain/repositories/IAlertRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
+import type { AlertTypeDto } from '../../../domain/types';
 
 const mockRepo: jest.Mocked<IAlertRepository> = {
-  findAllAlertTypes:     jest.fn().mockResolvedValue([]),
-  findAlertTypeById:     jest.fn().mockResolvedValue(null),
-  findAlertTypeByCode:   jest.fn().mockResolvedValue(null),
+  findAllAlertTypes:     jest.fn(),
+  findAlertTypeById:     jest.fn(),
+  findAlertTypeByCode:   jest.fn(),
   createAlertType:       jest.fn(),
   updateAlertType:       jest.fn(),
-  deleteAlertType:       jest.fn().mockResolvedValue(false),
-  findUserAlerts:        jest.fn().mockResolvedValue([]),
-  findAllActiveAlerts:   jest.fn().mockResolvedValue([]),
+  deleteAlertType:       jest.fn(),
+  findUserAlerts:        jest.fn(),
+  findAllActiveAlerts:   jest.fn(),
   createUserAlert:       jest.fn(),
   resolveAlert:          jest.fn(),
   ignoreAlert:           jest.fn(),
-  findAlertActions:      jest.fn().mockResolvedValue([]),
+  findAlertActions:      jest.fn(),
   addAlertAction:        jest.fn(),
-} as jest.Mocked<IAlertRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+} as unknown as jest.Mocked<IAlertRepository>;
 
 let useCase: GetAlertTypesUseCase;
 
@@ -37,41 +33,27 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('GetAlertTypesUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { onlyActive?: boolean } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // const result = await useCase.execute(input);
-
-      // Assert
-      // expect(result).toEqual(expect.arrayContaining([]));
-      // expect(Array.isArray(result)).toBe(true);
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('devrait retourner les types d\'alertes sans filtre', async () => {
+      mockRepo.findAllAlertTypes.mockResolvedValue([]);
+      const result = await useCase.execute();
+      expect(result).toEqual([]);
+      expect(mockRepo.findAllAlertTypes).toHaveBeenCalledWith(undefined);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('devrait retourner les types d\'alertes avec filtre onlyActive', async () => {
+      mockRepo.findAllAlertTypes.mockResolvedValue([]);
+      const result = await useCase.execute(true);
+      expect(result).toEqual([]);
+      expect(mockRepo.findAllAlertTypes).toHaveBeenCalledWith(true);
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait remonter les erreurs du repository', async () => {
+      mockRepo.findAllAlertTypes.mockRejectedValue(new Error('Repo error'));
+      await expect(useCase.execute()).rejects.toThrow('Repo error');
+    });
 
   });
 });

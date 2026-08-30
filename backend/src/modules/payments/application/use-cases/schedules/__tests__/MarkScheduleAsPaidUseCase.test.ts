@@ -53,35 +53,91 @@ afterEach(() => {
 
 describe('MarkScheduleAsPaidUseCase', () => {
   describe('execute', () => {
+    it('devrait marquer l\'échéance comme payée avec un paiement existant', async () => {
+      mockScheduleRepo.findById.mockResolvedValue({ id: 1, statut: 'en_attente' } as any);
+      mockScheduleRepo.markAsPaid.mockResolvedValue(undefined);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      await useCase.execute(1, 99);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { scheduleId: number, paiementId?: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockScheduleRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockScheduleRepo.markAsPaid).toHaveBeenCalledWith(1, 99);
+      expect(mockPaymentRepo.create).not.toHaveBeenCalled();
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait créer un paiement et marquer l\'échéance comme payée s\'il n\'y a pas de paiementId', async () => {
+      mockScheduleRepo.findById.mockResolvedValue({ 
+        id: 1, 
+        statut: 'en_attente', 
+        user_id: 2, 
+        plan_tarifaire_id: 3, 
+        montant: 100 
+      } as any);
+      
+      mockPaymentRepo.create.mockResolvedValue(100);
+      mockScheduleRepo.markAsPaid.mockResolvedValue(undefined);
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      // Fix system clock for date_paiement comparison
+      const mockDate = new Date('2025-01-01T12:00:00Z');
+      const spy = jest.spyOn(global, 'Date').mockImplementation(() => mockDate as any);
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await useCase.execute(1);
+
+      expect(mockPaymentRepo.create).toHaveBeenCalledWith({
+        user_id: 2,
+        plan_tarifaire_id: 3,
+        montant: 100,
+        methode_paiement_id: 1,
+        statut_id: 2,
+        description: "Règlement automatique de l'échéance #1",
+        date_paiement: mockDate.toISOString().slice(0, 19).replace("T", " ")
+      });
+      expect(mockScheduleRepo.markAsPaid).toHaveBeenCalledWith(1, 100);
+      
+      spy.mockRestore();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait utiliser null pour plan_tarifaire_id si manquant lors de la création du paiement', async () => {
+      mockScheduleRepo.findById.mockResolvedValue({ 
+        id: 1, 
+        statut: 'en_attente', 
+        user_id: 2, 
+        montant: 100 
+      } as any);
+      
+      mockPaymentRepo.create.mockResolvedValue(101);
 
+      await useCase.execute(1);
+
+      expect(mockPaymentRepo.create).toHaveBeenCalledWith(expect.objectContaining({
+        plan_tarifaire_id: null
+      }));
+    });
+
+    it('devrait lancer une erreur si l\'échéance n\'existe pas', async () => {
+      mockScheduleRepo.findById.mockResolvedValue(null);
+      await expect(useCase.execute(99)).rejects.toThrow('Échéance introuvable');
+    });
+
+    it('devrait lancer une erreur si l\'échéance est déjà payée', async () => {
+      mockScheduleRepo.findById.mockResolvedValue({ id: 1, statut: 'paye' } as any);
+      await expect(useCase.execute(1)).rejects.toThrow('Cette échéance est déjà marquée comme payée');
+    });
+
+    it('devrait lancer une erreur si l\'échéance est annulée', async () => {
+      mockScheduleRepo.findById.mockResolvedValue({ id: 1, statut: 'annule' } as any);
+      await expect(useCase.execute(1)).rejects.toThrow('Impossible de marquer une échéance annulée comme payée');
+    });
+
+    it('devrait lancer une erreur si la création de paiement échoue', async () => {
+      mockScheduleRepo.findById.mockResolvedValue({ id: 1, statut: 'en_attente' } as any);
+      mockPaymentRepo.create.mockRejectedValue(new Error('Payment DB error'));
+      await expect(useCase.execute(1)).rejects.toThrow('Payment DB error');
+    });
+
+    it('devrait lancer une erreur si markAsPaid échoue', async () => {
+      mockScheduleRepo.findById.mockResolvedValue({ id: 1, statut: 'en_attente' } as any);
+      mockScheduleRepo.markAsPaid.mockRejectedValue(new Error('Schedule DB error'));
+      await expect(useCase.execute(1, 99)).rejects.toThrow('Schedule DB error');
+    });
   });
 });

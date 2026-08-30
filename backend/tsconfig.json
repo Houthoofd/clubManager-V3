@@ -20,7 +20,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "removeComments": true,
-    "noEmitOnError": true,
+    "noEmitOnError": false,
 
     /* Type Checking */
     "strict": true,

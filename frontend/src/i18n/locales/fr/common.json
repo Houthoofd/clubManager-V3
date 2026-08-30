@@ -45,7 +45,14 @@
     "myCourses": "Mes cours",
     "myPayments": "Mes paiements",
     "adminFamilies": "Familles (Admin)",
-    "alerts": "Alertes"
+    "alerts": "Alertes",
+    "events": "Évènements",
+    "categories": {
+      "general": "Général",
+      "administratif": "Administratif",
+      "financier": "Financier",
+      "outils": "Outils"
+    }
   },
   "footer": {
     "allRightsReserved": "Tous droits réservés",

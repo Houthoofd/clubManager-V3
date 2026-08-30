@@ -1,79 +1,72 @@
-/**
- * UpdateUserProfileUseCase.test.ts
- * Tests unitaires — users / UpdateUserProfileUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : users
- */
+import { UpdateUserProfileUseCase } from "../UpdateUserProfileUseCase.js";
+import type { IUserRepository, UpdateUserProfileDto } from "../../../domain/repositories/IUserRepository.js";
 
-import { UpdateUserProfileUseCase } from '../UpdateUserProfileUseCase';
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
+describe("UpdateUserProfileUseCase", () => {
+  let mockRepo: jest.Mocked<IUserRepository>;
+  let useCase: UpdateUserProfileUseCase;
 
-// ─── Mock Repository ────────────────────────────────────────────
+  beforeEach(() => {
+    mockRepo = {
+      updateProfile: jest.fn(),
+    } as unknown as jest.Mocked<IUserRepository>;
 
-const mockRepo: jest.Mocked<IUserRepository> = {
-  findAll:              jest.fn(),
-  findById:             jest.fn(),
-  findProfile:          jest.fn(),
-  updateRole:           jest.fn(),
-  updateStatus:         jest.fn(),
-  updateLanguage:       jest.fn(),
-  updateProfile:        jest.fn(),
-  softDelete:           jest.fn(),
-  restore:              jest.fn(),
-  findDeleted:          jest.fn(),
-  anonymize:            jest.fn(),
-  updateSubscription:   jest.fn(),
-} as jest.Mocked<IUserRepository>;
+    useCase = new UpdateUserProfileUseCase(mockRepo);
+  });
 
+  it("should throw an error if requester is not target and not admin", async () => {
+    await expect(
+      useCase.execute(1, 2, "user", {})
+    ).rejects.toThrow("Accès refusé : vous ne pouvez modifier que votre propre profil");
+  });
 
-// ─── Setup ────────────────────────────────────────────────────
+  it("should throw an error if first_name is less than 2 characters", async () => {
+    await expect(
+      useCase.execute(1, 1, "user", { first_name: " a " })
+    ).rejects.toThrow("Le prénom doit contenir au moins 2 caractères");
+  });
 
-let useCase: UpdateUserProfileUseCase;
+  it("should throw an error if last_name is less than 2 characters", async () => {
+    await expect(
+      useCase.execute(1, 1, "user", { last_name: " b " })
+    ).rejects.toThrow("Le nom doit contenir au moins 2 caractères");
+  });
 
-beforeEach(() => {
-  useCase = new UpdateUserProfileUseCase(mockRepo);
-});
+  it("should sanitize fields and update profile successfully for same user", async () => {
+    const input: UpdateUserProfileDto = {
+      first_name: " John ",
+      last_name: " Doe ",
+      telephone: " 123 ",
+      adresse: " street "
+    };
+    mockRepo.updateProfile.mockResolvedValue({ id: 1 } as any);
 
-afterEach(() => {
-  jest.clearAllMocks();
-});
+    const result = await useCase.execute(1, 1, "user", input);
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
-describe('UpdateUserProfileUseCase', () => {
-  describe('execute', () => {
-
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number, requesterId: number, requesterRole: string, data: UpdateUserProfileDto } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+    expect(mockRepo.updateProfile).toHaveBeenCalledWith(1, {
+      first_name: "John",
+      last_name: "Doe",
+      telephone: "123",
+      adresse: "street"
     });
+    expect(result).toEqual({ id: 1 });
+  });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+  it("should sanitize fields turning empty to null and keeping undefined", async () => {
+    const input: UpdateUserProfileDto = {
+      first_name: undefined,
+      last_name: "Doe",
+      telephone: "  ",
+      adresse: ""
+    };
+    mockRepo.updateProfile.mockResolvedValue({ id: 2 } as any);
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+    await useCase.execute(2, 1, "admin", input); // admin can change other profile
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+    expect(mockRepo.updateProfile).toHaveBeenCalledWith(2, {
+      first_name: undefined,
+      last_name: "Doe",
+      telephone: null,
+      adresse: null
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

@@ -1,76 +1,43 @@
-/**
- * GetInformationByKeyUseCase.test.ts
- * Tests unitaires — settings / GetInformationByKeyUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : settings
- */
-
-import { GetInformationByKeyUseCase } from '../GetInformationByKeyUseCase';
-import type { IInformationRepository } from '../../../domain/repositories/IInformationRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
-
-const mockRepo: jest.Mocked<IInformationRepository> = {
-  findAll:      jest.fn(),
-  findByKey:    jest.fn(),
-  findById:     jest.fn(),
-  create:       jest.fn(),
-  update:       jest.fn(),
-  upsert:       jest.fn(),
-  bulkUpsert:   jest.fn(),
-  delete:       jest.fn(),
-  keyExists:    jest.fn(),
-} as jest.Mocked<IInformationRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
-
-let useCase: GetInformationByKeyUseCase;
-
-beforeEach(() => {
-  useCase = new GetInformationByKeyUseCase(mockRepo);
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-
-// ─── Tests ────────────────────────────────────────────────────
+import { GetInformationByKeyUseCase } from '../GetInformationByKeyUseCase.js';
+import type { IInformationRepository } from '../../../domain/repositories/IInformationRepository.js';
 
 describe('GetInformationByKeyUseCase', () => {
-  describe('execute', () => {
+  let mockRepo: jest.Mocked<IInformationRepository>;
+  let useCase: GetInformationByKeyUseCase;
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+  beforeEach(() => {
+    mockRepo = {
+      findById: jest.fn(),
+      findByKey: jest.fn(),
+      findAll: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      upsert: jest.fn(),
+      bulkUpsert: jest.fn(),
+    };
+    useCase = new GetInformationByKeyUseCase(mockRepo);
+  });
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { cle: string } = { /* TODO: renseigner les paramètres */ };
+  it('should throw an error if key is empty or missing', async () => {
+    await expect(useCase.execute('')).rejects.toThrow('La clé est requise');
+    await expect(useCase.execute('   ')).rejects.toThrow('La clé est requise');
+    await expect(useCase.execute(null as any)).rejects.toThrow('La clé est requise');
+  });
 
-      // Act
-      // await useCase.execute(input);
+  it('should throw an error if information is not found', async () => {
+    mockRepo.findByKey.mockResolvedValue(null);
+    await expect(useCase.execute('unknown')).rejects.toThrow("Paramètre 'unknown' introuvable");
+    expect(mockRepo.findByKey).toHaveBeenCalledWith('unknown');
+  });
 
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
-    });
-
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
-    });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
+  it('should return information successfully', async () => {
+    const mockInfo = { id_information: 1, cle: 'key1', valeur: 'val1', description: null, created_at: new Date(), updated_at: new Date() };
+    mockRepo.findByKey.mockResolvedValue(mockInfo);
+    
+    const result = await useCase.execute(' key1 ');
+    
+    expect(mockRepo.findByKey).toHaveBeenCalledWith('key1');
+    expect(result).toEqual(mockInfo);
   });
 });

@@ -468,6 +468,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({
           loading={isSending}
           icon={!isSending ? <PaperPlaneIcon /> : undefined}
           form="compose-message-form"
+          data-testid="compose-submit-btn"
         >
           {isSending ? t("compose.sending") : t("actions.send")}
         </Button>

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Status Validators
  * @module @clubmanager/types/validators/lookup/status

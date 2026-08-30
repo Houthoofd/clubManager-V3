@@ -43,35 +43,53 @@ afterEach(() => {
 
 describe('UpdateTemplateUseCase', () => {
   describe('execute', () => {
-
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait mettre à jour le template si les données sont valides', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number, dto: UpdateTemplateDto } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.getById.mockResolvedValue({ id: 1 } as any);
+      mockRepo.update.mockResolvedValue(true);
 
       // Act
-      // await useCase.execute(input);
+      await useCase.execute(1, { titre: ' New Titre ', contenu: ' New Contenu ', type_id: 2, actif: false });
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getById).toHaveBeenCalledWith(1);
+      expect(mockRepo.update).toHaveBeenCalledWith(1, { type_id: 2, titre: 'New Titre', contenu: 'New Contenu', actif: false });
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+    it('devrait lancer une erreur si aucun champ n\'est fourni', async () => {
+      await expect(useCase.execute(1, {})).rejects.toThrow('Au moins un champ doit être fourni pour la mise à jour');
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le titre est fourni mais vide', async () => {
+      await expect(useCase.execute(1, { titre: '   ' })).rejects.toThrow('Le titre du template ne peut pas être vide');
+      await expect(useCase.execute(1, { titre: '' })).rejects.toThrow('Le titre du template ne peut pas être vide');
+    });
+
+    it('devrait lancer une erreur si le contenu est fourni mais vide', async () => {
+      await expect(useCase.execute(1, { contenu: '   ' })).rejects.toThrow('Le contenu du template ne peut pas être vide');
+      await expect(useCase.execute(1, { contenu: '' })).rejects.toThrow('Le contenu du template ne peut pas être vide');
+    });
+
+    it('devrait lancer une erreur si le template n\'existe pas', async () => {
+      // Arrange
+      mockRepo.getById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(useCase.execute(1, { titre: 'T' })).rejects.toThrow('Template introuvable');
+    });
+
+    it('devrait lancer une erreur si le repository échoue', async () => {
+      // Arrange
+      mockRepo.getById.mockResolvedValue({ id: 1 } as any);
+      mockRepo.update.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute(1, { titre: 'T' })).rejects.toThrow('DB error');
+    });
 
   });
 });

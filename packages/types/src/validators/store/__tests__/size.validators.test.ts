@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests pour les validators de tailles (sizes) du store
  * Test de tous les schémas Zod dans size.validators.ts

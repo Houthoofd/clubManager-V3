@@ -33,9 +33,14 @@ import {
 import { useStoreUI } from "../../stores/storeStore";
 import { QuickOrderModal, CartModal } from "../";
 import { getErrorMessage, formatCurrency } from "../../../../shared/utils";
+import { useState } from "react";
+import { useAuth } from "../../../../shared/hooks/useAuth";
+import { StripePaymentModal } from "../../../payments/components/StripePaymentModal";
+import * as paymentsApi from "../../../payments/api/paymentsApi";
 
 export function BoutiqueTab() {
   const { t } = useTranslation("store");
+  const { user } = useAuth();
   const store = useStoreUI();
   const categoriesQuery = useCategories();
   const sizesQuery = useSizes();
@@ -49,6 +54,10 @@ export function BoutiqueTab() {
 
   const createOrderMutation = useCreateOrder();
   const { data: stocksData } = useStocks();
+
+  const [stripeOpen, setStripeOpen] = useState(false);
+  const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
+  const [stripeAmount, setStripeAmount] = useState(0);
 
   const cartCount = store.cartItems.reduce(
     (total, item) => total + item.quantite,
@@ -314,17 +323,52 @@ export function BoutiqueTab() {
         onRemoveItem={store.removeFromCart}
         onClearCart={store.clearCart}
         onCheckout={async () => {
+          if (!user) return;
           const items = store.cartItems.map((item) => ({
             article_id: item.article_id,
             taille_id: item.taille_id,
             quantite: item.quantite,
             prix: item.prix,
           }));
-          await createOrderMutation.mutateAsync({ items });
-          store.clearCart();
+          const order = await createOrderMutation.mutateAsync({ items });
+          
           store.closeCartModal();
+
+          // Lancer Stripe
+          try {
+            const intent = await paymentsApi.createStripeIntent({
+              user_id: user.id,
+              montant: order.total,
+              commande_id: order.id,
+            });
+            setStripeClientSecret(intent.client_secret);
+            setStripeAmount(order.total);
+            setStripeOpen(true);
+          } catch (error) {
+            // Error handled by API generic or we can just console.error
+            console.error("Failed to create Stripe intent", error);
+          }
         }}
       />
+
+      {stripeOpen && stripeClientSecret && (
+        <StripePaymentModal
+          isOpen={stripeOpen}
+          onClose={() => {
+            setStripeOpen(false);
+            setStripeClientSecret(null);
+            store.clearCart(); // Clear cart whether they paid or closed it? Better to just clear it now since the order was created.
+          }}
+          onSuccess={() => {
+            setStripeOpen(false);
+            setStripeClientSecret(null);
+            store.clearCart();
+            // Optionnel: toast de succes supplémentaire
+          }}
+          clientSecret={stripeClientSecret}
+          amount={stripeAmount}
+        />
+      )}
     </div>
   );
 }

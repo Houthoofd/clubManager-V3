@@ -43,35 +43,49 @@ afterEach(() => {
 
 describe('ToggleTemplateUseCase', () => {
   describe('execute', () => {
-
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait basculer l\'état du template s\'il existe', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number, actif: boolean } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.getById.mockResolvedValue({ id: 1, type_id: 1, titre: 'Titre', contenu: 'C', variables: [], actif: true });
+      mockRepo.toggle.mockResolvedValue(true);
 
       // Act
-      // await useCase.execute(input);
+      await useCase.execute(1, false);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.getById).toHaveBeenCalledWith(1);
+      expect(mockRepo.toggle).toHaveBeenCalledWith(1, false);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait lancer une erreur si le template n\'existe pas', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.getById.mockResolvedValue(null);
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1, true)).rejects.toThrow('Template introuvable');
+      expect(mockRepo.toggle).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le repository (getById) échoue', async () => {
+      // Arrange
+      mockRepo.getById.mockRejectedValue(new Error('DB error get'));
+
+      // Act & Assert
+      await expect(useCase.execute(1, true)).rejects.toThrow('DB error get');
+      expect(mockRepo.toggle).not.toHaveBeenCalled();
+    });
+
+    it('devrait lancer une erreur si le repository (toggle) échoue', async () => {
+      // Arrange
+      mockRepo.getById.mockResolvedValue({ id: 1, type_id: 1, titre: 'Titre', contenu: 'C', variables: [], actif: true });
+      mockRepo.toggle.mockRejectedValue(new Error('DB error toggle'));
+
+      // Act & Assert
+      await expect(useCase.execute(1, true)).rejects.toThrow('DB error toggle');
+    });
 
   });
 });

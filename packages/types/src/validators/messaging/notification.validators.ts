@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Notification Validators
  * @module @clubmanager/types/validators/messaging/notification

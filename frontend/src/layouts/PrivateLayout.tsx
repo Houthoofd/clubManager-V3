@@ -17,6 +17,8 @@ import {
   EnvelopeIcon,
   ChartBarIcon,
   CogIcon,
+  BellIcon as PFBellIcon,
+  CalendarAltIcon,
 } from "@patternfly/react-icons";
 
 import { UserRole } from "@clubmanager/types";
@@ -26,6 +28,7 @@ import { useUnreadCount } from "../features/messaging/hooks/useMessaging";
 import { useSettingsStore } from "../features/settings/stores/settingsStore";
 import { useNotificationCount } from "../features/notifications/hooks/useNotifications";
 import { NotificationDropdown } from "../features/notifications/components/NotificationDropdown";
+import { TutorialDropdown } from "../shared/components/Navigation/TutorialDropdown";
 
 // ─── SVG Icon Components ──────────────────────────────────────────────────────
 
@@ -232,62 +235,84 @@ const PrivateLayout: React.FC = () => {
   };
 
   const menuItems = [
+
+    {
+      name: t("navigation.invitations", { defaultValue: "Invitations" }),
+      path: "/invitations",
+      icon: <EnvelopeIcon />, // We reuse the EnvelopeIcon since it fits well, or UserIcon
+      roles: [UserRole.ADMIN, UserRole.PROFESSOR],
+      category: "administratif"
+    },
     {
       name: t("navigation.dashboard"),
       path: "/dashboard",
       icon: <TachometerAltIcon />,
+      category: "general"
+    },
+    {
+      name: t("navigation.events", { defaultValue: "Évènements" }),
+      path: "/events",
+      icon: <CalendarAltIcon />,
+      roles: [UserRole.ADMIN],
+      category: "administratif"
     },
     {
       name: t("navigation.courses"),
       path: "/courses",
       icon: <GraduationCapIcon />,
+      category: "administratif"
     },
-
     {
       name: t("navigation.users"),
       path: "/users",
       icon: <UserIcon />,
       roles: [UserRole.ADMIN, UserRole.PROFESSOR],
+      category: "administratif"
     },
     {
       name: t("navigation.family"),
       path: "/family",
       icon: <UsersIcon />,
+      category: "administratif"
     },
     {
       name: t("navigation.payments"),
       path: "/payments",
       icon: <CreditCardIcon />,
       roles: [UserRole.ADMIN, UserRole.MEMBER],
+      category: "financier"
     },
-
     {
       name: t("navigation.store"),
       path: "/store",
       icon: <ShoppingCartIcon />,
+      category: "financier"
     },
     {
       name: t("navigation.messages"),
       path: "/messages",
       icon: <EnvelopeIcon />,
+      category: "outils"
     },
     {
       name: t("navigation.statistics"),
       path: "/statistics/dashboard",
       icon: <ChartBarIcon />,
       roles: [UserRole.ADMIN, UserRole.PROFESSOR],
+      category: "outils"
     },
-
     {
       name: t("navigation.alerts"),
       path: "/alerts",
-      icon: <BellAlertIcon />,
+      icon: <PFBellIcon />,
+      category: "outils"
     },
     {
       name: t("navigation.settings"),
       path: "/settings",
       icon: <CogIcon />,
       roles: [UserRole.ADMIN],
+      category: "outils"
     },
   ];
 
@@ -304,6 +329,7 @@ const PrivateLayout: React.FC = () => {
   // Map route paths to module keys
   const pathToModuleKey: Record<string, string> = {
     "/dashboard": "dashboard",
+    "/events": "events",
     "/courses": "courses",
 
     "/users": "users",
@@ -334,8 +360,22 @@ const PrivateLayout: React.FC = () => {
     );
   };
 
+  const groupedItems = visibleMenuItems.reduce((acc, item) => {
+    if (!acc[item.category]) acc[item.category] = [];
+    acc[item.category].push(item);
+    return acc;
+  }, {} as Record<string, typeof menuItems>);
+
+  const categoryOrder = ["general", "administratif", "financier", "outils"];
+  const categoryLabels: Record<string, string> = {
+    general: t("navigation.categories.general", { defaultValue: "Principal" }),
+    administratif: t("navigation.categories.administratif", { defaultValue: "Gestion" }),
+    financier: t("navigation.categories.financier", { defaultValue: "Finances" }),
+    outils: t("navigation.categories.outils", { defaultValue: "Outils" })
+  };
+
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="h-screen flex bg-gray-100 overflow-hidden">
       {/* Sidebar */}
       <aside
         className={`${
@@ -381,36 +421,56 @@ const PrivateLayout: React.FC = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 py-4 overflow-y-auto">
-          <ul className="space-y-1 px-3">
-            {visibleMenuItems.map((item) => (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  data-testid={`nav-${item.path.split("/")[1]}`}
-                  className={`flex items-center px-3 py-3 rounded-lg transition-colors ${
-                    isActive(item.path) ? "bg-blue-50" : "hover:bg-black/5"
-                  }`}
-                  style={
-                    isActive(item.path)
-                      ? { color: "var(--color-primary)" }
-                      : { color: "var(--color-sidebar-text)" }
-                  }
-                  title={!isSidebarOpen ? item.name : undefined}
-                >
-                  <span className="text-xl">{item.icon}</span>
-                  {isSidebarOpen && (
-                    <span className="ml-3 font-medium flex-1">{item.name}</span>
+        <nav className="flex-1 py-4 overflow-y-auto custom-scrollbar flex flex-col">
+          <div className="space-y-6 px-3 my-auto">
+            {categoryOrder.map((catKey) => {
+              const items = groupedItems[catKey];
+              if (!items || items.length === 0) return null;
+
+              return (
+                <div key={catKey} className="space-y-1">
+                  {isSidebarOpen && catKey !== "general" && (
+                    <div className="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                      {categoryLabels[catKey]}
+                    </div>
                   )}
-                  {item.path === "/messages" && unreadCount > 0 && (
-                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5 min-w-[20px] text-center">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
-                </Link>
-              </li>
-            ))}
-          </ul>
+                  <ul className="space-y-1">
+                    {items.map((item) => (
+                      <li key={item.path}>
+                        <Link
+                          to={item.path}
+                          data-testid={`nav-${item.path.split("/")[1]}`}
+                          className={`flex items-center px-3 py-3 rounded-lg transition-colors ${
+                            isActive(item.path) ? "bg-blue-50" : "hover:bg-black/5"
+                          }`}
+                          style={
+                            isActive(item.path)
+                              ? { color: "var(--color-primary)" }
+                              : { color: "var(--color-sidebar-text)" }
+                          }
+                          title={!isSidebarOpen ? item.name : undefined}
+                        >
+                          <span className="text-xl w-6 inline-flex items-center justify-center shrink-0">
+                            {item.icon}
+                          </span>
+                          {isSidebarOpen && (
+                            <span className="ml-3 font-medium flex-1 truncate -translate-y-[1.5px]">
+                              {item.name}
+                            </span>
+                          )}
+                          {item.path === "/messages" && unreadCount > 0 && (
+                            <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5 min-w-[20px] text-center shrink-0">
+                              {unreadCount > 99 ? "99+" : unreadCount}
+                            </span>
+                          )}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
         </nav>
 
         {/* User Info */}
@@ -461,6 +521,7 @@ const PrivateLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            <TutorialDropdown />
             {/* Bell / Notifications */}
             <div className="relative">
               <button

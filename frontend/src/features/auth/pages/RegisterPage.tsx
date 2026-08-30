@@ -14,8 +14,9 @@
  * INTERNATIONALISÉ - Utilise react-i18next pour tous les textes
  */
 
+import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -24,6 +25,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../shared/hooks/useAuth";
 import { useGenres } from "../../../shared/hooks/useReferences";
 import type { RegisterDto } from "@clubmanager/types";
+import { validateInvitationToken } from "../../invitations/api/invitationApi";
 
 import { AuthPageContainer } from "../../../shared/components/Auth";
 import { FormField } from "../../../shared/components/Forms";
@@ -38,7 +40,6 @@ import { SubmitButton } from "../../../shared/components/Button";
 type RegisterFormData = {
   first_name: string;
   last_name: string;
-  nom_utilisateur?: string;
   email: string;
   password: string;
   date_of_birth: string;
@@ -85,8 +86,15 @@ const getMinBirthDate = (): string => {
 export const RegisterPage = () => {
   const { t, i18n } = useTranslation("auth");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { register: registerUser, isLoading } = useAuth();
   const genres = useGenres();
+
+  // ─── État invitation ────────────────────────────────────────────────────────
+  const [invitationToken, setInvitationToken] = useState<string | null>(null);
+  const [invitationEmail, setInvitationEmail] = useState<string | null>(null);
+  const [invitationError, setInvitationError] = useState<string | null>(null);
+  const [validatingToken, setValidatingToken] = useState(true);
 
   // ─── VALIDATION SCHEMA (dynamique avec traductions) ───────────────────────
 
@@ -101,13 +109,6 @@ export const RegisterPage = () => {
       .min(2, t("errors.lastNameTooShort"))
       .max(50, t("errors.lastNameTooLong"))
       .regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, t("errors.lastNameInvalidChars")),
-    nom_utilisateur: z
-      .string()
-      .min(3, t("errors.usernameTooShort"))
-      .max(30, t("errors.usernameTooLong"))
-      .regex(/^[a-zA-Z0-9_-]+$/, t("errors.usernameInvalidChars"))
-      .optional()
-      .or(z.literal("")),
     email: z.string().email(t("errors.emailInvalid")),
     password: z
       .string()
@@ -199,11 +200,32 @@ export const RegisterPage = () => {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
     mode: "onChange",
   });
+
+  // ─── Validation du token d invitation ──────────────────────────────────────
+  useEffect(() => {
+    const token = searchParams.get("token");
+    if (!token) {
+      setInvitationError(t("register.invitationOnly"));
+      setValidatingToken(false);
+      return;
+    }
+    validateInvitationToken(token).then((result) => {
+      if (result.valid && result.email) {
+        setInvitationToken(token);
+        setInvitationEmail(result.email);
+        setValue("email", result.email);
+      } else {
+        setInvitationError(result.error ?? t("register.invitationInvalid"));
+      }
+      setValidatingToken(false);
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /**
    * Soumission du formulaire d'inscription
@@ -215,7 +237,6 @@ export const RegisterPage = () => {
       const registerData: RegisterDto = {
         first_name: data.first_name,
         last_name: data.last_name,
-        nom_utilisateur: data.nom_utilisateur || undefined,
         email: data.email,
         password: data.password,
         date_of_birth: data.date_of_birth,
@@ -224,6 +245,10 @@ export const RegisterPage = () => {
           ? Number(data.abonnement_id)
           : undefined,
       };
+
+      if (invitationToken) {
+        (registerData as any).invitation_token = invitationToken;
+      }
 
       console.log("🚀 Sending to API:", registerData);
 
@@ -259,6 +284,73 @@ export const RegisterPage = () => {
       });
     }
   };
+
+  if (validatingToken) {
+    return (
+      <AuthPageContainer
+      title={t("register.title")}
+      subtitle=""
+    >
+      <div className="flex flex-col items-center justify-center py-12 gap-3">
+        <svg
+          className="animate-spin h-8 w-8 text-blue-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          />
+        </svg>
+        <p className="text-sm text-gray-500">{t("register.validatingInvitation")}</p>
+      </div>
+    </AuthPageContainer>
+    );
+  }
+
+  if (invitationError) {
+    return (
+      <AuthPageContainer
+      title={t("register.title")}
+      subtitle=""
+    >
+      <div className="flex flex-col items-center text-center gap-4 py-6" data-testid="register-invitation-error">
+        <div className="rounded-full bg-red-100 p-3">
+          <svg
+            className="h-6 w-6 text-red-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            />
+          </svg>
+        </div>
+        <p className="text-sm font-medium text-gray-800">{invitationError}</p>
+        <Link
+          to="/login"
+          className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+        >
+          {t("register.backToLogin")}
+        </Link>
+      </div>
+    </AuthPageContainer>
+    );
+  }
 
   return (
     <AuthPageContainer
@@ -352,6 +444,8 @@ export const RegisterPage = () => {
             autoComplete="email"
             placeholder={t("register.emailPlaceholder")}
             data-testid="register-email-input"
+            readOnly={!!invitationEmail}
+            className={invitationEmail ? "bg-gray-50 cursor-default text-gray-500" : ""}
             {...register("email")}
           />
         </FormField>
@@ -392,23 +486,6 @@ export const RegisterPage = () => {
             )}
           />
         </div>
-
-        {/* Nom d'utilisateur (optionnel) */}
-        <FormField
-          id="nom_utilisateur"
-          label={t("register.username")}
-          error={errors.nom_utilisateur?.message}
-          helpText={t("register.usernameHelp")}
-        >
-          <Input
-            id="nom_utilisateur"
-            type="text"
-            autoComplete="username"
-            placeholder={t("register.usernamePlaceholder")}
-            data-testid="register-username-input"
-            {...register("nom_utilisateur")}
-          />
-        </FormField>
 
         {/* Mot de passe avec indicateur de force et exigences */}
         <FormField

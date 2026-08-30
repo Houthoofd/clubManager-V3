@@ -25,6 +25,115 @@ async function gotoUsers(page: import("@playwright/test").Page) {
 
 test.describe("Utilisateurs — Actions admin", () => {
   // ----------------------------------------------------------
+  // Edge Case : Admin ne peut pas modifier son propre rôle
+  // ----------------------------------------------------------
+  test("ne doit pas pouvoir modifier son propre rôle", async ({ adminPage, db }) => {
+    const rows = await db.query<{id: number}>("SELECT id FROM utilisateurs WHERE userId = ?", [E2E_DB_USER_IDS.admin]);
+    if (!rows.length) { test.skip(); return; }
+    const adminId = rows[0].id;
+
+    await gotoUsers(adminPage);
+
+    await adminPage.locator('[data-testid="users-search"]').fill(E2E_DB_USER_IDS.admin);
+    await adminPage.waitForResponse(
+      (resp) => resp.url().includes("/api/users") && resp.url().includes(encodeURIComponent(E2E_DB_USER_IDS.admin)),
+      { timeout: 10_000 }
+    );
+    await adminPage.waitForTimeout(500);
+
+    const editBtn = adminPage.locator(`[data-testid="btn-edit-role-${adminId}"]`);
+    await editBtn.waitFor({ state: "visible", timeout: 10_000 });
+    await editBtn.click();
+
+    await adminPage.locator("#role-select").waitFor({ state: "visible", timeout: 5_000 });
+    await adminPage.locator("#role-select").selectOption("member");
+
+    const responsePromise = adminPage.waitForResponse(
+      (resp) => resp.url().includes("/api/users/") && resp.request().method() === "PATCH",
+      { timeout: 10_000 }
+    );
+    await adminPage.locator('[data-testid="btn-submit-role"]').click();
+    
+    const resp = await responsePromise;
+    expect(resp.status()).toBeGreaterThanOrEqual(400);
+
+    // Vérifier l'apparition du toast d'erreur
+    await expect(adminPage.locator('[data-sonner-toast]')).toBeVisible({ timeout: 5000 });
+  });
+
+  // ----------------------------------------------------------
+  // Edge Case : Admin ne peut pas modifier son propre statut
+  // ----------------------------------------------------------
+  test("ne doit pas pouvoir modifier son propre statut", async ({ adminPage, db }) => {
+    const rows = await db.query<{id: number}>("SELECT id FROM utilisateurs WHERE userId = ?", [E2E_DB_USER_IDS.admin]);
+    if (!rows.length) { test.skip(); return; }
+    const adminId = rows[0].id;
+
+    await gotoUsers(adminPage);
+
+    await adminPage.locator('[data-testid="users-search"]').fill(E2E_DB_USER_IDS.admin);
+    await adminPage.waitForResponse(
+      (resp) => resp.url().includes("/api/users") && resp.url().includes(encodeURIComponent(E2E_DB_USER_IDS.admin)),
+      { timeout: 10_000 }
+    );
+    await adminPage.waitForTimeout(500);
+
+    const editBtn = adminPage.locator(`[data-testid="btn-edit-status-${adminId}"]`);
+    await editBtn.waitFor({ state: "visible", timeout: 10_000 });
+    await editBtn.click();
+
+    await adminPage.locator("#status-select").waitFor({ state: "visible", timeout: 5_000 });
+    await adminPage.locator("#status-select").selectOption("2"); // Inactif
+
+    const responsePromise = adminPage.waitForResponse(
+      (resp) => resp.url().includes("/api/users/") && resp.request().method() === "PATCH",
+      { timeout: 10_000 }
+    );
+    await adminPage.locator('[data-testid="btn-submit-status"]').click();
+    
+    const resp = await responsePromise;
+    expect(resp.status()).toBeGreaterThanOrEqual(400);
+
+    await expect(adminPage.locator('[data-sonner-toast]')).toBeVisible({ timeout: 5000 });
+  });
+
+  // ----------------------------------------------------------
+  // Edge Case : Admin ne peut pas se supprimer lui-même
+  // ----------------------------------------------------------
+  test("ne doit pas pouvoir se supprimer soi-même", async ({ adminPage, db }) => {
+    const rows = await db.query<{id: number}>("SELECT id FROM utilisateurs WHERE userId = ?", [E2E_DB_USER_IDS.admin]);
+    if (!rows.length) { test.skip(); return; }
+    const adminId = rows[0].id;
+
+    await gotoUsers(adminPage);
+
+    await adminPage.locator('[data-testid="users-search"]').fill(E2E_DB_USER_IDS.admin);
+    await adminPage.waitForResponse(
+      (resp) => resp.url().includes("/api/users") && resp.url().includes(encodeURIComponent(E2E_DB_USER_IDS.admin)),
+      { timeout: 10_000 }
+    );
+    await adminPage.waitForTimeout(500);
+
+    const deleteBtn = adminPage.locator(`[data-testid="btn-delete-user-${adminId}"]`);
+    await deleteBtn.waitFor({ state: "visible", timeout: 10_000 });
+    await deleteBtn.click();
+
+    await adminPage.locator('[data-testid="input-delete-reason"]').waitFor({ state: "visible", timeout: 5_000 });
+    await adminPage.locator('[data-testid="input-delete-reason"]').fill("Raison de test E2E suppression soi-même");
+
+    const responsePromise = adminPage.waitForResponse(
+      (resp) => resp.url().includes("/api/users/") && resp.request().method() === "DELETE",
+      { timeout: 10_000 }
+    );
+    await adminPage.locator('[data-testid="btn-confirm-delete-user"]').click();
+    
+    const resp = await responsePromise;
+    expect(resp.status()).toBeGreaterThanOrEqual(400);
+
+    await expect(adminPage.locator('[data-sonner-toast]')).toBeVisible({ timeout: 5000 });
+  });
+
+  // ----------------------------------------------------------
   // Test 1 : Modifier le rôle d'un utilisateur → rôle mis à jour
   // ----------------------------------------------------------
   test("modifier le rôle → rôle mis à jour", async ({ adminPage, db }) => {
@@ -380,5 +489,89 @@ test.describe("Utilisateurs — Actions admin", () => {
         .query("DELETE FROM utilisateurs WHERE id = ?", [id])
         .catch(() => {});
     }
+  });
+
+  // ----------------------------------------------------------
+  // Test 11 : Inviter un membre
+  // ----------------------------------------------------------
+  test("inviter un membre → succès", async ({ adminPage }) => {
+    await gotoUsers(adminPage);
+
+    // 1. Ouvrir la modale
+    const inviteBtn = adminPage.getByTestId("btn-invite-member");
+    await expect(inviteBtn).toBeVisible({ timeout: 10_000 });
+    await inviteBtn.click();
+
+    // 2. Remplir le formulaire
+    const modal = adminPage.getByTestId("invite-modal");
+    await expect(modal).toBeVisible({ timeout: 5000 });
+
+    const emailInput = adminPage.getByTestId("invite-email-input");
+    await emailInput.fill("nouveau@example.com");
+
+    // 3. Intercepter l'appel API
+    await adminPage.route("**/api/invitations", async (route) => {
+      if (route.request().method() === "POST") {
+        await route.fulfill({
+          status: 201,
+          json: { success: true, message: "Invitation envoyée" }
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
+    const submitBtn = adminPage.getByTestId("invite-submit-btn");
+    await submitBtn.click();
+
+    // 4. Vérifier le toast
+    const toastMessage = adminPage.locator("[data-sonner-toast]");
+    await expect(toastMessage).toContainText(/Invitation|succès|success/i, { timeout: 5000 });
+  });
+
+  // ----------------------------------------------------------
+  // Test 12 : Envoyer un message direct à un membre
+  // ----------------------------------------------------------
+  test("envoyer un message direct à un utilisateur → succès", async ({ adminPage }) => {
+    await gotoUsers(adminPage);
+
+    // Filtrer pour être sûr de voir le membre E2E
+    const searchInput = adminPage.locator('[data-testid="users-search"]');
+    await expect(searchInput).toBeVisible({ timeout: 10_000 });
+    await searchInput.fill(E2E_DB_USER_IDS.member);
+    await adminPage.waitForResponse(resp => resp.url().includes(E2E_DB_USER_IDS.member) && resp.url().includes("/api/users"), { timeout: 10_000 });
+
+    const tableWrapper = adminPage.locator('[data-testid="users-table"]');
+    const memberRow = tableWrapper.locator("tr").filter({ hasText: E2E_DB_USER_IDS.member });
+    await expect(memberRow).toBeVisible({ timeout: 10_000 });
+
+    // 1. Cliquer sur le bouton d'action
+    const sendMsgBtn = memberRow.locator('button[title^="Envoyer"]');
+    await sendMsgBtn.click();
+
+    // 2. Remplir le formulaire
+    const subjectInput = adminPage.getByPlaceholder("Objet du message...");
+    await expect(subjectInput).toBeVisible({ timeout: 5000 });
+    await subjectInput.fill("Sujet E2E Test");
+
+    const messageInput = adminPage.getByPlaceholder("Votre message...");
+    await messageInput.fill("Ceci est un message E2E de test.");
+
+    // 3. Soumettre
+    await adminPage.route("**/api/messaging/send", async (route) => {
+      await route.fulfill({
+        status: 200,
+        json: { success: true, message: "Message envoyé avec succès" }
+      });
+    });
+
+    // Le bouton a pour texte "Envoyer", et il y a une icône dedans
+    // On sélectionne par type="button" avec le texte Envoyer
+    const submitBtn = adminPage.locator("button").filter({ hasText: /^Envoyer$/ }).last();
+    await submitBtn.click();
+
+    // 4. Toast
+    const toastMessage = adminPage.locator("[data-sonner-toast]");
+    await expect(toastMessage).toContainText(/Message|succès|success|envoyé/i, { timeout: 5000 });
   });
 });

@@ -1,0 +1,15 @@
+﻿USE clubmanager;
+
+INSERT INTO types_messages_personnalises (nom, description, actif) VALUES 
+('Bienvenue', 'Message de bienvenue pour les nouveaux membres', TRUE),
+('Inscription', 'Confirmation d''inscription', TRUE),
+('Paiement', 'Confirmation de paiement', TRUE),
+('Rappel cotisation', 'Rappel de paiement cotisation', TRUE)
+ON DUPLICATE KEY UPDATE actif = TRUE;
+
+INSERT INTO messages_personnalises (type_id, titre, contenu, actif)
+VALUES 
+((SELECT id FROM types_messages_personnalises WHERE nom = 'Bienvenue' LIMIT 1), 'Bienvenue au club, {{prenom}} !', 'Bonjour {{prenom}},\n\nNous sommes ravis de vous compter parmi nos membres !\nVotre identifiant est {{userId}}.\n\nSportivement,\nL''équipe.', TRUE),
+((SELECT id FROM types_messages_personnalises WHERE nom = 'Inscription' LIMIT 1), 'Confirmation d''inscription', 'Bonjour {{prenom}},\n\nNous confirmons votre inscription.\n\nA très vite !', TRUE),
+((SELECT id FROM types_messages_personnalises WHERE nom = 'Paiement' LIMIT 1), 'Reçu de paiement', 'Bonjour {{prenom}},\n\nNous avons bien reçu votre paiement.\n\nMerci !', TRUE),
+((SELECT id FROM types_messages_personnalises WHERE nom = 'Rappel cotisation' LIMIT 1), 'Paiement de votre cotisation', 'Bonjour {{prenom}},\n\nSauf erreur de notre part, votre cotisation annuelle est en attente de règlement.\n\nMerci de procéder au paiement en suivant ce lien sécurisé : {{lien_paiement}}\n\nSportivement,\nL''équipe ClubManager.', TRUE);

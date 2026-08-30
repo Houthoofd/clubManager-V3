@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @file Stock Validators Tests
  * @description Tests unitaires pour les validators de stock

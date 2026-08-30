@@ -216,6 +216,7 @@ export const storeApi = {
     description?: string;
     categorie_id?: number;
     actif?: boolean;
+    image_url?: string;
   }): Promise<Article> =>
     apiClient.post("/store/articles", data).then((r) => r.data.data),
 
@@ -227,6 +228,7 @@ export const storeApi = {
       description: string;
       categorie_id: number;
       actif: boolean;
+      image_url: string;
     }>,
   ): Promise<Article> =>
     apiClient.put(`/store/articles/${id}`, data).then((r) => r.data.data),

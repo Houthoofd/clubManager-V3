@@ -1,46 +1,15 @@
 /**
  * BulkUpdatePresenceUseCase.test.ts
  * Tests unitaires — courses / BulkUpdatePresenceUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : courses
  */
 
 import { BulkUpdatePresenceUseCase } from '../BulkUpdatePresenceUseCase';
 import type { ICourseRepository } from '../../../domain/repositories/ICourseRepository';
+import type { BulkUpdatePresenceDto } from "@clubmanager/types";
 
-// ─── Mock Repository ────────────────────────────────────────────
-
-const mockRepo: jest.Mocked<ICourseRepository> = {
-  getCourseRecurrents:      jest.fn(),
-  getCourseRecurrentById:   jest.fn(),
-  createCourseRecurrent:    jest.fn(),
-  updateCourseRecurrent:    jest.fn(),
-  deleteCourseRecurrent:    jest.fn(),
-  hasTimeConflict:          jest.fn(),
-  assignProfessor:          jest.fn(),
-  unassignProfessor:        jest.fn(),
-  getProfessorsForCourse:   jest.fn(),
-  getProfessors:            jest.fn(),
-  getProfessorById:         jest.fn(),
-  createProfessor:          jest.fn(),
-  updateProfessor:          jest.fn(),
-  deleteProfessor:          jest.fn(),
-  getCourses:               jest.fn(),
-  getCourseById:            jest.fn(),
-  createCourse:             jest.fn(),
-  generateCourses:          jest.fn(),
-  getCourseInscriptions:    jest.fn(),
-  createInscription:        jest.fn(),
-  bulkUpdatePresence:       jest.fn(),
-  deleteInscription:        jest.fn(),
-  getAttendanceForExport:   jest.fn(),
-  getMyEnrollments:         jest.fn(),
-} as jest.Mocked<ICourseRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+const mockRepo = {
+  bulkUpdatePresence: jest.fn(),
+} as unknown as jest.Mocked<ICourseRepository>;
 
 let useCase: BulkUpdatePresenceUseCase;
 
@@ -52,40 +21,22 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('BulkUpdatePresenceUseCase', () => {
   describe('execute', () => {
+    it('devrait appeler la mise à jour en masse avec succès', async () => {
+      mockRepo.bulkUpdatePresence.mockResolvedValue();
+      const dto: BulkUpdatePresenceDto = [{ inscription_id: 1, status_id: 2 }];
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      await useCase.execute(dto);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { dto: BulkUpdatePresenceDto } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.bulkUpdatePresence).toHaveBeenCalledWith(dto);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait relayer l\'erreur si le repository échoue', async () => {
+      mockRepo.bulkUpdatePresence.mockRejectedValue(new Error('DB error'));
+      const dto: BulkUpdatePresenceDto = [{ inscription_id: 1, status_id: 2 }];
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(dto)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

@@ -32,6 +32,7 @@ interface UserStore {
   error: string | null;
   deletedUsers: DeletedUserDto[];
   isLoadingDeleted: boolean;
+  currentRequestId: number;
 
   // ── Actions ───────────────────────────────────────────────────────────────────────
   fetchUsers: () => Promise<void>;
@@ -60,11 +61,13 @@ export const useUserStore = create<UserStore>((set, get) => ({
   deletedUsers: [],
   isLoadingDeleted: false,
   assigningSubscription: false,
+  currentRequestId: 0,
 
   // ── fetchUsers ────────────────────────────────────────────────────────────
   fetchUsers: async () => {
-    set({ isLoading: true, error: null });
-    const { filters, pagination } = get();
+    const { filters, pagination, currentRequestId } = get();
+    const requestId = currentRequestId + 1;
+    set({ isLoading: true, error: null, currentRequestId: requestId });
 
     try {
       const result = await usersApi.getUsers({
@@ -75,12 +78,16 @@ export const useUserStore = create<UserStore>((set, get) => ({
         limit: pagination.limit,
       });
 
+      if (get().currentRequestId !== requestId) return;
+
       set({
         users: result.users,
         pagination: result.pagination,
         isLoading: false,
       });
     } catch (error: any) {
+      if (get().currentRequestId !== requestId) return;
+      
       set({
         isLoading: false,
         error:

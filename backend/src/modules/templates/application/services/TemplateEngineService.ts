@@ -3,18 +3,21 @@
  * Moteur de rendu des templates — extraction et remplacement de variables {{variable}}
  */
 
+import jwt from "jsonwebtoken";
+
 // ==================== CONSTANTES ====================
 
 /**
  * Variables auto-remplies depuis le profil du destinataire
  * Ces variables n'ont pas besoin d'être fournies manuellement
  */
-export const AUTO_VARIABLES = ['prenom', 'nom', 'nom_complet', 'userId'] as const;
+export const AUTO_VARIABLES = ['prenom', 'nom', 'nom_complet', 'userId', 'lien_paiement'] as const;
 export type AutoVariable = typeof AUTO_VARIABLES[number];
 
 // ==================== INTERFACES ====================
 
 export interface RecipientData {
+  id?: number; // Optionnel pour la preview
   first_name: string;
   last_name: string;
   userId: string;
@@ -50,12 +53,7 @@ export class TemplateEngineService {
   }
 
   /**
-   * Sépare les variables auto (issues du profil destinataire) des variables manuelles
-   * (à fournir explicitement lors de l'envoi)
-   *
-   * @example
-   *   classifyVariables(['prenom', 'nom', 'date_cours'])
-   *   // => { auto: ['prenom', 'nom'], manual: ['date_cours'] }
+   * Filtre les variables extraites pour les trier en `auto` et `manual`.
    */
   static classifyVariables(variables: string[]): {
     auto: string[];
@@ -73,17 +71,25 @@ export class TemplateEngineService {
   /**
    * Construit le dictionnaire des variables automatiques
    * depuis les données du destinataire
-   *
-   * @example
-   *   buildAutoVars({ first_name: 'Jean', last_name: 'Dupont', userId: 'U-2025-0001' })
-   *   // => { prenom: 'Jean', nom: 'Dupont', nom_complet: 'Jean Dupont', userId: 'U-2025-0001' }
    */
   static buildAutoVars(recipient: RecipientData): Record<string, string> {
+    const frontendUrl = process.env.FRONTEND_URL || 'https://club-management.com';
+    let lien_paiement = `${frontendUrl}/payments`;
+    
+    // Si on a l'ID de l'utilisateur, on génère un token JWT pour le lien Quick Pay
+    if (recipient.id) {
+      const secret = process.env.JWT_SECRET || "fallback_secret";
+      // Le token expire dans 30 jours
+      const token = jwt.sign({ id: recipient.id }, secret, { expiresIn: "30d" });
+      lien_paiement = `${frontendUrl}/quick-pay?token=${token}`;
+    }
+
     return {
       prenom: recipient.first_name,
       nom: recipient.last_name,
       nom_complet: `${recipient.first_name} ${recipient.last_name}`,
       userId: recipient.userId,
+      lien_paiement,
     };
   }
 

@@ -6,6 +6,8 @@
  */
 
 import { useQuery, UseQueryResult, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../../../shared/hooks/useAuth';
+import { UserRole } from '@clubmanager/types';
 import type {
   DashboardAnalytics,
   MemberAnalyticsResponse,
@@ -73,11 +75,13 @@ export const useDashboardAnalytics = (
 ): UseQueryResult<DashboardAnalytics, Error> => {
   const storeParams = useStatisticsParams();
   const queryParams = params || storeParams;
+  const { user } = useAuth();
+  const isAdminOrProf = user?.role_app === UserRole.ADMIN || user?.role_app === UserRole.PROFESSOR;
 
   return useQuery({
     queryKey: statisticsKeys.dashboard(queryParams),
     queryFn: () => getDashboardAnalytics(queryParams),
-    enabled,
+    enabled: enabled && isAdminOrProf,
     ...defaultQueryOptions,
   });
 };

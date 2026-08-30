@@ -208,5 +208,14 @@
     "months": "months",
     "updated": "Subscription updated",
     "error": "Error updating subscription"
+  },
+  "inviteMember": "Invite a member",
+  "invite": {
+    "title": "Invite a Member",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "example@email.com",
+    "submit": "Send invitation",
+    "success": "Invitation sent to {{email}}",
+    "error": "Failed to send invitation"
   }
 }

@@ -41,35 +41,19 @@ afterEach(() => {
 
 describe('GetUserSchedulesUseCase', () => {
   describe('execute', () => {
+    it('devrait retourner les échéances d\'un utilisateur', async () => {
+      const mockResult = [{ id: 1 }, { id: 2 }];
+      mockRepo.findByUserId.mockResolvedValue(mockResult as any);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute(42);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { userId: number } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findByUserId).toHaveBeenCalledWith(42);
+      expect(result).toEqual(mockResult);
     });
-
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      mockRepo.findByUserId.mockRejectedValue(new Error('DB error'));
+      await expect(useCase.execute(42)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

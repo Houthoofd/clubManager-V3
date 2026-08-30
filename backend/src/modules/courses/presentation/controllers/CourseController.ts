@@ -41,10 +41,12 @@ import { ExportSessionAttendanceUseCase } from "../../application/use-cases/Expo
 import { AssignProfessorToCourseUseCase } from "../../application/use-cases/AssignProfessorToCourseUseCase.js";
 import { UnassignProfessorFromCourseUseCase } from "../../application/use-cases/UnassignProfessorFromCourseUseCase.js";
 import { GetCourseProfessorsUseCase } from "../../application/use-cases/GetCourseProfessorsUseCase.js";
+import { CourseEmailService } from "../../application/services/CourseEmailService.js";
 
 // ==================== INSTANTIATION ====================
 
 const repo = new MySQLCourseRepository();
+const courseEmailService = new CourseEmailService();
 
 // Cours récurrents
 const getCourseRecurrentsUC = new GetCourseRecurrentsUseCase(repo);
@@ -670,6 +672,22 @@ export class CourseController {
         return;
       }
       await assignProfessorUC.execute(courseId, Number(professor_id));
+      
+      // Email assignment
+      try {
+        const prof = await getProfessorByIdUC.execute(Number(professor_id));
+        const course = await getCourseRecurrentByIdUC.execute(courseId);
+        if (prof && course && prof.user_email) {
+          courseEmailService.sendProfessorAssignmentEmail(
+            prof.user_email,
+            `${prof.user_prenom || ""} ${prof.user_nom || ""}`.trim() || "Professeur",
+            course.title
+          ).catch(e => console.error(e));
+        }
+      } catch(err) {
+        console.error("Failed to send assignment email", err);
+      }
+
       res
         .status(201)
         .json({ success: true, message: "Professeur assigné avec succès" });

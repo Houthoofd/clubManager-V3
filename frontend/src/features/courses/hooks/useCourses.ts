@@ -19,6 +19,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../../../shared/hooks/useAuth";
 import type {
   CreateCourseRecurrentDto,
   UpdateCourseRecurrentDto,
@@ -81,8 +82,10 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
   const { attendanceCourseId = null } = options;
 
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isMember = user?.role_app === "membre";
 
-  // État UI pur (filtres) — Zustand, pas React Query
+  // État UI pur (filtres) -> Zustand, pas React Query
   const { sessionFilters, setSessionFilter } = useCourseStore();
 
   // ════════════════════════════════════════════════════════════════════════════
@@ -118,13 +121,25 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
    * quand sessionFilters change (pas besoin de useEffect dans la page).
    */
   const sessionsQuery = useQuery({
-    queryKey: courseKeys.sessions(sessionFilters),
-    queryFn: () =>
-      coursesApi.getCourses({
+    queryKey: courseKeys.sessions({ ...sessionFilters, isMember }),
+    queryFn: () => {
+      let date_fin = sessionFilters.date_fin || undefined;
+      
+      if (isMember) {
+        const maxDate = new Date();
+        maxDate.setMonth(maxDate.getMonth() + 2);
+        const maxDateStr = maxDate.toISOString().split("T")[0];
+        if (!date_fin || date_fin > maxDateStr) {
+          date_fin = maxDateStr;
+        }
+      }
+
+      return coursesApi.getCourses({
         date_debut: sessionFilters.date_debut || undefined,
-        date_fin: sessionFilters.date_fin || undefined,
+        date_fin,
         type_cours: sessionFilters.type_cours || undefined,
-      }),
+      });
+    },
     staleTime: 30_000,
     refetchInterval: 60_000,
     refetchOnWindowFocus: true,

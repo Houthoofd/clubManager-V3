@@ -13,7 +13,7 @@
  * GAP-16 : Onglet "Archives" + bouton Archiver sur les messages inbox
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useMessaging } from "../hooks/useMessaging";
 import { useAuth } from "../../../shared/hooks/useAuth";
@@ -22,6 +22,9 @@ import { ComposeModal } from "../components/ComposeModal";
 import { MessageListItem } from "../components/MessageListItem";
 import { MessageDetail } from "../components/MessageDetail";
 import { TemplatesTab } from "../components/TemplatesTab";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useTutorial } from "../../../shared/providers/TutorialProvider";
+import { getMessagingSteps } from "../../../shared/providers/tutorialsConfig";
 import {
   EnvelopeIcon,
   InboxIcon,
@@ -38,6 +41,7 @@ import { AlertBanner } from "../../../shared/components/Feedback/AlertBanner";
 import { PaginationBar } from "../../../shared/components/Navigation/PaginationBar";
 import { EmptyState } from "../../../shared/components/Layout/EmptyState";
 import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
+import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 
 // -- Main Component ---------------------------------------------------------------
 
@@ -70,6 +74,21 @@ export const MessagesPage = () => {
   const userRole = (user?.role_app ?? UserRole.MEMBER) as UserRole;
   const canSeeTemplates =
     userRole === UserRole.ADMIN || userRole === UserRole.PROFESSOR;
+
+  const { runTutorial, advanceTutorial, isActive, stopTutorial } = useTutorial();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Handle tutorial param
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const forceTutorial = params.get("tutorial");
+    if (forceTutorial?.includes("messaging") && !isActive) {
+      runTutorial("messaging_admin_intro", getMessagingSteps());
+      params.delete("tutorial");
+      navigate({ search: params.toString() }, { replace: true });
+    }
+  }, [location, isActive, runTutorial, navigate]);
 
   const [isComposeOpen, setIsComposeOpen] = useState(false);
 
@@ -168,10 +187,16 @@ export const MessagesPage = () => {
   // -- Render ------------------------------------------------------------------
 
   return (
-    <div
-      className="flex flex-col h-[calc(100vh-4rem-3rem)] bg-white rounded-xl shadow overflow-hidden border border-gray-200"
-      data-testid="messages-page"
-    >
+    <div className="space-y-6" data-testid="messages-page">
+      <PageHeader
+        title={t("page.title", { defaultValue: "Messagerie" })}
+        description={t("page.description", { defaultValue: "Communiquez avec les membres de votre club" })}
+        icon={<EnvelopeIcon className="h-8 w-8 text-blue-600" />}
+      />
+
+      <div
+        className="flex flex-col h-[calc(100vh-14rem)] bg-white rounded-xl shadow overflow-hidden border border-gray-200"
+      >
       {/* ================================================================
           Header -- Onglets + Bouton Nouveau message
       ================================================================ */}
@@ -193,7 +218,10 @@ export const MessagesPage = () => {
               variant="primary"
               size="md"
               icon={<PencilAltIcon style={{ fontSize: "16px" }} />}
-              onClick={() => setIsComposeOpen(true)}
+              onClick={() => {
+                setIsComposeOpen(true);
+                if (isActive) setTimeout(advanceTutorial, 400);
+              }}
               data-testid="messages-compose-btn"
             >
               {t("actions.newMessage")}
@@ -387,9 +415,16 @@ export const MessagesPage = () => {
       ================================================================ */}
       <ComposeModal
         isOpen={isComposeOpen}
-        onClose={() => setIsComposeOpen(false)}
-        onSent={handleComposeSent}
+        onClose={() => {
+          setIsComposeOpen(false);
+          if (isActive) stopTutorial();
+        }}
+        onSent={() => {
+          handleComposeSent();
+          if (isActive) setTimeout(advanceTutorial, 400);
+        }}
       />
+      </div>
     </div>
   );
 };

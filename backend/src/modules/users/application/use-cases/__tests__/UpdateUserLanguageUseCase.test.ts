@@ -1,79 +1,39 @@
-/**
- * UpdateUserLanguageUseCase.test.ts
- * Tests unitaires — users / UpdateUserLanguageUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : users
- */
+import { UpdateUserLanguageUseCase } from "../UpdateUserLanguageUseCase.js";
+import type { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
 
-import { UpdateUserLanguageUseCase } from '../UpdateUserLanguageUseCase';
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
+describe("UpdateUserLanguageUseCase", () => {
+  let mockRepo: jest.Mocked<IUserRepository>;
+  let useCase: UpdateUserLanguageUseCase;
 
-// ─── Mock Repository ────────────────────────────────────────────
+  beforeEach(() => {
+    mockRepo = {
+      findById: jest.fn(),
+      updateLanguage: jest.fn(),
+    } as unknown as jest.Mocked<IUserRepository>;
 
-const mockRepo: jest.Mocked<IUserRepository> = {
-  findAll:              jest.fn(),
-  findById:             jest.fn(),
-  findProfile:          jest.fn(),
-  updateRole:           jest.fn(),
-  updateStatus:         jest.fn(),
-  updateLanguage:       jest.fn(),
-  updateProfile:        jest.fn(),
-  softDelete:           jest.fn(),
-  restore:              jest.fn(),
-  findDeleted:          jest.fn(),
-  anonymize:            jest.fn(),
-  updateSubscription:   jest.fn(),
-} as jest.Mocked<IUserRepository>;
+    useCase = new UpdateUserLanguageUseCase(mockRepo);
+  });
 
+  it("should throw an error if language is not allowed", async () => {
+    await expect(
+      useCase.execute({ userId: 1, langue_preferee: "it" })
+    ).rejects.toThrow("Langue non autorisée. Valeurs acceptées : fr, en, nl, de, es");
+  });
 
-// ─── Setup ────────────────────────────────────────────────────
+  it("should throw an error if user is not found", async () => {
+    mockRepo.findById.mockResolvedValue(null);
+    await expect(
+      useCase.execute({ userId: 1, langue_preferee: "fr" })
+    ).rejects.toThrow("Utilisateur introuvable");
+  });
 
-let useCase: UpdateUserLanguageUseCase;
+  it("should update the user language successfully", async () => {
+    mockRepo.findById.mockResolvedValue({ id: 1 } as any);
+    mockRepo.updateLanguage.mockResolvedValue();
 
-beforeEach(() => {
-  useCase = new UpdateUserLanguageUseCase(mockRepo);
-});
+    await useCase.execute({ userId: 1, langue_preferee: "en" });
 
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-
-// ─── Tests ────────────────────────────────────────────────────
-
-describe('UpdateUserLanguageUseCase', () => {
-  describe('execute', () => {
-
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { input: UpdateUserLanguageInput } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
-    });
-
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
-
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
-    });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
+    expect(mockRepo.findById).toHaveBeenCalledWith(1);
+    expect(mockRepo.updateLanguage).toHaveBeenCalledWith(1, "en");
   });
 });

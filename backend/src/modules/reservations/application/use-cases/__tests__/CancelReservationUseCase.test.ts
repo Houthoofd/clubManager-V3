@@ -40,34 +40,66 @@ afterEach(() => {
 describe('CancelReservationUseCase', () => {
   describe('execute', () => {
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait annuler la réservation si l\'utilisateur est le propriétaire', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number, requesterId: number, requesterRole: string } = { /* TODO: renseigner les paramètres */ };
+      const reservation = { id: 1, user_id: 10, cours_id: 20, statut: 'confirmee' };
+      mockRepo.findById.mockResolvedValue(reservation as any);
+      mockRepo.updateStatus.mockResolvedValue(undefined);
 
       // Act
-      // await useCase.execute(input);
+      await useCase.execute(1, 10, 'user');
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockRepo.updateStatus).toHaveBeenCalledWith(1, 'annulee');
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait annuler la réservation si l\'utilisateur est admin', async () => {
+      // Arrange
+      const reservation = { id: 1, user_id: 10, cours_id: 20, statut: 'confirmee' };
+      mockRepo.findById.mockResolvedValue(reservation as any);
+      mockRepo.updateStatus.mockResolvedValue(undefined);
+
+      // Act
+      await useCase.execute(1, 999, 'admin');
+
+      // Assert
+      expect(mockRepo.updateStatus).toHaveBeenCalledWith(1, 'annulee');
+    });
+
+    it('devrait lancer une erreur si la réservation est introuvable', async () => {
+      // Arrange
+      mockRepo.findById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(useCase.execute(1, 10, 'user')).rejects.toThrow('Réservation introuvable');
+    });
+
+    it('devrait lancer une erreur si l\'accès est refusé (non propriétaire et non admin)', async () => {
+      // Arrange
+      const reservation = { id: 1, user_id: 10, cours_id: 20, statut: 'confirmee' };
+      mockRepo.findById.mockResolvedValue(reservation as any);
+
+      // Act & Assert
+      await expect(useCase.execute(1, 11, 'user')).rejects.toThrow('Accès refusé');
+    });
+
+    it('devrait lancer une erreur si la réservation est déjà annulée', async () => {
+      // Arrange
+      const reservation = { id: 1, user_id: 10, cours_id: 20, statut: 'annulee' };
+      mockRepo.findById.mockResolvedValue(reservation as any);
+
+      // Act & Assert
+      await expect(useCase.execute(1, 10, 'user')).rejects.toThrow('Cette réservation est déjà annulée');
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findById.mockRejectedValue(new Error('DB error'));
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(1, 10, 'user')).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
 
   });
 });

@@ -176,6 +176,7 @@ export class MySQLUserRepository implements IUserRepository {
          u.status_id,
          u.role_app,
          u.langue_preferee,
+         u.abonnement_id,
          u.date_inscription
        FROM utilisateurs u
        LEFT JOIN genres g  ON g.id  = u.genre_id
@@ -199,6 +200,7 @@ export class MySQLUserRepository implements IUserRepository {
       status_id: row.status_id,
       role_app: row.role_app ?? undefined,
       langue_preferee: row.langue_preferee ?? undefined,
+      abonnement_id: row.abonnement_id ?? null,
       date_inscription: new Date(row.date_inscription).toISOString(),
     }));
 
@@ -523,5 +525,20 @@ export class MySQLUserRepository implements IUserRepository {
           : null,
       status: { id: row.status_id, nom: row.status_nom },
     };
+  }
+
+  async getSeenTutorials(userId: number): Promise<string[]> {
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      `SELECT tutoriel_id FROM tutoriels_vus WHERE utilisateur_id = ?`,
+      [userId]
+    );
+    return rows.map((r) => r.tutoriel_id);
+  }
+
+  async markTutorialAsSeen(userId: number, tutorialId: string): Promise<void> {
+    await pool.execute(
+      `INSERT IGNORE INTO tutoriels_vus (utilisateur_id, tutoriel_id) VALUES (?, ?)`,
+      [userId, tutorialId]
+    );
   }
 }

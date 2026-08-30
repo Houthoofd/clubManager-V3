@@ -1,16 +1,6 @@
-/**
- * RemoveMemberFromGroupUseCase.test.ts
- * Tests unitaires — groups / RemoveMemberFromGroupUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : groups
- */
-
 import { RemoveMemberFromGroupUseCase } from '../RemoveMemberFromGroupUseCase';
 import type { IGroupRepository } from '../../../domain/repositories/IGroupRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
+import type { RemoveMemberDto } from '../../../domain/types';
 
 const mockRepo: jest.Mocked<IGroupRepository> = {
   findAll:        jest.fn(),
@@ -22,10 +12,7 @@ const mockRepo: jest.Mocked<IGroupRepository> = {
   addMember:      jest.fn(),
   removeMember:   jest.fn(),
   isMember:       jest.fn(),
-} as jest.Mocked<IGroupRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+};
 
 let useCase: RemoveMemberFromGroupUseCase;
 
@@ -37,40 +24,22 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('RemoveMemberFromGroupUseCase', () => {
   describe('execute', () => {
+    it('devrait supprimer un membre du groupe', async () => {
+      const input: RemoveMemberDto = { groupe_id: 1, user_id: 2 };
+      mockRepo.removeMember.mockResolvedValue(undefined);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      await useCase.execute(input);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { data: RemoveMemberDto } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.removeMember).toHaveBeenCalledWith(input);
     });
-
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      const input: RemoveMemberDto = { groupe_id: 1, user_id: 2 };
+      mockRepo.removeMember.mockRejectedValue(new Error('DB error'));
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(input)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

@@ -57,35 +57,21 @@ afterEach(() => {
 
 describe('GenerateCoursesUseCase', () => {
   describe('execute', () => {
-
-    // ── Cas nominaux ─────────────────────────────────────────────────────
-
     it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { dto: GenerateCoursesDto } = { /* TODO: renseigner les paramètres */ };
+      const mockResult = { generated: 2, cours: [{ id: 1 }, { id: 2 }] as any };
+      mockRepo.generateCourses.mockResolvedValue(mockResult);
 
-      // Act
-      // await useCase.execute(input);
+      const dto = { cours_recurrent_id: 1, date_debut: '2023-10-01', date_fin: '2023-10-31' };
+      const result = await useCase.execute(dto);
 
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.generateCourses).toHaveBeenCalledWith(dto);
+      expect(result).toEqual(mockResult);
     });
-
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      mockRepo.generateCourses.mockRejectedValue(new Error('DB error'));
+      const dto = { cours_recurrent_id: 1, date_debut: '2023-10-01', date_fin: '2023-10-31' };
+      await expect(useCase.execute(dto)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

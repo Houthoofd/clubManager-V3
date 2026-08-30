@@ -875,6 +875,92 @@ ClubManager - Sports Club Management Made Easy
   }
 
   // ============================================================
+  // Invitation Email
+  // ============================================================
+
+  /**
+   * Envoie un email d'invitation à s'inscrire
+   */
+  async sendInvitationEmail(
+    to: string,
+    invitedByName: string,
+    registrationUrl: string,
+    expiresAt: Date,
+  ): Promise<EmailSendResult> {
+    const recipient = this.devEmailOverride ?? to;
+    const expiryStr = expiresAt.toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+
+    if (!this.resend) {
+      console.log(
+        `[EmailService][DEV] Invitation email (not sent)\n` +
+          `  To:         ${to}\n` +
+          `  Invited by: ${invitedByName}\n` +
+          `  Link:       ${registrationUrl}\n` +
+          `  Expires:    ${expiryStr}`,
+      );
+      return { success: true, messageId: "dev-mode-no-send" };
+    }
+
+    try {
+      const result = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: recipient,
+        subject: "Invitation \u00e0 rejoindre ClubManager",
+        html: this.getInvitationEmailHtml(invitedByName, registrationUrl, expiryStr),
+        text: this.getInvitationEmailText(invitedByName, registrationUrl, expiryStr),
+      });
+      if (result.error) {
+        console.error("[EmailService] Failed to send invitation email:", result.error);
+        return { success: false, error: result.error.message || "Unknown error occurred" };
+      }
+      
+      console.log(`[EmailService] Invitation email sent successfully to ${to}. Message ID: ${result.data?.id}`);
+      return { success: true, messageId: result.data?.id ?? "sent" };
+    } catch (error) {
+      console.error("[EmailService] Failed to send invitation email:", error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  private getInvitationEmailHtml(
+    invitedByName: string,
+    url: string,
+    expiryStr: string,
+  ): string {
+    const safeInviter = this.escapeHtml(invitedByName);
+    return [
+      "<!DOCTYPE html>",
+      `<html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">`,
+      `<h2 style="color:#1d4ed8">Invitation \u00e0 rejoindre ClubManager</h2>`,
+      "<p>Bonjour,</p>",
+      `<p><strong>${safeInviter}</strong> vous invite \u00e0 cr\u00e9er votre compte sur ClubManager.</p>`,
+      `<p><a href="${url}" style="background:#1d4ed8;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block">Cr\u00e9er mon compte</a></p>`,
+      `<p style="color:#6b7280;font-size:0.875rem">Ce lien est valable jusqu\u2019au ${expiryStr}.<br>Si vous ne souhaitez pas rejoindre ClubManager, ignorez cet email.</p>`,
+      "</body></html>",
+    ].join("");
+  }
+
+  private getInvitationEmailText(
+    invitedByName: string,
+    url: string,
+    expiryStr: string,
+  ): string {
+    return [
+      "Invitation \u00e0 rejoindre ClubManager",
+      "",
+      `${invitedByName} vous invite \u00e0 cr\u00e9er votre compte.`,
+      `Lien : ${url}`,
+      `Valable jusqu\u2019au : ${expiryStr}`,
+      "",
+      "Si vous ne souhaitez pas rejoindre ClubManager, ignorez cet email.",
+    ].join("\n");
+  }
+
+  // ============================================================
   // Utility Methods
   // ============================================================
 

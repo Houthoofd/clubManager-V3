@@ -1,27 +1,14 @@
-/**
- * GetGradesUseCase.test.ts
- * Tests unitaires — grades / GetGradesUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : grades
- */
-
 import { GetGradesUseCase } from '../GetGradesUseCase';
 import type { IGradeRepository } from '../../../domain/repositories/IGradeRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
+import type { Grade } from '../../../domain/types';
 
 const mockRepo: jest.Mocked<IGradeRepository> = {
-  findAll:    jest.fn(),
-  findById:   jest.fn(),
-  create:     jest.fn(),
-  update:     jest.fn(),
-  delete:     jest.fn(),
-} as jest.Mocked<IGradeRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+  findAll: jest.fn(),
+  findById: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+};
 
 let useCase: GetGradesUseCase;
 
@@ -33,39 +20,25 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('GetGradesUseCase', () => {
   describe('execute', () => {
+    it('devrait retourner la liste des grades', async () => {
+      const grades: Grade[] = [
+        { id: 1, nom: 'Test', ordre: 1, couleur: null },
+        { id: 2, nom: 'Test 2', ordre: 2, couleur: '#fff' }
+      ];
+      mockRepo.findAll.mockResolvedValue(grades);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute();
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-
-      // Act
-      // await useCase.execute();
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findAll).toHaveBeenCalled();
+      expect(result).toEqual(grades);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait lancer une erreur si le repository Ǹchoue', async () => {
+      mockRepo.findAll.mockRejectedValue(new Error('DB error'));
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute()).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute()).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

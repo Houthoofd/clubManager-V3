@@ -1,10 +1,6 @@
 /**
  * DeleteFamilyUseCase.test.ts
  * Tests unitaires — families / DeleteFamilyUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : families
  */
 
 import { DeleteFamilyUseCase } from '../DeleteFamilyUseCase';
@@ -27,7 +23,6 @@ const mockRepo: jest.Mocked<IFamilyRepository> = {
   createChildUser:         jest.fn(),
 } as jest.Mocked<IFamilyRepository>;
 
-
 // ─── Setup ────────────────────────────────────────────────────
 
 let useCase: DeleteFamilyUseCase;
@@ -40,7 +35,6 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
 // ─── Tests ────────────────────────────────────────────────────
 
 describe('DeleteFamilyUseCase', () => {
@@ -48,32 +42,38 @@ describe('DeleteFamilyUseCase', () => {
 
     // ── Cas nominaux ─────────────────────────────────────────────────────
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
+    it('devrait supprimer la famille si elle existe', async () => {
       // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { id: number } = { /* TODO: renseigner les paramètres */ };
+      mockRepo.findById.mockResolvedValue({ id: 10, created_at: new Date(), updated_at: new Date() });
+      mockRepo.delete.mockResolvedValue();
 
       // Act
-      // await useCase.execute(input);
+      await useCase.execute(10);
 
       // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findById).toHaveBeenCalledWith(10);
+      expect(mockRepo.delete).toHaveBeenCalledWith(10);
     });
 
     // ── Cas d'erreur ─────────────────────────────────────────────────────
 
-    it('devrait lancer une erreur si le repository échoue', async () => {
+    it('devrait lancer une erreur si la famille n existe pas', async () => {
       // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      mockRepo.findById.mockResolvedValue(null);
 
       // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(10)).rejects.toThrow('Famille introuvable');
+      expect(mockRepo.delete).not.toHaveBeenCalled();
     });
 
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
+    it('devrait lancer une erreur si le repository échoue lors de la suppression', async () => {
+      // Arrange
+      mockRepo.findById.mockResolvedValue({ id: 10, created_at: new Date(), updated_at: new Date() });
+      mockRepo.delete.mockRejectedValue(new Error('DB error'));
+
+      // Act & Assert
+      await expect(useCase.execute(10)).rejects.toThrow('DB error');
+    });
 
   });
 });

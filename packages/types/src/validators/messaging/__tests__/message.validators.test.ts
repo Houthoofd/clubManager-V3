@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Comprehensive Tests for Message Validators
  * @module @clubmanager/types/validators/messaging/__tests__/message

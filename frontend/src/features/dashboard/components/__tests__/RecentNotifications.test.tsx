@@ -1,43 +1,102 @@
-/**
- * RecentNotifications.test.tsx
- * Tests composant — dashboard / RecentNotifications
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 2 — Composants Frontend
- * Feature    : dashboard
- */
-
-import { screen } from '@testing-library/react';
-import { render } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { vi } from 'vitest';
 import { RecentNotifications } from '../RecentNotifications';
+import { useNotifications } from '@/features/notifications/hooks/useNotifications';
 
-// TODO: Importer les types de props si nécessaire
+// Mock de useTranslation
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      const translations: Record<string, string> = {
+        'notifications.title': 'Notifications récentes',
+        'notifications.markAllRead': 'Tout marquer comme lu',
+        'notifications.empty': 'Aucune notification',
+        'notifications.emptyDesc': 'Vous êtes à jour !',
+        'notifications.viewAll': 'Voir toutes les notifications',
+        'notifications.types.info': 'Info',
+        'notifications.types.success': 'Succès',
+        'notifications.types.warning': 'Avertissement',
+        'notifications.types.error': 'Erreur',
+      };
+      return translations[key] || key;
+    },
+  }),
+}));
 
-// Note: useTranslation est mocké via le wrapper de rendu
-// Note: useNavigate / useParams sont fournis via le wrapper de rendu
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => mockNavigate,
+}));
+
+const mockMutate = vi.fn();
+vi.mock('@/features/notifications/hooks/useNotifications', () => ({
+  useNotifications: vi.fn(),
+  useMarkAllAsRead: () => ({
+    mutate: mockMutate,
+    isPending: false,
+  }),
+}));
+
+vi.mock('@/features/statistics/utils/formatting', () => ({
+  formatRelativeDate: () => 'Il y a 1 heure',
+}));
 
 describe('RecentNotifications', () => {
-
-  it('devrait se rendre sans erreur avec les props minimales', () => {
-    // Arrange
-    // TODO: définir les props requises
-    // const props = { /* TODO: renseigner les props requises */ };
-
-    // Act
-    // render(<RecentNotifications {...props} />);
-
-    // Assert
-    // expect(screen.getByRole(...)).toBeInTheDocument();
-    expect(true).toBe(true); // placeholder — à remplacer
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('devrait afficher le contenu correct selon les props', () => {
-    // TODO: tester les différentes valeurs possibles des props
-    // ex: prop = 'valeur_a' → classe CSS X, texte "Libellé A"
-    expect(true).toBe(true); // placeholder — à remplacer
+  it('affiche les squelettes de chargement', () => {
+    (useNotifications as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isLoading: true, data: undefined });
+    render(<RecentNotifications />);
+    expect(screen.getByTestId('recent-notifications-section')).toBeInTheDocument();
   });
 
-  // TODO: Ajouter un test par prop optionnelle importante
-  // TODO: Tester les états disabled/loading si applicable
+  it('affiche un message quand il n\'y a pas de notifications', () => {
+    (useNotifications as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isLoading: false, data: [] });
+    render(<RecentNotifications />);
+    expect(screen.getByText('Aucune notification')).toBeInTheDocument();
+  });
 
+  it('affiche la liste des notifications', () => {
+    const mockData = [
+      { id: 1, user_id: 1, type: 'info', titre: 'Nouvelle info', contenu: 'Contenu info', lu: false, created_at: '2026-08-15T10:00:00Z' },
+      { id: 2, user_id: 1, type: 'success', titre: 'Succès !', contenu: 'Contenu succès', lu: true, created_at: '2026-08-15T09:00:00Z' },
+    ];
+    (useNotifications as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isLoading: false, data: mockData });
+    render(<RecentNotifications />);
+    
+    expect(screen.getByText('Nouvelle info')).toBeInTheDocument();
+    expect(screen.getByText('Succès !')).toBeInTheDocument();
+    expect(screen.getByText('Tout marquer comme lu')).toBeInTheDocument();
+  });
+
+  it('n\'affiche pas le bouton "Tout marquer comme lu" si tout est lu', () => {
+    const mockData = [
+      { id: 1, user_id: 1, type: 'info', titre: 'Nouvelle info', contenu: 'Contenu info', lu: true, created_at: '2026-08-15T10:00:00Z' },
+    ];
+    (useNotifications as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isLoading: false, data: mockData });
+    render(<RecentNotifications />);
+    
+    expect(screen.queryByText('Tout marquer comme lu')).not.toBeInTheDocument();
+  });
+
+  it('appelle la mutation au clic sur "Tout marquer comme lu"', () => {
+    const mockData = [
+      { id: 1, user_id: 1, type: 'info', titre: 'Nouvelle info', contenu: 'Contenu info', lu: false, created_at: '2026-08-15T10:00:00Z' },
+    ];
+    (useNotifications as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isLoading: false, data: mockData });
+    render(<RecentNotifications />);
+    
+    fireEvent.click(screen.getByText('Tout marquer comme lu'));
+    expect(mockMutate).toHaveBeenCalled();
+  });
+
+  it('navigue vers la page des notifications au clic sur "Voir toutes les notifications"', () => {
+    (useNotifications as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isLoading: false, data: [] });
+    render(<RecentNotifications />);
+    
+    fireEvent.click(screen.getByText('Voir toutes les notifications'));
+    expect(mockNavigate).toHaveBeenCalledWith('/notifications');
+  });
 });

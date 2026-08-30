@@ -41,34 +41,19 @@ afterEach(() => {
 
 describe('GetOverdueSchedulesUseCase', () => {
   describe('execute', () => {
+    it('devrait retourner la liste des échéances en retard', async () => {
+      const mockResult = [{ id: 1 }, { id: 2 }];
+      mockRepo.findOverdue.mockResolvedValue(mockResult as any);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute();
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-
-      // Act
-      // await useCase.execute();
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findOverdue).toHaveBeenCalled();
+      expect(result).toEqual(mockResult);
     });
-
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
-
-      // Act & Assert
-      // await expect(useCase.execute()).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      mockRepo.findOverdue.mockRejectedValue(new Error('DB error'));
+      await expect(useCase.execute()).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

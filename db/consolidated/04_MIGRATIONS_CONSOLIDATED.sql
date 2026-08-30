@@ -1575,3 +1575,44 @@ DROP PROCEDURE V410_FixAlertesUtilisateurId;
 -- Toutes les migrations historiques ont √©t√© appliqu√©es
 -- La base de donn√©es est maintenant √† jour
 -- ============================================================================
+U S E   c l u b m a n a g e r ;  
+  
+ - -   1 .   S ' a s s u r e r   q u e   l e s   t y p e s   e x i s t e n t   ( B i e n v e n u e ,   I n s c r i p t i o n ,   P a i e m e n t )  
+ I N S E R T   I N T O   t y p e s _ m e s s a g e s _ p e r s o n n a l i s e s   ( n o m ,   d e s c r i p t i o n ,   a c t i f )   V A L U E S    
+ ( ' B i e n v e n u e ' ,   ' M e s s a g e   d e   b i e n v e n u e   p o u r   l e s   n o u v e a u x   m e m b r e s ' ,   T R U E ) ,  
+ ( ' I n s c r i p t i o n ' ,   ' C o n f i r m a t i o n   d ' ' i n s c r i p t i o n ' ,   T R U E ) ,  
+ ( ' P a i e m e n t ' ,   ' C o n f i r m a t i o n   d e   p a i e m e n t ' ,   T R U E )  
+ O N   D U P L I C A T E   K E Y   U P D A T E   a c t i f   =   T R U E ;  
+  
+ - -   2 .   I n s √ © r e r   l e s   t e m p l a t e s  
+ I N S E R T   I N T O   m e s s a g e s _ p e r s o n n a l i s e s   ( t y p e _ i d ,   t i t r e ,   c o n t e n u ,   a c t i f )  
+ V A L U E S   (  
+         ( S E L E C T   i d   F R O M   t y p e s _ m e s s a g e s _ p e r s o n n a l i s e s   W H E R E   n o m   =   ' B i e n v e n u e '   L I M I T   1 ) ,  
+         ' B i e n v e n u e   a u   c l u b ,   { { p r e n o m } }   ! ' ,  
+         ' B o n j o u r   { { p r e n o m } } , \ n \ n N o u s   s o m m e s   r a v i s   d e   v o u s   c o m p t e r   p a r m i   n o s   m e m b r e s   ! \ n V o t r e   i d e n t i f i a n t   e s t   { { u s e r I d } } . \ n \ n S p o r t i v e m e n t , \ n L ' ' √ © q u i p e . ' ,  
+         T R U E  
+ ) ,  
+ (  
+         ( S E L E C T   i d   F R O M   t y p e s _ m e s s a g e s _ p e r s o n n a l i s e s   W H E R E   n o m   =   ' I n s c r i p t i o n '   L I M I T   1 ) ,  
+         ' C o n f i r m a t i o n   d ' ' i n s c r i p t i o n ' ,  
+         ' B o n j o u r   { { p r e n o m } } , \ n \ n N o u s   c o n f i r m o n s   v o t r e   i n s c r i p t i o n . \ n \ n A   t r √ ® s   v i t e   ! ' ,  
+         T R U E  
+ ) ,  
+ (  
+         ( S E L E C T   i d   F R O M   t y p e s _ m e s s a g e s _ p e r s o n n a l i s e s   W H E R E   n o m   =   ' P a i e m e n t '   L I M I T   1 ) ,  
+         ' R e √ ß u   d e   p a i e m e n t ' ,  
+         ' B o n j o u r   { { p r e n o m } } , \ n \ n N o u s   a v o n s   b i e n   r e √ ß u   v o t r e   p a i e m e n t . \ n \ n M e r c i   ! ' ,  
+         T R U E  
+ ) ;  
+ 
+
+-- ============================================================================
+-- MIGRATION V5.5
+-- ============================================================================
+
+-- Migration V5.5 : Unified Payments
+ALTER TABLE paiements ADD COLUMN commande_id INT UNSIGNED NULL AFTER plan_tarifaire_id;
+ALTER TABLE paiements ADD COLUMN echeance_id INT UNSIGNED NULL AFTER commande_id;
+
+ALTER TABLE paiements ADD CONSTRAINT fk_paiements_commande FOREIGN KEY (commande_id) REFERENCES commandes(id) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE paiements ADD CONSTRAINT fk_paiements_echeance FOREIGN KEY (echeance_id) REFERENCES echeances_paiements(id) ON DELETE SET NULL ON UPDATE CASCADE;

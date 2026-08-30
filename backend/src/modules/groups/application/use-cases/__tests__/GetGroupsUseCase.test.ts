@@ -1,16 +1,6 @@
-/**
- * GetGroupsUseCase.test.ts
- * Tests unitaires — groups / GetGroupsUseCase
- * ─────────────────────────────────────────────────────────────────────────────
- * Généré par : scripts/generate-tests.mjs
- * Sprint     : Tests 1 — Use-Cases Backend
- * Module     : groups
- */
-
 import { GetGroupsUseCase } from '../GetGroupsUseCase';
 import type { IGroupRepository } from '../../../domain/repositories/IGroupRepository';
-
-// ─── Mock Repository ────────────────────────────────────────────
+import type { GetGroupsQuery, PaginatedGroupsResponse, Group } from '../../../domain/types';
 
 const mockRepo: jest.Mocked<IGroupRepository> = {
   findAll:        jest.fn(),
@@ -22,10 +12,7 @@ const mockRepo: jest.Mocked<IGroupRepository> = {
   addMember:      jest.fn(),
   removeMember:   jest.fn(),
   isMember:       jest.fn(),
-} as jest.Mocked<IGroupRepository>;
-
-
-// ─── Setup ────────────────────────────────────────────────────
+};
 
 let useCase: GetGroupsUseCase;
 
@@ -37,40 +24,85 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-
-// ─── Tests ────────────────────────────────────────────────────
-
 describe('GetGroupsUseCase', () => {
   describe('execute', () => {
+    it('devrait retourner les groupes paginés avec les valeurs par défaut pour page et limit', async () => {
+      const query: GetGroupsQuery = {};
+      const expectedResponse: PaginatedGroupsResponse = {
+        data: [{ id: 1, nom: 'Group 1' } as Group],
+        total: 1,
+        page: 1,
+        limit: 20
+      };
+      
+      mockRepo.findAll.mockResolvedValue(expectedResponse);
 
-    // ── Cas nominaux ─────────────────────────────────────────────────────
+      const result = await useCase.execute(query);
 
-    it('devrait retourner le résultat quand les données sont valides', async () => {
-      // Arrange
-      // TODO: configurer le mock → mockRepo.<méthode>.mockResolvedValue(...)
-      // const input: { query: GetGroupsQuery } = { /* TODO: renseigner les paramètres */ };
-
-      // Act
-      // await useCase.execute(input);
-
-      // Assert
-      // expect(mockRepo.<méthode>).toHaveBeenCalledWith(...);
-      expect(true).toBe(true); // placeholder — à remplacer
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 20 });
+      expect(result).toEqual(expectedResponse);
     });
 
-    // ── Cas d'erreur ─────────────────────────────────────────────────────
+    it('devrait utiliser les paramètres page et limit fournis', async () => {
+      const query: GetGroupsQuery = { page: 2, limit: 10 };
+      const expectedResponse: PaginatedGroupsResponse = {
+        data: [],
+        total: 0,
+        page: 2,
+        limit: 10
+      };
+      
+      mockRepo.findAll.mockResolvedValue(expectedResponse);
+
+      const result = await useCase.execute(query);
+
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 2, limit: 10 });
+      expect(result).toEqual(expectedResponse);
+    });
+
+    it('devrait limiter la page à un minimum de 1', async () => {
+      const query: GetGroupsQuery = { page: 0, limit: 10 };
+      const expectedResponse: PaginatedGroupsResponse = {
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 10
+      };
+      
+      mockRepo.findAll.mockResolvedValue(expectedResponse);
+
+      const result = await useCase.execute(query);
+
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
+    });
+
+    it('devrait limiter limit à un minimum de 1 et maximum de 100', async () => {
+      const queryMin: GetGroupsQuery = { page: 1, limit: 0 };
+      const queryMax: GetGroupsQuery = { page: 1, limit: 150 };
+      
+      mockRepo.findAll.mockResolvedValue({ data: [], total: 0, page: 1, limit: 1 });
+
+      await useCase.execute(queryMin);
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 1 });
+
+      await useCase.execute(queryMax);
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    });
+
+    it('devrait passer le reste des paramètres de recherche', async () => {
+      const query: GetGroupsQuery = { search: 'test', page: 1, limit: 10 };
+      
+      mockRepo.findAll.mockResolvedValue({ data: [], total: 0, page: 1, limit: 10 });
+
+      await useCase.execute(query);
+      expect(mockRepo.findAll).toHaveBeenCalledWith({ search: 'test', page: 1, limit: 10 });
+    });
 
     it('devrait lancer une erreur si le repository échoue', async () => {
-      // Arrange
-      // mockRepo.<méthode>.mockRejectedValue(new Error('DB error'));
+      const query: GetGroupsQuery = { page: 1, limit: 10 };
+      mockRepo.findAll.mockRejectedValue(new Error('DB error'));
 
-      // Act & Assert
-      // await expect(useCase.execute(input)).rejects.toThrow('DB error');
-      expect(true).toBe(true); // placeholder — à remplacer
+      await expect(useCase.execute(query)).rejects.toThrow('DB error');
     });
-
-    // TODO: Ajouter les cas de validation des paramètres (valeurs manquantes, invalides)
-    // TODO: Ajouter les cas de données inexistantes (ex: entité non trouvée → 404)
-
   });
 });

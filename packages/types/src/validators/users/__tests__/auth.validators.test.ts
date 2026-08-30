@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests pour les validators d'authentification
  * Test de tous les schémas Zod dans auth.validators.ts

@@ -9,10 +9,12 @@ export class MessagingEmailService {
   private resend: Resend | null;
   private fromEmail: string;
   private readonly isDev: boolean;
+  private devEmailOverride: string | null = null;
 
   constructor() {
     const apiKey = process.env.RESEND_API_KEY;
     this.isDev = process.env.NODE_ENV !== "production";
+    this.devEmailOverride = process.env.DEV_EMAIL_OVERRIDE || null;
 
     if (!apiKey) {
       if (this.isDev) {
@@ -39,12 +41,12 @@ export class MessagingEmailService {
     recipientName: string;
     senderName: string;
     subject: string | null;
-    contentPreview: string; // premiers 200 chars du message
+    contentPreview: string; // Message content
   }): Promise<void> {
-    const subject = `[ClubManager] ${params.senderName} vous a envoyé un message`;
+    const subject = params.subject ? `[ClubManager] ${params.subject}` : `[ClubManager] ${params.senderName} vous a envoyé un message`;
     const preview =
-      params.contentPreview.substring(0, 200) +
-      (params.contentPreview.length > 200 ? "..." : "");
+      params.contentPreview.substring(0, 2000) +
+      (params.contentPreview.length > 2000 ? "..." : "");
 
     if (!this.resend) {
       console.log(
@@ -54,10 +56,12 @@ export class MessagingEmailService {
       return;
     }
 
+    const recipient = this.devEmailOverride ?? params.to;
+
     try {
-      await this.resend.emails.send({
+      const result = await this.resend.emails.send({
         from: this.fromEmail,
-        to: params.to,
+        to: recipient,
         subject,
         html: this.buildEmailHtml(
           params.recipientName,
@@ -67,6 +71,9 @@ export class MessagingEmailService {
         ),
         text: `Bonjour ${params.recipientName},\n\n${params.senderName} vous a envoyé un message sur ClubManager.\n\nAperçu: ${preview}\n\nConnectez-vous pour voir le message complet.`,
       });
+      if (result.error) {
+        console.error("[MessagingEmailService] Resend returned an error:", result.error);
+      }
     } catch (error) {
       console.error("[MessagingEmailService] Failed to send email:", error);
       // Ne pas throw — l'email est optionnel, le message interne est déjà envoyé

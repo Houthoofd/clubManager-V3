@@ -34,6 +34,8 @@ import recoveryRoutes from "./modules/recovery/presentation/routes/recoveryRoute
 import reservationRoutes from "./modules/reservations/presentation/routes/reservationRoutes.js";
 import groupRoutes from "./modules/groups/presentation/routes/groupRoutes.js";
 import alertRoutes from "./modules/alerts/presentation/routes/alertRoutes.js";
+import invitationRoutes from "./modules/invitations/presentation/routes/invitationRoutes.js";
+import eventRoutes from "./modules/events/presentation/routes/eventRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -140,7 +142,9 @@ const createApp = (): Express => {
   app.use("/api/recovery", recoveryRoutes);
   app.use("/api/reservations", reservationRoutes);
   app.use("/api/alerts", alertRoutes);
+  app.use("/api/invitations", invitationRoutes);
   app.use("/api/groups", groupRoutes);
+  app.use("/api/events", eventRoutes);
 
   // ==================== ERROR HANDLING ====================
 

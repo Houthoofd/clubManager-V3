@@ -93,6 +93,7 @@ export class AuthController {
         date_of_birth: req.body.date_of_birth,
         genre_id: req.body.genre_id,
         abonnement_id: req.body.abonnement_id,
+        invitation_token: req.body.invitation_token,
       };
 
       const result = await this.registerUseCase.execute(dto);
