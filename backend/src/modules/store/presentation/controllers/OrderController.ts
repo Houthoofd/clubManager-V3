@@ -216,16 +216,8 @@ export class OrderController {
         })),
       });
 
-      // Diminuer les stocks
-      await stockRepo.decreaseForOrder(
-        items.map((item) => ({
-          article_id: Number(item.article_id),
-          taille_id: Number(item.taille_id),
-          quantite: Number(item.quantite),
-        })),
-        orderId,
-        userId,
-      );
+      // Le stock n'est décrémenté qu'au moment du paiement (MarkOrderAsPaidUseCase)
+      // await stockRepo.decreaseForOrder(...);
 
       // Récupérer la commande créée avec tous ses détails
       const order = await orderRepo.findById(orderId);

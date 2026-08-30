@@ -252,12 +252,21 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
 
   // ── Présences ────────────────────────────────────────────────────────────────
 
+  const createInscriptionMutation = useMutation({
+    mutationFn: ({ cours_id, dto }: { cours_id: number; dto: CreateInscriptionDto }) =>
+      coursesApi.createInscription(cours_id, dto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: courseKeys.myEnrollments() });
+      queryClient.invalidateQueries({ queryKey: courseKeys.all }); // just invalidate all courses to be safe and update capacities
+    },
+  });
+
   const deleteInscriptionMutation = useMutation({
     mutationFn: (id: number) => coursesApi.deleteInscription(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: courseKeys.myEnrollments(),
-      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: courseKeys.myEnrollments() });
+      queryClient.invalidateQueries({ queryKey: courseKeys.all });
+    },
   });
 
   const bulkUpdatePresenceMutation = useMutation({
@@ -368,6 +377,11 @@ export const useCourses = (options: UseCoursesOptions = {}) => {
     // ── Mutations présences ──────────────────────────────────────────────────────
     bulkUpdatePresence: (cours_id: number, dto: BulkUpdatePresenceDto) =>
       bulkUpdatePresenceMutation.mutateAsync({ cours_id, dto }),
+
+    createInscription: async (cours_id: number, dto: CreateInscriptionDto): Promise<void> => {
+      await createInscriptionMutation.mutateAsync({ cours_id, dto });
+    },
+    createInscriptionLoading: createInscriptionMutation.isPending,
 
     deleteInscription: async (id: number): Promise<void> => {
       await deleteInscriptionMutation.mutateAsync(id);

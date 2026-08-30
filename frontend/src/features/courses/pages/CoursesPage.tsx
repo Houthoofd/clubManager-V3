@@ -55,6 +55,7 @@ import {
   AttendanceModal,
 } from "../components/modals";
 import { MyCoursesPage } from "./MyCoursesPage";
+import { MemberCoursesView } from "./MemberCoursesView";
 import { ReservationsPage } from "../../reservations/pages/ReservationsPage";
 import { TabErrorBoundary } from "../../../shared/components/Feedback/TabErrorBoundary";
 import type {
@@ -118,6 +119,11 @@ export default function CoursesPage() {
   const typesCours: TypeCours[] = useTypesCours();
   const { user } = useAuth();
   const isAdmin = user?.role_app === "admin";
+  const isMember = user?.role_app === "membre";
+
+  if (isMember) {
+    return <MemberCoursesView />;
+  }
 
   // Onglet initial optionnel via ?tab= (utilisé par les tests E2E pour éviter les clics)
   // Lazy initializer : lit window.location.search une seule fois au montage
