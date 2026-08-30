@@ -29,6 +29,8 @@ import { useSettingsStore } from "../features/settings/stores/settingsStore";
 import { useNotificationCount } from "../features/notifications/hooks/useNotifications";
 import { NotificationDropdown } from "../features/notifications/components/NotificationDropdown";
 import { TutorialDropdown } from "../shared/components/Navigation/TutorialDropdown";
+import { useQuery } from "@tanstack/react-query";
+import * as profileApi from "../features/users/api/profileApi";
 
 // ─── SVG Icon Components ──────────────────────────────────────────────────────
 
@@ -197,6 +199,13 @@ const PrivateLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
+
+  const { data: profileData } = useQuery({
+    queryKey: ["user-profile", user?.id || 0],
+    queryFn: () => profileApi.getProfile(user?.id || 0),
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   const { settings, fetchSettings, getByKey } = useSettingsStore();
 
@@ -477,12 +486,20 @@ const PrivateLayout: React.FC = () => {
         <div className="border-t border-gray-200/60 p-4">
           {isSidebarOpen ? (
             <div className="flex items-center">
-              <div
-                className="w-10 h-10 rounded-full text-white flex items-center justify-center font-semibold"
-                style={{ backgroundColor: "var(--color-primary)" }}
-              >
-                {getInitials()}
-              </div>
+              {profileData?.photo_url ? (
+                <img
+                  src={profileData.photo_url}
+                  alt={getFullName()}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-full text-white flex items-center justify-center font-semibold"
+                  style={{ backgroundColor: "var(--color-primary)" }}
+                >
+                  {getInitials()}
+                </div>
+              )}
               <div className="ml-3 flex-1 min-w-0">
                 <p
                   className="text-sm font-medium truncate"
@@ -499,12 +516,20 @@ const PrivateLayout: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div
-              className="w-10 h-10 rounded-full text-white flex items-center justify-center font-semibold mx-auto"
-              style={{ backgroundColor: "var(--color-primary)" }}
-            >
-              {getInitials()}
-            </div>
+            profileData?.photo_url ? (
+              <img
+                src={profileData.photo_url}
+                alt={getFullName()}
+                className="w-10 h-10 rounded-full object-cover mx-auto"
+              />
+            ) : (
+              <div
+                className="w-10 h-10 rounded-full text-white flex items-center justify-center font-semibold mx-auto"
+                style={{ backgroundColor: "var(--color-primary)" }}
+              >
+                {getInitials()}
+              </div>
+            )
           )}
         </div>
       </aside>
@@ -554,12 +579,20 @@ const PrivateLayout: React.FC = () => {
                 className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 data-testid="user-menu-trigger"
               >
-                <div
-                  className="w-8 h-8 rounded-full text-white flex items-center justify-center text-sm font-semibold"
-                  style={{ backgroundColor: "var(--color-primary)" }}
-                >
-                  {getInitials()}
-                </div>
+                {profileData?.photo_url ? (
+                  <img
+                    src={profileData.photo_url}
+                    alt={getFullName()}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <div
+                    className="w-8 h-8 rounded-full text-white flex items-center justify-center text-sm font-semibold"
+                    style={{ backgroundColor: "var(--color-primary)" }}
+                  >
+                    {getInitials()}
+                  </div>
+                )}
                 <span className="text-sm font-medium text-gray-700 hidden md:block">
                   {getFullName()}
                 </span>
