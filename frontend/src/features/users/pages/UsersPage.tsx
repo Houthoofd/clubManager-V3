@@ -157,8 +157,13 @@ function UserActionsMenu({ row, setModal, handleRestore, onAssignSubscription, i
                 
                 <button
                   onClick={() => { setModal({ type: "hardDelete", user: row }); setIsOpen(false); }}
-                  title="Supprimer définitivement"
-                  className="p-2 rounded-md text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                  title={row.has_approved_deletion_request ? "Supprimer définitivement" : "Demande de suppression non validée en amont"}
+                  disabled={!row.has_approved_deletion_request}
+                  className={`p-2 rounded-md transition-colors ${
+                    row.has_approved_deletion_request 
+                      ? "text-red-600 hover:text-red-700 hover:bg-red-50" 
+                      : "text-gray-300 cursor-not-allowed"
+                  }`}
                 >
                   <TrashIcon className="h-5 w-5" />
                 </button>

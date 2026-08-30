@@ -69,6 +69,7 @@ interface UserListRow extends RowDataPacket {
   role_app: string | null;
   langue_preferee: string | null;
   date_inscription: Date;
+  has_approved_deletion_request: number;
 }
 
 interface DeletedUserRow extends UserListRow {
@@ -164,7 +165,7 @@ export class MySQLUserRepository implements IUserRepository {
     const dataParams: (string | number)[] = [...params, limit, offset];
 
     const [rows] = await pool.query<UserListRow[]>(
-      `SELECT
+       `SELECT
          u.id,
          u.userId,
          u.first_name,
@@ -177,7 +178,8 @@ export class MySQLUserRepository implements IUserRepository {
          u.role_app,
          u.langue_preferee,
          u.abonnement_id,
-         u.date_inscription
+         u.date_inscription,
+         EXISTS(SELECT 1 FROM user_requests ur WHERE ur.user_id = u.id AND ur.type = 'account_deletion' AND ur.status = 'approved') AS has_approved_deletion_request
        FROM utilisateurs u
        LEFT JOIN genres g  ON g.id  = u.genre_id
        LEFT JOIN grades gr ON gr.id = u.grade_id
@@ -202,6 +204,7 @@ export class MySQLUserRepository implements IUserRepository {
       langue_preferee: row.langue_preferee ?? undefined,
       abonnement_id: row.abonnement_id ?? null,
       date_inscription: new Date(row.date_inscription).toISOString(),
+      has_approved_deletion_request: Boolean(row.has_approved_deletion_request),
     }));
 
     return {

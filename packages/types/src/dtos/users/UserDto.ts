@@ -118,6 +118,7 @@ export interface UserListItemDto {
   langue_preferee?: string; // ISO 639-1: fr, en, nl, de, es
   abonnement_id?: number | null;
   date_inscription: string;
+  has_approved_deletion_request?: boolean;
 }
 
 /** DTO pour changer le rôle d'un utilisateur */
