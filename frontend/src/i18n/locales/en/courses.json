@@ -147,7 +147,9 @@
       "attendanceSaved": "Attendance saved",
       "attendanceExported": "Attendance sheet exported",
       "professorAssigned": "Professor assigned successfully",
-      "professorUnassigned": "Professor removed successfully"
+      "professorUnassigned": "Professor removed successfully",
+      "inscriptionCreated": "Enrollment successful!",
+      "inscriptionDeleted": "Successfully un-enrolled!"
     },
     "error": {
       "generic": "An error occurred.",

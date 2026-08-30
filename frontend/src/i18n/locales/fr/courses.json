@@ -147,7 +147,9 @@
       "attendanceSaved": "Présences sauvegardées",
       "attendanceExported": "Feuille d'appel exportée",
       "professorAssigned": "Professeur assigné avec succès",
-      "professorUnassigned": "Professeur retiré avec succès"
+      "professorUnassigned": "Professeur retiré avec succès",
+      "inscriptionCreated": "Inscription validée avec succès !",
+      "inscriptionDeleted": "Désinscription confirmée !"
     },
     "error": {
       "generic": "Une erreur est survenue.",
