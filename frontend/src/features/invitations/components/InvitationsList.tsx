@@ -125,7 +125,7 @@ export const InvitationsList: React.FC = () => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1">
-        {data.invitations.length === 0 ? (
+        {data.data.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-center">
             <EnvelopeOpenIcon className="h-12 w-12 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900">Aucune invitation</h3>
@@ -134,7 +134,7 @@ export const InvitationsList: React.FC = () => {
         ) : (
           <DataTable
             columns={columns}
-            data={data.invitations}
+            data={data.data}
             rowKey="id"
           />
         )}
