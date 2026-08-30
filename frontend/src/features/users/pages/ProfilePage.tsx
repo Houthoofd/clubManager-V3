@@ -99,30 +99,71 @@ interface AvatarProps {
   photoUrl: string | null;
   initials: string;
   fullName: string;
+  onImageSelected?: (file: File) => void;
+  isUploading?: boolean;
 }
 
-function Avatar({ photoUrl, initials, fullName }: AvatarProps) {
+function Avatar({ photoUrl, initials, fullName, onImageSelected, isUploading }: AvatarProps) {
   const [imgError, setImgError] = useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
-  if (photoUrl && !imgError) {
-    return (
-      <div className="h-24 w-24 rounded-full overflow-hidden ring-4 ring-white shadow-md">
-        <img
-          src={photoUrl}
-          alt={fullName}
-          className="h-full w-full object-cover"
-          onError={() => setImgError(true)}
-        />
-      </div>
-    );
-  }
+  const handleClick = () => {
+    if (onImageSelected && !isUploading) {
+      inputRef.current?.click();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onImageSelected) {
+      onImageSelected(file);
+    }
+    // reset input
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  };
+
+  const containerClass = `relative h-24 w-24 rounded-full ring-4 ring-white shadow-md flex-shrink-0 select-none ${
+    onImageSelected ? "cursor-pointer group" : ""
+  } ${isUploading ? "opacity-50 pointer-events-none" : ""}`;
+
+  const overlay = onImageSelected && (
+    <div className="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+      <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    </div>
+  );
 
   return (
-    <div className="h-24 w-24 rounded-full bg-primary-600 ring-4 ring-white shadow-md flex items-center justify-center flex-shrink-0">
-      <span className="text-2xl font-bold text-white select-none tracking-wider">
-        {initials}
-      </span>
-    </div>
+    <>
+      <input 
+        type="file" 
+        ref={inputRef} 
+        className="hidden" 
+        accept="image/*" 
+        onChange={handleFileChange} 
+      />
+      <div className={containerClass} onClick={handleClick}>
+        {photoUrl && !imgError ? (
+          <img
+            src={photoUrl}
+            alt={fullName}
+            className="h-full w-full object-cover rounded-full"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="h-full w-full rounded-full bg-primary-600 flex items-center justify-center">
+            <span className="text-2xl font-bold text-white tracking-wider">
+              {initials}
+            </span>
+          </div>
+        )}
+        {overlay}
+      </div>
+    </>
   );
 }
 
@@ -393,6 +434,8 @@ export function ProfilePage() {
                     photoUrl={profile.photo_url}
                     initials={initials}
                     fullName={fullName}
+                    onImageSelected={(file) => avatarMutation.mutate(file)}
+                    isUploading={avatarMutation.isPending}
                   />
                   <h2 className="mt-4 text-xl font-bold text-gray-900 leading-tight">
                     {fullName}
@@ -714,28 +757,6 @@ export function ProfilePage() {
                       )}
                       disabled={mutation.isPending}
                     />
-                    <FormField
-                      id="photo_url"
-                      label={t("profile.fields.photoUrl", "Photo (URL)")}
-                      optional
-                      helpText={t(
-                        "profile.fields.photoUrlHelp",
-                        "Lien vers une image en ligne (jpg, png…)",
-                      )}
-                    >
-                      <input
-                        id="photo_url"
-                        type="url"
-                        value={formValues.photo_url}
-                        onChange={(e) =>
-                          handleTextChange("photo_url", e.target.value)
-                        }
-                        className={INPUT.base}
-                        placeholder="https://example.com/photo.jpg"
-                        autoComplete="photo"
-                        disabled={mutation.isPending}
-                      />
-                    </FormField>
                   </div>
 
                   {/* Row 4: Adresse */}
