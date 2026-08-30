@@ -1,4 +1,5 @@
 import { apiClient } from "../../../shared/api/apiClient";
+import type { PricingPlan } from "@clubmanager/types";
 
 export interface QuickPayItem {
   id: number;
@@ -39,3 +40,5 @@ export const verifyPublicPayment = async (
   );
   return response.data;
 };
+
+export const getPlans = async (forceRefresh?: boolean): Promise<PricingPlan[]> => { return []; };
