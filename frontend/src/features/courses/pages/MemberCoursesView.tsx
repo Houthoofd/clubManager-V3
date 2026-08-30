@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useCourses } from "../hooks/useCourses";
 import { toast } from "sonner";
-import { formatTime, formatDateLong } from "@/shared/utils/dateUtils";
 import {
   CalendarIcon,
   CheckCircleIcon,
@@ -12,6 +11,15 @@ import {
 import { Button } from "@/shared/components/ui/Button";
 import { LoadingSpinner } from "@/shared/components/ui/LoadingSpinner";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
+
+function formatDateLong(dateStr: string, lang: string): string {
+  const d = new Date(dateStr);
+  return new Intl.DateTimeFormat(lang, { weekday: "long", year: "numeric", month: "long", day: "numeric" }).format(d);
+}
+
+function formatTime(timeStr: string): string {
+  return timeStr.slice(0, 5);
+}
 
 export function MemberCoursesView() {
   const { t, i18n } = useTranslation("courses");
