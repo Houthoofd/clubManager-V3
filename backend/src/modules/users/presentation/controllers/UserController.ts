@@ -300,7 +300,7 @@ export class UserController {
   async anonymize(req: AuthRequest, res: Response): Promise<void> {
     try {
       const targetId = Number(req.params.id);
-      await anonymizeUC.execute(targetId);
+      await anonymizeUC.execute(targetId, req.user!.userId);
       res.json({ success: true, message: "Utilisateur anonymisé" });
     } catch (error: any) {
       const status = error.message.includes("introuvable") ? 404 : 400;
