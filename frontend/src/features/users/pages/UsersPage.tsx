@@ -25,6 +25,7 @@ import {
   ExclamationTriangleIcon,
   UserGroupIcon,
   UserPlusIcon,
+  EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline";
 
 import { getPlans } from "../../payments/api/paymentsApi";
@@ -72,6 +73,103 @@ type ModalState =
 type UserTabId = "active" | "deleted" | "groups";
 
 // ─── Configuration des options ────────────────────────────────────────────────
+
+// ─── Composant Actions Menu ───────────────────────────────────────────────────
+
+function UserActionsMenu({ row, setModal, handleRestore, onAssignSubscription, isAdmin, t }: any) {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-1.5 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none"
+      >
+        <EllipsisVerticalIcon className="h-5 w-5" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100 overflow-hidden">
+          <button
+            onClick={() => { setModal({ type: "editRole", user: row }); setIsOpen(false); }}
+            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+          >
+            <TagIcon className="h-4 w-4 mr-3 text-gray-400" />
+            {t("changeRole")}
+          </button>
+          
+          <button
+            onClick={() => { setModal({ type: "editStatus", user: row }); setIsOpen(false); }}
+            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+          >
+            <PencilIcon className="h-4 w-4 mr-3 text-gray-400" />
+            {t("changeStatus")}
+          </button>
+          
+          {isAdmin && (
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                onAssignSubscription(row);
+              }}
+              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+            >
+              <TagIcon className="h-4 w-4 mr-3 text-gray-400" />
+              {t("subscription.assign")}
+            </button>
+          )}
+
+          {row.status_id !== 5 && (
+            <button
+              onClick={() => { setModal({ type: "sendEmail", user: row }); setIsOpen(false); }}
+              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+            >
+              <EnvelopeIcon className="h-4 w-4 mr-3 text-gray-400" />
+              {t("sendMessageTo", { name: "" }).replace(":", "").trim() || "Message"}
+            </button>
+          )}
+
+          {isAdmin && row.status_id !== 5 && (
+            <>
+              <div className="h-px bg-gray-100 my-1"></div>
+              <button
+                onClick={() => { setModal({ type: "delete", user: row }); setIsOpen(false); }}
+                className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+              >
+                <TrashIcon className="h-4 w-4 mr-3 text-red-500" />
+                {t("deleteUser")}
+              </button>
+            </>
+          )}
+
+          {isAdmin && row.status_id === 5 && (
+            <>
+              <div className="h-px bg-gray-100 my-1"></div>
+              <button
+                onClick={() => { handleRestore(row); setIsOpen(false); }}
+                className="flex items-center w-full px-4 py-2 text-sm text-green-600 hover:bg-green-50"
+              >
+                <ArrowPathIcon className="h-4 w-4 mr-3 text-green-500" />
+                {t("restoreUser")}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Composant ────────────────────────────────────────────────────────────────
 
@@ -452,99 +550,27 @@ export function UsersPage() {
       key: "actions",
       label: t("common:common.actions"),
       render: (_: any, row: UserListItemDto) => (
-        <div className="flex items-center justify-end gap-1">
-          {/* Modifier le rôle */}
-          <button
-            type="button"
-            onClick={() => setModal({ type: "editRole", user: row })}
-            data-testid={`btn-edit-role-${row.id}`}
-            title={t("changeRole")}
-            className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50
-                       transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <TagIcon className="h-4 w-4" />
-          </button>
-
-          {/* Modifier le statut */}
-          <button
-            type="button"
-            onClick={() => setModal({ type: "editStatus", user: row })}
-            data-testid={`btn-edit-status-${row.id}`}
-            title={t("changeStatus")}
-            className="p-1.5 rounded-lg text-gray-500 hover:text-indigo-600 hover:bg-indigo-50
-                       transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          >
-            <PencilIcon className="h-4 w-4" />
-          </button>
-
-          {/* Assigner un abonnement — admin uniquement */}
-          {isAdmin && (
-            <button
-              type="button"
-              data-testid={`btn-assign-subscription-${row.id}`}
-              onClick={async () => {
-                setPlansLoading(true);
-                try {
-                  const loadedPlans = await getPlans(true);
-                  setPlans(loadedPlans);
-                } catch {
-                  // ignore
-                } finally {
-                  setPlansLoading(false);
-                }
-                setSelectedSubscriptionId(row.abonnement_id ?? null);
-                setModal({ type: "subscription", user: row });
-              }}
-              title={t("subscription.assign")}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400"
-            >
-              <TagIcon className="h-4 w-4" />
-            </button>
-          )}
-
-          {/* Envoyer un message — visible aux admins et professeurs */}
-          {row.status_id !== 5 && (
-            <button
-              type="button"
-              onClick={() => setModal({ type: "sendEmail", user: row })}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-              title={t("sendMessageTo", {
-                name: `${row.first_name} ${row.last_name}`,
-              })}
-              aria-label={t("sendMessageTo", {
-                name: `${row.first_name} ${row.last_name}`,
-              })}
-            >
-              <EnvelopeIcon className="h-4 w-4" />
-            </button>
-          )}
-
-          {/* Supprimer (admin uniquement) */}
-          {isAdmin && row.status_id !== 5 && (
-            <button
-              type="button"
-              onClick={() => setModal({ type: "delete", user: row })}
-              data-testid={`btn-delete-user-${row.id}`}
-              title={t("deleteUser")}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50
-                         transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
-            >
-              <TrashIcon className="h-4 w-4" />
-            </button>
-          )}
-
-          {/* Restaurer (admin, compte archivé uniquement) */}
-          {isAdmin && row.status_id === 5 && (
-            <button
-              type="button"
-              onClick={() => handleRestore(row)}
-              title={t("restoreUser")}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-green-600 hover:bg-green-50
-                         transition-colors focus:outline-none focus:ring-2 focus:ring-green-400"
-            >
-              <ArrowPathIcon className="h-4 w-4" />
-            </button>
-          )}
+        <div className="flex items-center justify-end">
+          <UserActionsMenu
+            row={row}
+            setModal={setModal}
+            handleRestore={handleRestore}
+            isAdmin={isAdmin}
+            t={t}
+            onAssignSubscription={async (rowUser: any) => {
+              setPlansLoading(true);
+              try {
+                const loadedPlans = await getPlans(true);
+                setPlans(loadedPlans);
+              } catch {
+                // ignore
+              } finally {
+                setPlansLoading(false);
+              }
+              setSelectedSubscriptionId(rowUser.abonnement_id ?? null);
+              setModal({ type: "subscription", user: rowUser });
+            }}
+          />
         </div>
       ),
     },
