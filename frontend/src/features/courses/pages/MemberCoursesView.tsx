@@ -8,9 +8,9 @@ import {
   UserPlusIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
-import { Button } from "@/shared/components/ui/Button";
-import { LoadingSpinner } from "@/shared/components/ui/LoadingSpinner";
-import { EmptyState } from "@/shared/components/ui/EmptyState";
+import { Button } from "../../../shared/components/Button/Button";
+import { LoadingSpinner } from "../../../shared/components/Layout/LoadingSpinner";
+import { EmptyState } from "../../../shared/components/Layout/EmptyState";
 
 function formatDateLong(dateStr: string, lang: string): string {
   const d = new Date(dateStr);
