@@ -110,54 +110,61 @@ export function UserRequestsSection() {
         <Modal
           isOpen={true}
           onClose={() => setIsModalOpen(false)}
-          title="Nouvelle demande"
-          maxWidth="md"
+          size="md"
         >
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {requestType === "account_deletion" && (
-              <AlertBanner
-                variant="warning"
-                icon={<ExclamationTriangleIcon className="w-5 h-5" />}
-                title="Attention"
-                message="La suppression de votre compte est définitive. Toutes vos données seront anonymisées et vous ne pourrez plus y accéder."
-              />
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Type de demande
-              </label>
-              <select
-                value={requestType}
-                onChange={(e) => setRequestType(e.target.value)}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-              >
-                <option value="account_deletion">Suppression de compte (RGPD)</option>
-                <option value="other">Autre demande</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Message (optionnel)
-              </label>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={3}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="Précisez votre demande..."
-              />
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3">
+          <Modal.Header 
+            title="Nouvelle demande" 
+            onClose={() => setIsModalOpen(false)} 
+            showCloseButton
+          />
+          <form onSubmit={handleSubmit}>
+            <Modal.Body>
+              <div className="space-y-4">
+                {requestType === "account_deletion" && (
+                  <AlertBanner
+                    variant="warning"
+                    icon={<ExclamationTriangleIcon className="w-5 h-5" />}
+                    title="Attention"
+                    message="La suppression de votre compte est définitive. Toutes vos données seront anonymisées et vous ne pourrez plus y accéder."
+                  />
+                )}
+    
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Type de demande
+                  </label>
+                  <select
+                    value={requestType}
+                    onChange={(e) => setRequestType(e.target.value)}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  >
+                    <option value="account_deletion">Suppression de compte (RGPD)</option>
+                    <option value="other">Autre demande</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Message (optionnel)
+                  </label>
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    rows={3}
+                    placeholder="Précisez votre demande..."
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
               <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>
                 Annuler
               </Button>
               <Button type="submit" isLoading={createMutation.isPending} variant={requestType === "account_deletion" ? "danger" : "primary"}>
                 Envoyer la demande
               </Button>
-            </div>
+            </Modal.Footer>
           </form>
         </Modal>
       )}
