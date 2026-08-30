@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { uploadSingleImage } from "@/shared/middleware/uploadMiddleware.js";
 import { UserController } from "../controllers/UserController.js";
+import { UserRequestController } from "../controllers/UserRequestController.js";
 import {
   authMiddleware,
   requireRole,
@@ -9,6 +10,7 @@ import { UserRole } from "@clubmanager/types";
 
 const router: Router = Router();
 const ctrl = new UserController();
+const requestCtrl = new UserRequestController();
 
 // Toutes les routes nécessitent d'être authentifié
 router.use(authMiddleware);
@@ -33,6 +35,20 @@ router.post(
 router.get("/deleted", requireRole(UserRole.ADMIN), (req, res) =>
   ctrl.getDeletedUsers(req as any, res),
 );
+
+// ── User Requests Routes ───────────────────────────────────────────────────────
+
+// POST /api/users/requests
+router.post("/requests", (req, res) => requestCtrl.createRequest(req as any, res));
+
+// GET /api/users/requests/me
+router.get("/requests/me", (req, res) => requestCtrl.getMyRequests(req as any, res));
+
+// GET /api/users/requests
+router.get("/requests", requireRole(UserRole.ADMIN), (req, res) => requestCtrl.getAllRequests(req as any, res));
+
+// PATCH /api/users/requests/:requestId/status
+router.patch("/requests/:requestId/status", requireRole(UserRole.ADMIN), (req, res) => requestCtrl.updateStatus(req as any, res));
 
 // ── Routes paramétrées /:id ─────────────────────────────────────────────────────────
 

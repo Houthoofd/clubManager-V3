@@ -17,6 +17,7 @@ import type { UpdateUserProfileDto } from "../api/profileApi";
 
 import { ActiveSessionsSection } from "../components/ActiveSessionsSection";
 import { ChangeEmailSection } from "../components/ChangeEmailSection";
+import { UserRequestsSection } from "../components/UserRequestsSection";
 import { TabGroup } from "@/shared/components/Navigation/TabGroup";
 import type { Tab } from "@/shared/components/Navigation/TabGroup";
 import { PageHeader } from "@/shared/components/Layout/PageHeader";
@@ -24,6 +25,7 @@ import {
   UserCircleIcon,
   ShieldCheckIcon,
   CheckIcon,
+  DocumentTextIcon,
 } from "@heroicons/react/24/outline";
 import { Badge } from "@/shared/components/Badge/Badge";
 import { Button } from "@/shared/components/Button/Button";
@@ -249,7 +251,7 @@ export function ProfilePage() {
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   // ── Tab state (must be before any conditional return) ────────────────────
-  const [activeTab, setActiveTab] = useState<"profile" | "security">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "security" | "requests">("profile");
 
   // Sync form when profile data arrives (or changes after mutation)
   useEffect(() => {
@@ -405,6 +407,11 @@ export function ProfilePage() {
       id: "security",
       label: t("profile.tabSecurity", "Sécurité"),
       icon: <ShieldCheckIcon className="h-4 w-4" />,
+    },
+    {
+      id: "requests",
+      label: "Demandes & RGPD",
+      icon: <DocumentTextIcon className="h-4 w-4" />,
     },
   ];
 
@@ -833,6 +840,14 @@ export function ProfilePage() {
             <div className="border-t border-gray-100 pt-8">
               <ActiveSessionsSection flat />
             </div>
+          </div>
+        )}
+
+        {/* 
+────────────────────────────────────── TAB : Demandes */}
+        {activeTab === "requests" && (
+          <div className="p-6" data-testid="profile-requests-tab">
+            <UserRequestsSection />
           </div>
         )}
       </div>

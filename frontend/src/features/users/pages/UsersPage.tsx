@@ -64,6 +64,7 @@ type ModalState =
   | { type: "editRole"; user: UserListItemDto }
   | { type: "editStatus"; user: UserListItemDto }
   | { type: "delete"; user: UserListItemDto }
+  | { type: "hardDelete"; user: UserListItemDto }
   | { type: "sendEmail"; user: UserListItemDto }
   | { type: "notifyBulk" }
   | { type: "invite" }
@@ -150,6 +151,14 @@ function UserActionsMenu({ row, setModal, handleRestore, onAssignSubscription, i
                 <TrashIcon className="h-4 w-4 mr-3 text-red-500" />
                 {t("deleteUser")}
               </button>
+              
+              <button
+                onClick={() => { setModal({ type: "hardDelete", user: row }); setIsOpen(false); }}
+                className="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-100 font-medium"
+              >
+                <TrashIcon className="h-4 w-4 mr-3 text-red-600" />
+                Suppression définitive (RGPD)
+              </button>
             </>
           )}
 
@@ -213,6 +222,7 @@ export function UsersPage() {
     updateUserRole,
     updateUserStatus,
     deleteUser,
+    anonymizeUser,
     restoreUser,
     clearError,
     assignSubscription,
@@ -386,6 +396,28 @@ export function UsersPage() {
     try {
       await deleteUser(modal.user.id, trimmedReason);
       toast.success(t("userDeleted"), {
+        description: `${modal.user.first_name} ${modal.user.last_name}`,
+      });
+      closeModal();
+    } catch (err: any) {
+      toast.error(t("common:messages.error"), {
+        description:
+          err.response?.data?.message ??
+          err.message ??
+          t("common:messages.error"),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleHardDeleteSubmit = async () => {
+    if (modal.type !== "hardDelete") return;
+
+    setIsSubmitting(true);
+    try {
+      await anonymizeUser(modal.user.id);
+      toast.success("Utilisateur supprimé définitivement (anonymisé)", {
         description: `${modal.user.first_name} ${modal.user.last_name}`,
       });
       closeModal();
@@ -899,6 +931,54 @@ export function UsersPage() {
             disabled={isSubmitting}
           >
             {t("modal.delete.confirm")}
+          </SubmitButton>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal : Suppression définitive (RGPD) */}
+      <Modal isOpen={modal.type === "hardDelete"} onClose={closeModal} size="md">
+        <Modal.Header
+          title="Suppression définitive"
+          showCloseButton
+          onClose={closeModal}
+        />
+        <Modal.Body>
+          <div className="mb-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+            <div className="flex items-start gap-3">
+              <ExclamationTriangleIcon className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-red-700 leading-relaxed">
+                <p>
+                  Êtes-vous sûr de vouloir supprimer définitivement{" "}
+                  <span className="font-semibold">
+                    {modal.type === "hardDelete" &&
+                      `${modal.user.first_name} ${modal.user.last_name}`}
+                  </span>
+                  ?
+                </p>
+                <p className="mt-1">
+                  Toutes les informations personnelles seront supprimées et anonymisées conformément au RGPD. Les données comptables et factures seront conservées sous forme anonymisée. Cette action est irréversible.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer align="right">
+          <Button
+            variant="outline"
+            onClick={closeModal}
+            disabled={isSubmitting}
+          >
+            {t("modal.delete.cancel")}
+          </Button>
+          <SubmitButton
+            isLoading={isSubmitting}
+            loadingText="Suppression..."
+            onClick={handleHardDeleteSubmit}
+            type="button"
+            variant="danger"
+            disabled={isSubmitting}
+          >
+            Confirmer la suppression
           </SubmitButton>
         </Modal.Footer>
       </Modal>
