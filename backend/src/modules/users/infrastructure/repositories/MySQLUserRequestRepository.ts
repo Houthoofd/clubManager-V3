@@ -26,14 +26,21 @@ export class MySQLUserRequestRepository implements IUserRequestRepository {
 
   async findPending(): Promise<UserRequest[]> {
     const [rows] = await pool.execute<MySQLUserRequestRow[]>(
-      `SELECT * FROM user_requests WHERE status = 'pending' ORDER BY created_at DESC`
+      `SELECT ur.*, CONCAT(u.first_name, ' ', u.last_name) AS user_name 
+       FROM user_requests ur 
+       LEFT JOIN utilisateurs u ON ur.user_id = u.id 
+       WHERE ur.status = 'pending' 
+       ORDER BY ur.created_at DESC`
     );
     return rows.map(UserRequest.fromRow);
   }
 
   async findAll(): Promise<UserRequest[]> {
     const [rows] = await pool.execute<MySQLUserRequestRow[]>(
-      `SELECT * FROM user_requests ORDER BY created_at DESC`
+      `SELECT ur.*, CONCAT(u.first_name, ' ', u.last_name) AS user_name 
+       FROM user_requests ur 
+       LEFT JOIN utilisateurs u ON ur.user_id = u.id 
+       ORDER BY ur.created_at DESC`
     );
     return rows.map(UserRequest.fromRow);
   }

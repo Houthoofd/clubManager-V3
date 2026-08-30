@@ -74,7 +74,7 @@ export function AdminUserRequestsPanel() {
               <div>
                 <div className="flex items-center gap-3 mb-1">
                   <h4 className="font-semibold text-gray-900">
-                    Utilisateur #{req.user_id}
+                    {req.user_name ? req.user_name : `Utilisateur #${req.user_id}`}
                   </h4>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${req.type === "account_deletion" ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800"}`}>
                     {req.type === "account_deletion" ? "Suppression RGPD" : "Autre"}
@@ -88,22 +88,20 @@ export function AdminUserRequestsPanel() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button 
-                  size="sm" 
-                  variant="success" 
+                <button 
                   onClick={() => setModalState({ type: "approve", request: req })}
-                  className="flex items-center gap-1"
+                  title="Approuver"
+                  className="p-2 rounded-md text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors"
                 >
-                  <CheckIcon className="w-4 h-4" /> Approuver
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="danger" 
+                  <CheckIcon className="w-5 h-5" />
+                </button>
+                <button 
                   onClick={() => setModalState({ type: "reject", request: req })}
-                  className="flex items-center gap-1"
+                  title="Rejeter"
+                  className="p-2 rounded-md text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
                 >
-                  <XMarkIcon className="w-4 h-4" /> Rejeter
-                </Button>
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
               </div>
             </div>
           </li>

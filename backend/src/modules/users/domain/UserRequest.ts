@@ -1,6 +1,7 @@
 export interface UserRequestRow {
   id: number;
   user_id: number;
+  user_name?: string;
   type: 'account_deletion' | 'other';
   message: string | null;
   status: 'pending' | 'approved' | 'rejected';
@@ -18,7 +19,8 @@ export class UserRequest {
     public readonly status: 'pending' | 'approved' | 'rejected',
     public readonly admin_comment: string | null,
     public readonly created_at: Date,
-    public readonly updated_at: Date
+    public readonly updated_at: Date,
+    public readonly user_name?: string
   ) {}
 
   static fromRow(row: UserRequestRow): UserRequest {
@@ -30,7 +32,8 @@ export class UserRequest {
       row.status,
       row.admin_comment,
       row.created_at,
-      row.updated_at
+      row.updated_at,
+      row.user_name
     );
   }
 }
