@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/Button/Button";
-import { Badge } from "@/shared/components/Feedback/Badge";
 import { Modal } from "@/shared/components/Modal/Modal";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -34,7 +33,6 @@ export function AdminUserRequestsPanel() {
     onSuccess: () => {
       toast.success("Statut de la demande mis à jour");
       queryClient.invalidateQueries({ queryKey: ["adminUserRequests", "pending"] });
-      // Invalidate users list so the "Supprimer définitivement" button unlocks if approved
       queryClient.invalidateQueries({ queryKey: ["users"] });
       setModalState({ type: "none", request: null });
       setAdminComment("");
@@ -78,9 +76,9 @@ export function AdminUserRequestsPanel() {
                   <h4 className="font-semibold text-gray-900">
                     Utilisateur #{req.user_id}
                   </h4>
-                  <Badge variant={req.type === "account_deletion" ? "warning" : "primary"}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${req.type === "account_deletion" ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800"}`}>
                     {req.type === "account_deletion" ? "Suppression RGPD" : "Autre"}
-                  </Badge>
+                  </span>
                 </div>
                 <p className="text-sm text-gray-700 mt-2 bg-gray-50 p-3 rounded-lg border border-gray-200">
                   {req.message || <span className="italic text-gray-400">Aucun message fourni</span>}
