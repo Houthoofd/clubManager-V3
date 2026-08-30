@@ -133,10 +133,11 @@ export class UserController {
 
       const storage = getStorageService();
       // On sauvegarde dans le dossier avatars
-      const url = await storage.upload(file, "avatars");
+      const uploadResult = await storage.upload(file, "avatars");
+      const url = typeof uploadResult === 'string' ? uploadResult : uploadResult.url;
 
       // On met à jour le profil avec la nouvelle photo
-      const profile = await updateProfileUC.execute(
+      await updateProfileUC.execute(
         targetId,
         requesterId,
         requesterRole,
