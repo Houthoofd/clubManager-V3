@@ -7,7 +7,6 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { formatCurrency } from "../../statistics/utils/formatting";
 import { Modal } from "@/shared/components/Modal/Modal";
 import { BUTTON, cn } from "@/shared/styles/designTokens";
 import type { OrderWithItems } from "../api/storeApi";
@@ -17,6 +16,9 @@ import {
   useTransitionsStatutCommande,
   getAvailableTransitions,
 } from "../../../shared/hooks/useReferences";
+import { formatDate } from "./orderUtils";
+import { OrderDetailItemsTable } from "./OrderDetailItemsTable";
+import { OrderAdminActions } from "./OrderAdminActions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -28,82 +30,8 @@ interface OrderDetailModalProps {
   canManage: boolean;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function SpinnerIcon() {
-  return (
-    <svg
-      className="animate-spin h-4 w-4 text-white"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-  );
-}
-
-/**
- * Mappe la couleur d'un statut DB vers les classes Tailwind du bouton.
- * Fallback sur primary si la couleur n'est pas reconnue.
- */
-function getTransitionBtnClass(couleur?: string): string {
-  switch (couleur) {
-    case "success":
-    case "green":
-      return "text-white bg-green-600 hover:bg-green-700 focus:ring-green-500 shadow-sm";
-    case "danger":
-    case "red":
-      return "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500 shadow-sm";
-    case "warning":
-    case "orange":
-    case "yellow":
-      return "text-white bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400 shadow-sm";
-    case "purple":
-    case "violet":
-      return "text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 shadow-sm";
-    case "info":
-    case "blue":
-      return "text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 shadow-sm";
-    case "neutral":
-    case "gray":
-      return "text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400 shadow-sm";
-    default:
-      return "text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 shadow-sm";
-  }
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
-
 // ─── Composant ────────────────────────────────────────────────────────────────
 
-/**
- * OrderDetailModal — Affiche les détails d'une commande.
- *
- * Mode lecture seule avec actions admin optionnelles pour gérer le statut.
- */
 export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   isOpen,
   onClose,
@@ -132,7 +60,6 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
     }
   };
 
-  // ── Handler de fermeture (bloque si en mise à jour) ───────────────────────
   const handleClose = () => {
     if (!isUpdating) {
       onClose();
@@ -155,12 +82,6 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           currentStatut.id,
         )
       : null;
-
-  // ── Fallback hardcodé si les refs ne sont pas encore chargées ─────────────
-  const canMarkAsPaid = order.statut === "en_attente";
-  const canMarkAsShipped = order.statut === "payee";
-  const canMarkAsDelivered = order.statut === "expediee";
-  const canCancel = order.statut !== "annulee" && order.statut !== "livree";
 
   // Nom complet du client
   const clientName =
@@ -232,94 +153,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
             <h3 className="text-sm font-semibold text-gray-900 mb-3">
               {t("orderDetailModal.items.title")}
             </h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      {t("orderDetailModal.items.article")}
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      {t("orderDetailModal.items.size")}
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      {t("orderDetailModal.items.quantity")}
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      {t("orderDetailModal.items.unitPrice")}
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      {t("orderDetailModal.items.subtotal")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {order.items.map((item) => (
-                    <tr key={item.id}>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex items-center">
-                          {item.article_image_url && (
-                            <img
-                              src={item.article_image_url}
-                              alt={
-                                item.article_nom ||
-                                t("orderDetailModal.items.altFallback")
-                              }
-                              className="h-10 w-10 rounded object-cover mr-3"
-                            />
-                          )}
-                          <span className="text-sm font-medium text-gray-900">
-                            {item.article_nom ||
-                              t("orderDetailModal.items.unknown")}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                        {item.taille_nom ||
-                          t("orderDetailModal.items.unknownSize")}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
-                        {item.quantite}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
-                        {formatCurrency(item.prix)}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
-                        {formatCurrency(item.prix * item.quantite)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-gray-50">
-                  <tr>
-                    <td
-                      colSpan={4}
-                      className="px-4 py-3 text-right text-sm font-semibold text-gray-900"
-                    >
-                      {t("orderDetailModal.items.total")}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right text-lg font-bold text-blue-600">
-                      {formatCurrency(total)}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
+            <OrderDetailItemsTable items={order.items} total={total} />
           </div>
 
           {/* Actions admin */}
@@ -328,110 +162,12 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
               <h3 className="text-sm font-semibold text-gray-900 mb-3">
                 {t("orderDetailModal.admin.title")}
               </h3>
-              <div className="flex flex-wrap gap-2">
-                {/* ── Boutons dynamiques depuis la DB ── */}
-                {dynamicTransitions && dynamicTransitions.length > 0 ? (
-                  dynamicTransitions.map((targetStatut) => (
-                    <button
-                      key={targetStatut.code}
-                      type="button"
-                      onClick={() => handleStatusChange(targetStatut.code)}
-                      disabled={isUpdating}
-                      className={cn(
-                        BUTTON.base,
-                        getTransitionBtnClass(targetStatut.couleur),
-                        BUTTON.size.md,
-                      )}
-                    >
-                      {isUpdating && (
-                        <span className="mr-2">
-                          <SpinnerIcon />
-                        </span>
-                      )}
-                      {targetStatut.nom}
-                    </button>
-                  ))
-                ) : (
-                  /* ── Fallback hardcodé si refs pas chargées ── */ <>
-                    {canMarkAsPaid && (
-                      <button
-                        type="button"
-                        onClick={() => handleStatusChange("payee")}
-                        disabled={isUpdating}
-                        className={cn(
-                          BUTTON.base,
-                          BUTTON.variant.primary,
-                          BUTTON.size.md,
-                        )}
-                      >
-                        {isUpdating && (
-                          <span className="mr-2">
-                            <SpinnerIcon />
-                          </span>
-                        )}
-                        {t("orderDetailModal.admin.markAsPaid")}
-                      </button>
-                    )}
-                    {canMarkAsShipped && (
-                      <button
-                        type="button"
-                        onClick={() => handleStatusChange("expediee")}
-                        disabled={isUpdating}
-                        className={cn(
-                          BUTTON.base,
-                          "text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 shadow-sm",
-                          BUTTON.size.md,
-                        )}
-                      >
-                        {isUpdating && (
-                          <span className="mr-2">
-                            <SpinnerIcon />
-                          </span>
-                        )}
-                        {t("orderDetailModal.admin.markAsShipped")}
-                      </button>
-                    )}
-                    {canMarkAsDelivered && (
-                      <button
-                        type="button"
-                        onClick={() => handleStatusChange("livree")}
-                        disabled={isUpdating}
-                        className={cn(
-                          BUTTON.base,
-                          BUTTON.variant.success,
-                          BUTTON.size.md,
-                        )}
-                      >
-                        {isUpdating && (
-                          <span className="mr-2">
-                            <SpinnerIcon />
-                          </span>
-                        )}
-                        {t("orderDetailModal.admin.markAsDelivered")}
-                      </button>
-                    )}
-                    {canCancel && (
-                      <button
-                        type="button"
-                        onClick={() => handleStatusChange("annulee")}
-                        disabled={isUpdating}
-                        className={cn(
-                          BUTTON.base,
-                          BUTTON.variant.danger,
-                          BUTTON.size.md,
-                        )}
-                      >
-                        {isUpdating && (
-                          <span className="mr-2">
-                            <SpinnerIcon />
-                          </span>
-                        )}
-                        {t("orderDetailModal.admin.cancelOrder")}
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
+              <OrderAdminActions
+                order={order}
+                isUpdating={isUpdating}
+                onStatusChange={handleStatusChange}
+                dynamicTransitions={dynamicTransitions}
+              />
             </div>
           )}
         </div>

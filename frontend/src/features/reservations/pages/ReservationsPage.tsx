@@ -5,82 +5,24 @@ import {
   CalendarDaysIcon,
   PlusIcon,
   XCircleIcon,
-  FunnelIcon,
 } from "@heroicons/react/24/outline";
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { DataTable } from "../../../shared/components/Table/DataTable";
 import { PaginationBar } from "../../../shared/components/Navigation/PaginationBar";
-import { Modal } from "../../../shared/components/Modal/Modal";
 import { Button } from "../../../shared/components/Button/Button";
-import { Input } from "../../../shared/components/Input/Input";
-import { FormField } from "../../../shared/components/Forms/FormField";
 import { ConfirmDialog } from "../../../shared/components/Modal/ConfirmDialog";
 import { useAuthStore } from "../../../shared/stores/authStore";
 import { UserRole } from "@clubmanager/types";
 import {
   useReservationsList,
   useMyReservations,
-  useCreateReservation,
   useCancelReservation,
 } from "../hooks/useReservations";
 import type { GetReservationsParams } from "../api/reservationsApi";
-
-// ─── Domain Types (local — do NOT import from @clubmanager/types) ─────────────
-
-type ReservationStatut = "confirmee" | "annulee" | "en_attente";
-
-interface ReservationDto {
-  id: number;
-  user_id: number;
-  cours_id: number;
-  statut: ReservationStatut;
-  created_at: string;
-  updated_at: string;
-  user_nom?: string;
-  user_prenom?: string;
-  user_email?: string;
-  cours_date?: string;
-  cours_type?: string;
-  cours_heure_debut?: string;
-  cours_heure_fin?: string;
-}
-
-// ─── Modal State Machine ──────────────────────────────────────────────────────
-
-type ModalState =
-  | { type: "none" }
-  | { type: "create" }
-  | { type: "cancel"; reservation: ReservationDto };
-
-// ─── StatusBadge ──────────────────────────────────────────────────────────────
-
-function StatusBadge({ statut }: { statut: ReservationStatut }) {
-  const { t } = useTranslation("reservations");
-  const config = {
-    confirmee: {
-      label: t("status.confirmee"),
-      className: "bg-green-100 text-green-800",
-    },
-    annulee: {
-      label: t("status.annulee"),
-      className: "bg-red-100 text-red-800",
-    },
-    en_attente: {
-      label: t("status.en_attente"),
-      className: "bg-yellow-100 text-yellow-800",
-    },
-  }[statut] ?? { label: statut, className: "bg-gray-100 text-gray-800" };
-
-  return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.className}`}
-    >
-      {config.label}
-    </span>
-  );
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
+import { ReservationDto, ReservationStatut, ModalState } from "./types";
+import { StatusBadge } from "./StatusBadge";
+import { ReservationsFilterBar } from "./ReservationsFilterBar";
+import { ReservationCreateModal } from "./ReservationCreateModal";
 
 export function ReservationsPage() {
   const { t } = useTranslation("reservations");
@@ -121,17 +63,7 @@ export function ReservationsPage() {
   const [modal, setModal] = useState<ModalState>({ type: "none" });
   const closeModal = () => setModal({ type: "none" });
 
-  // ── Create form state ─────────────────────────────────────────────────────
-  const [formCoursId, setFormCoursId] = useState("");
-  const [formUserId, setFormUserId] = useState("");
-  const [formErrors, setFormErrors] = useState<{
-    cours_id?: string;
-    user_id?: string;
-  }>({});
-
   // ── React Query ───────────────────────────────────────────────────────────
-  // Both hooks are always called (React hooks rules).
-  // One is disabled via `enabled: false` (undefined params) based on role.
   const adminQuery = useReservationsList(isPrivileged ? params : undefined);
   const memberQuery = useMyReservations(
     !isPrivileged ? { page, limit: 20 } : undefined,
@@ -148,45 +80,7 @@ export function ReservationsPage() {
   };
   const isLoading = activeQuery.isLoading;
 
-  const createMutation = useCreateReservation();
   const cancelMutation = useCancelReservation();
-
-  // ── Validate create form ──────────────────────────────────────────────────
-  const validateCreateForm = () => {
-    const errors: { cours_id?: string; user_id?: string } = {};
-    if (!formCoursId.trim()) {
-      errors.cours_id = t("validation.courseIdRequired");
-    } else if (isNaN(parseInt(formCoursId, 10))) {
-      errors.cours_id = t("validation.courseIdInvalid");
-    }
-    if (formUserId && isNaN(parseInt(formUserId, 10))) {
-      errors.user_id = t("validation.userIdInvalid");
-    }
-    return errors;
-  };
-
-  // ── Submit create ─────────────────────────────────────────────────────────
-  const handleCreate = () => {
-    const errors = validateCreateForm();
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-    const payload: { cours_id: number; user_id?: number } = {
-      cours_id: parseInt(formCoursId, 10),
-    };
-    if (isAdmin && formUserId) payload.user_id = parseInt(formUserId, 10);
-    createMutation.mutate(payload, {
-      onSuccess: () => {
-        toast.success(t("messages.success.created"));
-        closeModal();
-      },
-      onError: (e: any) =>
-        toast.error(
-          e?.response?.data?.message ?? t("messages.error.createError"),
-        ),
-    });
-  };
 
   // ── Submit cancel ─────────────────────────────────────────────────────────
   const handleCancel = () => {
@@ -201,14 +95,6 @@ export function ReservationsPage() {
           e?.response?.data?.message ?? t("messages.error.cancelError"),
         ),
     });
-  };
-
-  // ── Open create modal ─────────────────────────────────────────────────────
-  const openCreate = () => {
-    setFormCoursId("");
-    setFormUserId("");
-    setFormErrors({});
-    setModal({ type: "create" });
   };
 
   // ── DataTable columns ─────────────────────────────────────────────────────
@@ -238,7 +124,6 @@ export function ReservationsPage() {
         </div>
       ),
     },
-    // Show member column only for admin/prof
     ...(isPrivileged
       ? [
           {
@@ -297,7 +182,6 @@ export function ReservationsPage() {
   // ── JSX ───────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6" data-testid="reservations-page">
-      {/* PageHeader */}
       <PageHeader
         icon={<CalendarDaysIcon className="h-8 w-8 text-blue-600" />}
         title={isPrivileged ? t("page.title") : t("page.myTitle")}
@@ -309,7 +193,7 @@ export function ReservationsPage() {
             <Button
               variant="primary"
               icon={<PlusIcon className="h-4 w-4" />}
-              onClick={openCreate}
+              onClick={() => setModal({ type: "create" })}
               data-testid="btn-create-reservation"
             >
               {t("actions.create")}
@@ -318,82 +202,18 @@ export function ReservationsPage() {
         }
       />
 
-      {/* Filter bar (admin/prof only) */}
       {isPrivileged && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-          <div className="flex flex-col sm:flex-row gap-3 items-end">
-            <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
-              <FunnelIcon className="h-4 w-4" />
-              {t("filters.title")}
-            </div>
-
-            {/* Status filter */}
-            <div className="flex-1 max-w-[180px]">
-              <label className="block text-xs text-gray-500 mb-1">
-                {t("filters.status")}
-              </label>
-              <select
-                value={filterStatut}
-                onChange={(e) =>
-                  setFilterStatut(e.target.value as ReservationStatut | "")
-                }
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">{t("status.all")}</option>
-                <option value="confirmee">{t("status.confirmee")}</option>
-                <option value="en_attente">{t("status.en_attente")}</option>
-                <option value="annulee">{t("status.annulee")}</option>
-              </select>
-            </div>
-
-            {/* Course ID filter */}
-            <div className="flex-1 max-w-[160px]">
-              <label className="block text-xs text-gray-500 mb-1">
-                {t("filters.courseId")}
-              </label>
-              <Input
-                type="number"
-                value={filterCoursId}
-                onChange={(e) => setFilterCoursId(e.target.value)}
-                placeholder={t("placeholders.searchCourse")}
-              />
-            </div>
-
-            {/* User ID filter (admin only) */}
-            {isAdmin && (
-              <div className="flex-1 max-w-[160px]">
-                <label className="block text-xs text-gray-500 mb-1">
-                  {t("filters.userId")}
-                </label>
-                <Input
-                  type="number"
-                  value={filterUserId}
-                  onChange={(e) => setFilterUserId(e.target.value)}
-                  placeholder={t("placeholders.searchUser")}
-                />
-              </div>
-            )}
-
-            {/* Clear filters */}
-            {(filterStatut || filterCoursId || filterUserId) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                data-testid="btn-clear-filters"
-                onClick={() => {
-                  setFilterStatut("");
-                  setFilterCoursId("");
-                  setFilterUserId("");
-                }}
-              >
-                {t("filters.clear")}
-              </Button>
-            )}
-          </div>
-        </div>
+        <ReservationsFilterBar
+          isAdmin={isAdmin}
+          filterStatut={filterStatut}
+          setFilterStatut={setFilterStatut}
+          filterCoursId={filterCoursId}
+          setFilterCoursId={setFilterCoursId}
+          filterUserId={filterUserId}
+          setFilterUserId={setFilterUserId}
+        />
       )}
 
-      {/* DataTable */}
       <div data-testid="reservations-table">
         <DataTable
           columns={columns}
@@ -404,7 +224,6 @@ export function ReservationsPage() {
         />
       </div>
 
-      {/* Pagination */}
       {!isLoading && pagination.totalPages > 1 && (
         <PaginationBar
           currentPage={pagination.page}
@@ -419,71 +238,12 @@ export function ReservationsPage() {
         />
       )}
 
-      {/* ── Modal: Create ─────────────────────────────────────────────────── */}
-      <Modal isOpen={modal.type === "create"} onClose={closeModal} size="md">
-        <Modal.Header
-          title={t("modal.createTitle")}
-          subtitle={t("modal.createSubtitle")}
-          showCloseButton
-          onClose={closeModal}
-        />
-        <Modal.Body>
-          <div className="space-y-4">
-            <FormField
-              id="res-cours-id"
-              label={t("fields.course")}
-              required
-              error={formErrors.cours_id}
-            >
-              <Input
-                id="res-cours-id"
-                type="number"
-                value={formCoursId}
-                onChange={(e) => setFormCoursId(e.target.value)}
-                placeholder={t("placeholders.courseId")}
-                autoFocus
-                error={formErrors.cours_id}
-              />
-            </FormField>
+      <ReservationCreateModal
+        isOpen={modal.type === "create"}
+        onClose={closeModal}
+        isAdmin={isAdmin}
+      />
 
-            {isAdmin && (
-              <FormField
-                id="res-user-id"
-                label={t("fields.userId")}
-                error={formErrors.user_id}
-              >
-                <Input
-                  id="res-user-id"
-                  type="number"
-                  value={formUserId}
-                  onChange={(e) => setFormUserId(e.target.value)}
-                  placeholder={t("placeholders.userId")}
-                  error={formErrors.user_id}
-                />
-              </FormField>
-            )}
-          </div>
-        </Modal.Body>
-        <Modal.Footer align="right">
-          <Button
-            variant="outline"
-            onClick={closeModal}
-            disabled={createMutation.isPending}
-          >
-            {t("actions.cancel")}
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleCreate}
-            loading={createMutation.isPending}
-            data-testid="btn-submit-create-reservation"
-          >
-            {t("actions.confirm")}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* ── ConfirmDialog: Cancel ──────────────────────────────────────────── */}
       <ConfirmDialog
         isOpen={modal.type === "cancel"}
         onClose={closeModal}
