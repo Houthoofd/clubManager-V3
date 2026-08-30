@@ -119,7 +119,7 @@ export class UserController {
       const requesterId = req.user!.userId;
       const requesterRole = req.user!.role_app ?? "";
       
-      if (targetId !== requesterId && requesterRole !== "admin") {
+      if (targetId != requesterId && requesterRole !== "admin") {
         res.status(403).json({ success: false, message: "Accès refusé" });
         return;
       }

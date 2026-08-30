@@ -5,7 +5,7 @@
  * Layout : deux colonnes (info card à gauche, formulaire d'édition à droite)
  */
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
