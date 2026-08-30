@@ -56,7 +56,7 @@ const IMAGE_URL_SUBQUERY = `(
   SELECT url
   FROM images
   WHERE article_id = a.id
-  ORDER BY ordre ASC
+  ORDER BY id DESC
   LIMIT 1
 )`;
 

@@ -304,21 +304,7 @@ export class ArticleController {
         return;
       }
 
-      // Supprimer les images existantes (le frontend ne gère qu'une seule image pour l'instant)
-      for (const img of existing.images) {
-        const imageUrl = await repo.deleteImage(img.id);
-        if (imageUrl) {
-          const key = this.extractStorageKeyFromUrl(imageUrl);
-          if (key) {
-            try {
-              await storageService.delete(key);
-            } catch (err) {
-              console.warn(`Erreur lors de la suppression du fichier ${imageUrl}:`, err);
-            }
-          }
-        }
-      }
-
+      // Garder les images existantes pour permettre l'upload multiple
       // Upload vers le storage (local ou S3)
       const uploadResult = await storageService.upload(
         {
