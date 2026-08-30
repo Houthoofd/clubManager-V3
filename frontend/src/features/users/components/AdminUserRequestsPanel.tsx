@@ -9,8 +9,8 @@ import { apiClient } from "@/shared/api/apiClient";
 
 const adminRequestsApi = {
   getPending: async () => {
-    const res = await apiClient.get("/users/requests/pending");
-    return res.data.data;
+    const res = await apiClient.get("/users/requests");
+    return res.data.data.filter((req: any) => req.status === "pending");
   },
   updateStatus: async ({ id, status, admin_comment }: { id: number, status: string, admin_comment?: string }) => {
     const res = await apiClient.patch(`/users/requests/${id}/status`, { status, admin_comment });
