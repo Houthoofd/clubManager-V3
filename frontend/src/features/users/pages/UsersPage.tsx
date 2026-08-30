@@ -26,6 +26,7 @@ import {
   UserGroupIcon,
   UserPlusIcon,
   EllipsisVerticalIcon,
+  UserMinusIcon,
 } from "@heroicons/react/24/outline";
 
 import { getPlans } from "../../payments/api/paymentsApi";
@@ -96,84 +97,87 @@ function UserActionsMenu({ row, setModal, handleRestore, onAssignSubscription, i
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className="p-1.5 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none"
+        title="Actions"
       >
         <EllipsisVerticalIcon className="h-5 w-5" />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100 overflow-hidden">
-          <button
-            onClick={() => { setModal({ type: "editRole", user: row }); setIsOpen(false); }}
-            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-          >
-            <TagIcon className="h-4 w-4 mr-3 text-gray-400" />
-            {t("changeRole")}
-          </button>
-          
-          <button
-            onClick={() => { setModal({ type: "editStatus", user: row }); setIsOpen(false); }}
-            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-          >
-            <PencilIcon className="h-4 w-4 mr-3 text-gray-400" />
-            {t("changeStatus")}
-          </button>
-          
-          {isAdmin && (
+        <div className="absolute right-0 top-full mt-1 bg-white rounded-md shadow-lg p-2 z-50 border border-gray-100 overflow-visible">
+          <div className="flex flex-row items-center gap-1">
             <button
-              onClick={() => {
-                setIsOpen(false);
-                onAssignSubscription(row);
-              }}
-              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              onClick={() => { setModal({ type: "editRole", user: row }); setIsOpen(false); }}
+              title={t("changeRole")}
+              className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
             >
-              <TagIcon className="h-4 w-4 mr-3 text-gray-400" />
-              {t("subscription.assign")}
+              <TagIcon className="h-5 w-5" />
             </button>
-          )}
-
-          {row.status_id !== 5 && (
+            
             <button
-              onClick={() => { setModal({ type: "sendEmail", user: row }); setIsOpen(false); }}
-              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              onClick={() => { setModal({ type: "editStatus", user: row }); setIsOpen(false); }}
+              title={t("changeStatus")}
+              className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
             >
-              <EnvelopeIcon className="h-4 w-4 mr-3 text-gray-400" />
-              {t("sendMessageTo", { name: "" }).replace(":", "").trim() || "Message"}
+              <PencilIcon className="h-5 w-5" />
             </button>
-          )}
+            
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  onAssignSubscription(row);
+                }}
+                title={t("subscription.assign")}
+                className="p-2 rounded-md text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+              >
+                <CheckIcon className="h-5 w-5" />
+              </button>
+            )}
 
-          {isAdmin && row.status_id !== 5 && (
-            <>
-              <div className="h-px bg-gray-100 my-1"></div>
+            {row.status_id !== 5 && (
               <button
-                onClick={() => { setModal({ type: "delete", user: row }); setIsOpen(false); }}
-                className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                onClick={() => { setModal({ type: "sendEmail", user: row }); setIsOpen(false); }}
+                title={t("sendMessageTo", { name: "" }).replace(":", "").trim() || "Message"}
+                className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors"
               >
-                <TrashIcon className="h-4 w-4 mr-3 text-red-500" />
-                {t("deleteUser")}
+                <EnvelopeIcon className="h-5 w-5" />
               </button>
-              
-              <button
-                onClick={() => { setModal({ type: "hardDelete", user: row }); setIsOpen(false); }}
-                className="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-100 font-medium"
-              >
-                <TrashIcon className="h-4 w-4 mr-3 text-red-600" />
-                Suppression définitive (RGPD)
-              </button>
-            </>
-          )}
+            )}
 
-          {isAdmin && row.status_id === 5 && (
-            <>
-              <div className="h-px bg-gray-100 my-1"></div>
-              <button
-                onClick={() => { handleRestore(row); setIsOpen(false); }}
-                className="flex items-center w-full px-4 py-2 text-sm text-green-600 hover:bg-green-50"
-              >
-                <ArrowPathIcon className="h-4 w-4 mr-3 text-green-500" />
-                {t("restoreUser")}
-              </button>
-            </>
-          )}
+            {isAdmin && row.status_id !== 5 && (
+              <>
+                <div className="w-px h-6 bg-gray-200 mx-1"></div>
+                <button
+                  onClick={() => { setModal({ type: "delete", user: row }); setIsOpen(false); }}
+                  title="Rendre inactif"
+                  className="p-2 rounded-md text-orange-500 hover:text-orange-700 hover:bg-orange-50 transition-colors"
+                >
+                  <UserMinusIcon className="h-5 w-5" />
+                </button>
+                
+                <button
+                  onClick={() => { setModal({ type: "hardDelete", user: row }); setIsOpen(false); }}
+                  title="Supprimer définitivement"
+                  className="p-2 rounded-md text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                >
+                  <TrashIcon className="h-5 w-5" />
+                </button>
+              </>
+            )}
+
+            {isAdmin && row.status_id === 5 && (
+              <>
+                <div className="w-px h-6 bg-gray-200 mx-1"></div>
+                <button
+                  onClick={() => { handleRestore(row); setIsOpen(false); }}
+                  title={t("restoreUser")}
+                  className="p-2 rounded-md text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors"
+                >
+                  <ArrowPathIcon className="h-5 w-5" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
