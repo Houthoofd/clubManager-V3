@@ -107,6 +107,10 @@ function Avatar({ photoUrl, initials, fullName, onImageSelected, isUploading }: 
   const [imgError, setImgError] = useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  React.useEffect(() => {
+    setImgError(false);
+  }, [photoUrl]);
+
   const handleClick = () => {
     if (onImageSelected && !isUploading) {
       inputRef.current?.click();
