@@ -421,6 +421,8 @@ export class MySQLUserRepository implements IUserRepository {
    * Anonymise un utilisateur : efface toutes les données personnelles (RGPD)
    */
   async anonymize(id: number): Promise<void> {
+    const user = await this.findById(id);
+    
     await pool.query(
       `UPDATE utilisateurs SET
          first_name = 'Anonymisé',
@@ -437,6 +439,21 @@ export class MySQLUserRepository implements IUserRepository {
        WHERE id = ?`,
       [id],
     );
+
+    if (user && user.email) {
+      await pool.query(
+        `UPDATE professeurs SET
+           nom = 'Anonymisé',
+           prenom = 'Professeur',
+           email = NULL,
+           telephone = NULL,
+           photo_url = NULL,
+           actif = FALSE,
+           updated_at = NOW()
+         WHERE email = ?`,
+        [user.email]
+      );
+    }
   }
 
   // ==================== HELPER METHODS ====================
