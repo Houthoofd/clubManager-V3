@@ -39,6 +39,7 @@ import { UserStatusBadge } from "../components/UserStatusBadge";
 import { SendToUserModal } from "../components/SendToUserModal";
 import { NotifyUsersModal } from "../components/NotifyUsersModal";
 import { InviteModal } from "../components/InviteModal";
+import { AdminUserRequestsPanel } from "../components/AdminUserRequestsPanel";
 import { UserRole } from "@clubmanager/types";
 import type { UserListItemDto } from "@clubmanager/types";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -72,7 +73,7 @@ type ModalState =
   | { type: "subscription"; user: UserListItemDto };
 
 // ─── Type onglet actif ──────────────────────────────────────────────────────────
-type UserTabId = "active" | "deleted" | "groups";
+type UserTabId = "active" | "deleted" | "groups" | "requests";
 
 // ─── Configuration des options ────────────────────────────────────────────────
 
@@ -265,6 +266,12 @@ export function UsersPage() {
             label: t("tabs.groups"),
             icon: <UserGroupIcon className="h-4 w-4" />,
             testId: "tab-groups",
+          },
+          {
+            id: "requests" as const,
+            label: "Demandes & RGPD",
+            icon: <ExclamationTriangleIcon className="h-4 w-4" />,
+            testId: "tab-requests",
           },
         ]
       : []),
@@ -762,6 +769,13 @@ export function UsersPage() {
 
         {/* ────────────────────────────────────────── ONGLET 3 : Groupes */}
         {activeUserTab === "groups" && isAdmin && <GroupsPage />}
+
+        {/* ────────────────────────────────────────── ONGLET 4 : Demandes RGPD */}
+        {activeUserTab === "requests" && isAdmin && (
+          <div className="p-6">
+            <AdminUserRequestsPanel />
+          </div>
+        )}
       </div>
 
       {/* ── Modals (contrôlées par état, toujours dans le DOM) ────────────────────── */}
