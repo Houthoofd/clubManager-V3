@@ -56,9 +56,10 @@ export function CreateSessionModal({
       !form.date_cours ||
       !form.type_cours.trim() ||
       !form.heure_debut ||
-      !form.heure_fin
+      !form.heure_fin ||
+      !form.cours_recurrent_id
     ) {
-      toast.error(t("messages.error.requiredFields"));
+      toast.error(t("messages.error.requiredFields") || "Veuillez remplir tous les champs, y compris le cours récurrent.");
       return;
     }
     setSaving(true);
@@ -161,14 +162,27 @@ export function CreateSessionModal({
 
           {planning.length > 0 && (
             <Input.Select
-              label={t("fields.linkedRecurrentCourse")}
+              label="Cours récurrent (obligatoire pour avoir un professeur)"
               id="cours_recurrent_id"
               value={form.cours_recurrent_id}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, cours_recurrent_id: e.target.value }))
-              }
+              onChange={(e) => {
+                const id = e.target.value;
+                const matched = planning.find((p) => String(p.id) === id);
+                if (matched) {
+                  setForm((f) => ({
+                    ...f,
+                    cours_recurrent_id: id,
+                    type_cours: matched.type_cours,
+                    heure_debut: matched.heure_debut.slice(0, 5),
+                    heure_fin: matched.heure_fin.slice(0, 5),
+                  }));
+                } else {
+                  setForm((f) => ({ ...f, cours_recurrent_id: id }));
+                }
+              }}
+              required
             >
-              <option value="">{t("placeholders.none")}</option>
+              <option value="">Sélectionnez un cours récurrent</option>
               {planning.map((c) => (
                 <option key={c.id} value={String(c.id)}>
                   {c.type_cours} — {c.jour_semaine_nom}

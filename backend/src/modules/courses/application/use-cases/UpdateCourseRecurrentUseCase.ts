@@ -33,6 +33,10 @@ export class UpdateCourseRecurrentUseCase {
       throw new Error("Cours récurrent introuvable");
     }
 
+    if (dto.professeur_ids !== undefined && dto.professeur_ids.length === 0) {
+      throw new Error("Vous devez assigner au moins un professeur à ce cours");
+    }
+
     // ── 2. Reconstituer le créneau final (fusion dto + valeurs actuelles) ─────
     const finalJour = dto.jour_semaine ?? current.jour_semaine;
     const finalDebut = dto.heure_debut ?? current.heure_debut;

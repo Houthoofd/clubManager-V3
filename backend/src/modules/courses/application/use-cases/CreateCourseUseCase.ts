@@ -14,6 +14,21 @@ export class CreateCourseUseCase {
    * @returns Le cours créé avec toutes ses relations
    */
   async execute(dto: CreateCourseDto): Promise<CourseResponseDto> {
+    if (!dto.cours_recurrent_id) {
+      throw new Error("Vous devez associer cette séance à un cours récurrent (qui définit le ou les professeurs).");
+    }
+
+    const isConflict = await this.repo.hasSessionConflict(
+      dto.date_cours,
+      dto.heure_debut,
+      dto.heure_fin,
+      dto.type_cours
+    );
+
+    if (isConflict) {
+      throw new Error(`Une séance de ${dto.type_cours} existe déjà sur ce créneau.`);
+    }
+
     return this.repo.createCourse(dto);
   }
 }

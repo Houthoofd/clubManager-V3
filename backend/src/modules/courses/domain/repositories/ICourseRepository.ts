@@ -81,6 +81,13 @@ export interface ICourseRepository {
     heure_fin: string;
   } | null>;
 
+  hasSessionConflict(
+    date_cours: string,
+    heure_debut: string,
+    heure_fin: string,
+    type_cours: string,
+  ): Promise<boolean>;
+
   /**
    * Assigne un professeur à un cours récurrent
    */

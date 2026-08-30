@@ -515,6 +515,30 @@ export class MySQLCourseRepository implements ICourseRepository {
   }
 
   /**
+   * VÃ©rifie si un conflit d'horaire existe pour une instance de cours ponctuelle
+   * @param date_cours  Date du cours (YYYY-MM-DD)
+   * @param heure_debut Heure de dÃ©but (HH:mm)
+   * @param heure_fin   Heure de fin (HH:mm)
+   * @param type_cours  Type de cours (pour Ã©viter les doublons exacts)
+   */
+  async hasSessionConflict(
+    date_cours: string,
+    heure_debut: string,
+    heure_fin: string,
+    type_cours: string,
+  ): Promise<boolean> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT id FROM cours
+       WHERE date_cours = ?
+         AND type_cours = ?
+         AND (heure_debut < ? AND heure_fin > ?)
+       LIMIT 1`,
+      [date_cours, type_cours, heure_fin, heure_debut]
+    );
+    return rows.length > 0;
+  }
+
+  /**
    * Assigne un professeur à un cours récurrent (INSERT avec contrainte UNIQUE)
    */
   async assignProfessor(
@@ -1018,12 +1042,15 @@ export class MySQLCourseRepository implements ICourseRepository {
       if (currentDate.getUTCDay() === jsTargetDay) {
         const dateStr = toDateString(currentDate);
         if (!excludeDates.has(dateStr)) {
-          const [res] = await pool.query<ResultSetHeader>(
-            `INSERT INTO cours (cours_recurrent_id, date_cours, type_cours, heure_debut, heure_fin)
-             VALUES (?, ?, ?, ?, ?)`,
-            [cr.id, dateStr, cr.type_cours, cr.heure_debut, cr.heure_fin],
-          );
-          insertedIds.push(res.insertId);
+          const isConflict = await this.hasSessionConflict(dateStr, cr.heure_debut, cr.heure_fin, cr.type_cours);
+          if (!isConflict) {
+            const [res] = await pool.query<ResultSetHeader>(
+              `INSERT INTO cours (cours_recurrent_id, date_cours, type_cours, heure_debut, heure_fin)
+               VALUES (?, ?, ?, ?, ?)`,
+              [cr.id, dateStr, cr.type_cours, cr.heure_debut, cr.heure_fin],
+            );
+            insertedIds.push(res.insertId);
+          }
         }
       }
       currentUtc += 86_400_000; // +1 day in ms

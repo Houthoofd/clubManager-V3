@@ -25,6 +25,10 @@ export class CreateCourseRecurrentUseCase {
       throw new Error("Le type de cours est obligatoire");
     }
 
+    if (!dto.professeur_ids || dto.professeur_ids.length === 0) {
+      throw new Error("Vous devez assigner au moins un professeur à ce cours");
+    }
+
     if (
       !dto.jour_semaine ||
       !Number.isInteger(dto.jour_semaine) ||

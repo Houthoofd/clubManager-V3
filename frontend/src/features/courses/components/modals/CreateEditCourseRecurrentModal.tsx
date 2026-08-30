@@ -129,6 +129,10 @@ export function CreateEditCourseRecurrentModal({
       toast.error(t("messages.error.requiredFields"));
       return;
     }
+    if (form.professeur_ids.length === 0) {
+      toast.error("Veuillez sélectionner au moins un professeur.");
+      return;
+    }
     if (form.heure_fin <= form.heure_debut) {
       toast.error(t("messages.error.endTimeAfterStart"));
       return;
