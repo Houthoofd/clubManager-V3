@@ -2,13 +2,13 @@
  * BoutiqueTab
  * Onglet permettant aux membres de commander des articles.
  *
- * Fonctionnalités :
- * - Affichage des articles disponibles à l'achat
- * - Recherche et filtrage par catégorie
+ * Fonctionnalit├®s :
+ * - Affichage des articles disponibles ├á l'achat
+ * - Recherche et filtrage par cat├®gorie
  * - Ajout au panier
  * - Validation de commande via panier
  *
- * MIGRATION : Utilise les composants réutilisables de la bibliothèque shared
+ * MIGRATION : Utilise les composants r├®utilisables de la biblioth├¿que shared
  * - SelectField pour les filtres
  * - PaginationBar pour la navigation
  * - Badge pour les compteurs
@@ -66,7 +66,7 @@ export function BoutiqueTab() {
 
   return (
     <div data-testid="boutique-tab">
-      {/* En-tête de l'onglet */}
+      {/* En-t├¬te de l'onglet */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-gray-50">
         <div className="flex items-center gap-3 flex-wrap">
           <h2 className="text-base font-semibold text-gray-900">
@@ -129,13 +129,13 @@ export function BoutiqueTab() {
       </div>
 
       {/* Filtres - MIGRATION : SelectField */}
-      <div className="p-4 border-b border-gray-50 flex justify-center">
-        <div className="flex flex-col md:flex-row gap-3 w-full max-w-2xl">
+      <div className="p-4 border-b border-gray-50">
+        <div className="grid gap-4 md:grid-cols-2 items-center">
           {/* Barre de recherche */}
-          <div className="relative flex-1">
+          <div className="relative">
             <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
               <svg
-                className="h-4 w-4 text-gray-400"
+                className="h-5 w-5 text-gray-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -152,29 +152,27 @@ export function BoutiqueTab() {
               value={store.articleSearch}
               onChange={(event) => store.setArticleSearch(event.target.value)}
               placeholder={t("boutique.filters.search")}
-              className="w-full pl-9 pr-3 py-2 text-sm text-center border border-gray-300 rounded-lg outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="block w-full pl-10 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Filtre catégorie - MIGRATION : SelectField */}
-          <div className="flex-1">
-            <SelectField
-              id="boutique-category-filter"
-              label=""
-              placeholder={t("boutique.filters.allCategories")}
-              options={
-                categoriesQuery.data?.map((cat) => ({
-                  value: cat.id,
-                  label: cat.nom,
-                })) ?? []
-              }
-              value={store.articleCategoryFilter ?? ""}
-              onChange={(value) =>
-                store.setArticleCategoryFilter(value ? Number(value) : null)
-              }
-              className="[&>label]:hidden [&_select]:text-center"
-            />
-          </div>
+          <SelectField
+            id="boutique-category-filter"
+            label=""
+            placeholder={t("boutique.filters.allCategories")}
+            options={
+              categoriesQuery.data?.map((cat) => ({
+                value: cat.id,
+                label: cat.nom,
+              })) ?? []
+            }
+            value={store.articleCategoryFilter ?? ""}
+            onChange={(value) =>
+              store.setArticleCategoryFilter(value ? Number(value) : null)
+            }
+            className="[&>label]:hidden m-0"
+          />
         </div>
       </div>
 
@@ -365,7 +363,7 @@ export function BoutiqueTab() {
             setStripeOpen(false);
             setStripeClientSecret(null);
             store.clearCart();
-            // Optionnel: toast de succes supplémentaire
+            // Optionnel: toast de succes suppl├®mentaire
           }}
           clientSecret={stripeClientSecret}
           amount={stripeAmount}
