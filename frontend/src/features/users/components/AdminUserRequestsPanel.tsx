@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/shared/components/Button/Button";
 import { Modal } from "@/shared/components/Modal/Modal";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useUserStore } from "../stores/userStore";
 
 import { apiClient } from "@/shared/api/apiClient";
 
@@ -33,7 +34,7 @@ export function AdminUserRequestsPanel() {
     onSuccess: () => {
       toast.success("Statut de la demande mis à jour");
       queryClient.invalidateQueries({ queryKey: ["adminUserRequests", "pending"] });
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      useUserStore.getState().fetchUsers();
       setModalState({ type: "none", request: null });
       setAdminComment("");
     },
