@@ -20,6 +20,7 @@ import { RefundPaymentUseCase } from "../../application/use-cases/payments/Refun
 import { MySQLPaymentScheduleRepository } from "../../infrastructure/repositories/MySQLPaymentScheduleRepository.js";
 import { MarkScheduleAsPaidUseCase } from "../../application/use-cases/schedules/MarkScheduleAsPaidUseCase.js";
 import { MySQLOrderRepository } from "../../../store/infrastructure/repositories/MySQLOrderRepository.js";
+import { MySQLStockRepository } from "../../../store/infrastructure/repositories/MySQLStockRepository.js";
 import { MarkOrderAsPaidUseCase } from "../../../store/application/use-cases/orders/MarkOrderAsPaidUseCase.js";
 
 import { GetQuickPayDataUseCase } from "../../application/use-cases/payments/GetQuickPayDataUseCase.js";
@@ -30,8 +31,9 @@ import jwt from "jsonwebtoken";
 const repo = new MySQLPaymentRepository();
 const scheduleRepo = new MySQLPaymentScheduleRepository();
 const orderRepo = new MySQLOrderRepository();
+const stockRepo = new MySQLStockRepository();
 const markScheduleAsPaidUC = new MarkScheduleAsPaidUseCase(scheduleRepo, repo);
-const markOrderAsPaidUC = new MarkOrderAsPaidUseCase(orderRepo);
+const markOrderAsPaidUC = new MarkOrderAsPaidUseCase(orderRepo, stockRepo);
 const getQuickPayDataUC = new GetQuickPayDataUseCase(scheduleRepo, orderRepo);
 const paymentEmailService = new PaymentEmailService();
 let stripeService: StripeService;
