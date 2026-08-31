@@ -22,12 +22,29 @@ export class GenerateSchedulesUseCase {
     const plan = await this.planRepo.findById(user.abonnement_id);
     if (!plan) throw new Error("Plan tarifaire introuvable");
 
+    let numberOfPayments = 1;
+    let intervalMonths = plan.duree_mois;
+
+    if (plan.duree_mois === 1) {
+      numberOfPayments = 12;
+      intervalMonths = 1;
+    } else if (plan.duree_mois === 3) {
+      numberOfPayments = 3;
+      intervalMonths = 3;
+    } else if (plan.duree_mois === 12) {
+      numberOfPayments = 1;
+      intervalMonths = 12;
+    } else {
+      numberOfPayments = 1;
+      intervalMonths = plan.duree_mois;
+    }
+
     const ids: number[] = [];
     const today = new Date();
 
-    for (let i = 0; i < plan.duree_mois; i++) {
+    for (let i = 0; i < numberOfPayments; i++) {
       const dueDate = new Date(today);
-      dueDate.setMonth(dueDate.getMonth() + i + 1);
+      dueDate.setMonth(dueDate.getMonth() + (i * intervalMonths) + 1);
       const dateStr = dueDate.toISOString().split("T")[0]!;
       const id = await this.scheduleRepo.create({
         user_id: userId,
@@ -41,3 +58,4 @@ export class GenerateSchedulesUseCase {
     return ids;
   }
 }
+
