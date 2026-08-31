@@ -44,6 +44,17 @@ router.delete(
   familyController.removeMember,
 );
 
+/**
+ * @route   POST /api/families/my-family/members/:userId/enable-login
+ * @desc    Active la connexion pour un compte enfant
+ * @access  Private (nécessite authentification)
+ */
+router.post(
+  "/my-family/members/:userId/enable-login",
+  authMiddleware,
+  familyController.enableLogin,
+);
+
 // ==================== ADMIN ROUTES (ADMIN only) ====================
 
 /**

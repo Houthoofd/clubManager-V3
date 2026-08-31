@@ -3,14 +3,17 @@
  * Carte affichant les informations d'un membre de famille.
  */
 
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   UserIcon,
   ShieldAltIcon,
   TrashIcon as PFTrashIcon,
+  KeyIcon,
 } from "@patternfly/react-icons";
 import type { FamilyMemberResponseDto } from "@clubmanager/types";
 import { Card } from "../../../shared/components";
+import { EnableLoginModal } from "./EnableLoginModal";
 
 /**
  * Props du composant FamilyMemberCard
@@ -24,6 +27,8 @@ interface FamilyMemberCardProps {
   onRemove: (userId: string) => void;
   /** Affiche un spinner pendant la suppression */
   isRemoving?: boolean;
+  /** Callback pour rafraîchir la liste après une action réussie */
+  onRefresh?: () => void;
 }
 
 // ─── Helpers visuels par rôle ────────────────────────────────────────────────
@@ -116,8 +121,10 @@ export function FamilyMemberCard({
   canRemove,
   onRemove,
   isRemoving = false,
+  onRefresh,
 }: FamilyMemberCardProps) {
   const { t } = useTranslation("families");
+  const [isEnableLoginOpen, setIsEnableLoginOpen] = useState(false);
   const avatarColor = ROLE_AVATAR_COLOR[member.role] ?? "bg-gray-400";
   const badgeStyle =
     ROLE_BADGE_STYLE[member.role] ?? "bg-gray-100 text-gray-600";
@@ -210,9 +217,20 @@ export function FamilyMemberCard({
         )}
       </dl>
 
-      {/* ── Bouton Retirer ── */}
+      {/* ── Actions ── */}
       {canRemove && (
-        <div className="flex justify-end mt-auto pt-3 border-t border-gray-100">
+        <div className="flex justify-end gap-2 mt-auto pt-3 border-t border-gray-100">
+          {!member.peut_se_connecter && (
+            <button
+              type="button"
+              onClick={() => setIsEnableLoginOpen(true)}
+              aria-label={t("aria.enableLogin", "Autoriser la connexion")}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 transition-colors"
+            >
+              <KeyIcon className="h-4 w-4" aria-hidden="true" />
+              {t("actions.enableLogin", "Autoriser la connexion")}
+            </button>
+          )}
           <button
             type="button"
             onClick={handleRemove}
@@ -236,6 +254,15 @@ export function FamilyMemberCard({
             )}
           </button>
         </div>
+      )}
+
+      {isEnableLoginOpen && (
+        <EnableLoginModal
+          isOpen={isEnableLoginOpen}
+          onClose={() => setIsEnableLoginOpen(false)}
+          member={member}
+          onSuccess={onRefresh}
+        />
       )}
     </Card>
   );

@@ -497,6 +497,23 @@ export class MySQLFamilyRepository implements IFamilyRepository {
     }
   }
 
+  /**
+   * Permet d'activer la connexion pour un compte enfant
+   * @param dependentId - ID numérique de l'enfant
+   * @param passwordHash - Mot de passe haché
+   * @param email - Email optionnel
+   */
+  async enableDependentLogin(dependentId: number, passwordHash: string, email?: string): Promise<void> {
+    const [result] = await pool.query<ResultSetHeader>(
+      `UPDATE utilisateurs SET password = ?, email = ?, peut_se_connecter = 1 WHERE id = ?`,
+      [passwordHash, email ?? null, dependentId],
+    );
+
+    if (result.affectedRows === 0) {
+      throw new Error("Compte enfant introuvable ou mise à jour échouée");
+    }
+  }
+
   // ==================== HELPER METHODS ====================
 
   /**

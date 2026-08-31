@@ -189,6 +189,7 @@ export function FamilyPage() {
                     canRemove={currentUserIsResponsable === true}
                     onRemove={handleRemoveMember}
                     isRemoving={removingUserId === member.userId}
+                    onRefresh={fetchMyFamily}
                   />
                 ))}
               </div>

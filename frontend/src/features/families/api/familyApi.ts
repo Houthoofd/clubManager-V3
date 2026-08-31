@@ -78,6 +78,28 @@ export const removeFamilyMember = async (
   );
 };
 
+/**
+ * Active la connexion pour un membre dépendant (ex: enfant).
+ *
+ * @param userId - Identifiant du membre
+ * @param data - Mot de passe et email (optionnel)
+ */
+export const enableDependentLogin = async (
+  userId: string,
+  data: { password: string; email?: string }
+): Promise<{ success: boolean; message: string }> => {
+  const response = await apiClient.post<
+    ApiResponse<{ success: boolean; message: string }>
+  >(`/families/members/${userId}/enable-login`, data);
+  
+  return (
+    response.data.data ?? {
+      success: response.data.success,
+      message: response.data.message,
+    }
+  );
+};
+
 // ─── Admin Types ──────────────────────────────────────────────────────────────
 
 export interface FamilyWithCount {

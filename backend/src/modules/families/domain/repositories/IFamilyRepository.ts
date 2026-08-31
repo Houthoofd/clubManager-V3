@@ -122,4 +122,12 @@ export interface IFamilyRepository {
     est_mineur: boolean; // toujours true pour un enfant
     peut_se_connecter: boolean; // toujours false pour un compte enfant
   }): Promise<User>;
+
+  /**
+   * Permet d'activer la connexion pour un compte enfant
+   * @param dependentId - ID numérique de l'enfant
+   * @param passwordHash - Mot de passe haché
+   * @param email - Email optionnel
+   */
+  enableDependentLogin(dependentId: number, passwordHash: string, email?: string): Promise<void>;
 }

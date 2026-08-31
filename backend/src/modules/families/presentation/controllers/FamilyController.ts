@@ -14,6 +14,7 @@ import { UpdateFamilyUseCase } from "../../application/use-cases/UpdateFamilyUse
 import { DeleteFamilyUseCase } from "../../application/use-cases/DeleteFamilyUseCase.js";
 import { AdminGetFamilyMembersUseCase } from "../../application/use-cases/AdminGetFamilyMembersUseCase.js";
 import { AdminAddFamilyMemberUseCase } from "../../application/use-cases/AdminAddFamilyMemberUseCase.js";
+import { EnableDependentLoginUseCase } from "../../application/use-cases/EnableDependentLoginUseCase.js";
 import type { IFamilyRepository } from "../../domain/repositories/IFamilyRepository.js";
 import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
 
@@ -27,6 +28,7 @@ export class FamilyController {
   private deleteFamilyUseCase: DeleteFamilyUseCase;
   private adminGetFamilyMembersUseCase: AdminGetFamilyMembersUseCase;
   private adminAddFamilyMemberUseCase: AdminAddFamilyMemberUseCase;
+  private enableDependentLoginUseCase: EnableDependentLoginUseCase;
   private familyRepo: IFamilyRepository;
 
   constructor(familyRepository: IFamilyRepository) {
@@ -45,6 +47,9 @@ export class FamilyController {
       familyRepository,
     );
     this.adminAddFamilyMemberUseCase = new AdminAddFamilyMemberUseCase(
+      familyRepository,
+    );
+    this.enableDependentLoginUseCase = new EnableDependentLoginUseCase(
       familyRepository,
     );
     this.familyRepo = familyRepository;
@@ -138,6 +143,53 @@ export class FamilyController {
         message: result.message,
       });
     } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * POST /api/families/my-family/members/:userId/enable-login
+   * Active la connexion pour un compte enfant
+   */
+  enableLogin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const parentId = (req as AuthRequest).user!.userId;
+      const dependentId = Number(req.params["userId"]);
+      
+      if (!dependentId || isNaN(dependentId)) {
+        res.status(400).json({
+          success: false,
+          message: "L'identifiant du membre est requis et doit être valide",
+        });
+        return;
+      }
+
+      const { password, email } = req.body;
+
+      if (!password) {
+        res.status(400).json({
+          success: false,
+          message: "Le mot de passe est requis",
+        });
+        return;
+      }
+
+      await this.enableDependentLoginUseCase.execute({
+        dependentId,
+        password,
+        email,
+        parentId,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Connexion activée pour ce membre avec succès",
+      });
+    } catch (error: any) {
       next(error);
     }
   };
