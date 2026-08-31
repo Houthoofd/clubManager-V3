@@ -55,6 +55,12 @@ const createStripeIntentUC = new CreateStripePaymentIntentUseCase(
   stripeService,
 );
 const refundPaymentUC = new RefundPaymentUseCase(repo);
+const verifyStripePaymentUC = new VerifyStripePaymentUseCase(
+  repo,
+  stripeService,
+  markScheduleAsPaidUC,
+  markOrderAsPaidUC
+);
 
 // ==================== CONTROLLER ====================
 
@@ -395,6 +401,21 @@ export class PaymentController {
     }
   }
 
+    async verifyStripePayment(req: Request, res: Response): Promise<void> {
+    try {
+      const { paymentIntentId } = req.body;
+      if (!paymentIntentId) {
+        res.status(400).json({ success: false, message: "paymentIntentId manquant" });
+        return;
+      }
+      const success = await verifyStripePaymentUC.execute(paymentIntentId);
+      res.json({ success, message: success ? "Paiement validé" : "Paiement non complété" });
+    } catch (error: any) {
+      console.error("[PaymentController] Error in verifyStripePayment:", error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
   async handleStripeWebhook(req: Request, res: Response): Promise<void> {
     const signature = req.headers["stripe-signature"];
 
@@ -482,3 +503,4 @@ export class PaymentController {
     }
   }
 }
+

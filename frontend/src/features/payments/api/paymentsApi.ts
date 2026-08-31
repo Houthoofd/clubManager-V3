@@ -233,7 +233,17 @@ export const createPayment = async (data: {
 /**
  * CrÃ©e un Payment Intent Stripe et retourne le client_secret.
  */
-export const createStripeIntent = async (data: {
+  /**
+   * Vérifie le statut d'un Payment Intent Stripe côté backend
+   */
+  export const verifyStripePayment = async (paymentIntentId: string): Promise<boolean> => {
+    const response = await apiClient.post<ApiResponse<boolean>>("/payments/stripe/verify", {
+      paymentIntentId,
+    });
+    return response.data.success;
+  };
+
+  export const createStripeIntent = async (data: {
   user_id: number;
   montant: number;
   plan_tarifaire_id?: number | null;
@@ -406,4 +416,5 @@ export const verifyPublicPayment = async (
   );
   return response.data;
 };
+
 

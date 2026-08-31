@@ -132,6 +132,13 @@ router.post(
   (req, res) => paymentCtrl.createStripeIntent(req as any, res),
 );
 
+// POST /api/payments/stripe/verify - v�rifie manuellement le statut d'un paiement
+router.post(
+  "/stripe/verify",
+  authMiddleware,
+  (req, res) => paymentCtrl.verifyStripePayment(req as any, res),
+);
+
 // GET /api/payments/user/:userId — historique paiements d'un user
 // Doit être AVANT /:id pour que "user" ne soit pas capturé comme id
 router.get(
@@ -228,4 +235,5 @@ router.get(
 );
 
 export default router;
+
 

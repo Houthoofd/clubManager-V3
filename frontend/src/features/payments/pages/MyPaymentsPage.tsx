@@ -79,9 +79,8 @@ export const MyPaymentsPage: React.FC = () => {
     "payments",
   );
   const [stripeOpen, setStripeOpen] = useState(false);
-  const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(
-    null,
-  );
+  const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
+  const [stripeIntentId, setStripeIntentId] = useState<string | null>(null);
   const [stripeAmount, setStripeAmount] = useState(0);
   const [payingId, setPayingId] = useState<number | null>(null);
 
@@ -125,6 +124,7 @@ export const MyPaymentsPage: React.FC = () => {
         echeance_id: schedule.id,
       });
       setStripeClientSecret(result.clientSecret);
+        setStripeIntentId(result.paymentIntentId);
       setStripeAmount(schedule.montant);
       setStripeOpen(true);
     } catch {
@@ -134,9 +134,17 @@ export const MyPaymentsPage: React.FC = () => {
     }
   };
 
-  const handleStripeSuccess = () => {
+  const handleStripeSuccess = async () => {
+    if (stripeIntentId) {
+      try {
+        await paymentsApi.verifyStripePayment(stripeIntentId);
+      } catch (e) {
+        console.error(e);
+      }
+    }
     setStripeOpen(false);
     setStripeClientSecret(null);
+      setStripeIntentId(null);
     queryClient.invalidateQueries({ queryKey: ["my-schedules", user?.id] });
     queryClient.invalidateQueries({ queryKey: ["my-payments", user?.id] });
     toast.success(t("myPayments.paymentSuccess"));
@@ -364,6 +372,7 @@ export const MyPaymentsPage: React.FC = () => {
           onClose={() => {
             setStripeOpen(false);
             setStripeClientSecret(null);
+      setStripeIntentId(null);
           }}
           onSuccess={handleStripeSuccess}
           clientSecret={stripeClientSecret}
@@ -373,5 +382,6 @@ export const MyPaymentsPage: React.FC = () => {
     </div>
   );
 };
+
 
 
