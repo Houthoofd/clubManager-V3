@@ -677,11 +677,11 @@ export class CourseController {
       try {
         const prof = await getProfessorByIdUC.execute(Number(professor_id));
         const course = await getCourseRecurrentByIdUC.execute(courseId);
-        if (prof && course && prof.user_email) {
+        if (prof && course && prof.email) {
           courseEmailService.sendProfessorAssignmentEmail(
-            prof.user_email,
-            `${prof.user_prenom || ""} ${prof.user_nom || ""}`.trim() || "Professeur",
-            course.title
+            prof.email,
+            `${prof.prenom || ""} ${prof.nom || ""}`.trim() || "Professeur",
+            course.type_cours
           ).catch(e => console.error(e));
         }
       } catch(err) {
@@ -729,3 +729,4 @@ export class CourseController {
     }
   };
 }
+

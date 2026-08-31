@@ -1,5 +1,5 @@
 import type { IOrderRepository } from "../../../domain/repositories/IOrderRepository.js";
-import type { IStockRepository } from "../../../domain/repositories/IStockRepository.js";
+import type { IStockRepository } from "../../../infrastructure/repositories/MySQLStockRepository.js";
 import type { OrderStatus } from "@clubmanager/types";
 
 export class MarkOrderAsPaidUseCase {
@@ -35,3 +35,4 @@ export class MarkOrderAsPaidUseCase {
     }
   }
 }
+

@@ -1,5 +1,5 @@
-﻿import type { IPaymentScheduleRepository } from "../../domain/repositories/IPaymentScheduleRepository.js";
-import type { IOrderRepository } from "../../../store/domain/repositories/IOrderRepository.js";
+import type { IPaymentScheduleRepository } from "../../../domain/repositories/IPaymentScheduleRepository.js";
+import type { IOrderRepository } from "../../../../store/domain/repositories/IOrderRepository.js";
 import jwt from "jsonwebtoken";
 
 export interface QuickPayItem {
@@ -21,7 +21,7 @@ export class GetQuickPayDataUseCase {
     try {
       decoded = jwt.verify(token, secret);
     } catch (e) {
-      throw new Error("Lien de paiement invalide ou expirÃ©");
+      throw new Error("Lien de paiement invalide ou expiré");
     }
 
     const userId = decoded.id;
@@ -53,7 +53,7 @@ export class GetQuickPayDataUseCase {
           id: o.id,
           type: "boutique",
           montant: o.total,
-          description: "Commande NÂ°" + o.numero_commande,
+          description: "Commande N°" + o.numero_commande,
         });
       }
     }

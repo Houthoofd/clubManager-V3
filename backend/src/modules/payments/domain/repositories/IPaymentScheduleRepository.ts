@@ -79,4 +79,6 @@ export interface IPaymentScheduleRepository {
 
   /** Supprime une échéance par son ID */
   delete(id: number): Promise<void>;
+  deleteUnpaidByUserId(userId: number): Promise<void>;
 }
+

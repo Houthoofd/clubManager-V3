@@ -22,6 +22,9 @@ import { UpdateUserProfileUseCase } from "../../application/use-cases/UpdateUser
 import { GetUserProfileUseCase } from "../../application/use-cases/GetUserProfileUseCase.js";
 import { AssignSubscriptionUseCase } from "../../application/use-cases/AssignSubscriptionUseCase.js";
 import { EmailService } from "@/modules/auth/application/services/EmailService.js";
+import { GenerateSchedulesUseCase } from "@/modules/payments/application/use-cases/schedules/GenerateSchedulesUseCase.js";
+import { MySQLPaymentScheduleRepository } from "@/modules/payments/infrastructure/repositories/MySQLPaymentScheduleRepository.js";
+import { MySQLPricingPlanRepository } from "@/modules/payments/infrastructure/repositories/MySQLPricingPlanRepository.js";
 
 const repo = new MySQLUserRepository();
 const emailService = new EmailService();
@@ -38,6 +41,9 @@ const notifyUsersUC = new NotifyUsersUseCase(repo);
 const updateProfileUC = new UpdateUserProfileUseCase(repo);
 const getProfileUC = new GetUserProfileUseCase(repo);
 const assignSubscriptionUC = new AssignSubscriptionUseCase(repo);
+const scheduleRepo = new MySQLPaymentScheduleRepository();
+const planRepo = new MySQLPricingPlanRepository();
+const generateSchedulesUC = new GenerateSchedulesUseCase(scheduleRepo, planRepo, repo);
 
 export class UserController {
   /**
@@ -361,7 +367,15 @@ export class UserController {
       const parsedAboId = abonnement_id ? Number(abonnement_id) : null;
       
       await assignSubscriptionUC.execute(id, parsedAboId);
-      res.json({ success: true, message: "Abonnement mis Ã  jour" });
+        try {
+          await scheduleRepo.deleteUnpaidByUserId(id);
+          if (parsedAboId) {
+            await generateSchedulesUC.execute(id);
+          }
+        } catch (e) {
+          console.error('Error auto-generating schedules: ', e);
+        }
+        res.json({ success: true, message: "Abonnement mis à jour et échéances générées" });
     } catch (error: any) {
       console.error("[UserController] Error in assignSubscription:", error);
       const status = error.message?.includes("introuvable") ? 404 : 500;
@@ -408,3 +422,6 @@ export class UserController {
     }
   }
 }
+
+
+
