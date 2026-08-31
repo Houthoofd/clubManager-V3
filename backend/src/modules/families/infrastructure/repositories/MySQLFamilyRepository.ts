@@ -505,7 +505,7 @@ export class MySQLFamilyRepository implements IFamilyRepository {
    */
   async enableDependentLogin(dependentId: number, passwordHash: string, email?: string): Promise<void> {
     const [result] = await pool.query<ResultSetHeader>(
-      `UPDATE utilisateurs SET password = ?, email = ?, peut_se_connecter = 1 WHERE id = ?`,
+      `UPDATE utilisateurs SET password = ?, email = ?, peut_se_connecter = 1, email_verified = 1 WHERE id = ?`,
       [passwordHash, email ?? null, dependentId],
     );
 

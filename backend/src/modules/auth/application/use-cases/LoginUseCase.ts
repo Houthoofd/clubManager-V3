@@ -67,8 +67,8 @@ export class LoginUseCase {
       throw new Error("Identifiant ou mot de passe invalide");
     }
 
-    // 7. Vérifier si l'email est vérifié
-    if (!user.email_verified) {
+    // 7. Vérifier si l'email est vérifié (uniquement si l'utilisateur a un email)
+    if (user.email && !user.email_verified) {
       const error = new Error(
         "Veuillez vérifier votre adresse email avant de vous connecter.",
       ) as any;
