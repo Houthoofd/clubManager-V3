@@ -1,0 +1,1 @@
+mysql -u clubmanager -p'PtW143kjkS3F!' clubmanager -e 'DROP TRIGGER IF EXISTS after_utilisateur_insert;'; mysql -u clubmanager -p'PtW143kjkS3F!' clubmanager < /home/bartok-48/Documents/clubManager-V3/db/triggers/after_insert_user.sql;

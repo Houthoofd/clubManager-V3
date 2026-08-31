@@ -1,0 +1,1 @@
+SELECT u.id, EXISTS(SELECT 1 FROM user_requests ur WHERE ur.user_id = u.id AND ur.type = 'account_deletion' AND ur.status = 'approved') AS has_approved_deletion_request FROM utilisateurs u WHERE id = 66;
