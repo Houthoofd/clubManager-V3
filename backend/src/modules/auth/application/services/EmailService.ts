@@ -964,6 +964,62 @@ ClubManager - Sports Club Management Made Easy
   // Utility Methods
   // ============================================================
 
+  async sendAccountDeletionEmail(
+    to: string,
+    firstName: string,
+  ): Promise<EmailSendResult> {
+    const recipient = this.devEmailOverride ?? to;
+
+    if (!this.resend) {
+      console.log(
+        `\n[EmailService][DEV] 🗑️ Account deletion email (not sent - no RESEND_API_KEY)\n` +
+          `  To:      ${to}\n` +
+          `  Name:    ${firstName}\n`,
+      );
+      return { success: true, messageId: "dev-mode-no-send" };
+    }
+
+    try {
+      console.log(
+        `Sending account deletion email to ${recipient}${recipient !== to ? ` (redirigé depuis ${to})` : ""}`,
+      );
+
+      const result = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: recipient,
+        subject: "Confirmation de suppression de votre compte",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Suppression de compte confirmée</h2>
+            <p>Bonjour ${firstName},</p>
+            <p>Nous vous confirmons que votre demande de suppression de compte a bien été traitée.</p>
+            <p>Conformément au RGPD, toutes vos données personnelles ont été supprimées et/ou anonymisées.</p>
+            <p>Merci de votre confiance et bonne continuation !</p>
+            <p>L'équipe du Club</p>
+          </div>
+        `,
+      });
+
+      if (result.error) {
+        console.error("Failed to send account deletion email:", result.error);
+        return {
+          success: false,
+          error: result.error.message || "Unknown error occurred",
+        };
+      }
+
+      return { success: true, messageId: result.data?.id };
+    } catch (error: any) {
+      console.error("Error sending account deletion email:", error);
+      return {
+        success: false,
+        error: error.message
+          ? error.message
+          : "Failed to send account deletion email",
+      };
+    }
+  }
+
   /**
    * Escape HTML special characters to prevent XSS
    */
