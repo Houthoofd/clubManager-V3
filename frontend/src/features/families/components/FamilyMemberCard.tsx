@@ -257,7 +257,7 @@ export function FamilyMemberCard({
               {t("actions.enableLogin", "Autoriser la connexion")}
             </button>
           )}
-          {member.peut_se_connecter && member.role !== "parent" && (
+          {member.peut_se_connecter && (
             <button
               type="button"
               onClick={handleDisableLogin}
