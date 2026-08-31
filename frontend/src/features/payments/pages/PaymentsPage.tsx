@@ -104,8 +104,12 @@ function formatCurrency(amount: number): string {
 export function PaymentsPage() {
   const { t } = useTranslation("payments");
 
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  const { hasRole } = useAuth();
+  const isAdmin = hasRole(UserRole.ADMIN);
+
   // ── Onglet actif ──────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState<TabId>("payments");
+  const [activeTab, setActiveTab] = useState<TabId>(isAdmin ? "payments" : "myPayments");
 
   // ── Hooks données ─────────────────────────────────────────────────────────
   const {
@@ -120,7 +124,7 @@ export function PaymentsPage() {
     createStripeIntent,
     clearPaymentsError,
     refetch: refetchPayments,
-  } = usePayments();
+  } = usePayments({ enabled: isAdmin });
 
   const {
     schedules,
@@ -135,7 +139,7 @@ export function PaymentsPage() {
     deleteSchedule,
     clearSchedulesError,
     refetch: refetchSchedules,
-  } = usePaymentSchedules();
+  } = usePaymentSchedules({ enabled: isAdmin });
 
   const {
     plans,
@@ -147,13 +151,9 @@ export function PaymentsPage() {
     deletePlan,
     clearPlansError,
     refetch: refetchPlans,
-  } = usePricingPlans();
+  } = usePricingPlans({ enabled: isAdmin });
 
-  // ── Auth ──────────────────────────────────────────────────────────────────
-  const { hasRole } = useAuth();
-  const isAdmin = hasRole(UserRole.ADMIN);
-
-  // ── Users pour les modals ─────────────────────────────────────────────────
+  // Users pour les modals ─────────────────────────────────────────────────
   const [userOptions, setUserOptions] = useState<UserOption[]>([]);
 
   useEffect(() => {
@@ -288,21 +288,21 @@ export function PaymentsPage() {
 
   // ── Configuration TabGroup ────────────────────────────────────────────────
   const tabs: Tab[] = [
-    {
-      id: "payments",
-      label: t("tabs.payments"),
-      icon: <CreditCardIcon className="h-4 w-4" />,
-      testId: "tab-payments",
-    },
-    {
-      id: "schedules",
-      label: t("tabs.pending"),
-      icon: <ClockIcon className="h-4 w-4" />,
-      badge: overdueSchedules.length > 0 ? overdueSchedules.length : undefined,
-      testId: "tab-schedules",
-    },
     ...(isAdmin
       ? [
+          {
+            id: "payments" as const,
+            label: t("tabs.payments"),
+            icon: <CreditCardIcon className="h-4 w-4" />,
+            testId: "tab-payments",
+          },
+          {
+            id: "schedules" as const,
+            label: t("tabs.pending"),
+            icon: <ClockIcon className="h-4 w-4" />,
+            badge: overdueSchedules?.length > 0 ? overdueSchedules.length : undefined,
+            testId: "tab-schedules",
+          },
           {
             id: "plans" as const,
             label: t("tabs.plans"),
@@ -310,17 +310,14 @@ export function PaymentsPage() {
             testId: "tab-plans",
           },
         ]
-      : []),
-    ...(!isAdmin
-      ? [
+      : [
           {
             id: "myPayments" as const,
             label: t("tabs.myPayments"),
             icon: <UserCircleIcon className="h-4 w-4" />,
             testId: "tab-my-payments",
           },
-        ]
-      : []),
+        ]),
   ];
 
   // ── Configuration colonnes DataTable ──────────────────────────────────────
@@ -679,3 +676,6 @@ export function PaymentsPage() {
     </div>
   );
 }
+
+
+

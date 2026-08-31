@@ -15,20 +15,24 @@ import { usePaymentStore } from '../stores/paymentStore';
  * Auto-fetch au montage du composant.
  * Expose toutes les propriétés plans du store ainsi qu'un callback `refetch` stable.
  */
-export const usePricingPlans = () => {
+export const usePricingPlans = ({ enabled = true }: { enabled?: boolean } = {}) => {
   const store = usePaymentStore();
 
   // ── Fetch automatique au montage ──────────────────────────────────────────
   useEffect(() => {
-    store.fetchPlans();
+    if (enabled) {
+      store.fetchPlans();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [enabled]);
 
   // ── Callback stable pour les rafraîchissements manuels ────────────────────
   const refetch = useCallback(() => {
-    store.fetchPlans();
+    if (enabled) {
+      store.fetchPlans();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [enabled]);
 
   return {
     plans: store.plans,
@@ -52,28 +56,29 @@ export const usePricingPlans = () => {
  * Auto-fetch sur changement de filtres ou de page.
  * Expose toutes les propriétés payments du store ainsi qu'un callback `refetch` stable.
  */
-export const usePayments = () => {
+export const usePayments = ({ enabled = true }: { enabled?: boolean } = {}) => {
   const store = usePaymentStore();
 
   // ── Fetch automatique sur changement de filtres ou de page ────────────────
   useEffect(() => {
-    store.fetchPayments();
+    if (enabled) {
+      store.fetchPayments();
+    }
     // On dépend des valeurs primitives pour éviter les re-renders en boucle.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    store.paymentsFilters.user_id,
-    store.paymentsFilters.statut,
-    store.paymentsFilters.methode,
-    store.paymentsFilters.date_debut,
-    store.paymentsFilters.date_fin,
+    store.paymentsFilters,
     store.paymentsPage,
+    enabled
   ]);
 
   // ── Callback stable pour les rafraîchissements manuels ────────────────────
   const refetch = useCallback(() => {
-    store.fetchPayments();
+    if (enabled) {
+      store.fetchPayments();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [enabled]);
 
   return {
     payments: store.payments,
@@ -101,19 +106,19 @@ export const usePayments = () => {
  * Déclenche également fetchOverdueSchedules pour maintenir le compteur de retards à jour.
  * Expose toutes les propriétés schedules du store ainsi qu'un callback `refetch` stable.
  */
-export const usePaymentSchedules = () => {
+export const usePaymentSchedules = ({ enabled = true }: { enabled?: boolean } = {}) => {
   const store = usePaymentStore();
 
   // ── Fetch automatique sur changement de filtres ou de page ────────────────
   useEffect(() => {
-    store.fetchSchedules();
+    if (enabled) {
+      store.fetchSchedules();
+      store.fetchOverdueSchedules();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    store.schedulesFilters.user_id,
-    store.schedulesFilters.statut,
+    store.schedulesFilters,
     store.schedulesPage,
-  ]);
-
   // ── Fetch des échéances en retard au montage ──────────────────────────────
   useEffect(() => {
     store.fetchOverdueSchedules();
