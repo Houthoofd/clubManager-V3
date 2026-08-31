@@ -59,6 +59,7 @@ export class GetMyFamilyUseCase {
       // grade est optionnel dans FamilyMemberResponseDto ;
       // FamilyMemberWithUser n'expose que grade_id dans user, pas les détails
       est_mineur: m.user.est_mineur,
+      peut_se_connecter: m.user.peut_se_connecter,
       role: m.role,
       est_responsable: m.est_responsable,
       est_tuteur_legal: m.est_tuteur_legal,

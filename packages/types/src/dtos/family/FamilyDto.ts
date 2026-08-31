@@ -33,10 +33,11 @@ export interface FamilyMemberResponseDto {
     nom: string;
     couleur?: string;
   };
+  est_mineur: boolean;
+  peut_se_connecter: boolean;
   role: FamilyMemberRole;
   est_responsable: boolean;
   est_tuteur_legal: boolean;
-  est_mineur: boolean;
   date_ajout: string; // Format: ISO 8601
 }
 

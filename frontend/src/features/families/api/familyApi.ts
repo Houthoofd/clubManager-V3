@@ -90,7 +90,7 @@ export const enableDependentLogin = async (
 ): Promise<{ success: boolean; message: string }> => {
   const response = await apiClient.post<
     ApiResponse<{ success: boolean; message: string }>
-  >(`/families/members/${userId}/enable-login`, data);
+  >(`/families/my-family/members/${userId}/enable-login`, data);
   
   return (
     response.data.data ?? {
