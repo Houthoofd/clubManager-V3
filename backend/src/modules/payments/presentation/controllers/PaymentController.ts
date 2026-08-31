@@ -17,6 +17,7 @@ import { GetUserPaymentsUseCase } from "../../application/use-cases/payments/Get
 import { CreatePaymentUseCase } from "../../application/use-cases/payments/CreatePaymentUseCase.js";
 import { CreateStripePaymentIntentUseCase } from "../../application/use-cases/payments/CreateStripePaymentIntentUseCase.js";
 import { RefundPaymentUseCase } from "../../application/use-cases/payments/RefundPaymentUseCase.js";
+import { VerifyStripePaymentUseCase } from "../../application/use-cases/payments/VerifyStripePaymentUseCase.js";
 import { MySQLPaymentScheduleRepository } from "../../infrastructure/repositories/MySQLPaymentScheduleRepository.js";
 import { MarkScheduleAsPaidUseCase } from "../../application/use-cases/schedules/MarkScheduleAsPaidUseCase.js";
 import { MySQLOrderRepository } from "../../../store/infrastructure/repositories/MySQLOrderRepository.js";
@@ -503,4 +504,5 @@ export class PaymentController {
     }
   }
 }
+
 
