@@ -100,6 +100,25 @@ export const enableDependentLogin = async (
   );
 };
 
+/**
+ * Désactive la connexion pour un membre enfant de la famille
+ * @param userId - Identifiant du membre
+ */
+export const disableDependentLogin = async (
+  userId: string
+): Promise<{ success: boolean; message: string }> => {
+  const response = await apiClient.post<
+    ApiResponse<{ success: boolean; message: string }>
+  >(`/families/my-family/members/${userId}/disable-login`);
+  
+  return (
+    response.data.data ?? {
+      success: response.data.success,
+      message: response.data.message,
+    }
+  );
+};
+
 // ─── Admin Types ──────────────────────────────────────────────────────────────
 
 export interface FamilyWithCount {
@@ -231,3 +250,4 @@ export const adminRemoveFamilyMember = async (
 ): Promise<void> => {
   await apiClient.delete(`/families/${familyId}/members/${userId}`);
 };
+

@@ -14,6 +14,8 @@ import {
 import type { FamilyMemberResponseDto } from "@clubmanager/types";
 import { Card } from "../../../shared/components";
 import { EnableLoginModal } from "./EnableLoginModal";
+import { disableDependentLogin } from "../api/familyApi";
+import { toast } from "sonner";
 
 /**
  * Props du composant FamilyMemberCard
@@ -125,12 +127,36 @@ export function FamilyMemberCard({
 }: FamilyMemberCardProps) {
   const { t } = useTranslation("families");
   const [isEnableLoginOpen, setIsEnableLoginOpen] = useState(false);
+  const [isDisablingLogin, setIsDisablingLogin] = useState(false);
+
   const avatarColor = ROLE_AVATAR_COLOR[member.role] ?? "bg-gray-400";
   const badgeStyle =
     ROLE_BADGE_STYLE[member.role] ?? "bg-gray-100 text-gray-600";
   const roleLabel = t(`roles.${member.role}` as any) || member.role;
   const age = calculateAge(member.date_of_birth);
   const initials = getInitials(member.first_name, member.last_name);
+
+  const handleDisableLogin = async () => {
+    const confirmed = window.confirm(
+      "Êtes-vous sûr de vouloir désactiver la connexion pour ce membre ?"
+    );
+    if (!confirmed) return;
+
+    setIsDisablingLogin(true);
+    try {
+      const result = await disableDependentLogin(member.id.toString());
+      if (result.success) {
+        toast.success(result.message || "Connexion désactivée.");
+        onRefresh?.();
+      } else {
+        toast.error(result.message || "Erreur lors de la désactivation.");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Une erreur est survenue.");
+    } finally {
+      setIsDisablingLogin(false);
+    }
+  };
 
   const handleRemove = () => {
     const confirmed = window.confirm(
@@ -229,6 +255,18 @@ export function FamilyMemberCard({
             >
               <KeyIcon className="h-4 w-4" aria-hidden="true" />
               {t("actions.enableLogin", "Autoriser la connexion")}
+            </button>
+          )}
+          {member.peut_se_connecter && member.role !== "parent" && (
+            <button
+              type="button"
+              onClick={handleDisableLogin}
+              disabled={isDisablingLogin}
+              aria-label="Désactiver la connexion"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 active:bg-orange-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <KeyIcon className="h-4 w-4" aria-hidden="true" />
+              Désactiver la connexion
             </button>
           )}
           <button

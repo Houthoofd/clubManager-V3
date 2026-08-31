@@ -514,6 +514,21 @@ export class MySQLFamilyRepository implements IFamilyRepository {
     }
   }
 
+  /**
+   * Désactive la connexion pour un compte enfant
+   * @param dependentId - ID du membre
+   */
+  async disableDependentLogin(dependentId: number): Promise<void> {
+    const [result] = await pool.query<ResultSetHeader>(
+      `UPDATE utilisateurs SET peut_se_connecter = 0, password = NULL WHERE id = ?`,
+      [dependentId],
+    );
+
+    if (result.affectedRows === 0) {
+      throw new Error("Compte enfant introuvable ou mise à jour échouée");
+    }
+  }
+
   // ==================== HELPER METHODS ====================
 
   /**

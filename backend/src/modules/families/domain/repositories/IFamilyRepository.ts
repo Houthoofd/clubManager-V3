@@ -130,4 +130,10 @@ export interface IFamilyRepository {
    * @param email - Email optionnel
    */
   enableDependentLogin(dependentId: number, passwordHash: string, email?: string): Promise<void>;
+
+  /**
+   * Désactive la connexion pour un compte enfant
+   * @param dependentId - ID du membre
+   */
+  disableDependentLogin(dependentId: number): Promise<void>;
 }

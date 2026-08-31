@@ -55,6 +55,17 @@ router.post(
   familyController.enableLogin,
 );
 
+/**
+ * @route   POST /api/families/my-family/members/:userId/disable-login
+ * @desc    Désactive la connexion pour un compte enfant
+ * @access  Private (nécessite authentification)
+ */
+router.post(
+  "/my-family/members/:userId/disable-login",
+  authMiddleware,
+  familyController.disableLogin,
+);
+
 // ==================== ADMIN ROUTES (ADMIN only) ====================
 
 /**
