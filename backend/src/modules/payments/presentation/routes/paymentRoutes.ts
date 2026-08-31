@@ -128,7 +128,7 @@ router.post(
 router.post(
   "/stripe/intent",
   authMiddleware,
-  requireRole(UserRole.ADMIN),
+  requireRole(UserRole.ADMIN, UserRole.PROFESSOR, UserRole.MEMBER),
   (req, res) => paymentCtrl.createStripeIntent(req as any, res),
 );
 
@@ -228,3 +228,4 @@ router.get(
 );
 
 export default router;
+
