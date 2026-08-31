@@ -87,10 +87,10 @@ export const RegisterPage = () => {
   const { t, i18n } = useTranslation("auth");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { register: registerUser, isLoading } = useAuth();
+  const { register: registerUser, isLoading, isAuthenticated, logout, user } = useAuth();
   const genres = useGenres();
 
-  // ─── État invitation ────────────────────────────────────────────────────────
+  // 🔄 État invitation 🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄
   const [invitationToken, setInvitationToken] = useState<string | null>(null);
   const [invitationEmail, setInvitationEmail] = useState<string | null>(null);
   const [invitationError, setInvitationError] = useState<string | null>(null);
@@ -349,6 +349,59 @@ export const RegisterPage = () => {
         </Link>
       </div>
     </AuthPageContainer>
+    );
+  }
+
+  if (isAuthenticated && invitationToken) {
+    return (
+      <AuthPageContainer
+        title="Vous êtes déjà connecté"
+        subtitle=""
+      >
+        <div className="flex flex-col items-center text-center gap-4 py-6" data-testid="register-already-logged-in">
+          <div className="rounded-full bg-blue-100 p-3">
+            <svg
+              className="h-6 w-6 text-blue-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-lg font-medium text-gray-900">
+              Session active
+            </h3>
+            <p className="mt-2 text-sm text-gray-500 max-w-sm">
+              Vous êtes actuellement connecté en tant que <strong>{user?.email}</strong>.
+            </p>
+            <p className="mt-2 text-sm text-gray-500 max-w-sm">
+              Pour accepter cette invitation et créer un nouveau compte pour <strong>{invitationEmail}</strong>, vous devez d'abord vous déconnecter.
+            </p>
+          </div>
+          <div className="mt-4 flex gap-4 w-full">
+            <SubmitButton
+              onClick={logout}
+              variant="primary"
+              className="flex-1"
+            >
+              Se déconnecter
+            </SubmitButton>
+            <Link
+              to="/dashboard"
+              className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Ignorer
+            </Link>
+          </div>
+        </div>
+      </AuthPageContainer>
     );
   }
 

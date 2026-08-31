@@ -38,8 +38,11 @@ export const PublicRoute: React.FC<PublicRouteProps> = ({
     );
   }
 
-  // Si authentifié, rediriger vers la page privée
-  if (isAuthenticated) {
+  // Si authentifié, vérifier si on est sur la page d'inscription avec une invitation
+  // On ne redirige pas pour que la page Register puisse afficher le message "Déconnectez-vous d'abord"
+  const isInvitationRegister = location.pathname === '/register' && location.search.includes('token=');
+
+  if (isAuthenticated && !isInvitationRegister) {
     return <Navigate to={from} replace />;
   }
 
