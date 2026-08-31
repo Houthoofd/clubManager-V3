@@ -79,6 +79,7 @@ export class AddFamilyMemberUseCase {
           est_responsable: false,
           est_tuteur_legal: false,
           est_mineur: true,
+          peut_se_connecter: false,
           date_ajout: now.toISOString(), // ISO 8601
         },
       },
