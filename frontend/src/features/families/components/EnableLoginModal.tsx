@@ -34,7 +34,7 @@ export function EnableLoginModal({
 
     setIsLoading(true);
     try {
-      const result = await enableDependentLogin(member.userId, {
+      const result = await enableDependentLogin(member.id.toString(), {
         password,
         email: email || undefined,
       });
