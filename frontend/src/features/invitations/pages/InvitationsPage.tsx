@@ -20,9 +20,8 @@ export const InvitationsPage: React.FC = () => {
           <Button
             onClick={() => setIsModalOpen(true)}
             variant="primary"
-            className="flex items-center gap-2"
+            icon={<PlusIcon className="h-5 w-5" aria-hidden="true" />}
           >
-            <PlusIcon className="h-5 w-5" aria-hidden="true" />
             {t("invitations.new", "Nouvelle Invitation")}
           </Button>
         }

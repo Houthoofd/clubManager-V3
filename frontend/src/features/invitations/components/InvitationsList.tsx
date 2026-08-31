@@ -110,11 +110,13 @@ export const InvitationsList: React.FC = () => {
         <div className="flex justify-end">
           {row.status === "pending" && (
             <Button
-              variant="danger"
+              variant="ghost"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
               onClick={() => handleRevoke(row.id)}
               disabled={revokeMutation.isPending}
               title={t("invitations.revoke", "Révoquer l'invitation")}
-              icon={<TrashIcon className="h-4 w-4" />}
+              icon={<TrashIcon className="h-5 w-5" />}
+              iconOnly
             />
           )}
         </div>
