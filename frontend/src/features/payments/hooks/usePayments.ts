@@ -119,18 +119,25 @@ export const usePaymentSchedules = ({ enabled = true }: { enabled?: boolean } = 
   }, [
     store.schedulesFilters,
     store.schedulesPage,
+    enabled,
+  ]);
+
   // ── Fetch des échéances en retard au montage ──────────────────────────────
   useEffect(() => {
-    store.fetchOverdueSchedules();
+    if (enabled) {
+      store.fetchOverdueSchedules();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [enabled]);
 
   // ── Callback stable pour les rafraîchissements manuels ────────────────────
   const refetch = useCallback(() => {
-    store.fetchSchedules();
-    store.fetchOverdueSchedules();
+    if (enabled) {
+      store.fetchSchedules();
+      store.fetchOverdueSchedules();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [enabled]);
 
   return {
     schedules: store.schedules,
@@ -179,3 +186,6 @@ export const useMySchedules = (userId: number | undefined) => {
     staleTime: 30_000,
   });
 };
+
+
+
