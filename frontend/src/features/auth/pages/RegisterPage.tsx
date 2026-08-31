@@ -227,6 +227,13 @@ export const RegisterPage = () => {
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Auto-logout si l'utilisateur est déjà connecté
+  useEffect(() => {
+    if (isAuthenticated && invitationToken) {
+      logout();
+    }
+  }, [isAuthenticated, invitationToken, logout]);
+
   /**
    * Soumission du formulaire d'inscription
    */
@@ -352,12 +359,7 @@ export const RegisterPage = () => {
     );
   }
 
-  // Auto-logout si l'utilisateur est déjà connecté
-  useEffect(() => {
-    if (isAuthenticated && invitationToken) {
-      logout();
-    }
-  }, [isAuthenticated, invitationToken, logout]);
+
 
   return (
     <AuthPageContainer
