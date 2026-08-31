@@ -230,7 +230,7 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
    * Supprime toutes les ?ch?ances en attente pour un utilisateur
    */
   async deleteUnpaidByUserId(userId: number): Promise<void> {
-    await pool.query("DELETE FROM echeances_paiements WHERE user_id = ? AND statut = 'en_attente'", [userId]);
+    await pool.query("DELETE FROM echeances_paiements WHERE user_id = ? AND statut_id = 1", [userId]);
   }
 
   // ==================== HELPER METHODS ====================
@@ -259,6 +259,7 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
     };
   }
 }
+
 
 
 

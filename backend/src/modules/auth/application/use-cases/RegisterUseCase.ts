@@ -5,6 +5,10 @@
 
 import type { RegisterDto } from "@clubmanager/types";
 import type { IAuthRepository } from "../../domain/repositories/IAuthRepository.js";
+import { MySQLPaymentScheduleRepository } from "@/modules/payments/infrastructure/repositories/MySQLPaymentScheduleRepository.js";
+import { MySQLPricingPlanRepository } from "@/modules/payments/infrastructure/repositories/MySQLPricingPlanRepository.js";
+import { MySQLUserRepository } from "@/modules/users/infrastructure/repositories/MySQLUserRepository.js";
+import { GenerateSchedulesUseCase } from "@/modules/payments/application/use-cases/schedules/GenerateSchedulesUseCase.js";
 import { PasswordService } from "@/shared/services/PasswordService.js";
 import { TokenService } from "@/shared/services/TokenService.js";
 import { EmailService } from "../services/EmailService.js";
@@ -206,3 +210,5 @@ export class RegisterUseCase {
     }
   }
 }
+
+
