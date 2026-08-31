@@ -147,12 +147,12 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
   }
 
   /**
-   * Récupère toutes les échéances d'un utilisateur, triées par date d'échéance croissante
+   * Récupère toutes les échéances d'un utilisateur et de ses personnes à charge
    */
   async findByUserId(userId: number): Promise<ScheduleRow[]> {
     const [rows] = await pool.query<ScheduleDbRow[]>(
-      `${BASE_SELECT} WHERE e.user_id = ? ORDER BY e.date_echeance ASC`,
-      [userId],
+      `${BASE_SELECT} WHERE (e.user_id = ? OR e.user_id IN (SELECT id FROM utilisateurs WHERE tuteur_id = ?)) ORDER BY e.date_echeance ASC`,
+      [userId, userId],
     );
 
     return rows.map((row) => this.mapRow(row));
@@ -252,3 +252,5 @@ export class MySQLPaymentScheduleRepository implements IPaymentScheduleRepositor
     };
   }
 }
+
+
