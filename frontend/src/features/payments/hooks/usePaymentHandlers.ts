@@ -109,7 +109,7 @@ export function usePaymentHandlers({
       setStripeSetup((s) => ({ ...s, isOpen: false, isLoading: false }));
       setStripeModal({
         isOpen: true,
-        clientSecret: result.client_secret,
+        clientSecret: result.clientSecret,
         amount: result.amount,
       });
     } catch (err: unknown) {
@@ -233,3 +233,4 @@ export function usePaymentHandlers({
     handlePlanFormSubmit,
   };
 }
+

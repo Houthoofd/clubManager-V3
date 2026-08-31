@@ -83,7 +83,7 @@ export const MyPaymentsPage: React.FC = () => {
     null,
   );
   const [stripeAmount, setStripeAmount] = useState(0);
-  const [paying, setPaying] = useState(false);
+  const [payingId, setPayingId] = useState<number | null>(null);
 
   // ── Stats ──────────────────────────────────────────────────────────────────
   const totalPaid = useMemo(
@@ -116,7 +116,7 @@ export const MyPaymentsPage: React.FC = () => {
   // ── Stripe payment ─────────────────────────────────────────────────────────
   const handlePaySchedule = async (schedule: ScheduleListItemDto) => {
     if (!user) return;
-    setPaying(true);
+    setPayingId(schedule.id);
     try {
       const result = await paymentsApi.createStripeIntent({
         user_id: user.id,
@@ -124,13 +124,13 @@ export const MyPaymentsPage: React.FC = () => {
         plan_tarifaire_id: schedule.plan_tarifaire_id,
         echeance_id: schedule.id,
       });
-      setStripeClientSecret(result.client_secret);
+      setStripeClientSecret(result.clientSecret);
       setStripeAmount(schedule.montant);
       setStripeOpen(true);
     } catch {
       toast.error(t("myPayments.paymentError"));
     } finally {
-      setPaying(false);
+      setPayingId(null);
     }
   };
 
@@ -332,7 +332,7 @@ export const MyPaymentsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handlePaySchedule(schedule)}
-                              disabled={paying}
+                              disabled={payingId !== null}
                               data-testid={`btn-pay-now-${schedule.id}`}
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
                                            bg-blue-600 text-white text-xs font-medium
@@ -341,7 +341,7 @@ export const MyPaymentsPage: React.FC = () => {
                                            transition-colors"
                             >
                               <CreditCardIcon className="h-3.5 w-3.5" />
-                              {paying
+                              {payingId === schedule.id
                                 ? t("myPayments.paying")
                                 : t("myPayments.payNow")}
                             </button>
@@ -373,3 +373,5 @@ export const MyPaymentsPage: React.FC = () => {
     </div>
   );
 };
+
+

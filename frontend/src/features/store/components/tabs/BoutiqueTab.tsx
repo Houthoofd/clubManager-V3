@@ -341,7 +341,7 @@ export function BoutiqueTab() {
               montant: order.total,
               commande_id: order.id,
             });
-            setStripeClientSecret(intent.client_secret);
+            setStripeClientSecret(intent.clientSecret);
             setStripeAmount(order.total);
             setStripeOpen(true);
           } catch (error) {
@@ -372,3 +372,4 @@ export function BoutiqueTab() {
     </div>
   );
 }
+

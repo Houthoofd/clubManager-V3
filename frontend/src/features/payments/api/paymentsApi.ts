@@ -241,14 +241,14 @@ export const createStripeIntent = async (data: {
   echeance_id?: number | null;
   description?: string;
 }): Promise<{
-  client_secret: string;
-  payment_intent_id: string;
+  clientSecret: string;
+  paymentIntentId: string;
   amount: number;
 }> => {
   const response = await apiClient.post<
     ApiResponse<{
-      client_secret: string;
-      payment_intent_id: string;
+      clientSecret: string;
+      paymentIntentId: string;
       amount: number;
     }>
   >("/payments/stripe/intent", data);
@@ -406,3 +406,4 @@ export const verifyPublicPayment = async (
   );
   return response.data;
 };
+
