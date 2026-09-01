@@ -40,6 +40,26 @@ export const eventsService = {
 
   
 
+  getRegistrationStatus: async (eventId: number, userId: number): Promise<any> => {
+    const response = await api.get(`/events/${eventId}/registration?user_id=${userId}`);
+    return response.data;
+  },
+
+  cancelRegistration: async (eventId: number, userId: number): Promise<any> => {
+    const response = await api.post(`/events/${eventId}/cancel`, { user_id: userId });
+    return response.data;
+  },
+
+  messageMembers: async (eventId: number, data: { subject: string; message: string }): Promise<any> => {
+    const response = await api.post(`/events/${eventId}/message`, data);
+    return response.data;
+  },
+
+  announceEvent: async (id: number): Promise<any> => {
+    const response = await api.post(`/events/${id}/announce`);
+    return response.data;
+  },
+
   uploadEventImage: async (eventId: number, file: File): Promise<{ image_url: string }> => {
     const formData = new FormData();
     formData.append("image", file);
