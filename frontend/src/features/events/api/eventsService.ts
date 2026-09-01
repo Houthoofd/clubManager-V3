@@ -18,7 +18,7 @@ export const eventsService = {
   },
 
   deleteEvent: async (id: number): Promise<void> => {
-    await api.delete(/events/${id});
+    await api.delete(`/events/${id}`);
   },
 
   getEventById: async (id: number): Promise<Event> => {
@@ -44,7 +44,7 @@ export const eventsService = {
   },
 
   messageMembers: async (eventId: number, data: { subject: string; message: string }): Promise<any> => {
-    const response = await api.post(/events/${eventId}/message, data);
+    const response = await api.post(`/events/${eventId}/message`, data);
     return response.data;
   },
 
@@ -57,5 +57,7 @@ export const eventsService = {
     return response.data;
   }
 };
+
+
 
 
