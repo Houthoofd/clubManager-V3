@@ -93,7 +93,7 @@ export const EventsPage: React.FC = () => {
                                 <button onClick={() => { setOpenDropdownId(null); setMessageModalEventId(evt.id); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
                                   <EnvelopeIcon className="h-5 w-5" />
                                 </button>
-                                <button onClick={() => { setOpenDropdownId(null); navigate(/admin/events/edit/${evt.id}); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                                <button onClick={() => { setOpenDropdownId(null); navigate(`/admin/events/edit/${evt.id}`); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
                                   <PencilIcon className="h-5 w-5" />
                                 </button>
                                 <div className="w-px h-6 bg-gray-200 mx-1"></div>
@@ -128,7 +128,7 @@ export const EventsPage: React.FC = () => {
                             <button onClick={() => { setOpenDropdownId(null); setMessageModalEventId(evt.id); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
                               <EnvelopeIcon className="h-5 w-5" />
                             </button>
-                            <button onClick={() => { setOpenDropdownId(null); navigate(/admin/events/edit/${evt.id}); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                            <button onClick={() => { setOpenDropdownId(null); navigate(`/admin/events/edit/${evt.id}`); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
                               <PencilIcon className="h-5 w-5" />
                             </button>
                             <div className="w-px h-6 bg-gray-200 mx-1"></div>
@@ -159,6 +159,7 @@ export const EventsPage: React.FC = () => {
     </div>
   );
 };
+
 
 
 
