@@ -34,7 +34,7 @@ export const MessageEventMembersModal: React.FC<MessageEventMembersModalProps> =
       setError(null);
     },
     onError: (err: any) => {
-      setError(err.message || 'Une erreur est survenue lors de l\\'envoi.');
+      setError(err.message || "Une erreur est survenue lors de l'envoi.");
     },
   });
 
@@ -115,5 +115,6 @@ export const MessageEventMembersModal: React.FC<MessageEventMembersModalProps> =
     </Modal>
   );
 };
+
 
 
