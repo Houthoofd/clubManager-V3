@@ -12,6 +12,11 @@ export const eventsService = {
     return response.data;
   },
 
+  updateEvent: async (id: number, data: Partial<CreateEventDto>): Promise<Event> => {
+    const response = await api.put(/events/, data);
+    return response.data;
+  },
+
   getEventById: async (id: number): Promise<Event> => {
     // If backend has no GET /events/:id endpoint, we can temporarily fetch all and filter, 
     // or we assume it will be implemented. For now, fetch all and filter as fallback.
