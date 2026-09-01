@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
-import { CalendarAltIcon, ClipboardListIcon, EllipsisVIcon, EnvelopeIcon, EditIcon, TrashIcon } from "@patternfly/react-icons";
+import { CalendarAltIcon, ClipboardListIcon } from "@patternfly/react-icons";
+import { EllipsisVerticalIcon, EnvelopeIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useEvents } from "../hooks/useEvents";
 
 export const EventsPage: React.FC = () => {
@@ -77,20 +78,20 @@ export const EventsPage: React.FC = () => {
                         <td className="py-3 text-gray-600">{evt.price} €</td>
                         <td className="py-3 text-right relative">
                           <button onClick={() => setOpenDropdownId(openDropdownId === evt.id ? null : evt.id)} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
-                            <EllipsisVIcon className="w-5 h-5" />
+                            <EllipsisVerticalIcon className="h-5 w-5" />
                           </button>
                           {openDropdownId === evt.id && (
                             <div className="absolute right-0 top-full mt-1 bg-white rounded-md shadow-lg p-2 z-50 border border-gray-100 overflow-visible">
                               <div className="flex flex-row items-center gap-1">
                                 <button onClick={() => { setOpenDropdownId(null); alert('Envoi de message...'); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
-                                  <EnvelopeIcon className="w-5 h-5" />
+                                  <EnvelopeIcon className="h-5 w-5" />
                                 </button>
                                 <button onClick={() => { setOpenDropdownId(null); alert('Modification...'); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
-                                  <EditIcon className="w-5 h-5" />
+                                  <PencilIcon className="h-5 w-5" />
                                 </button>
                                 <div className="w-px h-6 bg-gray-200 mx-1"></div>
                                 <button onClick={() => { setOpenDropdownId(null); alert('Suppression...'); }} title="Supprimer" className="p-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
-                                  <TrashIcon className="w-5 h-5" />
+                                  <TrashIcon className="h-5 w-5" />
                                 </button>
                               </div>
                             </div>
@@ -112,20 +113,20 @@ export const EventsPage: React.FC = () => {
                     <h2 className="text-lg font-bold text-gray-900 mb-2">{evt.title}</h2>
                     <div className="absolute top-4 right-4">
                       <button onClick={(e) => { e.stopPropagation(); setOpenDropdownId(openDropdownId === evt.id ? null : evt.id); }} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
-                        <EllipsisVIcon className="w-5 h-5" />
+                        <EllipsisVerticalIcon className="h-5 w-5" />
                       </button>
                       {openDropdownId === evt.id && (
                         <div className="absolute right-0 top-full mt-1 bg-white rounded-md shadow-lg p-2 z-50 border border-gray-100 overflow-visible">
                           <div className="flex flex-row items-center gap-1">
                             <button onClick={() => { setOpenDropdownId(null); alert('Envoi de message...'); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
-                              <EnvelopeIcon className="w-5 h-5" />
+                              <EnvelopeIcon className="h-5 w-5" />
                             </button>
                             <button onClick={() => { setOpenDropdownId(null); alert('Modification...'); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
-                              <EditIcon className="w-5 h-5" />
+                              <PencilIcon className="h-5 w-5" />
                             </button>
                             <div className="w-px h-6 bg-gray-200 mx-1"></div>
                             <button onClick={() => { setOpenDropdownId(null); alert('Suppression...'); }} title="Supprimer" className="p-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
-                              <TrashIcon className="w-5 h-5" />
+                              <TrashIcon className="h-5 w-5" />
                             </button>
                           </div>
                         </div>
@@ -151,6 +152,8 @@ export const EventsPage: React.FC = () => {
     </div>
   );
 };
+
+
 
 
 
