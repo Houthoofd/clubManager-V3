@@ -159,20 +159,13 @@ export const EventsPage: React.FC = () => {
         </div>
       </div>
     </div>
+      {messageModalEventId && (
+        <MessageEventMembersModal
+          eventId={messageModalEventId}
+          isOpen={!!messageModalEventId}
+          onClose={() => setMessageModalEventId(null)}
+        />
+      )}
+    </div>
   );
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
