@@ -48,48 +48,51 @@ export const MessageEventMembersModal: React.FC<MessageEventMembersModalProps> =
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Envoyer un message aux participants"
-      description="Ce message sera envoy? par email à tous les membres inscrits  cet ?vnement."
-    >
-      <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-        {error && (
-          <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
-            {error}
+    <Modal isOpen={isOpen} onClose={onClose} size="md">
+      <Modal.Header 
+        title="Envoyer un message aux participants" 
+        subtitle="Ce message sera envoye par email a tous les membres inscrits a cet evenement."
+        onClose={onClose} 
+      />
+      <form onSubmit={handleSubmit}>
+        <Modal.Body>
+          <div className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
+                {error}
+              </div>
+            )}
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Sujet du message
+              </label>
+              <Input
+                value={subject}
+                onChange={(e: any) => setSubject(e.target.value)}
+                placeholder="Ex: Modification de l'horaire"
+                disabled={messageMutation.isPending}
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Contenu du message
+              </label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Bonjour a tous..."
+                rows={5}
+                disabled={messageMutation.isPending}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 resize-none"
+              />
+            </div>
           </div>
-        )}
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Sujet du message
-          </label>
-          <Input
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            placeholder="Ex: Modification de l'horaire"
-            disabled={messageMutation.isPending}
-            required
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Contenu du message
-          </label>
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Bonjour à tous..."
-            rows={5}
-            disabled={messageMutation.isPending}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 resize-none"
-          />
-        </div>
-        
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+        </Modal.Body>
+        <Modal.Footer align="right">
           <button
             type="button"
             onClick={onClose}
@@ -110,11 +113,8 @@ export const MessageEventMembersModal: React.FC<MessageEventMembersModalProps> =
               </>
             )}
           </button>
-        </div>
+        </Modal.Footer>
       </form>
     </Modal>
   );
 };
-
-
-
