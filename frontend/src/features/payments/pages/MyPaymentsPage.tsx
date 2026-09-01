@@ -93,18 +93,12 @@ export const MyPaymentsPage: React.FC = () => {
     [payments],
   );
 
-  const totalPending = useMemo(
-    () =>
-      schedules
-        .filter((s) => s.statut === "en_attente" || s.statut === "en_retard")
-        .reduce((sum, sch) => sum + sch.montant, 0),
-    [schedules],
-  );
+  const pendingSchedules = useMemo(() => schedules.filter(s => s.statut === "en_attente" || s.statut === "en_retard"), [schedules]);
+
+    const totalPending = useMemo(() => pendingSchedules.reduce((sum, sch) => sum + sch.montant, 0), [pendingSchedules]);
 
   const nextDueDate = useMemo(() => {
-    const pending = schedules
-      .filter((s) => s.statut === "en_attente" || s.statut === "en_retard")
-      .sort(
+    const pending = [...pendingSchedules].sort(
         (a, b) =>
           new Date(a.date_echeance).getTime() -
           new Date(b.date_echeance).getTime(),
@@ -148,6 +142,7 @@ export const MyPaymentsPage: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ["my-schedules", user?.id] });
     queryClient.invalidateQueries({ queryKey: ["my-payments", user?.id] });
     toast.success(t("myPayments.paymentSuccess"));
+    setActiveTab("payments");
   };
 
   const isLoading = paymentsLoading || schedulesLoading;
@@ -292,7 +287,7 @@ export const MyPaymentsPage: React.FC = () => {
               </div>
             )
           ) : /* ─── Schedules tab ─── */
-          schedules.length === 0 ? (
+          pendingSchedules.length === 0 ? (
             <p className="text-center text-gray-400 py-12">
               {t("myPayments.noSchedules")}
             </p>
@@ -309,7 +304,7 @@ export const MyPaymentsPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {schedules.map((schedule) => {
+                  {pendingSchedules.map((schedule) => {
                     const badge = getStatusBadge(schedule.statut);
                     const canPay =
                       schedule.statut === "en_attente" ||
@@ -382,6 +377,8 @@ export const MyPaymentsPage: React.FC = () => {
     </div>
   );
 };
+
+
 
 
 
