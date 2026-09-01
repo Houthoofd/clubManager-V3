@@ -58,7 +58,7 @@ export const EventsPage: React.FC = () => {
                   Créer un évènement
                 </button>
               </div>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto pb-20">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-gray-200">
@@ -152,6 +152,8 @@ export const EventsPage: React.FC = () => {
     </div>
   );
 };
+
+
 
 
 
