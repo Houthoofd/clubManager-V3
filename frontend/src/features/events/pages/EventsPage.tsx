@@ -7,6 +7,8 @@ import { CalendarAltIcon, ClipboardListIcon } from "@patternfly/react-icons";
 import { MessageEventMembersModal } from '../components/MessageEventMembersModal';
 import { EllipsisVerticalIcon, EnvelopeIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useEvents } from "../hooks/useEvents";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { eventsService } from "../api/eventsService";
 
 export const EventsPage: React.FC = () => {
   const { t } = useTranslation("common");
@@ -159,6 +161,7 @@ export const EventsPage: React.FC = () => {
     </div>
   );
 };
+
 
 
 
