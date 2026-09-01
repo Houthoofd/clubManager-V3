@@ -5,6 +5,7 @@ import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
 import { CalendarAltIcon, ClipboardListIcon } from "@patternfly/react-icons";
 import { MessageEventMembersModal } from '../components/MessageEventMembersModal';
+import { AnnounceEventModal } from '../components/AnnounceEventModal';
 import { EllipsisVerticalIcon, EnvelopeIcon, PencilIcon, TrashIcon, MegaphoneIcon } from "@heroicons/react/24/outline";
 import { useEvents } from "../hooks/useEvents";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,15 +22,12 @@ export const EventsPage: React.FC = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
   });
 
-  const announceMutation = useMutation({
-    mutationFn: (id: number) => eventsService.announceEvent(id),
-    onSuccess: () => alert("Annonce envoyée à tous les membres !"),
-    onError: (err: any) => alert("Erreur: " + err.message)
-  });
+  
 
   const [activeTab, setActiveTab] = useState("list");
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [messageModalEventId, setMessageModalEventId] = useState<number | null>(null);
+  const [announceModalEventId, setAnnounceModalEventId] = useState<number | null>(null);
   const tabs = [
     {
       id: "list",
@@ -101,7 +99,7 @@ export const EventsPage: React.FC = () => {
                                 <button onClick={() => { setOpenDropdownId(null); setMessageModalEventId(evt.id); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
                                   <EnvelopeIcon className="h-5 w-5" />
                                 </button>
-                                <button onClick={() => { setOpenDropdownId(null); if (window.confirm("Voulez-vous annoncer cet événement à tous les membres du club ?")) announceMutation.mutate(evt.id); }} title="Annoncer à tous les membres" className="p-2 rounded-md text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors">
+                                <button onClick={() => { setOpenDropdownId(null); setAnnounceModalEventId(evt.id); }} title="Annoncer à tous les membres" className="p-2 rounded-md text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors">
                                   <MegaphoneIcon className="h-5 w-5" />
                                 </button>
                                 <button onClick={() => { setOpenDropdownId(null); navigate(`/admin/events/edit/${evt.id}`); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
@@ -139,7 +137,7 @@ export const EventsPage: React.FC = () => {
                             <button onClick={() => { setOpenDropdownId(null); setMessageModalEventId(evt.id); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
                               <EnvelopeIcon className="h-5 w-5" />
                             </button>
-                            <button onClick={() => { setOpenDropdownId(null); if (window.confirm("Voulez-vous annoncer cet événement à tous les membres du club ?")) announceMutation.mutate(evt.id); }} title="Annoncer à tous les membres" className="p-2 rounded-md text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors">
+                            <button onClick={() => { setOpenDropdownId(null); setAnnounceModalEventId(evt.id); }} title="Annoncer à tous les membres" className="p-2 rounded-md text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors">
                               <MegaphoneIcon className="h-5 w-5" />
                             </button>
                             <button onClick={() => { setOpenDropdownId(null); navigate(`/admin/events/edit/${evt.id}`); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
@@ -170,6 +168,13 @@ export const EventsPage: React.FC = () => {
           )}
         </div>
       </div>
+      {announceModalEventId && (
+        <AnnounceEventModal
+          eventId={announceModalEventId}
+          isOpen={!!announceModalEventId}
+          onClose={() => setAnnounceModalEventId(null)}
+        />
+      )}
       {messageModalEventId && (
         <MessageEventMembersModal
           eventId={messageModalEventId}
