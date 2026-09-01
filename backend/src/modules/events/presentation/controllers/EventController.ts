@@ -1,3 +1,4 @@
+import { MySQLUserRepository } from '@/modules/users/infrastructure/repositories/MySQLUserRepository.js';
 import { Request, Response } from 'express';
 import { CreateEventUseCase } from '../../application/use-cases/CreateEventUseCase.js';
 import { GetEventsUseCase } from '../../application/use-cases/GetEventsUseCase.js';
@@ -86,7 +87,7 @@ export class EventController {
       }
       
       if (registration.status === 'CANCELLED') {
-        return res.status(400).json({ error: "DÃ©jÃ  dÃ©sinscrit" });
+        return res.status(400).json({ error: "DÃƒÂ©jÃƒÂ  dÃƒÂ©sinscrit" });
       }
 
       // Update in DB (using repository directly for simplicity here)
@@ -97,12 +98,12 @@ export class EventController {
       const user = await repository.getUserBasicInfo(userId);
       const event = await repository.getEventById(eventId);
       if (user && event) {
-        emailService.sendCustomEmail([user.email], "Annulation", "Annulation confirm�e").catch((err: any) => {
+        emailService.sendCustomEmail([user.email], "Annulation", "Annulation confirmée").catch((err: any) => {
           console.error("Failed to send cancellation email", err);
         });
       }
 
-      res.status(200).json({ success: true, message: "DÃ©sinscription rÃ©ussie", payment_status: newPaymentStatus });
+      res.status(200).json({ success: true, message: "DÃƒÂ©sinscription rÃƒÂ©ussie", payment_status: newPaymentStatus });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }
@@ -130,7 +131,7 @@ export class EventController {
       const event = await repository.getEventById(eventId);
       if (!event) return res.status(404).json({ error: "Event not found" });
       const registrations = await repository.listRegistrations(eventId);
-      if (registrations.length === 0) return res.status(400).json({ error: "Aucun inscrit pour cet �v�nement" });
+      if (registrations.length === 0) return res.status(400).json({ error: "Aucun inscrit pour cet évènement" });
       const emails: string[] = [];
       for (const reg of registrations) {
         const user = await repository.getUserBasicInfo(reg.user_id);
@@ -157,7 +158,7 @@ export class EventController {
 
       const event = await repository.getEventById(eventId);
       if (!event) {
-        return res.status(404).json({ error: "Ã‰vÃ©nement introuvable" });
+        return res.status(404).json({ error: "Ãƒâ€°vÃƒÂ©nement introuvable" });
       }
 
       const storage = getStorageService();
@@ -170,6 +171,35 @@ export class EventController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  async announceEvent(req: Request, res: Response) {
+    try {
+      const eventId = Number(req.params.id);
+      const event = await repository.getEventById(eventId);
+      if (!event) {
+        return res.status(404).json({ error: "Événement introuvable" });
+      }
+
+      const userRepo = new MySQLUserRepository();
+      const usersRes = await userRepo.findAll({ limit: 10000 });
+      const activeUsers = usersRes.users.filter(u => u.active);
+      const emails = activeUsers.map(u => u.email).filter(e => e);
+
+      if (emails.length > 0) {
+        const subject = "Nouvel événement : " + event.title;
+        let htmlContent = `<p>Un nouvel événement a été créé : <strong>${event.title}</strong></p>`;
+        htmlContent += `<p>Date : ${new Date(event.start_date).toLocaleString()}</p>`;
+        if (event.description) {
+          htmlContent += `<p>${event.description}</p>`;
+        }
+        
+        await emailService.sendCustomEmail(emails, subject, htmlContent);
+      }
+
+      res.status(200).json({ success: true });
+    } catch (error: any) {
+      console.error("[AnnounceEvent Error]:", error);
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
-
-

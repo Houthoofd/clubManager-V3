@@ -1,4 +1,4 @@
-import { apiClient as api } from "../../../shared/api/apiClient";
+﻿import { apiClient as api } from "../../../shared/api/apiClient";
 import { Event, CreateEventDto } from "@clubmanager/types";
 
 export const eventsService = {
@@ -48,6 +48,11 @@ export const eventsService = {
     return response.data;
   },
 
+  announceEvent: async (id: number): Promise<any> => {
+    const response = await api.post(/events/$id/announce);
+    return response.data;
+  },
+
   uploadEventImage: async (eventId: number, file: File): Promise<{ image_url: string }> => {
     const formData = new FormData();
     formData.append("image", file);
@@ -57,6 +62,7 @@ export const eventsService = {
     return response.data;
   }
 };
+
 
 
 

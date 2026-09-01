@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { EventController } from '../controllers/EventController.js';
 import { authMiddleware as authenticate } from '@/shared/middleware/authMiddleware.js';
 
@@ -17,5 +17,8 @@ router.get('/:id/registration', authenticate, controller.getRegistrationStatus);
 router.post('/:id/image', authenticate, uploadSingleImage, controller.uploadImage);
 router.post('/:id/message', authenticate, controller.messageMembers);
 
+router.post('/:id/announce', authenticate, controller.announceEvent);
+
 export default router;
+
 
