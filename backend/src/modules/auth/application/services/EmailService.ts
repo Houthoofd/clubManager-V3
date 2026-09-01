@@ -967,8 +967,7 @@ ClubManager - Sports Club Management Made Easy
   async sendCustomEmail(to: string[], subject: string, htmlContent: string): Promise<EmailSendResult> {
     const recipient = this.devEmailOverride ? [this.devEmailOverride] : to;
     if (!this.resend) {
-      console.log("[EmailService DEV] Custom email
-  To: " + recipient.join(', ') + "\n  Subject: " + subject);
+      console.log("[EmailService DEV] Custom email\n  To: " + recipient.join(', ') + "\n  Subject: " + subject);
       return { success: true, messageId: "dev-mode-no-send" };
     }
     try {
@@ -1059,4 +1058,5 @@ ClubManager - Sports Club Management Made Easy
     return text.replace(/[&<>"']/g, (char) => map[char] || char);
   }
 }
+
 

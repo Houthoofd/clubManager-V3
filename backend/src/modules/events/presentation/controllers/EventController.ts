@@ -30,7 +30,7 @@ export class EventController {
 
   async updateEvent(req: Request, res: Response) {
     try {
-      const eventId = parseInt(req.params.id, 10);
+      const eventId = Number(req.params.id);
       const event = await updateEventUseCase.execute(eventId, req.body);
       res.status(200).json(event);
     } catch (error: any) {
@@ -41,7 +41,7 @@ export class EventController {
 
   async deleteEvent(req: Request, res: Response) {
     try {
-      const eventId = parseInt(req.params.id, 10);
+      const eventId = Number(req.params.id);
       await deleteEventUseCase.execute(eventId);
       res.status(204).send();
     } catch (error: any) {
@@ -77,7 +77,7 @@ export class EventController {
 
   async cancelRegistration(req: Request, res: Response) {
     try {
-      const eventId = parseInt(req.params.id, 10);
+      const eventId = Number(req.params.id);
       const userId = req.body.user_id; // from AuthRequest if possible, but let's take body for now
       
       const registration = await repository.getRegistration(eventId, userId);
@@ -97,7 +97,7 @@ export class EventController {
       const user = await repository.getUserBasicInfo(userId);
       const event = await repository.getEventById(eventId);
       if (user && event) {
-        emailService.sendCancellationConfirmation(user.email, user.nom, event.title).catch(err => {
+        emailService.sendCustomEmail([user.email], "Annulation", "Annulation confirmée").catch((err: any) => {
           console.error("Failed to send cancellation email", err);
         });
       }
@@ -110,8 +110,8 @@ export class EventController {
 
   async getRegistrationStatus(req: Request, res: Response) {
     try {
-      const eventId = parseInt(req.params.id, 10);
-      const userId = parseInt(req.query.user_id as string, 10);
+      const eventId = Number(req.params.id);
+      const userId = Number(req.query.user_id);
       
       const registration = await repository.getRegistration(eventId, userId);
       res.status(200).json(registration || { status: 'NOT_REGISTERED' });
@@ -122,7 +122,7 @@ export class EventController {
 
   async messageMembers(req: Request, res: Response) {
     try {
-      const eventId = parseInt(req.params.id, 10);
+      const eventId = Number(req.params.id);
       const { subject, message } = req.body;
       if (!subject || !message) {
         return res.status(400).json({ error: "Sujet et message requis" });
@@ -148,7 +148,7 @@ export class EventController {
 
   async uploadImage(req: Request, res: Response) {
     try {
-      const eventId = parseInt(req.params.id, 10);
+      const eventId = Number(req.params.id);
       const file = req.file;
 
       if (!file) {
@@ -162,14 +162,14 @@ export class EventController {
 
       const storage = getStorageService();
       const imageUrl = await storage.upload(file, "events");
+      await repository.updateEvent(eventId, { image_url: imageUrl.url });
 
-      await repository.updateEvent(eventId, { image_url: imageUrl });
-
-      res.status(200).json({ image_url: imageUrl });
+      res.status(200).json({ image_url: imageUrl.url });
     } catch (error: any) {
       console.error("[UploadImage Error]:", error);
       res.status(500).json({ error: error.message });
     }
   }
 }
+
 

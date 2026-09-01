@@ -21,9 +21,7 @@ export const EventsPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState("list");
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
-  const [messageModalEventId, setMessageModalEventId] = useState<number | null>(null);|const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [messageModalEventId, setMessageModalEventId] = useState<number | null>(null);
-
   const tabs = [
     {
       id: "list",
@@ -161,6 +159,7 @@ export const EventsPage: React.FC = () => {
     </div>
   );
 };
+
 
 
 
