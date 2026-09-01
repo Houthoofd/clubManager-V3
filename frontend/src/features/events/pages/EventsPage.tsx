@@ -99,7 +99,7 @@ export const EventsPage: React.FC = () => {
                                   <PencilIcon className="h-5 w-5" />
                                 </button>
                                 <div className="w-px h-6 bg-gray-200 mx-1"></div>
-                                <button onClick={() => { setOpenDropdownId(null); if (window.confirm('Voulez-vous vraiment supprimer cet évènement ?')) deleteMutation.mutate(evt.id); }} title="Supprimer" className="p-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                                <button onClick={() => { setOpenDropdownId(null); if (window.confirm('Voulez-vous vraiment supprimer cet ï¿½vï¿½nement ?')) deleteMutation.mutate(evt.id); }} title="Supprimer" className="p-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
                                   <TrashIcon className="h-5 w-5" />
                                 </button>
                               </div>
@@ -134,7 +134,7 @@ export const EventsPage: React.FC = () => {
                               <PencilIcon className="h-5 w-5" />
                             </button>
                             <div className="w-px h-6 bg-gray-200 mx-1"></div>
-                            <button onClick={() => { setOpenDropdownId(null); if (window.confirm('Voulez-vous vraiment supprimer cet évènement ?')) deleteMutation.mutate(evt.id); }} title="Supprimer" className="p-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                            <button onClick={() => { setOpenDropdownId(null); if (window.confirm('Voulez-vous vraiment supprimer cet ï¿½vï¿½nement ?')) deleteMutation.mutate(evt.id); }} title="Supprimer" className="p-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
                               <TrashIcon className="h-5 w-5" />
                             </button>
                           </div>
