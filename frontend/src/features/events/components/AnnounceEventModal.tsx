@@ -40,7 +40,6 @@ export const AnnounceEventModal: React.FC<AnnounceEventModalProps> = ({
     announceMutation.mutate();
   };
 
-  // Reset state on close if needed
   React.useEffect(() => {
     if (!isOpen) {
       setSuccess(false);
@@ -51,7 +50,7 @@ export const AnnounceEventModal: React.FC<AnnounceEventModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="sm">
       <Modal.Header 
-        title="Annoncer l'événement" 
+        title="Annoncer l'Ã©vÃ©nement" 
         onClose={onClose} 
       />
       <Modal.Body>
@@ -62,8 +61,8 @@ export const AnnounceEventModal: React.FC<AnnounceEventModalProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">Annonce envoyée !</h3>
-            <p className="text-gray-500 text-sm">Tous les membres du club ont été prévenus.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">Annonce envoyÃ©e !</h3>
+            <p className="text-gray-500 text-sm">Tous les membres du club ont Ã©tÃ© prÃ©venus.</p>
           </div>
         ) : (
           <div className="py-2">
@@ -76,10 +75,10 @@ export const AnnounceEventModal: React.FC<AnnounceEventModalProps> = ({
               </div>
             )}
             <p className="text-gray-700 text-center text-sm">
-              Voulez-vous vraiment annoncer cet événement à tous les membres du club ?
+              Voulez-vous vraiment annoncer cet Ã©vÃ©nement Ã  tous les membres du club ?
             </p>
             <p className="text-gray-500 text-center text-xs mt-2">
-              Un e-mail automatique sera envoyé avec les détails de l'événement.
+              Un e-mail automatique sera envoyÃ© avec les dÃ©tails de l'Ã©vÃ©nement.
             </p>
           </div>
         )}
