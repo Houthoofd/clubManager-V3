@@ -65,6 +65,10 @@ const verifyStripePaymentUC = new VerifyStripePaymentUseCase(
 
 // ==================== CONTROLLER ====================
 
+import { MySQLEventRepository } from "../../../events/infrastructure/repositories/MySQLEventRepository.js";
+import { RegisterToEventUseCase } from "../../../events/application/use-cases/RegisterToEventUseCase.js";
+import jwt from "jsonwebtoken";
+
 export class PaymentController {
   
   /**
@@ -410,7 +414,7 @@ export class PaymentController {
         return;
       }
       const success = await verifyStripePaymentUC.execute(paymentIntentId);
-      res.json({ success, message: success ? "Paiement validé" : "Paiement non complété" });
+      res.json({ success, message: success ? "Paiement validï¿½" : "Paiement non complï¿½tï¿½" });
     } catch (error: any) {
       console.error("[PaymentController] Error in verifyStripePayment:", error);
       res.status(500).json({ success: false, message: error.message });
