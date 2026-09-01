@@ -203,8 +203,6 @@ export class EventController {
           htmlContent += `<br><p>Pour plus de détails et pour confirmer votre présence, cliquez ci-dessous :</p>`;
           htmlContent += `<p><a href="${eventUrl}" style="display:inline-block;padding:10px 20px;background-color:#9333ea;color:white;text-decoration:none;border-radius:5px;font-weight:bold;">Voir l'événement</a></p>`;
         }
-        console.log("SENDING HTML:", htmlContent);" style="display:inline-block;padding:10px 20px;background-color:#9333ea;color:white;text-decoration:none;border-radius:5px;font-weight:bold;">Voir l'événement</a></p>`;
-        }
 
         await emailService.sendCustomEmail(emails, subject, htmlContent);
       }
