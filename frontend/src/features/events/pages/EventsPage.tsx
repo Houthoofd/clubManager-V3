@@ -80,16 +80,19 @@ export const EventsPage: React.FC = () => {
                             <EllipsisVIcon className="w-5 h-5" />
                           </button>
                           {openDropdownId === evt.id && (
-                            <div className="absolute right-4 top-10 mt-0 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10">
-                              <button onClick={() => { setOpenDropdownId(null); alert('Envoi de message...'); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
-                                <EnvelopeIcon className="w-4 h-4 mr-2" /> Message aux membres
-                              </button>
-                              <button onClick={() => { setOpenDropdownId(null); alert('Modification...'); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
-                                <EditIcon className="w-4 h-4 mr-2" /> Modifier
-                              </button>
-                              <button onClick={() => { setOpenDropdownId(null); alert('Suppression...'); }} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center">
-                                <TrashIcon className="w-4 h-4 mr-2" /> Supprimer
-                              </button>
+                            <div className="absolute right-0 top-full mt-1 bg-white rounded-md shadow-lg p-2 z-50 border border-gray-100 overflow-visible">
+                              <div className="flex flex-row items-center gap-1">
+                                <button onClick={() => { setOpenDropdownId(null); alert('Envoi de message...'); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
+                                  <EnvelopeIcon className="w-5 h-5" />
+                                </button>
+                                <button onClick={() => { setOpenDropdownId(null); alert('Modification...'); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                                  <EditIcon className="w-5 h-5" />
+                                </button>
+                                <div className="w-px h-6 bg-gray-200 mx-1"></div>
+                                <button onClick={() => { setOpenDropdownId(null); alert('Suppression...'); }} title="Supprimer" className="p-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                                  <TrashIcon className="w-5 h-5" />
+                                </button>
+                              </div>
                             </div>
                           )}
                         </td>
@@ -112,16 +115,19 @@ export const EventsPage: React.FC = () => {
                         <EllipsisVIcon className="w-5 h-5" />
                       </button>
                       {openDropdownId === evt.id && (
-                        <div className="absolute right-0 mt-0 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10">
-                          <button onClick={() => { setOpenDropdownId(null); alert('Envoi de message...'); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
-                            <EnvelopeIcon className="w-4 h-4 mr-2" /> Message aux membres
-                          </button>
-                          <button onClick={() => { setOpenDropdownId(null); alert('Modification...'); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
-                            <EditIcon className="w-4 h-4 mr-2" /> Modifier
-                          </button>
-                          <button onClick={() => { setOpenDropdownId(null); alert('Suppression...'); }} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center">
-                            <TrashIcon className="w-4 h-4 mr-2" /> Supprimer
-                          </button>
+                        <div className="absolute right-0 top-full mt-1 bg-white rounded-md shadow-lg p-2 z-50 border border-gray-100 overflow-visible">
+                          <div className="flex flex-row items-center gap-1">
+                            <button onClick={() => { setOpenDropdownId(null); alert('Envoi de message...'); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
+                              <EnvelopeIcon className="w-5 h-5" />
+                            </button>
+                            <button onClick={() => { setOpenDropdownId(null); alert('Modification...'); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                              <EditIcon className="w-5 h-5" />
+                            </button>
+                            <div className="w-px h-6 bg-gray-200 mx-1"></div>
+                            <button onClick={() => { setOpenDropdownId(null); alert('Suppression...'); }} title="Supprimer" className="p-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                              <TrashIcon className="w-5 h-5" />
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -145,6 +151,7 @@ export const EventsPage: React.FC = () => {
     </div>
   );
 };
+
 
 
 
