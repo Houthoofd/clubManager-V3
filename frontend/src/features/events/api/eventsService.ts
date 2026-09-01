@@ -28,30 +28,17 @@ export const eventsService = {
     return response.data.find((e: Event) => e.id === id);
   },
 
-  registerToEvent: async (eventId: number, userId: number): Promise<any> => {
-    const response = await api.post("/events/register", { event_id: eventId, user_id: userId });
+  registerToEvent: async (eventId: number, userId: number, payment_intent_id?: string): Promise<any> => {
+    const response = await api.post("/events/register", { event_id: eventId, user_id: userId, payment_intent_id });
     return response.data;
   },
 
-  getRegistrationStatus: async (eventId: number, userId: number): Promise<any> => {
-    const response = await api.get(`/events/${eventId}/registration?user_id=${userId}`);
+  createPaymentIntent: async (eventId: number): Promise<{ clientSecret: string; paymentIntentId: string }> => {
+    const response = await api.post(`/events/${eventId}/create-payment-intent`);
     return response.data;
   },
 
-  cancelRegistration: async (eventId: number, userId: number): Promise<any> => {
-    const response = await api.post(`/events/${eventId}/cancel`, { user_id: userId });
-    return response.data;
-  },
-
-  messageMembers: async (eventId: number, data: { subject: string; message: string }): Promise<any> => {
-    const response = await api.post(`/events/${eventId}/message`, data);
-    return response.data;
-  },
-
-  announceEvent: async (id: number): Promise<any> => {
-    const response = await api.post(`/events/${id}/announce`);
-    return response.data;
-  },
+  
 
   uploadEventImage: async (eventId: number, file: File): Promise<{ image_url: string }> => {
     const formData = new FormData();

@@ -26,8 +26,8 @@ export const useEvents = () => {
   });
 
   const registerToEventMutation = useMutation({
-    mutationFn: ({ eventId, userId }: { eventId: number, userId: number }) => 
-      eventsService.registerToEvent(eventId, userId),
+    mutationFn: ({ eventId, userId, paymentIntentId }: { eventId: number, userId: number, paymentIntentId?: string }) => 
+      eventsService.registerToEvent(eventId, userId, paymentIntentId),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["registration", variables.eventId, variables.userId] });

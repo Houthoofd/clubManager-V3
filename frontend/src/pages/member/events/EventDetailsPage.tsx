@@ -1,3 +1,5 @@
+import { StripePaymentModal } from "../../../features/payments/components/StripePaymentModal";
+import { eventsService } from "../../../features/events/api/eventsService";
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEvents } from "../../../features/events/hooks/useEvents";
@@ -18,8 +20,33 @@ export const EventDetailsPage: React.FC = () => {
   const { data: event, isLoading: isEventLoading } = getEvent(eventId);
   const { data: registration, isLoading: isRegLoading } = getRegistrationStatus(eventId, user?.id);
   
+
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
+  const [stripePaymentIntentId, setStripePaymentIntentId] = useState<string | null>(null);
+  const [isStripeOpen, setIsStripeOpen] = useState(false);
+  const [isInitializingPayment, setIsInitializingPayment] = useState(false);
+
+  const handleConfirmClick = async () => {
+    if (event?.price && Number(event.price) > 0) {
+      if (eventId) {
+        setIsInitializingPayment(true);
+        try {
+          const { clientSecret, paymentIntentId } = await eventsService.createPaymentIntent(eventId);
+          setStripeClientSecret(clientSecret);
+          setStripePaymentIntentId(paymentIntentId);
+          setIsStripeOpen(true);
+        } catch (error: any) {
+          toast.error("Impossible d'initialiser le paiement Stripe.");
+        } finally {
+          setIsInitializingPayment(false);
+        }
+      }
+    } else {
+      setIsConfirmOpen(true);
+    }
+  };
 
   const handleRegister = async () => {
     if (eventId && user) {
@@ -28,7 +55,19 @@ export const EventDetailsPage: React.FC = () => {
         setIsConfirmOpen(false);
         toast.success(`Inscription confirmée à ${event?.title} ! Un email récapitulatif a été envoyé.`);
       } catch (error: any) {
-        toast.error(error.response?.data?.error || error.message || "Impossible de s'inscrire à l'évènement.");
+        toast.error(error.response?.data?.error || error.message || "Impossible de s'inscrire à l'événement.");
+      }
+    }
+  };
+
+  const handleStripeSuccess = async () => {
+    setIsStripeOpen(false);
+    if (eventId && user && stripePaymentIntentId) {
+      try {
+        await registerToEvent({ eventId, userId: user.id, paymentIntentId: stripePaymentIntentId });
+        toast.success(`Inscription confirmée à ${event?.title} !`);
+      } catch (error: any) {
+        toast.error(error.response?.data?.error || error.message || "Erreur lors de l'inscription finale.");
       }
     }
   };

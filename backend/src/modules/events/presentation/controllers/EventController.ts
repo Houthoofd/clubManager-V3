@@ -1,3 +1,4 @@
+import { StripeService } from '../../../payments/infrastructure/services/StripeService.js';
 import { MySQLUserRepository } from '@/modules/users/infrastructure/repositories/MySQLUserRepository.js';
 import { Request, Response } from 'express';
 import { CreateEventUseCase } from '../../application/use-cases/CreateEventUseCase.js';
@@ -61,8 +62,30 @@ export class EventController {
     }
   }
 
+
   async registerToEvent(req: Request, res: Response) {
     try {
+      // 1. Stripe verification if payment_intent_id is provided
+      if (req.body.payment_intent_id) {
+        const stripeService = new StripeService();
+        const intent = await stripeService.retrievePaymentIntent(req.body.payment_intent_id);
+        
+        if (intent.status !== 'succeeded') {
+          res.status(400).json({ error: "Le paiement Stripe n'a pas été validé (statut : " + intent.status + ")" });
+          return;
+        }
+
+        // Attach payment status info to body so the UseCase saves it
+        req.body.payment_status = 'PAID';
+      }
+
+      // We should also check if the event is PAID and they didn't provide payment_intent_id, but the frontend blocks it anyway.
+      const event = await repository.getEventById(req.body.event_id);
+      if (event && event.price && Number(event.price) > 0 && !req.body.payment_intent_id) {
+         res.status(402).json({ error: 'Paiement requis avant inscription.' });
+         return;
+      }
+
       const registration = await registerToEventUseCase.execute(req.body);
       res.status(201).json(registration);
     } catch (error: any) {
@@ -168,6 +191,43 @@ export class EventController {
       res.status(200).json({ image_url: imageUrl.url });
     } catch (error: any) {
       console.error("[UploadImage Error]:", error);
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+
+  async createPaymentIntent(req: Request, res: Response) {
+    try {
+      const eventId = Number(req.params.id);
+      if (isNaN(eventId)) {
+        res.status(400).json({ error: 'ID invalide' });
+        return;
+      }
+
+      const event = await repository.getEventById(eventId);
+      if (!event) {
+        res.status(404).json({ error: 'Événement introuvable' });
+        return;
+      }
+
+      if (!event.price || Number(event.price) <= 0) {
+        res.status(400).json({ error: 'Cet événement est gratuit' });
+        return;
+      }
+
+      const stripeService = new StripeService();
+      const amountInCents = Math.round(Number(event.price) * 100);
+      
+      const intent = await stripeService.createPaymentIntent(amountInCents, 'eur', {
+        event_id: String(event.id),
+      });
+
+      res.status(200).json({
+        clientSecret: intent.client_secret,
+        paymentIntentId: intent.id
+      });
+    } catch (error: any) {
+      console.error("[EventController] Error in createPaymentIntent:", error);
       res.status(500).json({ error: error.message });
     }
   }

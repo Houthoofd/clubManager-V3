@@ -19,6 +19,8 @@ router.post('/:id/message', authenticate, controller.messageMembers);
 
 router.post('/:id/announce', authenticate, controller.announceEvent);
 
+router.post('/:id/create-payment-intent', authenticate, controller.createPaymentIntent);
+
 export default router;
 
 
