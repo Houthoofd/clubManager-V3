@@ -13,5 +13,7 @@ router.post('/register', authenticate, controller.registerToEvent);
 router.post('/:id/cancel', authenticate, controller.cancelRegistration);
 router.get('/:id/registration', authenticate, controller.getRegistrationStatus);
 router.post('/:id/image', authenticate, uploadSingleImage, controller.uploadImage);
+router.post('/:id/message', authenticate, controller.messageMembers);
 
 export default router;
+

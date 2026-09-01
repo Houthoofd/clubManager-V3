@@ -4,6 +4,9 @@ import { GetEventsUseCase } from '../../application/use-cases/GetEventsUseCase.j
 import { RegisterToEventUseCase } from '../../application/use-cases/RegisterToEventUseCase.js';
 import { MySQLEventRepository } from '../../infrastructure/repositories/MySQLEventRepository.js';
 import { getStorageService } from '@/shared/storage/StorageServiceFactory.js';
+import { EmailService } from '@/modules/auth/application/services/EmailService.js';
+
+const emailService = new EmailService();
 
 const repository = new MySQLEventRepository();
 const createEventUseCase = new CreateEventUseCase(repository);
@@ -92,6 +95,32 @@ export class EventController {
     }
   }
 
+  async messageMembers(req: Request, res: Response) {
+    try {
+      const eventId = parseInt(req.params.id, 10);
+      const { subject, message } = req.body;
+      if (!subject || !message) {
+        return res.status(400).json({ error: "Sujet et message requis" });
+      }
+      const event = await repository.getEventById(eventId);
+      if (!event) return res.status(404).json({ error: "Event not found" });
+      const registrations = await repository.listRegistrations(eventId);
+      if (registrations.length === 0) return res.status(400).json({ error: "Aucun inscrit pour cet évènement" });
+      const emails: string[] = [];
+      for (const reg of registrations) {
+        const user = await repository.getUserBasicInfo(reg.user_id);
+        if (user) emails.push(user.email);
+      }
+      if (emails.length > 0) {
+        const htmlContent = "<p>" + message.replace(/\n/g, '<br>') + "</p>";
+        await emailService.sendCustomEmail(emails, subject, htmlContent);
+      }
+      res.status(200).json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
   async uploadImage(req: Request, res: Response) {
     try {
       const eventId = parseInt(req.params.id, 10);
@@ -118,3 +147,4 @@ export class EventController {
     }
   }
 }
+

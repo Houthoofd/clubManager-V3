@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
 import { CalendarAltIcon, ClipboardListIcon } from "@patternfly/react-icons";
+import { MessageEventMembersModal } from '../components/MessageEventMembersModal';
 import { EllipsisVerticalIcon, EnvelopeIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useEvents } from "../hooks/useEvents";
 
@@ -14,6 +15,8 @@ export const EventsPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState("list");
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+  const [messageModalEventId, setMessageModalEventId] = useState<number | null>(null);|const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+  const [messageModalEventId, setMessageModalEventId] = useState<number | null>(null);
 
   const tabs = [
     {
@@ -83,7 +86,7 @@ export const EventsPage: React.FC = () => {
                           {openDropdownId === evt.id && (
                             <div className="absolute right-0 top-full mt-1 bg-white rounded-md shadow-lg p-2 z-50 border border-gray-100 overflow-visible">
                               <div className="flex flex-row items-center gap-1">
-                                <button onClick={() => { setOpenDropdownId(null); alert('Envoi de message...'); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
+                                <button onClick={() => { setOpenDropdownId(null); setMessageModalEventId(evt.id); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
                                   <EnvelopeIcon className="h-5 w-5" />
                                 </button>
                                 <button onClick={() => { setOpenDropdownId(null); alert('Modification...'); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
@@ -118,7 +121,7 @@ export const EventsPage: React.FC = () => {
                       {openDropdownId === evt.id && (
                         <div className="absolute right-0 top-full mt-1 bg-white rounded-md shadow-lg p-2 z-50 border border-gray-100 overflow-visible">
                           <div className="flex flex-row items-center gap-1">
-                            <button onClick={() => { setOpenDropdownId(null); alert('Envoi de message...'); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
+                            <button onClick={() => { setOpenDropdownId(null); setMessageModalEventId(evt.id); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
                               <EnvelopeIcon className="h-5 w-5" />
                             </button>
                             <button onClick={() => { setOpenDropdownId(null); alert('Modification...'); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
@@ -152,6 +155,7 @@ export const EventsPage: React.FC = () => {
     </div>
   );
 };
+
 
 
 

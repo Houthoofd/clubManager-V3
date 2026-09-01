@@ -964,6 +964,31 @@ ClubManager - Sports Club Management Made Easy
   // Utility Methods
   // ============================================================
 
+  async sendCustomEmail(to: string[], subject: string, htmlContent: string): Promise<EmailSendResult> {
+    const recipient = this.devEmailOverride ? [this.devEmailOverride] : to;
+    if (!this.resend) {
+      console.log("[EmailService DEV] Custom email
+  To: " + recipient.join(', ') + "\n  Subject: " + subject);
+      return { success: true, messageId: "dev-mode-no-send" };
+    }
+    try {
+      const result = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: recipient,
+        subject,
+        html: htmlContent,
+      });
+      if (result.error) {
+        console.error("Failed to send custom email:", result.error);
+        return { success: false, error: result.error.message };
+      }
+      return { success: true, messageId: result.data?.id };
+    } catch (error: any) {
+      console.error("Error sending custom email:", error);
+      return { success: false, error: String(error) };
+    }
+  }
+
   async sendAccountDeletionEmail(
     to: string,
     firstName: string,
@@ -1034,3 +1059,4 @@ ClubManager - Sports Club Management Made Easy
     return text.replace(/[&<>"']/g, (char) => map[char] || char);
   }
 }
+

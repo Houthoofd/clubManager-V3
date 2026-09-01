@@ -34,6 +34,11 @@ export const eventsService = {
     return response.data;
   },
 
+  messageMembers: async (eventId: number, data: { subject: string; message: string }): Promise<any> => {
+    const response = await api.post(/events/${eventId}/message, data);
+    return response.data;
+  },
+
   uploadEventImage: async (eventId: number, file: File): Promise<{ image_url: string }> => {
     const formData = new FormData();
     formData.append("image", file);
@@ -43,3 +48,4 @@ export const eventsService = {
     return response.data;
   }
 };
+
