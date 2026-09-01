@@ -184,11 +184,6 @@ export class EventController {
       const usersRes = await userRepo.findAll({ limit: 10000 });
       const activeUsers = usersRes.users;
       const emails = activeUsers.map(u => u.email).filter(e => e);
-      console.log("ACTIVE USERS COUNT:", activeUsers.length);
-      console.log("EMAILS COUNT:", emails.length);
-      if (emails.length > 0) {
-        console.log("FIRST EMAIL:", emails[0]);
-      }
 
       if (emails.length > 0) {
         const subject = "Nouvel événement : " + event.title;
