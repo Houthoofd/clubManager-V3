@@ -17,6 +17,10 @@ export const eventsService = {
     return response.data;
   },
 
+  deleteEvent: async (id: number): Promise<void> => {
+    await api.delete(/events/${id});
+  },
+
   getEventById: async (id: number): Promise<Event> => {
     // If backend has no GET /events/:id endpoint, we can temporarily fetch all and filter, 
     // or we assume it will be implemented. For now, fetch all and filter as fallback.
@@ -53,4 +57,5 @@ export const eventsService = {
     return response.data;
   }
 };
+
 
