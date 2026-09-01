@@ -1,4 +1,4 @@
-﻿import { apiClient as api } from "../../../shared/api/apiClient";
+import { apiClient as api } from "../../../shared/api/apiClient";
 import { Event, CreateEventDto } from "@clubmanager/types";
 
 export const eventsService = {
@@ -49,7 +49,7 @@ export const eventsService = {
   },
 
   announceEvent: async (id: number): Promise<any> => {
-    const response = await api.post(/events/$id/announce);
+    const response = await api.post(`/events/${id}/announce`);
     return response.data;
   },
 
@@ -62,6 +62,8 @@ export const eventsService = {
     return response.data;
   }
 };
+
+
 
 
 
