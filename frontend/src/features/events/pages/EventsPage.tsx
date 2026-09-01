@@ -158,7 +158,6 @@ export const EventsPage: React.FC = () => {
           )}
         </div>
       </div>
-    </div>
       {messageModalEventId && (
         <MessageEventMembersModal
           eventId={messageModalEventId}
