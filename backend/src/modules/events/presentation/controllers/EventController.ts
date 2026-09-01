@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { CreateEventUseCase } from '../../application/use-cases/CreateEventUseCase.js';
 import { GetEventsUseCase } from '../../application/use-cases/GetEventsUseCase.js';
 import { RegisterToEventUseCase } from '../../application/use-cases/RegisterToEventUseCase.js';
+import { UpdateEventUseCase } from '../../application/use-cases/UpdateEventUseCase.js';
+import { DeleteEventUseCase } from '../../application/use-cases/DeleteEventUseCase.js';
 import { MySQLEventRepository } from '../../infrastructure/repositories/MySQLEventRepository.js';
 import { getStorageService } from '@/shared/storage/StorageServiceFactory.js';
 import { EmailService } from '@/modules/auth/application/services/EmailService.js';
@@ -12,6 +14,8 @@ const repository = new MySQLEventRepository();
 const createEventUseCase = new CreateEventUseCase(repository);
 const getEventsUseCase = new GetEventsUseCase(repository);
 const registerToEventUseCase = new RegisterToEventUseCase(repository);
+const updateEventUseCase = new UpdateEventUseCase(repository);
+const deleteEventUseCase = new DeleteEventUseCase(repository);
 
 export class EventController {
   async createEvent(req: Request, res: Response) {
@@ -24,6 +28,27 @@ export class EventController {
     }
   }
 
+  async updateEvent(req: Request, res: Response) {
+    try {
+      const eventId = parseInt(req.params.id, 10);
+      const event = await updateEventUseCase.execute(eventId, req.body);
+      res.status(200).json(event);
+    } catch (error: any) {
+      console.error("[UpdateEvent Error]:", error);
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async deleteEvent(req: Request, res: Response) {
+    try {
+      const eventId = parseInt(req.params.id, 10);
+      await deleteEventUseCase.execute(eventId);
+      res.status(204).send();
+    } catch (error: any) {
+      console.error("[DeleteEvent Error]:", error);
+      res.status(400).json({ error: error.message });
+    }
+  }
   async getEvents(req: Request, res: Response) {
     try {
       const filters = req.query;
@@ -61,7 +86,7 @@ export class EventController {
       }
       
       if (registration.status === 'CANCELLED') {
-        return res.status(400).json({ error: "Déjà désinscrit" });
+        return res.status(400).json({ error: "DÃ©jÃ  dÃ©sinscrit" });
       }
 
       // Update in DB (using repository directly for simplicity here)
@@ -77,7 +102,7 @@ export class EventController {
         });
       }
 
-      res.status(200).json({ success: true, message: "Désinscription réussie", payment_status: newPaymentStatus });
+      res.status(200).json({ success: true, message: "DÃ©sinscription rÃ©ussie", payment_status: newPaymentStatus });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }
@@ -132,7 +157,7 @@ export class EventController {
 
       const event = await repository.getEventById(eventId);
       if (!event) {
-        return res.status(404).json({ error: "Événement introuvable" });
+        return res.status(404).json({ error: "Ã‰vÃ©nement introuvable" });
       }
 
       const storage = getStorageService();

@@ -29,12 +29,12 @@ export class MySQLEventRepository implements IEventRepository {
   }
 
   async getEventById(id: number): Promise<Event | null> {
-    const [rows] = await pool.execute<EventRow[]>("SELECT * FROM events WHERE id = ?", [id]);
+    const [rows] = await pool.execute<EventRow[]>("SELECT * FROM events WHERE id = ? AND deleted_at IS NULL", [id]);
     return rows.length > 0 ? rows[0] : null;
   }
 
   async listEvents(filters?: { from_date?: Date; to_date?: Date; visibility?: string }): Promise<Event[]> {
-    let query = "SELECT * FROM events WHERE 1=1";
+    let query = "SELECT * FROM events WHERE deleted_at IS NULL";
     const params: any[] = [];
 
     if (filters?.from_date) {
@@ -164,6 +164,10 @@ export class MySQLEventRepository implements IEventRepository {
       [userId]
     );
     return rows.length > 0 ? { email: rows[0].email, first_name: rows[0].first_name } : null;
+  }
+
+  async deleteEvent(id: number): Promise<void> {
+    await pool.execute("UPDATE events SET deleted_at = NOW() WHERE id = ?", [id]);
   }
 
   async updateRegistrationStatus(registrationId: number, status: string, paymentStatus: string): Promise<void> {
