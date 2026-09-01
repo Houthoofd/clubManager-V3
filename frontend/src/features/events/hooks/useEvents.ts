@@ -17,6 +17,14 @@ export const useEvents = () => {
     },
   });
 
+  const updateEventMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: Partial<CreateEventDto> }) => eventsService.updateEvent(id, data),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["events", variables.id] });
+    },
+  });
+
   const registerToEventMutation = useMutation({
     mutationFn: ({ eventId, userId }: { eventId: number, userId: number }) => 
       eventsService.registerToEvent(eventId, userId),
@@ -62,6 +70,8 @@ export const useEvents = () => {
     error,
     createEvent: createEventMutation.mutateAsync,
     isCreating: createEventMutation.isPending,
+    updateEvent: updateEventMutation.mutateAsync,
+    isUpdating: updateEventMutation.isPending,
     registerToEvent: registerToEventMutation.mutateAsync,
     isRegistering: registerToEventMutation.isPending,
     cancelRegistration: cancelRegistrationMutation.mutateAsync,

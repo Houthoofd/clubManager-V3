@@ -53,6 +53,7 @@ import { ReservationsPage } from "./features/reservations/pages/ReservationsPage
 
 import { EventsPage } from "./features/events/pages/EventsPage";
 import { CreateEventPage } from "./pages/admin/events/CreateEventPage";
+import { EditEventPage } from "./pages/admin/events/EditEventPage";
 import { EventDetailsPage } from "./pages/member/events/EventDetailsPage";
 
 /**
@@ -280,6 +281,14 @@ function App() {
               element={
                 <RoleGuard allowedRoles={[UserRole.ADMIN]}>
                   <CreateEventPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/admin/events/edit/:id"
+              element={
+                <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                  <EditEventPage />
                 </RoleGuard>
               }
             />
