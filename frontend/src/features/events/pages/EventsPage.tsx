@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
-import { CalendarAltIcon, ClipboardListIcon } from "@patternfly/react-icons";
+import { CalendarAltIcon, ClipboardListIcon, EllipsisVIcon, EnvelopeIcon, EditIcon, TrashIcon } from "@patternfly/react-icons";
 import { useEvents } from "../hooks/useEvents";
 
 export const EventsPage: React.FC = () => {
@@ -12,6 +12,7 @@ export const EventsPage: React.FC = () => {
   const { events, isLoading } = useEvents();
 
   const [activeTab, setActiveTab] = useState("list");
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
 
   const tabs = [
     {
@@ -64,6 +65,7 @@ export const EventsPage: React.FC = () => {
                       <th className="pb-3 text-sm font-semibold text-gray-600">Date</th>
                       <th className="pb-3 text-sm font-semibold text-gray-600">Capacité</th>
                       <th className="pb-3 text-sm font-semibold text-gray-600">Prix</th>
+                      <th className="pb-3 text-sm font-semibold text-gray-600 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -73,6 +75,24 @@ export const EventsPage: React.FC = () => {
                         <td className="py-3 text-gray-600">{new Date(evt.start_date).toLocaleString()}</td>
                         <td className="py-3 text-gray-600">{evt.capacity}</td>
                         <td className="py-3 text-gray-600">{evt.price} €</td>
+                        <td className="py-3 text-right relative">
+                          <button onClick={() => setOpenDropdownId(openDropdownId === evt.id ? null : evt.id)} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+                            <EllipsisVIcon className="w-5 h-5" />
+                          </button>
+                          {openDropdownId === evt.id && (
+                            <div className="absolute right-4 top-10 mt-0 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10">
+                              <button onClick={() => { setOpenDropdownId(null); alert('Envoi de message...'); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
+                                <EnvelopeIcon className="w-4 h-4 mr-2" /> Message aux membres
+                              </button>
+                              <button onClick={() => { setOpenDropdownId(null); alert('Modification...'); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
+                                <EditIcon className="w-4 h-4 mr-2" /> Modifier
+                              </button>
+                              <button onClick={() => { setOpenDropdownId(null); alert('Suppression...'); }} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center">
+                                <TrashIcon className="w-4 h-4 mr-2" /> Supprimer
+                              </button>
+                            </div>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -84,9 +104,27 @@ export const EventsPage: React.FC = () => {
           {activeTab === "upcoming" && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {events.map((evt) => (
-                <div key={evt.id} className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col justify-between h-full">
+                <div key={evt.id} className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col justify-between h-full relative">
                   <div>
                     <h2 className="text-lg font-bold text-gray-900 mb-2">{evt.title}</h2>
+                    <div className="absolute top-4 right-4">
+                      <button onClick={(e) => { e.stopPropagation(); setOpenDropdownId(openDropdownId === evt.id ? null : evt.id); }} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+                        <EllipsisVIcon className="w-5 h-5" />
+                      </button>
+                      {openDropdownId === evt.id && (
+                        <div className="absolute right-0 mt-0 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10">
+                          <button onClick={() => { setOpenDropdownId(null); alert('Envoi de message...'); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
+                            <EnvelopeIcon className="w-4 h-4 mr-2" /> Message aux membres
+                          </button>
+                          <button onClick={() => { setOpenDropdownId(null); alert('Modification...'); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
+                            <EditIcon className="w-4 h-4 mr-2" /> Modifier
+                          </button>
+                          <button onClick={() => { setOpenDropdownId(null); alert('Suppression...'); }} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center">
+                            <TrashIcon className="w-4 h-4 mr-2" /> Supprimer
+                          </button>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex items-center text-gray-500 mb-4 text-sm">
                       <CalendarAltIcon className="w-4 h-4 mr-2" />
                       {new Date(evt.start_date).toLocaleString()}
@@ -107,3 +145,7 @@ export const EventsPage: React.FC = () => {
     </div>
   );
 };
+
+
+
+
