@@ -9,6 +9,8 @@ const controller = new EventController();
 
 router.post('/', authenticate, controller.createEvent);
 router.get('/', authenticate, controller.getEvents);
+router.put('/:id', authenticate, controller.updateEvent);
+router.delete('/:id', authenticate, controller.deleteEvent);
 router.post('/register', authenticate, controller.registerToEvent);
 router.post('/:id/cancel', authenticate, controller.cancelRegistration);
 router.get('/:id/registration', authenticate, controller.getRegistrationStatus);
