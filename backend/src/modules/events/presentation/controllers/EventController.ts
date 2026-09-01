@@ -182,7 +182,7 @@ export class EventController {
 
       const userRepo = new MySQLUserRepository();
       const usersRes = await userRepo.findAll({ limit: 10000 });
-      const activeUsers = usersRes.users.filter(u => u.active);
+      const activeUsers = usersRes.users;
       const emails = activeUsers.map(u => u.email).filter(e => e);
 
       if (emails.length > 0) {
@@ -196,12 +196,14 @@ export class EventController {
         const baseUrl = process.env.FRONTEND_URL || "https://club-management.com";
         const eventUrl = `${baseUrl}/events/${event.id}`;
 
-        if (event.price && event.price > 0) {
+                if (event.price && Number(event.price) > 0) {
           htmlContent += `<br><p>Cet événement est payant (${event.price} €). Si vous souhaitez y participer, vous pouvez vous inscrire et régler votre place directement en ligne :</p>`;
           htmlContent += `<p><a href="${eventUrl}" style="display:inline-block;padding:10px 20px;background-color:#9333ea;color:white;text-decoration:none;border-radius:5px;font-weight:bold;">S'inscrire et Payer</a></p>`;
         } else {
           htmlContent += `<br><p>Pour plus de détails et pour confirmer votre présence, cliquez ci-dessous :</p>`;
           htmlContent += `<p><a href="${eventUrl}" style="display:inline-block;padding:10px 20px;background-color:#9333ea;color:white;text-decoration:none;border-radius:5px;font-weight:bold;">Voir l'événement</a></p>`;
+        }
+        console.log("SENDING HTML:", htmlContent);" style="display:inline-block;padding:10px 20px;background-color:#9333ea;color:white;text-decoration:none;border-radius:5px;font-weight:bold;">Voir l'événement</a></p>`;
         }
 
         await emailService.sendCustomEmail(emails, subject, htmlContent);
