@@ -5,6 +5,7 @@ import { StripeCheckoutForm, StripeCheckoutFormActions, stripePromise } from "..
 import { Elements } from "@stripe/react-stripe-js";
 import { formatCurrency } from "../../../shared/utils";
 import { useTranslation } from "react-i18next";
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
 
 export function QuickPayPage() {
@@ -21,6 +22,7 @@ export function QuickPayPage() {
   const [stripeOpen, setStripeOpen] = useState(false);
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<QuickPayItem | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -75,7 +77,7 @@ export function QuickPayPage() {
   const handleSuccess = () => {
     setStripeOpen(false);
     setStripeClientSecret(null);
-    toast.success("Paiement réalisé avec succès !");
+    setPaymentSuccess(true);
     if (selectedItem) {
       setItems(items.filter(i => i.id !== selectedItem.id || i.type !== selectedItem.type));
     }
@@ -130,6 +132,15 @@ export function QuickPayPage() {
                  <StripeCheckoutFormActions amount={selectedItem.montant} onClose={() => setStripeOpen(false)} />
               </div>
             </Elements>
+          </div>
+        ) : paymentSuccess ? (
+          <div className="text-center py-12 animate-in zoom-in duration-500">
+            <CheckCircleIcon className="h-20 w-20 text-green-500 mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Paiement réussi !</h2>
+            <p className="text-gray-500 mb-8">Merci, votre paiement a bien été pris en compte.</p>
+            {items.length > 0 && (
+               <button onClick={() => setPaymentSuccess(false)} className="text-indigo-600 hover:text-indigo-700 font-medium px-4 py-2 bg-indigo-50 rounded-lg">Voir les autres paiements en attente</button>
+            )}
           </div>
         ) : items.length === 0 ? (
           <div className="text-center text-gray-500 py-8">
