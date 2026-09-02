@@ -5,6 +5,9 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useTutorial } from "../../../shared/providers/TutorialProvider";
+import { getAlertsAdminSteps } from "../../../shared/providers/tutorialsConfig";
+import { useEffect } from "react";
 import { useAuthStore } from "../../../shared/stores/authStore";
 import {
   useAlertTypes,
@@ -173,14 +176,14 @@ function AdminTab() {
       <div className="flex gap-1 bg-gray-100 rounded-lg p-1 w-fit">
         <button
           data-testid="subtab-alerts"
-          onClick={() => setSection("alerts")}
+          onClick={() => { setSection("alerts"); if (isActive) setTimeout(advanceTutorial, 400); }}
           className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${section === "alerts" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
         >
           {t("userAlerts.title")}
         </button>
         <button
           data-testid="subtab-types"
-          onClick={() => setSection("types")}
+          onClick={() => { setSection("types"); if (isActive) setTimeout(advanceTutorial, 400); }}
           className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${section === "types" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
         >
           {t("alertTypes.title")}
@@ -318,7 +321,7 @@ function AdminTab() {
             </h2>
             <button
               data-testid="btn-create-alert"
-              onClick={() => setIsCreateAlertOpen(true)}
+              onClick={() => { setIsCreateAlertOpen(true); if (isActive) setTimeout(advanceTutorial, 400); }}
               className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
             >
               <PlusIcon />
