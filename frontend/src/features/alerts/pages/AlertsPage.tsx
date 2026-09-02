@@ -4,6 +4,7 @@
  */
 
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTutorial } from "../../../shared/providers/TutorialProvider";
 import { getAlertsAdminSteps } from "../../../shared/providers/tutorialsConfig";
@@ -676,6 +677,27 @@ export function AlertsPage() {
   const { t } = useTranslation("alerts");
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role_app === "admin";
+
+  const { runTutorial, hasSeenTutorial, advanceTutorial, isActive } = useTutorial();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const forceTutorial = params.get("tutorial");
+    const tutorialId = "alerts_admin_intro";
+
+    if (isAdmin && (forceTutorial === tutorialId || !hasSeenTutorial(tutorialId))) {
+      runTutorial(tutorialId, getAlertsAdminSteps());
+      
+      // Clean up URL if it was forced
+      if (forceTutorial) {
+        params.delete("tutorial");
+        navigate({ search: params.toString() }, { replace: true });
+      }
+    }
+  }, [isAdmin, hasSeenTutorial, runTutorial, location.search, navigate]);
+
 
   const [activeTab, setActiveTab] = useState<MainTab>(
     isAdmin ? "admin" : "myAlerts",
