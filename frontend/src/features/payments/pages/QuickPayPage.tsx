@@ -69,7 +69,7 @@ export function QuickPayPage() {
           item_id: item.id
         } as any);
       setSelectedItem(item);
-      setStripeClientSecret((intent as any).clientSecret || (intent as any).client_secret);
+      setStripeClientSecret((intent as any).data?.clientSecret || (intent as any).clientSecret || (intent as any).client_secret);
       setStripeOpen(true);
     } catch (err) {
       toast.error("Erreur lors de l'initialisation du paiement.");
@@ -121,7 +121,7 @@ export function QuickPayPage() {
               <div key={`${item.type}-${item.id}`} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                 <div>
                   <h3 className="font-medium text-gray-900">{item.description}</h3>
-                  <p className="text-sm text-gray-500">{item.type === "cotisation" ? "Cotisation" : "Boutique"}</p>
+                  <p className="text-sm text-gray-500">{item.type === "cotisation" ? "Cotisation" : item.type === "evenement" ? "Événement" : "Boutique"}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-lg font-bold text-gray-900">{formatCurrency(item.montant)}</span>
