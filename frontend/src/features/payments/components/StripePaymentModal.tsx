@@ -64,7 +64,7 @@ export const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
     setErrorMessage(null);
 
     try {
-      const { error } = await stripe.confirmPayment({
+      const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
           // On reste sur la même page après la confirmation
@@ -279,8 +279,8 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
 }) => {
   const { t } = useTranslation("payments");
 
-  const handleSuccess = useCallback(() => {
-    onSuccess(paymentIntent?.id);
+  const handleSuccess = useCallback((paymentIntentId?: string) => {
+    onSuccess(paymentIntentId);
     onClose();
   }, [onSuccess, onClose]);
 
