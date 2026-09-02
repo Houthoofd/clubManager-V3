@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 /**
  * PaymentController
  * Controller pour gérer les endpoints des paiements (liste, détail, création, Stripe)
@@ -25,7 +26,7 @@ import { MySQLStockRepository } from "../../../store/infrastructure/repositories
 import { MarkOrderAsPaidUseCase } from "../../../store/application/use-cases/orders/MarkOrderAsPaidUseCase.js";
 
 import { GetQuickPayDataUseCase } from "../../application/use-cases/payments/GetQuickPayDataUseCase.js";
-import jwt from "jsonwebtoken";
+
 
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 
@@ -67,7 +68,7 @@ const verifyStripePaymentUC = new VerifyStripePaymentUseCase(
 
 import { MySQLEventRepository } from "../../../events/infrastructure/repositories/MySQLEventRepository.js";
 import { RegisterToEventUseCase } from "../../../events/application/use-cases/RegisterToEventUseCase.js";
-import jwt from "jsonwebtoken";
+
 
 export class PaymentController {
   
@@ -134,8 +135,8 @@ export class PaymentController {
         return;
       }
       
-      const montant = items[0].montant;
-      const description = items[0].description;
+      const montant = items[0]?.montant;
+      const description = items[0]?.description;
 
       const result = await createStripeIntentUC.execute({
         user_id: userId,
@@ -254,7 +255,7 @@ export class PaymentController {
           req.user.email,
           "Membre", // User info not immediately joined, fallback
           payment.montant.toString(),
-          payment.methode_nom || "Autre",
+          payment.methode_id ? payment.methode_id.toString() : "Stripe" || "Autre",
           payment.description || "Paiement"
         ).catch(e => console.error(e));
       }
@@ -362,7 +363,7 @@ export class PaymentController {
       }
 
       console.log("[verifyPublicPayment] Verifying intent:", payment_intent_id);
-      const intent = await stripeService.stripe.paymentIntents.retrieve(payment_intent_id);
+      const intent = await (stripeService as any).stripe.paymentIntents.retrieve(payment_intent_id);
       
       if (intent.status === "succeeded") {
         const repo = new MySQLPaymentRepository();
@@ -370,7 +371,27 @@ export class PaymentController {
         
         console.log("[verifyPublicPayment] Found payment:", payment?.id, "statut:", payment?.statut_code);
         
-        if (payment && payment.statut_code !== "valide") {
+        if (item_type === "evenement" && item_id && payment?.user_id) {
+            console.log("[verifyPublicPayment] Registering user to event:", item_id);
+            try {
+              const eventRepo = new MySQLEventRepository();
+              const registerUC = new RegisterToEventUseCase(eventRepo);
+              await registerUC.execute({
+                event_id: Number(item_id),
+                user_id: payment.user_id,
+                
+              });
+              console.log("[verifyPublicPayment] User registered to event successfully.");
+            } catch (err: any) {
+              if (err.message && err.message.includes('409')) {
+                console.log("[verifyPublicPayment] User already registered, ignoring.");
+              } else {
+                console.error("[verifyPublicPayment] Failed to register user to event:", err);
+              }
+            }
+          }
+
+          if (payment && payment.statut_code !== "valide") {
           const chargeId = typeof intent.latest_charge === "string" ? intent.latest_charge : undefined;
           await repo.updateStatus(payment.id, 2, chargeId);
 
@@ -383,13 +404,15 @@ export class PaymentController {
             console.log("[verifyPublicPayment] Marked order as paid:", payment.commande_id);
           }
 
+          
+
           if (payment.user_email) {
             console.log("[verifyPublicPayment] Sending receipt to:", payment.user_email);
             await paymentEmailService.sendPaymentReceipt(
               payment.user_email,
               payment.user_first_name || "Membre",
               payment.montant.toString(),
-              payment.methode_nom || "Stripe",
+              payment.methode_id ? payment.methode_id.toString() : "Stripe" || "Stripe",
               payment.description || "Paiement"
             );
           } else {

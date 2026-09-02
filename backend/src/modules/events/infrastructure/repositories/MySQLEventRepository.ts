@@ -108,7 +108,7 @@ export class MySQLEventRepository implements IEventRepository {
     return this.getEventById(id) as Promise<Event>;
   }
 
-  async registerToEvent(data: RegisterToEventDto & { price_paid?: number }): Promise<EventRegistration> {
+  async registerToEvent(data: any): Promise<any> {
     const [result] = await pool.execute<ResultSetHeader>(
       `INSERT INTO event_registrations (event_id, user_id, status, payment_status, price_paid) 
        VALUES (?, ?, ?, ?, ?)`,
@@ -129,12 +129,12 @@ export class MySQLEventRepository implements IEventRepository {
     return rows[0];
   }
 
-  async getRegistrationById(id: number): Promise<EventRegistration | null> {
+  async getRegistrationById(id: number): Promise<any | null> {
     const [rows] = await pool.execute<EventRegistrationRow[]>("SELECT * FROM event_registrations WHERE id = ?", [id]);
     return rows.length > 0 ? rows[0] : null;
   }
 
-  async getRegistration(eventId: number, userId: number): Promise<EventRegistration | null> {
+  async getRegistration(eventId: number, userId: number): Promise<any | null> {
     const [rows] = await pool.execute<EventRegistrationRow[]>(
       "SELECT * FROM event_registrations WHERE event_id = ? AND user_id = ?",
       [eventId, userId]
