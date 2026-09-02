@@ -17,8 +17,8 @@ router.use(authMiddleware);
 
 // ── Routes statiques (doivent être AVANT les routes paramétrées /:id) ────────
 
-// GET /api/users — admin + professor
-router.get("/", requireRole(UserRole.ADMIN, UserRole.PROFESSOR), (req, res) =>
+// GET /api/users — admin + professor + member (for messaging autocomplete)
+router.get("/", (req, res) =>
   ctrl.getUsers(req as any, res),
 );
 
