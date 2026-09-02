@@ -687,7 +687,7 @@ export function AlertsPage() {
     const forceTutorial = params.get("tutorial");
     const tutorialId = "alerts_admin_intro";
 
-    if (isAdmin && (forceTutorial === tutorialId || !hasSeenTutorial(tutorialId))) {
+    if (isAdmin && (forceTutorial === tutorialId )) {
       runTutorial(tutorialId, getAlertsAdminSteps());
       
       // Clean up URL if it was forced

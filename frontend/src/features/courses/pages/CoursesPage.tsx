@@ -194,7 +194,7 @@ export default function CoursesPage() {
     const forceTutorial = params.get("tutorial");
     const tutorialId = isAdmin ? "courses_admin_intro" : "courses_user_intro";
     
-    if (forceTutorial === tutorialId || !hasSeenTutorial(tutorialId)) {
+    if (forceTutorial === tutorialId ) {
       const steps = isAdmin ? getCoursesAdminSteps() : getCoursesUserSteps();
       runTutorial(tutorialId, steps);
       
