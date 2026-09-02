@@ -56,17 +56,20 @@ export const EventsPage: React.FC = () => {
       />
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="border-b border-gray-100 px-2">
-          <TabGroup
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-        </div>
+        {isAdminOrProf && (
+          <div className="border-b border-gray-100 px-2">
+            <TabGroup
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+            />
+          </div>
+        )}
 
         <div className="p-6">
-          {activeTab === "list" && (
+          {activeTab === "list" && isAdminOrProf && (
             <div className="space-y-4">
+              {isAdminOrProf && (
               <div className="flex justify-end mb-4">
                 <button
                   onClick={() => navigate("/admin/events/create")}
@@ -75,6 +78,7 @@ export const EventsPage: React.FC = () => {
                   Créer un évènement
                 </button>
               </div>
+            )}
               <div className="overflow-x-auto pb-20">
                 <table className="w-full text-left border-collapse">
                   <thead>
@@ -83,7 +87,7 @@ export const EventsPage: React.FC = () => {
                       <th className="pb-3 text-sm font-semibold text-gray-600">Date</th>
                       <th className="pb-3 text-sm font-semibold text-gray-600">Capacité</th>
                       <th className="pb-3 text-sm font-semibold text-gray-600">Prix</th>
-                      {isAdminOrProf && <th className="pb-3 text-sm font-semibold text-gray-600 text-right">Actions</th>}
+                      {isAdminOrProf && {isAdminOrProf && <th className="pb-3 text-sm font-semibold text-gray-600 text-right">Actions</th>}}
                     </tr>
                   </thead>
                   <tbody>
@@ -94,30 +98,38 @@ export const EventsPage: React.FC = () => {
                         <td className="py-3 text-gray-600">{evt.capacity}</td>
                         <td className="py-3 text-gray-600">{evt.price} €</td>
                         {isAdminOrProf ? (
+                          {isAdminOrProf ? (
                           <td className="py-3 text-right relative">
-                          <button onClick={() => setOpenDropdownId(openDropdownId === evt.id ? null : evt.id)} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
-                            <EllipsisVerticalIcon className="h-5 w-5" />
-                          </button>
-                          {openDropdownId === evt.id && (
-                            <div className="absolute right-0 top-full mt-1 bg-white rounded-md shadow-lg p-2 z-50 border border-gray-100 overflow-visible">
-                              <div className="flex flex-row items-center gap-1">
-                                <button onClick={() => { setOpenDropdownId(null); setMessageModalEventId(evt.id); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
-                                  <EnvelopeIcon className="h-5 w-5" />
-                                </button>
-                                <button onClick={() => { setOpenDropdownId(null); setAnnounceModalEventId(evt.id); }} title="Annoncer à tous les membres" className="p-2 rounded-md text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors">
-                                  <MegaphoneIcon className="h-5 w-5" />
-                                </button>
-                                <button onClick={() => { setOpenDropdownId(null); navigate(`/admin/events/edit/${evt.id}`); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
-                                  <PencilIcon className="h-5 w-5" />
-                                </button>
-                                <div className="w-px h-6 bg-gray-200 mx-1"></div>
-                                <button onClick={() => { setOpenDropdownId(null); if (window.confirm('Voulez-vous vraiment supprimer cet �v�nement ?')) deleteMutation.mutate(evt.id); }} title="Supprimer" className="p-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
-                                  <TrashIcon className="h-5 w-5" />
-                                </button>
+                            <button onClick={() => setOpenDropdownId(openDropdownId === evt.id ? null : evt.id)} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+                              <EllipsisVerticalIcon className="h-5 w-5" />
+                            </button>
+                            {openDropdownId === evt.id && (
+                              <div className="absolute right-0 top-full mt-1 bg-white rounded-md shadow-lg p-2 z-50 border border-gray-100 overflow-visible">
+                                <div className="flex flex-row items-center gap-1">
+                                  <button onClick={() => { setOpenDropdownId(null); setMessageModalEventId(evt.id); }} title="Message aux membres" className="p-2 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
+                                    <EnvelopeIcon className="h-5 w-5" />
+                                  </button>
+                                  <button onClick={() => { setOpenDropdownId(null); setAnnounceModalEventId(evt.id); }} title="Annoncer à tous les membres" className="p-2 rounded-md text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors">
+                                    <MegaphoneIcon className="h-5 w-5" />
+                                  </button>
+                                  <button onClick={() => { setOpenDropdownId(null); navigate(`/admin/events/edit/${evt.id}`); }} title="Modifier" className="p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                                    <PencilIcon className="h-5 w-5" />
+                                  </button>
+                                  <div className="w-px h-6 bg-gray-200 mx-1"></div>
+                                  <button onClick={() => { setOpenDropdownId(null); if (window.confirm('Voulez-vous vraiment supprimer cet événement ?')) deleteMutation.mutate(evt.id); }} title="Supprimer" className="p-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                                    <TrashIcon className="h-5 w-5" />
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          )}
-                        </td>
+                            )}
+                          </td>
+                        ) : (
+                          <td className="py-3 text-right relative">
+                            <button onClick={() => navigate(`/events/${evt.id}`)} className="text-blue-600 hover:underline">
+                              Détails
+                            </button>
+                          </td>
+                        )}
                           ) : <td className="py-3 text-right relative"><button onClick={() => navigate(`/events/${evt.id}`)} className="text-blue-600 hover:underline">Détails</button></td>}
                       </tr>
                     ))}
