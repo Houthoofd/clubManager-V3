@@ -87,7 +87,7 @@ export const EventsPage: React.FC = () => {
                       <th className="pb-3 text-sm font-semibold text-gray-600">Date</th>
                       <th className="pb-3 text-sm font-semibold text-gray-600">Capacité</th>
                       <th className="pb-3 text-sm font-semibold text-gray-600">Prix</th>
-                      {isAdminOrProf && {isAdminOrProf && <th className="pb-3 text-sm font-semibold text-gray-600 text-right">Actions</th>}}
+                      {isAdminOrProf && <th className="pb-3 text-sm font-semibold text-gray-600 text-right">Actions</th>}
                     </tr>
                   </thead>
                   <tbody>
