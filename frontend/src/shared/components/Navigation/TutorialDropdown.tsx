@@ -50,6 +50,12 @@ export const TutorialDropdown: React.FC = () => {
       label: "Tutoriel : Envoi de messages",
       path: "/messages",
       roles: ["admin", "professor"],
+    },
+    {
+      id: "alerts_intro",
+      label: "Tutoriel : Alertes",
+      path: "/alerts",
+      roles: ["admin"]
     }
   ];
 
