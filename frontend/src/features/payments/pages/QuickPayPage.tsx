@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { getQuickPayData, createPublicStripeIntent, verifyPublicPayment, QuickPayItem } from "../api/paymentsApi";
 import { StripeCheckoutForm, StripeCheckoutFormActions, stripePromise } from "../components/StripePaymentModal";
 import { Elements } from "@stripe/react-stripe-js";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 
 export function QuickPayPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const token = searchParams.get("token");
   const filterType = searchParams.get("type");
   const filterId = searchParams.get("id");
@@ -47,7 +48,15 @@ export function QuickPayPage() {
           searchParams.delete("payment_intent");
           searchParams.delete("payment_intent_client_secret");
           searchParams.delete("redirect_status");
-          fetchOrders();
+          
+          if (filterType === "evenement") {
+            setPaymentSuccess(true);
+            setTimeout(() => {
+              navigate(`/events/${filterId}`);
+            }, 2500);
+          } else {
+            fetchOrders();
+          }
         })
         .catch((err) => {
           console.error("Verification failed", err);
@@ -78,8 +87,18 @@ export function QuickPayPage() {
     setStripeOpen(false);
     setStripeClientSecret(null);
     setPaymentSuccess(true);
+    
+    const isEvent = selectedItem?.type === "evenement";
+    const itemId = selectedItem?.id;
+
     if (selectedItem) {
       setItems(items.filter(i => i.id !== selectedItem.id || i.type !== selectedItem.type));
+    }
+
+    if (isEvent && itemId) {
+      setTimeout(() => {
+        navigate(`/events/${itemId}`);
+      }, 2500);
     }
   };
 
