@@ -22,6 +22,7 @@ export interface SendMessageDto {
   sujet?: string;
   contenu: string;
   envoye_par_email: boolean;
+  envoye_en_interne?: boolean;
 }
 
 export interface SendMessageResult {
@@ -55,13 +56,20 @@ export class SendMessageUseCase {
       }
 
       // Créer l'enregistrement broadcast
-      const broadcastId = await this.repo.createBroadcast({
+      if (dto.envoye_en_interne === false && dto.envoye_par_email === false) {
+        throw new Error("Veuillez sélectionner au moins un mode d'envoi (interne ou email)");
+      }
+
+      let broadcastId = 0;
+      if (dto.envoye_en_interne !== false) {
+        broadcastId = await this.repo.createBroadcast({
         expediteur_id: dto.expediteur_id,
         sujet: dto.sujet,
         contenu: dto.contenu,
         cible: dto.cible,
         envoye_par_email: dto.envoye_par_email,
       } satisfies BroadcastParams);
+      }
 
       // Récupérer les destinataires selon la cible
       const recipients = await this.repo.getRecipientsForBroadcast(dto.cible);
@@ -73,15 +81,18 @@ export class SendMessageUseCase {
 
       for (const recipient of filtered) {
         // Insérer le message individuel lié au broadcast
-        const msgId = await this.repo.sendToUser({
-          expediteur_id: dto.expediteur_id,
-          destinataire_id: recipient.id,
-          sujet: dto.sujet,
-          contenu: dto.contenu,
-          broadcast_id: broadcastId,
-          envoye_par_email: dto.envoye_par_email,
-        });
-        messageIds.push(msgId);
+        let msgId = 0;
+        if (dto.envoye_en_interne !== false) {
+          msgId = await this.repo.sendToUser({
+            expediteur_id: dto.expediteur_id,
+            destinataire_id: recipient.id,
+            sujet: dto.sujet,
+            contenu: dto.contenu,
+            broadcast_id: broadcastId,
+            envoye_par_email: dto.envoye_par_email,
+          });
+          messageIds.push(msgId);
+        }
 
         // Envoyer la notification email si demandé
         if (dto.envoye_par_email && recipient.email) {
@@ -96,7 +107,9 @@ export class SendMessageUseCase {
       }
 
       // Mettre à jour le compteur de destinataires du broadcast
-      await this.repo.updateBroadcastCount(broadcastId, filtered.length);
+      if (broadcastId > 0) {
+        await this.repo.updateBroadcastCount(broadcastId, filtered.length);
+      }
 
       return { messageIds, broadcastId };
     }
@@ -111,13 +124,20 @@ export class SendMessageUseCase {
       throw new Error("Vous ne pouvez pas vous envoyer un message à vous-même");
     }
 
-    const msgId = await this.repo.sendToUser({
+    if (dto.envoye_en_interne === false && dto.envoye_par_email === false) {
+      throw new Error("Veuillez sélectionner au moins un mode d'envoi (interne ou email)");
+    }
+
+    let msgId = 0;
+    if (dto.envoye_en_interne !== false) {
+      msgId = await this.repo.sendToUser({
       expediteur_id: dto.expediteur_id,
       destinataire_id: dto.destinataire_id,
       sujet: dto.sujet,
       contenu: dto.contenu,
       envoye_par_email: dto.envoye_par_email,
     });
+    }
 
     // Envoyer la notification email si demandé et email disponible
     if (dto.envoye_par_email && dto.destinataire_email) {

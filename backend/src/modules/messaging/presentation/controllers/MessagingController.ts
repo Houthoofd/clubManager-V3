@@ -175,7 +175,8 @@ export class MessagingController {
         sujet,
         contenu,
         envoye_par_email,
-      } = req.body;
+          envoye_en_interne,
+        } = req.body;
 
       // Validation minimale : ni destinataire ni cible
       if (!destinataire_id && !cible) {
@@ -235,6 +236,7 @@ export class MessagingController {
         sujet: sujet ?? undefined,
         contenu: String(contenu),
         envoye_par_email: Boolean(envoye_par_email),
+          envoye_en_interne: envoye_en_interne !== undefined ? Boolean(envoye_en_interne) : true,
       });
 
       res.status(201).json({

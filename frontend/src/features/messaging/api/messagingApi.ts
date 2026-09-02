@@ -19,6 +19,7 @@ export interface MessageWithDetails {
   lu: boolean;
   date_lecture: string | null;
   envoye_par_email: boolean;
+  envoye_en_interne?: boolean;
   broadcast_id: number | null;
   created_at: string;
 }
