@@ -50,6 +50,12 @@ router.post(
   (req, res) => paymentCtrl.createPublicStripeIntent(req, res)
 );
 
+router.post(
+  "/stripe/public/verify",
+  express.json(),
+  (req, res) => paymentCtrl.verifyPublicPayment(req, res)
+);
+
 // ============================================================
 // PLANS TARIFAIRES
 // Routes statiques (/plans et /plans/:id) avant /:id
@@ -132,7 +138,7 @@ router.post(
   (req, res) => paymentCtrl.createStripeIntent(req as any, res),
 );
 
-// POST /api/payments/stripe/verify - vérifie manuellement le statut d'un paiement
+// POST /api/payments/stripe/verify - vï¿½rifie manuellement le statut d'un paiement
 router.post(
   "/stripe/verify",
   authMiddleware,
