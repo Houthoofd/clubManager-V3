@@ -30,7 +30,7 @@ export const stripePromise: Promise<Stripe | null> | null = stripePublicKey
 interface StripePaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (paymentIntentId?: string) => void;
   clientSecret: string;
   amount: number;
 }
@@ -39,7 +39,7 @@ interface StripePaymentModalProps {
 
 interface StripeCheckoutFormProps {
   amount: number;
-  onSuccess: () => void;
+  onSuccess: (paymentIntentId?: string) => void;
   onClose: () => void;
 }
 
@@ -79,7 +79,7 @@ export const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
         setIsLoading(false);
       } else {
         // Paiement confirmé sans redirection
-        onSuccess();
+        onSuccess(paymentIntent?.id);
       }
     } catch (err: any) {
       setErrorMessage(err?.message ?? t("modal.stripe.errorProcessing"));
@@ -280,7 +280,7 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
   const { t } = useTranslation("payments");
 
   const handleSuccess = useCallback(() => {
-    onSuccess();
+    onSuccess(paymentIntent?.id);
     onClose();
   }, [onSuccess, onClose]);
 

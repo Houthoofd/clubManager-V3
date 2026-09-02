@@ -83,22 +83,41 @@ export function QuickPayPage() {
     }
   };
 
-  const handleSuccess = () => {
+  const handleSuccess = (paymentIntentId?: string) => {
     setStripeOpen(false);
     setStripeClientSecret(null);
-    setPaymentSuccess(true);
-    
+
     const isEvent = selectedItem?.type === "evenement";
     const itemId = selectedItem?.id;
 
-    if (selectedItem) {
-      setItems(items.filter(i => i.id !== selectedItem.id || i.type !== selectedItem.type));
-    }
-
-    if (isEvent && itemId) {
-      setTimeout(() => {
-        navigate(`/events/${itemId}`);
-      }, 2500);
+    if (paymentIntentId && selectedItem) {
+      verifyPublicPayment(token, paymentIntentId, selectedItem.type as any, selectedItem.id)
+        .then(() => {
+          setPaymentSuccess(true);
+          if (selectedItem) {
+            setItems(items.filter(i => i.id !== selectedItem.id || i.type !== selectedItem.type));
+          }
+          if (isEvent && itemId) {
+            setTimeout(() => {
+              navigate(`/events/${itemId}`);
+            }, 2500);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to verify payment via frontend:", err);
+          toast.error("Erreur lors de la validation du paiement.");
+        });
+    } else {
+      // Fallback si pas d'ID
+      setPaymentSuccess(true);
+      if (selectedItem) {
+        setItems(items.filter(i => i.id !== selectedItem.id || i.type !== selectedItem.type));
+      }
+      if (isEvent && itemId) {
+        setTimeout(() => {
+          navigate(`/events/${itemId}`);
+        }, 2500);
+      }
     }
   };
 
