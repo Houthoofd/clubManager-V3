@@ -22,7 +22,7 @@ export function QuickPayPage() {
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<QuickPayItem | null>(null);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!token) {
       setError("Lien de paiement invalide.");
       setLoading(false);
@@ -33,17 +33,12 @@ export function QuickPayPage() {
 
     const fetchOrders = () => {
       getQuickPayData(token, filterType, filterId)
-        .then((data) => {
-          setItems(data);
-        })
-        .catch((err) => {
-          setError("Ce lien est invalide ou expiré.");
-        })
+        .then((data) => setItems(data))
+        .catch(() => setError("Ce lien est invalide ou expiré."))
         .finally(() => setLoading(false));
     };
 
     if (paymentIntent && filterType && filterId) {
-      // Un paiement vient d'être redirigé par Stripe
       verifyPublicPayment(token, paymentIntent, filterType as any, Number(filterId))
         .then(() => {
           toast.success("Paiement validé avec succès !");
@@ -80,20 +75,14 @@ export function QuickPayPage() {
   const handleSuccess = () => {
     setStripeOpen(false);
     setStripeClientSecret(null);
-    toast.success("Paiement rÃ©alisÃ© avec succÃ¨s !");
-    // Mettre Ã  jour la liste en retirant l'item payÃ©
+    toast.success("Paiement réalisé avec succès !");
     if (selectedItem) {
       setItems(items.filter(i => i.id !== selectedItem.id || i.type !== selectedItem.type));
     }
   };
 
-  if (loading) {
-    return <div className="flex justify-center p-12">Chargement...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center p-12 text-red-600 font-medium">{error}</div>;
-  }
+  if (loading) return <div className="flex justify-center p-12">Chargement...</div>;
+  if (error) return <div className="text-center p-12 text-red-600 font-medium">{error}</div>;
 
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -106,13 +95,40 @@ export function QuickPayPage() {
             Utilisez la fausse carte de test ci-dessous pour simuler un paiement réussi :
             <ul className="mt-2 space-y-1 list-disc list-inside text-yellow-700">
               <li><strong>Carte :</strong> <span className="font-mono bg-yellow-100 px-1 py-0.5 rounded">4242 4242 4242 4242</span></li>
-              <li><strong>Date d'expiration :</strong> <span className="font-mono bg-yellow-100 px-1 py-0.5 rounded">12/30</span> (ou n'importe quelle date future)</li>
+              <li><strong>Date d'expiration :</strong> <span className="font-mono bg-yellow-100 px-1 py-0.5 rounded">12/30</span></li>
               <li><strong>CVC :</strong> <span className="font-mono bg-yellow-100 px-1 py-0.5 rounded">123</span></li>
             </ul>
           </div>
         )}
 
-        {items.length === 0 ? (
+        {stripeOpen && stripeClientSecret && selectedItem && stripePromise ? (
+          <div className="mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 mb-6">
+              <div>
+                <h3 className="font-medium text-gray-900">{selectedItem.description}</h3>
+                <p className="text-sm text-gray-500">{selectedItem.type === "cotisation" ? "Cotisation" : selectedItem.type === "evenement" ? "Événement" : "Boutique"}</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-lg font-bold text-gray-900">{formatCurrency(selectedItem.montant)}</span>
+                <button onClick={() => setStripeOpen(false)} className="text-sm text-gray-500 hover:text-gray-700 underline font-medium">Annuler</button>
+              </div>
+            </div>
+
+            <Elements
+              stripe={stripePromise}
+              options={{
+                clientSecret: stripeClientSecret,
+                appearance: { theme: 'stripe' },
+              }}
+            >
+              <StripeCheckoutForm
+                amount={selectedItem.montant}
+                onSuccess={handleSuccess}
+                onClose={() => setStripeOpen(false)}
+              />
+            </Elements>
+          </div>
+        ) : items.length === 0 ? (
           <div className="text-center text-gray-500 py-8">
             Vous n'avez aucun paiement en attente.
           </div>
@@ -138,28 +154,6 @@ export function QuickPayPage() {
           </div>
         )}
       </div>
-
-      {stripeOpen && stripeClientSecret && selectedItem && stripePromise && (
-        <div className="mt-8 bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-          <div className="mb-4 pb-4 border-b border-gray-100 flex justify-between items-center">
-            <h3 className="text-lg font-bold text-gray-900">Finaliser le paiement de {formatCurrency(selectedItem.montant)}</h3>
-            <button onClick={() => setStripeOpen(false)} className="text-gray-400 hover:text-gray-600">Annuler</button>
-          </div>
-          <Elements
-            stripe={stripePromise}
-            options={{
-              clientSecret: stripeClientSecret,
-              appearance: { theme: 'stripe' },
-            }}
-          >
-            <StripeCheckoutForm
-              amount={selectedItem.montant}
-              onSuccess={handleSuccess}
-              onClose={() => setStripeOpen(false)}
-            />
-          </Elements>
-        </div>
-      )}
     </div>
   );
 }
