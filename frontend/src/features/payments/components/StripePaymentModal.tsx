@@ -21,7 +21,7 @@ import { Modal, Button } from "../../../shared/components";
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY as
   | string
   | undefined;
-const stripePromise: Promise<Stripe | null> | null = stripePublicKey
+export const stripePromise: Promise<Stripe | null> | null = stripePublicKey
   ? loadStripe(stripePublicKey)
   : null;
 
@@ -43,7 +43,7 @@ interface StripeCheckoutFormProps {
   onClose: () => void;
 }
 
-const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
+export const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({
   amount,
   onSuccess,
   onClose,
