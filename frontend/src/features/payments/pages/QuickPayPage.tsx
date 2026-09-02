@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getQuickPayData, createPublicStripeIntent, verifyPublicPayment, QuickPayItem } from "../api/paymentsApi";
-import { StripeCheckoutForm, stripePromise } from "../components/StripePaymentModal";
+import { StripeCheckoutForm, StripeCheckoutFormActions, stripePromise } from "../components/StripePaymentModal";
 import { Elements } from "@stripe/react-stripe-js";
 import { formatCurrency } from "../../../shared/utils";
 import { useTranslation } from "react-i18next";
@@ -126,6 +126,9 @@ export function QuickPayPage() {
                 onSuccess={handleSuccess}
                 onClose={() => setStripeOpen(false)}
               />
+              <div className="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4">
+                 <StripeCheckoutFormActions amount={selectedItem.montant} onClose={() => setStripeOpen(false)} />
+              </div>
             </Elements>
           </div>
         ) : items.length === 0 ? (

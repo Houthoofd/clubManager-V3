@@ -397,7 +397,7 @@ export const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
 
 // ─── Actions du formulaire (séparées pour utiliser les hooks Stripe) ──────────
 
-const StripeCheckoutFormActions: React.FC<{
+export const StripeCheckoutFormActions: React.FC<{
   amount: number;
   onClose: () => void;
 }> = ({ amount, onClose }) => {
