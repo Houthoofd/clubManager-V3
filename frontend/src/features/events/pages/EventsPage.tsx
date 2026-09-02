@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../shared/hooks/useAuth";
+import { UserRole } from "@clubmanager/types";
 import { PageHeader } from "../../../shared/components/Layout/PageHeader";
 import { TabGroup } from "../../../shared/components/Navigation/TabGroup";
 import { CalendarAltIcon, ClipboardListIcon } from "@patternfly/react-icons";
@@ -16,6 +18,8 @@ export const EventsPage: React.FC = () => {
   const navigate = useNavigate();
   const { events, isLoading } = useEvents();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isAdminOrProf = user?.role_app === UserRole.ADMIN || user?.role_app === UserRole.PROFESSOR;
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => eventsService.deleteEvent(id),
@@ -79,7 +83,7 @@ export const EventsPage: React.FC = () => {
                       <th className="pb-3 text-sm font-semibold text-gray-600">Date</th>
                       <th className="pb-3 text-sm font-semibold text-gray-600">Capacité</th>
                       <th className="pb-3 text-sm font-semibold text-gray-600">Prix</th>
-                      <th className="pb-3 text-sm font-semibold text-gray-600 text-right">Actions</th>
+                      {isAdminOrProf && <th className="pb-3 text-sm font-semibold text-gray-600 text-right">Actions</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -89,7 +93,8 @@ export const EventsPage: React.FC = () => {
                         <td className="py-3 text-gray-600">{new Date(evt.start_date).toLocaleString()}</td>
                         <td className="py-3 text-gray-600">{evt.capacity}</td>
                         <td className="py-3 text-gray-600">{evt.price} €</td>
-                        <td className="py-3 text-right relative">
+                        {isAdminOrProf ? (
+                          <td className="py-3 text-right relative">
                           <button onClick={() => setOpenDropdownId(openDropdownId === evt.id ? null : evt.id)} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
                             <EllipsisVerticalIcon className="h-5 w-5" />
                           </button>
@@ -113,6 +118,7 @@ export const EventsPage: React.FC = () => {
                             </div>
                           )}
                         </td>
+                          ) : <td className="py-3 text-right relative"><button onClick={() => navigate(`/events/${evt.id}`)} className="text-blue-600 hover:underline">Détails</button></td>}
                       </tr>
                     ))}
                   </tbody>
@@ -127,6 +133,7 @@ export const EventsPage: React.FC = () => {
                 <div key={evt.id} className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col justify-between h-full relative">
                   <div>
                     <h2 className="text-lg font-bold text-gray-900 mb-2">{evt.title}</h2>
+                    {isAdminOrProf && (
                     <div className="absolute top-4 right-4">
                       <button onClick={(e) => { e.stopPropagation(); setOpenDropdownId(openDropdownId === evt.id ? null : evt.id); }} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
                         <EllipsisVerticalIcon className="h-5 w-5" />
@@ -151,6 +158,7 @@ export const EventsPage: React.FC = () => {
                         </div>
                       )}
                     </div>
+                    )}
                     <div className="flex items-center text-gray-500 mb-4 text-sm">
                       <CalendarAltIcon className="w-4 h-4 mr-2" />
                       {new Date(evt.start_date).toLocaleString()}

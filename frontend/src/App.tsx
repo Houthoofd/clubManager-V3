@@ -293,13 +293,13 @@ function App() {
               }
             />
             <Route
-              path="/events"
-              element={
-                  <RoleGuard allowedRoles={[UserRole.ADMIN]}>
-                    <EventsPage />
-                  </RoleGuard>
-              }
-            />
+                path="/events"
+                element={
+                    <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.PROFESSOR, UserRole.MEMBER]}>
+                      <EventsPage />
+                    </RoleGuard>
+                }
+              />
             <Route
               path="/events/:id"
               element={
