@@ -28,7 +28,7 @@ export const EventsPage: React.FC = () => {
 
   
 
-  const [activeTab, setActiveTab] = useState("list");
+  const [activeTab, setActiveTab] = useState(isAdminOrProf ? "list" : "upcoming");
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [messageModalEventId, setMessageModalEventId] = useState<number | null>(null);
   const [announceModalEventId, setAnnounceModalEventId] = useState<number | null>(null);
@@ -51,7 +51,7 @@ export const EventsPage: React.FC = () => {
     <div className="space-y-6" data-testid="events-page">
       <PageHeader
         title={t("navigation.events", { defaultValue: "Évènements" })}
-        description="Gérez les évènements de votre club et les inscriptions."
+        description={isAdminOrProf ? "Gérez les évènements de votre club et les inscriptions." : "Découvrez et inscrivez-vous aux prochains évènements du club."}
         icon={<CalendarAltIcon className="w-8 h-8 text-blue-600" />}
       />
 
