@@ -111,7 +111,7 @@ export function TabGroup({
   activeTab,
   onTabChange,
   variant = "default",
-  scrollable = false,
+  scrollable = true,
   className = "",
 }: TabGroupProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);

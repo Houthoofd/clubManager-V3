@@ -337,6 +337,7 @@ export const SettingsPage = () => {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={(tabId) => setActiveTab(tabId as TabId)}
+          scrollable={true}
         />
         <div className="p-6">
 
