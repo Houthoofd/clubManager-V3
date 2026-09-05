@@ -25,6 +25,11 @@ export const superAdminApi = {
     return response.data;
   },
 
+  inviteClub: async (email: string): Promise<ApiResponse<{ inviteLink: string, token: string }>> => {
+    const response = await apiClient.post<ApiResponse<{ inviteLink: string, token: string }>>('/superadmin/clubs/invite', { email });
+    return response.data;
+  },
+
   updateClubStatus: async (id: number, status: 'active' | 'suspended' | 'trial'): Promise<ApiResponse> => {
     const response = await apiClient.patch<ApiResponse>(/superadmin/clubs/ + id + /status, { status });
     return response.data;
