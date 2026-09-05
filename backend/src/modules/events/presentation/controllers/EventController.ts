@@ -3,7 +3,7 @@ import { CreateEventUseCase } from '../../application/use-cases/CreateEventUseCa
 import { GetEventsUseCase } from '../../application/use-cases/GetEventsUseCase.js';
 import { RegisterToEventUseCase } from '../../application/use-cases/RegisterToEventUseCase.js';
 import { MySQLEventRepository } from '../../infrastructure/repositories/MySQLEventRepository.js';
-import { getStorageService } from '@/shared/storage/StorageServiceFactory.js';
+import { getStorageService } from '../../../../shared/storage/StorageServiceFactory.js';
 
 const repository = new MySQLEventRepository();
 const createEventUseCase = new CreateEventUseCase(repository);

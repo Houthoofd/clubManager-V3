@@ -25,6 +25,7 @@ import { useAuth } from "./shared/hooks/useAuth";
 
 // Route Guards
 import { PublicRoute, RoleGuard } from "./shared/components/Auth";
+import { ProtectedRoute } from "./shared/components/Auth/ProtectedRoute";
 import { UserRole } from "@clubmanager/types";
 
 // Auth Pages
@@ -54,6 +55,10 @@ import { ReservationsPage } from "./features/reservations/pages/ReservationsPage
 import { EventsPage } from "./features/events/pages/EventsPage";
 import { CreateEventPage } from "./pages/admin/events/CreateEventPage";
 import { EventDetailsPage } from "./pages/member/events/EventDetailsPage";
+import { LandingPage } from "./pages/public/LandingPage";
+import { OnboardingWizard } from "./features/onboarding/pages/OnboardingWizard";
+import { SuperAdminDashboard } from "./features/superadmin/pages/SuperAdminDashboard";
+import { SuperAdminLayout } from "./layouts/SuperAdminLayout";
 
 /**
  * AuthenticatedLayout Component
@@ -83,7 +88,7 @@ const AuthenticatedLayout = () => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return <PrivateLayout />;
+  if (user.role_app === "super_admin" as any) { return <Navigate to="/superadmin" replace />; } return <PrivateLayout />;
 };
 
 /**
@@ -105,7 +110,7 @@ const RootRedirect = () => {
     );
   }
 
-  return <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />;
+  return <Navigate to={isAuthenticated ? (user?.role_app === "super_admin" ? "/superadmin" : "/dashboard") : "/login"} replace />;
 };
 
 /**
@@ -151,10 +156,16 @@ function App() {
         <BrowserRouter>
         <Routes>
           {/* Redirect root based on auth state */}
-          <Route path="/" element={<RootRedirect />} />
+          
 
+          
+          <Route path="/onboarding" element={<PublicRoute><OnboardingWizard /></PublicRoute>} />
+          <Route path="/superadmin" element={<ProtectedRoute><SuperAdminLayout /></ProtectedRoute>}><Route index element={<SuperAdminDashboard />} /></Route>
+          
           {/* Public Routes */}
+
           <Route element={<PublicLayout />}>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/quick-pay" element={<QuickPayPage />} />
             <Route
               path="/login"

@@ -86,7 +86,7 @@ const tokenSchema = z
  * Schéma pour connexion par userId
  */
 export const loginSchema = z.object({
-  userId: userIdSchema,
+  identifier: z.string().min(1, "L'identifiant est requis"),
   password: passwordSchema,
 });
 

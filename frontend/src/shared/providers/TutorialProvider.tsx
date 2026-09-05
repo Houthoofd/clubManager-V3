@@ -31,7 +31,7 @@ export const useTutorial = () => {
 export const TutorialProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
   const [seenTutorials, setSeenTutorials] = useState<string[]>([]);
-  const joyrideRef = useRef<any>(null);
+  
   const [tutorialKey, setTutorialKey] = useState(0);
   
   const [run, setRun] = useState(false);
@@ -100,7 +100,7 @@ export const TutorialProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       {children}
       <Joyride
         key={tutorialKey}
-        ref={joyrideRef}
+        stepIndex={stepIndex}
         steps={steps}
         run={run}
         continuous

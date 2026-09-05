@@ -580,3 +580,13 @@ export function calculateAge(birthDate: string | Date | null | undefined): numbe
     return 0;
   }
 }
+
+export function formatDateLong(date: string | Date | null | undefined, locale: string = 'fr'): string {
+  if (!date) return "-";
+  try {
+    const d = typeof date === "string" ? new Date(date) : date;
+    return new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+  } catch {
+    return "-";
+  }
+}

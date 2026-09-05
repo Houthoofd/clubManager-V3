@@ -2,16 +2,16 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useCourses } from "../hooks/useCourses";
 import { toast } from "sonner";
-import { formatTime, formatDateLong } from "@/shared/utils/dateUtils";
+import { formatTime, formatDateLong } from "@/shared/utils/formatters";
 import {
   CalendarIcon,
   CheckCircleIcon,
   UserPlusIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
-import { Button } from "@/shared/components/ui/Button";
-import { LoadingSpinner } from "@/shared/components/ui/LoadingSpinner";
-import { EmptyState } from "@/shared/components/ui/EmptyState";
+import { Button } from "@/shared/components/Button/Button";
+import { LoadingSpinner } from "@/shared/components/Layout/LoadingSpinner";
+import { EmptyState } from "@/shared/components/Layout/EmptyState";
 
 export function MemberCoursesView() {
   const { t, i18n } = useTranslation("courses");

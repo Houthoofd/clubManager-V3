@@ -9,7 +9,7 @@ import type { UserRole } from "../../enums/UserRole.enum.js";
  * DTO pour connexion par userId
  */
 export interface LoginDto {
-  userId: string;
+  identifier: string;
   password: string;
 }
 
@@ -103,6 +103,8 @@ export interface JwtPayload {
   email: string;
   userIdString: string; // Format U-YYYY-XXXX
   role_app: UserRole;
+  tenantDbName?: string;
+  global_role?: string;
   type: "access" | "refresh";
 }
 

@@ -14,11 +14,14 @@ export const PublicLayout: React.FC = () => {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center">
-              <h1 className="text-2xl font-bold text-blue-600">
-                {t("layout.clubManager")}
-              </h1>
+            
+            
+            <Link to="/" className="flex items-center gap-2">
+              <img src="/logo-icon.svg" alt="ClubManager Logo" className="h-8 w-auto object-contain" />
+              <span className="text-2xl font-bold text-brand-dark">Club<span className="text-brand-blue">Manager</span></span>
             </Link>
+
+
 
             <nav className="flex items-center space-x-4">
               <Link

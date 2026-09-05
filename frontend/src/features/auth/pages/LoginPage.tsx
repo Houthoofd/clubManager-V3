@@ -72,7 +72,9 @@ export const LoginPage = () => {
         });
 
         // Redirection vers la page d'origine ou le dashboard
-        const from = (location.state as any)?.from?.pathname || "/dashboard";
+        const defaultPath = result.user?.role_app === "super_admin" ? "/superadmin" : "/dashboard";
+        let from = (location.state as any)?.from?.pathname || defaultPath;
+        if (result.user?.role_app === "super_admin") from = "/superadmin";
         navigate(from, { replace: true });
       } else {
         toast.error(t("errors.invalidCredentials"), {
@@ -185,27 +187,27 @@ export const LoginPage = () => {
       >
         {/* Identifiant membre */}
         <FormField
-          id="userId"
-          label={t("login.userId")}
+          id="identifier"
+          label="Email ou Identifiant Club"
           required
-          error={errors.userId?.message}
+          error={errors.identifier?.message}
         >
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <UserIcon className="h-5 w-5 text-gray-400" />
             </div>
             <input
-              id="userId"
+              id="identifier"
               type="text"
               autoComplete="username"
               data-testid="login-userid-input"
-              {...register("userId")}
+              {...register("identifier")}
               className={`block w-full pl-10 pr-3 py-3 border ${
-                errors.userId
+                errors.identifier
                   ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                   : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
               } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors`}
-              placeholder={t("login.userIdPlaceholder")}
+              placeholder="Email ou Identifiant Club"
             />
           </div>
         </FormField>

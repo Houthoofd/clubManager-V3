@@ -5,9 +5,9 @@
  */
 
 import type { Response } from "express";
-import type { AuthRequest } from "@/shared/middleware/authMiddleware.js";
+import type { AuthRequest } from "../../../../shared/middleware/authMiddleware.js";
 import { MySQLArticleRepository } from "../../infrastructure/repositories/MySQLArticleRepository.js";
-import { getStorageService } from "@/shared/storage/StorageServiceFactory.js";
+import { getStorageService } from "../../../../shared/storage/StorageServiceFactory.js";
 
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 

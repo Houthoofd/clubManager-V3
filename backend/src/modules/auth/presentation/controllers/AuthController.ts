@@ -123,7 +123,7 @@ export class AuthController {
   ): Promise<void> => {
     try {
       const dto: LoginDto = {
-        userId: req.body.userId,
+        identifier: req.body.identifier,
         password: req.body.password,
       };
 
