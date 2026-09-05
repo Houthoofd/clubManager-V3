@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { 
   BuildingOfficeIcon, 
   UserGroupIcon, 
@@ -6,45 +6,62 @@ import {
   PlayIcon,
   PauseIcon,
   ChartBarIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  PencilIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'sonner';
-
-interface ClubInfo {
-  id: number;
-  name: string;
-  code: string;
-  db_name: string;
-  admin_count: number;
-  contact_email: string;
-  status: 'active' | 'suspended' | 'trial';
-  created_at: string;
-}
+import { superAdminApi, ClubInfo } from '../api/superAdminApi';
+import { EditClubModal } from '../components/EditClubModal';
+import { DeleteClubModal } from '../components/DeleteClubModal';
 
 export const SuperAdminDashboard = () => {
   const [clubs, setClubs] = useState<ClubInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Simuler le chargement depuis la master database
-    setTimeout(() => {
-      setClubs([
-        { id: 1, name: 'Tennis Club de Paris', code: 'TCP', db_name: 'tenant_tcp', admin_count: 3, contact_email: 'contact@tcp.fr', status: 'active', created_at: '2024-01-15' },
-        { id: 2, name: 'Golf Bluegreen', code: 'GBG', db_name: 'tenant_gbg', admin_count: 5, contact_email: 'admin@golf-bg.fr', status: 'active', created_at: '2024-02-01' },
-        { id: 3, name: 'Yoga Studio Zen', code: 'YSZ', db_name: 'tenant_ysz', admin_count: 1, contact_email: 'hello@yoga-zen.com', status: 'trial', created_at: '2024-03-10' },
-        { id: 4, name: 'CrossFit Box 75', code: 'CF75', db_name: 'tenant_cf75', admin_count: 2, contact_email: 'wod@cf75.com', status: 'suspended', created_at: '2023-11-05' },
-      ]);
+  // Modal states
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedClub, setSelectedClub] = useState<ClubInfo | null>(null);
+
+  const fetchClubs = async () => {
+    try {
+      setIsLoading(true);
+      const response = await superAdminApi.getClubs();
+      setClubs(response.data || []);
+    } catch (error) {
+      toast.error('Erreur lors du chargement des clubs.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
+  };
+
+  useEffect(() => {
+    fetchClubs();
   }, []);
 
-  const handleStatusChange = (clubId: number, newStatus: 'active' | 'suspended') => {
-    setClubs(clubs.map(c => c.id === clubId ? { ...c, status: newStatus } : c));
-    if (newStatus === 'suspended') {
-      toast.warning(`Le club a ǸtǸ suspendu. L'accǦs est rǸvoquǸ.`);
-    } else {
-      toast.success(`Le club a ǸtǸ rǸactivǸ avec succǦs.`);
+  const handleStatusChange = async (clubId: number, newStatus: 'active' | 'suspended') => {
+    try {
+      await superAdminApi.updateClubStatus(clubId, newStatus);
+      setClubs(clubs.map(c => c.id === clubId ? { ...c, status: newStatus } : c));
+      if (newStatus === 'suspended') {
+        toast.warning(Le club a été suspendu. L'accès est révoqué.);
+      } else {
+        toast.success(Le club a été réactivé avec succès.);
+      }
+    } catch (error) {
+      toast.error('Erreur lors du changement de statut.');
     }
+  };
+
+  const openEditModal = (club: ClubInfo) => {
+    setSelectedClub(club);
+    setIsEditModalOpen(true);
+  };
+
+  const openDeleteModal = (club: ClubInfo) => {
+    setSelectedClub(club);
+    setIsDeleteModalOpen(true);
   };
 
   const getStatusBadge = (status: string) => {
@@ -120,7 +137,7 @@ export const SuperAdminDashboard = () => {
         </div>
         
         {isLoading ? (
-          <div className="p-12 text-center text-gray-500 animate-pulse">Chargement des donnǸes...</div>
+          <div className="p-12 text-center text-gray-500 animate-pulse">Chargement des données...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-100">
@@ -128,7 +145,7 @@ export const SuperAdminDashboard = () => {
                 <tr>
                   <th className="py-4 pl-6 pr-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Organisation</th>
                   <th className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Code Unique</th>
-                  <th className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Base de donnǸes</th>
+                  <th className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Base de données</th>
                   <th className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Statut</th>
                   <th className="relative py-4 pl-3 pr-6">
                     <span className="sr-only">Actions</span>
@@ -153,23 +170,39 @@ export const SuperAdminDashboard = () => {
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
+                        <button 
+                          onClick={() => openEditModal(club)}
+                          className="text-brand-blue bg-brand-blue/10 hover:bg-brand-blue hover:text-white p-1.5 rounded-md transition-all"
+                          title="Modifier le club"
+                        >
+                          <PencilIcon className="h-5 w-5" />
+                        </button>
+                        
                         {club.status === 'suspended' ? (
                           <button 
                             onClick={() => handleStatusChange(club.id, 'active')}
                             className="text-brand-green bg-brand-green/10 hover:bg-brand-green hover:text-white p-1.5 rounded-md transition-all"
-                            title="RǸactiver le club"
+                            title="Réactiver le club"
                           >
                             <PlayIcon className="h-5 w-5" />
                           </button>
                         ) : (
                           <button 
                             onClick={() => handleStatusChange(club.id, 'suspended')}
-                            className="text-red-600 bg-red-50 hover:bg-red-600 hover:text-white p-1.5 rounded-md transition-all"
+                            className="text-orange-500 bg-orange-50 hover:bg-orange-500 hover:text-white p-1.5 rounded-md transition-all"
                             title="Suspendre le club"
                           >
                             <PauseIcon className="h-5 w-5" />
                           </button>
                         )}
+                        
+                        <button 
+                          onClick={() => openDeleteModal(club)}
+                          className="text-red-600 bg-red-50 hover:bg-red-600 hover:text-white p-1.5 rounded-md transition-all"
+                          title="Supprimer le club"
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -186,6 +219,20 @@ export const SuperAdminDashboard = () => {
           </div>
         )}
       </div>
+
+      <EditClubModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        club={selectedClub}
+        onSuccess={fetchClubs}
+      />
+      
+      <DeleteClubModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        club={selectedClub}
+        onSuccess={fetchClubs}
+      />
     </div>
   );
 };
