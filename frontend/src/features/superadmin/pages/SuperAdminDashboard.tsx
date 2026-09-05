@@ -45,9 +45,9 @@ export const SuperAdminDashboard = () => {
       await superAdminApi.updateClubStatus(clubId, newStatus);
       setClubs(clubs.map(c => c.id === clubId ? { ...c, status: newStatus } : c));
       if (newStatus === 'suspended') {
-        toast.warning(Le club a été suspendu. L'accès est révoqué.);
+        toast.warning("Le club a été suspendu. L'accès est révoqué.");
       } else {
-        toast.success(Le club a été réactivé avec succès.);
+        toast.success("Le club a été réactivé avec succès.");
       }
     } catch (error) {
       toast.error('Erreur lors du changement de statut.');

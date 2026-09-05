@@ -1,4 +1,6 @@
-import { Router, Request, Response, NextFunction } from 'express';
+const fs = require('fs');
+
+const code = `import { Router, Request, Response, NextFunction } from 'express';
 import { SuperAdminController } from '../controllers/SuperAdminController';
 
 const router = Router();
@@ -15,5 +17,7 @@ router.patch('/clubs/:id/status', superAdminController.updateClubStatus);
 router.put('/clubs/:id', superAdminController.updateClub);
 router.delete('/clubs/:id', superAdminController.deleteClub);
 
-router.post('/clubs/invite', superAdminController.inviteClub);
 export default router;
+`;
+
+fs.writeFileSync('backend/src/modules/superadmin/presentation/routes/superadminRoutes.ts', code);

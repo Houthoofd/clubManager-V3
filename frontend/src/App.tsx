@@ -58,6 +58,8 @@ import { EventDetailsPage } from "./pages/member/events/EventDetailsPage";
 import { LandingPage } from "./pages/public/LandingPage";
 import { OnboardingWizard } from "./features/onboarding/pages/OnboardingWizard";
 import { SuperAdminDashboard } from "./features/superadmin/pages/SuperAdminDashboard";
+import { SuperAdminBilling } from "./features/superadmin/pages/SuperAdminBilling";
+import { SuperAdminSettings } from "./features/superadmin/pages/SuperAdminSettings";
 import { SuperAdminLayout } from "./layouts/SuperAdminLayout";
 
 /**
@@ -160,7 +162,7 @@ function App() {
 
           
           <Route path="/onboarding" element={<PublicRoute><OnboardingWizard /></PublicRoute>} />
-          <Route path="/superadmin" element={<ProtectedRoute><SuperAdminLayout /></ProtectedRoute>}><Route index element={<SuperAdminDashboard />} /></Route>
+          <Route path="/superadmin" element={<ProtectedRoute><SuperAdminLayout /></ProtectedRoute>}><Route index element={<Navigate to="/superadmin/clubs" replace />} /><Route path="clubs" element={<SuperAdminDashboard />} /><Route path="billing" element={<SuperAdminBilling />} /><Route path="settings" element={<SuperAdminSettings />} /></Route>
           
           {/* Public Routes */}
 

@@ -1,4 +1,6 @@
-import { Request, Response } from 'express';
+const fs = require('fs');
+
+const code = `import { Request, Response } from 'express';
 import { tenantManager } from '../../../../core/database/TenantManager';
 
 export class SuperAdminController {
@@ -6,7 +8,7 @@ export class SuperAdminController {
   public getClubs = async (req: Request, res: Response): Promise<void> => {
     try {
       const masterPool = tenantManager.getMasterPool();
-      const query = `
+      const query = \`
         SELECT 
           o.id, 
           o.name, 
@@ -23,7 +25,7 @@ export class SuperAdminController {
         WHERE o.status != 'deleted'
         GROUP BY o.id
         ORDER BY o.created_at DESC
-      `;
+      \`;
       const [rows] = await masterPool.query(query);
       res.json({ success: true, data: rows });
     } catch (error: any) {
@@ -76,35 +78,7 @@ export class SuperAdminController {
       res.status(500).json({ success: false, message: 'Erreur serveur lors de la suppression' });
     }
   };
-
-  public inviteClub = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { email } = req.body;
-      if (!email) {
-        res.status(400).json({ success: false, message: 'Email requis' });
-        return;
-      }
-      const masterPool = tenantManager.getMasterPool();
-      const token = require('crypto').randomBytes(32).toString('hex');
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 7); // Valide 7 jours
-
-      await masterPool.query(
-        'INSERT INTO organization_invitations (email, token, expires_at) VALUES (?, ?, ?)',
-        [email, token, expiresAt]
-      );
-      
-      const inviteLink = `http://localhost:5173/onboarding?token=${token}`;
-      
-      res.json({ 
-        success: true, 
-        message: 'Invitation générée avec succès', 
-        data: { inviteLink, token } 
-      });
-    } catch (error: any) {
-      console.error('[SuperAdminController] Error inviting club:', error);
-      res.status(500).json({ success: false, message: 'Erreur serveur' });
-    }
-  };
-
 }
+`;
+
+fs.writeFileSync('backend/src/modules/superadmin/presentation/controllers/SuperAdminController.ts', code);
