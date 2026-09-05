@@ -1,1 +1,0 @@
-SELECT id, url FROM images ORDER BY id DESC LIMIT 5;
