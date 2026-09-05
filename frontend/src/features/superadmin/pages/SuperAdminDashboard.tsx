@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { superAdminApi, ClubInfo } from '../api/superAdminApi';
 import { EditClubModal } from '../components/EditClubModal';
 import { DeleteClubModal } from '../components/DeleteClubModal';
+import { InviteClubModal } from '../components/InviteClubModal';
 
 export const SuperAdminDashboard = () => {
   const [clubs, setClubs] = useState<ClubInfo[]>([]);
@@ -22,6 +23,7 @@ export const SuperAdminDashboard = () => {
   // Modal states
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [selectedClub, setSelectedClub] = useState<ClubInfo | null>(null);
 
   const fetchClubs = async () => {
@@ -80,16 +82,24 @@ export const SuperAdminDashboard = () => {
   return (
     <div className="max-w-7xl mx-auto">
       
-      <div className="flex items-center gap-4 mb-8">
-        <div className="rounded-full bg-brand-green/10 p-3">
-          <ShieldCheckIcon className="h-8 w-8 text-brand-green" />
+      <div className="flex items-center gap-4 mb-8 justify-between">
+        <div className="flex items-center gap-4">
+          <div className="rounded-full bg-brand-green/10 p-3">
+            <ShieldCheckIcon className="h-8 w-8 text-brand-green" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-brand-dark">
+              Centre de Contrôle Global
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">Vue d'ensemble et gestion des clubs locataires de la plateforme SaaS.</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-brand-dark">
-            Centre de Contrôle Global
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">Vue d'ensemble et gestion des clubs locataires de la plateforme SaaS.</p>
-        </div>
+        <button
+          onClick={() => setIsInviteModalOpen(true)}
+          className="px-4 py-2 text-sm font-medium text-white bg-brand-blue rounded-lg hover:bg-brand-blue/90 transition-colors"
+        >
+          Inviter un Club
+        </button>
       </div>
         
       {/* STATS */}
@@ -232,6 +242,11 @@ export const SuperAdminDashboard = () => {
         onClose={() => setIsDeleteModalOpen(false)}
         club={selectedClub}
         onSuccess={fetchClubs}
+      />
+      
+      <InviteClubModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
       />
     </div>
   );
