@@ -16,4 +16,5 @@ router.put('/clubs/:id', superAdminController.updateClub);
 router.delete('/clubs/:id', superAdminController.deleteClub);
 
 router.post('/clubs/invite', superAdminController.inviteClub);
+router.post('/clubs/:id/impersonate', superAdminController.impersonateClub);
 export default router;

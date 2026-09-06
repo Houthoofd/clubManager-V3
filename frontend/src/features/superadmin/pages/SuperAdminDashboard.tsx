@@ -8,7 +8,8 @@ import {
   ChartBarIcon,
   ShieldCheckIcon,
   PencilIcon,
-  TrashIcon
+  TrashIcon,
+  EnvelopeIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'sonner';
 import { superAdminApi, ClubInfo } from '../api/superAdminApi';
@@ -98,6 +99,7 @@ export const SuperAdminDashboard = () => {
           onClick={() => setIsInviteModalOpen(true)}
           className="px-4 py-2 text-sm font-medium text-white bg-brand-blue rounded-lg hover:bg-brand-blue/90 transition-colors"
         >
+          <EnvelopeIcon className="w-5 h-5 inline-block mr-2 -mt-1" />
           Inviter un Club
         </button>
       </div>

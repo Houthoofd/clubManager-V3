@@ -21,9 +21,9 @@ export const InviteClubModal: React.FC<InviteClubModalProps> = ({ isOpen, onClos
     try {
       const response = await superAdminApi.inviteClub(email);
       setInviteResult(response.data);
-      toast.success('Invitation créée avec succès.');
+      toast.success("Invitation créée avec succès.");
     } catch (error: any) {
-      toast.error('Erreur lors de la création de l\\'invitation.');
+      toast.error("Erreur lors de la création de l\'invitation.");
     } finally {
       setIsSubmitting(false);
     }
@@ -32,7 +32,7 @@ export const InviteClubModal: React.FC<InviteClubModalProps> = ({ isOpen, onClos
   const handleCopy = () => {
     if (inviteResult?.inviteLink) {
       navigator.clipboard.writeText(inviteResult.inviteLink);
-      toast.success('Lien copié dans le presse-papiers');
+      toast.success("Lien copié dans le presse-papiers");
     }
   };
 

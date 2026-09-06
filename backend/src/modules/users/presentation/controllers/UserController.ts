@@ -370,8 +370,12 @@ export class UserController {
   /**
    * GET /api/users/:id/tutorials
    */
-  async getSeenTutorials(req: AuthRequest, res: Response): Promise<void> {
+    async getSeenTutorials(req: AuthRequest, res: Response): Promise<void> {
     try {
+      if ((req.user as any)?.global_role === 'super_admin') {
+        res.json({ success: true, tutorials: [] });
+        return;
+      }
       const id = Number(req.params.id);
       if (req.user?.userId !== id && req.user?.role_app !== UserRole.ADMIN) {
         res.status(403).json({ success: false, message: "Forbidden" });
@@ -387,20 +391,20 @@ export class UserController {
   /**
    * POST /api/users/:id/tutorials
    */
-  async markTutorialAsSeen(req: AuthRequest, res: Response): Promise<void> {
+    async markTutorialAsSeen(req: AuthRequest, res: Response): Promise<void> {
     try {
+      if ((req.user as any)?.global_role === 'super_admin') {
+        res.json({ success: true, message: "OK" });
+        return;
+      }
       const id = Number(req.params.id);
+      const { tutorialId } = req.body;
       if (req.user?.userId !== id && req.user?.role_app !== UserRole.ADMIN) {
         res.status(403).json({ success: false, message: "Forbidden" });
         return;
       }
-      const { tutorialId } = req.body;
-      if (!tutorialId) {
-        res.status(400).json({ success: false, message: "tutorialId requis" });
-        return;
-      }
       await repo.markTutorialAsSeen(id, tutorialId);
-      res.json({ success: true, message: "Tutoriel marqué comme vu" });
+      res.json({ success: true, message: "Tutoriel marquÃ© comme vu" });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
