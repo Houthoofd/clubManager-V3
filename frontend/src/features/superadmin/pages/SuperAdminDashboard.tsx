@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   BuildingOfficeIcon, 
   UserGroupIcon, 
@@ -9,7 +9,11 @@ import {
   ShieldCheckIcon,
   PencilIcon,
   TrashIcon,
-  EnvelopeIcon
+  EyeIcon,
+  MagnifyingGlassIcon,
+  ArrowDownTrayIcon,
+  FunnelIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'sonner';
 import { superAdminApi, ClubInfo } from '../api/superAdminApi';
@@ -21,10 +25,19 @@ export const SuperAdminDashboard = () => {
   const [clubs, setClubs] = useState<ClubInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
   // Modal states
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  
+  // Drawer state
+  const [selectedClubForDetails, setSelectedClubForDetails] = useState<ClubInfo | null>(null);
+  const [isDetailsDrawerOpen, setIsDetailsDrawerOpen] = useState(false);
+
   const [selectedClub, setSelectedClub] = useState<ClubInfo | null>(null);
 
   const fetchClubs = async () => {
@@ -67,6 +80,11 @@ export const SuperAdminDashboard = () => {
     setIsDeleteModalOpen(true);
   };
 
+  const openDetailsDrawer = (club: ClubInfo) => {
+    setSelectedClubForDetails(club);
+    setIsDetailsDrawerOpen(true);
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
@@ -80,8 +98,33 @@ export const SuperAdminDashboard = () => {
     }
   };
 
+  const filteredClubs = clubs.filter(club => {
+    const matchesSearch = club.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          club.code.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || club.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const exportToCSV = () => {
+    if (filteredClubs.length === 0) {
+      toast.error("Aucune donnée à exporter.");
+      return;
+    }
+    const headers = ['Nom', 'Code', 'Email', 'Base de données', 'Statut', 'Admins', 'Plan'];
+    const csvData = filteredClubs.map(c => [
+      c.name, c.code, c.contact_email, c.db_name, c.status, c.admin_count, c.subscription_plan || ''
+    ].map(field => `"${field}"`).join(','));
+    
+    const csvContent = [headers.join(','), ...csvData].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `clubs_export_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto relative">
       
       <div className="flex items-center gap-4 mb-8 justify-between">
         <div className="flex items-center gap-4">
@@ -95,13 +138,21 @@ export const SuperAdminDashboard = () => {
             <p className="mt-1 text-sm text-gray-500">Vue d'ensemble et gestion des clubs locataires de la plateforme SaaS.</p>
           </div>
         </div>
-        <button
-          onClick={() => setIsInviteModalOpen(true)}
-          className="px-4 py-2 text-sm font-medium text-white bg-brand-blue rounded-lg hover:bg-brand-blue/90 transition-colors"
-        >
-          <EnvelopeIcon className="w-5 h-5 inline-block mr-2 -mt-1" />
-          Inviter un Club
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={exportToCSV}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <ArrowDownTrayIcon className="h-4 w-4" />
+            Export CSV
+          </button>
+          <button
+            onClick={() => setIsInviteModalOpen(true)}
+            className="px-4 py-2 text-sm font-medium text-white bg-brand-blue rounded-lg hover:bg-brand-blue/90 transition-colors"
+          >
+            Inviter un Club
+          </button>
+        </div>
       </div>
         
       {/* STATS */}
@@ -141,10 +192,37 @@ export const SuperAdminDashboard = () => {
 
       {/* CLUBS TABLE */}
       <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
+        <div className="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50/30 gap-4">
           <div className="flex items-center gap-3">
             <ChartBarIcon className="h-5 w-5 text-brand-blue" />
             <h2 className="text-lg font-semibold leading-7 text-brand-dark">Clubs inscrits</h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Rechercher (nom, code)..."
+                className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue w-64"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="relative flex items-center">
+              <FunnelIcon className="h-4 w-4 text-gray-400 absolute left-3 pointer-events-none" />
+              <select
+                className="pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue appearance-none bg-white"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">Tous les statuts</option>
+                <option value="active">Actif</option>
+                <option value="suspended">Suspendu</option>
+                <option value="trial">En Essai</option>
+              </select>
+            </div>
           </div>
         </div>
         
@@ -165,8 +243,8 @@ export const SuperAdminDashboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
-                {clubs.map((club) => (
-                  <tr key={club.id} className="hover:bg-gray-50/50 transition-colors">
+                {filteredClubs.map((club) => (
+                  <tr key={club.id} className="hover:bg-gray-50/50 transition-colors cursor-pointer" onClick={() => openDetailsDrawer(club)}>
                     <td className="whitespace-nowrap py-4 pl-6 pr-3 text-sm">
                       <div className="font-semibold text-brand-dark">{club.name}</div>
                       <div className="text-gray-500 mt-0.5 text-xs">{club.contact_email}</div>
@@ -180,8 +258,15 @@ export const SuperAdminDashboard = () => {
                     <td className="whitespace-nowrap px-3 py-4 text-sm">
                       {getStatusBadge(club.status)}
                     </td>
-                    <td className="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
+                    <td className="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                       <div className="flex justify-end gap-2">
+                        <button 
+                          onClick={() => openDetailsDrawer(club)}
+                          className="text-gray-500 bg-gray-100 hover:bg-gray-200 p-1.5 rounded-md transition-all"
+                          title="Voir les détails"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </button>
                         <button 
                           onClick={() => openEditModal(club)}
                           className="text-brand-blue bg-brand-blue/10 hover:bg-brand-blue hover:text-white p-1.5 rounded-md transition-all"
@@ -219,10 +304,10 @@ export const SuperAdminDashboard = () => {
                     </td>
                   </tr>
                 ))}
-                {clubs.length === 0 && (
+                {filteredClubs.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-12 text-center text-gray-500">
-                      Aucune organisation inscrite pour le moment.
+                      Aucune organisation trouvée.
                     </td>
                   </tr>
                 )}
@@ -250,6 +335,100 @@ export const SuperAdminDashboard = () => {
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
       />
+
+      {/* Details Drawer */}
+      {isDetailsDrawerOpen && selectedClubForDetails && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="fixed inset-0 bg-black/30 transition-opacity" onClick={() => setIsDetailsDrawerOpen(false)} />
+          <div className="relative w-full max-w-md bg-white shadow-xl h-full flex flex-col transform transition-transform duration-300 ease-in-out z-10 border-l border-gray-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-brand-dark">Détails du club</h2>
+              <button onClick={() => setIsDetailsDrawerOpen(false)} className="text-gray-400 hover:text-gray-500">
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="h-12 w-12 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue font-bold text-xl">
+                  {selectedClubForDetails.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">{selectedClubForDetails.name}</h3>
+                  <p className="text-sm text-gray-500">{selectedClubForDetails.code}</p>
+                </div>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-2">Informations Générales</h4>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Statut</span>
+                      <span className="text-sm font-medium">{getStatusBadge(selectedClubForDetails.status)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Date de création</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {new Date(selectedClubForDetails.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Base de données</span>
+                      <span className="text-sm font-medium text-gray-900 font-mono text-xs">{selectedClubForDetails.db_name}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-2">Abonnement & Accès</h4>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Admins Actifs</span>
+                      <span className="text-sm font-medium text-gray-900">{selectedClubForDetails.admin_count}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Plan d'abonnement</span>
+                      <span className="text-sm font-medium text-gray-900 capitalize">{selectedClubForDetails.subscription_plan || 'Non spécifié'}</span>
+                    </div>
+                    {selectedClubForDetails.trial_ends_at && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Fin de l'essai</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          {new Date(selectedClubForDetails.trial_ends_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-2">Contact</h4>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Email</span>
+                      <span className="text-sm font-medium text-gray-900">{selectedClubForDetails.contact_email}</span>
+                    </div>
+                    {selectedClubForDetails.contact_phone && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Téléphone</span>
+                        <span className="text-sm font-medium text-gray-900">{selectedClubForDetails.contact_phone}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 border-t border-gray-100 bg-gray-50">
+              <button
+                onClick={() => setIsDetailsDrawerOpen(false)}
+                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
