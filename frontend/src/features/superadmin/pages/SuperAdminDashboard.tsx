@@ -234,7 +234,7 @@ export const SuperAdminDashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto relative">
+    <div className="w-full relative">
       
       <div className="flex items-center gap-4 mb-8 justify-between">
         <div className="flex items-center gap-4">

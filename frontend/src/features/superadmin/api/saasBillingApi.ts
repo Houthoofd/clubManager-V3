@@ -1,5 +1,16 @@
 import axios from 'axios';
 
+export interface SaasPlan {
+  id?: number;
+  name: string;
+  description: string;
+  price: number;
+  billing_cycle: 'monthly' | 'yearly';
+  max_members: number;
+  features: string | any;
+  is_active?: boolean;
+}
+
 export interface BillingKPIs {
   mrr: number;
   arr: number;
@@ -50,5 +61,25 @@ export const saasBillingApi = {
 
   cancelSubscription: async (clubId: string): Promise<void> => {
     await axios.post(`/api/superadmin/billing/subscriptions/${clubId}/cancel`);
+  },
+
+  getPlans: async (): Promise<SaasPlan[]> => {
+    const response = await axios.get('/api/superadmin/billing/plans');
+    return response.data.data;
+  },
+
+  createPlan: async (plan: Partial<SaasPlan>): Promise<any> => {
+    const response = await axios.post('/api/superadmin/billing/plans', plan);
+    return response.data;
+  },
+
+  updatePlan: async (id: number, plan: Partial<SaasPlan>): Promise<any> => {
+    const response = await axios.put(`/api/superadmin/billing/plans/${id}`, plan);
+    return response.data;
+  },
+
+  deletePlan: async (id: number): Promise<any> => {
+    const response = await axios.delete(`/api/superadmin/billing/plans/${id}`);
+    return response.data;
   }
 };
