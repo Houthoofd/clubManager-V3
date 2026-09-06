@@ -32,6 +32,12 @@ export const superAdminApi = {
     return response.data;
   },
 
+  
+  extendTrial: async (id: number): Promise<ApiResponse> => {
+    const response = await apiClient.post<ApiResponse>(`/superadmin/clubs/${id}/extend-trial`);
+    return response.data;
+  },
+
   updateClubStatus: async (id: number, status: 'active' | 'suspended' | 'trial'): Promise<ApiResponse> => {
     const response = await apiClient.patch<ApiResponse>(`/superadmin/clubs/${id}/status`, { status });
     return response.data;
@@ -39,6 +45,12 @@ export const superAdminApi = {
 
   updateClub: async (id: number, data: { name: string; code: string; contact_email: string; contact_phone?: string }): Promise<ApiResponse> => {
     const response = await apiClient.put<ApiResponse>(`/superadmin/clubs/${id}`, data);
+    return response.data;
+  },
+
+  
+  impersonateClub: async (id: number): Promise<ApiResponse<{ token: string, refreshToken: string, user: any }>> => {
+    const response = await apiClient.post<ApiResponse<{ token: string, refreshToken: string, user: any }>>(`/superadmin/clubs/${id}/impersonate`);
     return response.data;
   },
 

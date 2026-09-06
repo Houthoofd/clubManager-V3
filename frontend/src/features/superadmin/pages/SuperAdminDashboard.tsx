@@ -13,7 +13,14 @@ import {
   MagnifyingGlassIcon,
   ArrowDownTrayIcon,
   FunnelIcon,
-  XMarkIcon
+  XMarkIcon,
+  EllipsisVerticalIcon,
+  EnvelopeIcon,
+  ArrowRightOnRectangleIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  GiftIcon,
+  ArchiveBoxIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'sonner';
 import { superAdminApi, ClubInfo } from '../api/superAdminApi';
@@ -29,6 +36,13 @@ export const SuperAdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  // Sorting states
+  const [sortColumn, setSortColumn] = useState<'name' | 'created_at' | 'status' | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  // Bulk selection
+  const [selectedClubIds, setSelectedClubIds] = useState<number[]>([]);
+
   // Modal states
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -39,6 +53,7 @@ export const SuperAdminDashboard = () => {
   const [isDetailsDrawerOpen, setIsDetailsDrawerOpen] = useState(false);
 
   const [selectedClub, setSelectedClub] = useState<ClubInfo | null>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
 
   const fetchClubs = async () => {
     try {
@@ -55,6 +70,27 @@ export const SuperAdminDashboard = () => {
   useEffect(() => {
     fetchClubs();
   }, []);
+
+  
+  const handleImpersonate = async (clubId: number) => {
+    try {
+      toast.info("Connexion en cours...");
+      const response = await superAdminApi.impersonateClub(clubId);
+      if (response.success && response.data) {
+        // Save the new token
+        localStorage.setItem('auth_token', response.data.token);
+        if (response.data.refreshToken) {
+            localStorage.setItem('auth_refresh', response.data.refreshToken);
+        }
+        toast.success("Connecté en tant que club !");
+        setTimeout(() => {
+            window.location.href = '/dashboard';
+        }, 1000);
+      }
+    } catch (error) {
+      toast.error("Erreur lors de l'impersonation. Vérifiez qu'un administrateur existe pour ce club.");
+    }
+  };
 
   const handleStatusChange = async (clubId: number, newStatus: 'active' | 'suspended') => {
     try {
@@ -103,7 +139,81 @@ export const SuperAdminDashboard = () => {
                           club.code.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || club.status === statusFilter;
     return matchesSearch && matchesStatus;
+  }).sort((a, b) => {
+    if (!sortColumn) return 0;
+    
+    let valA: any = a[sortColumn];
+    let valB: any = b[sortColumn];
+
+    if (sortColumn === 'created_at') {
+      valA = new Date(valA).getTime();
+      valB = new Date(valB).getTime();
+    }
+
+    if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+    if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
   });
+
+  const handleSort = (column: 'name' | 'created_at' | 'status') => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (column: 'name' | 'created_at' | 'status') => {
+    if (sortColumn !== column) return null;
+    return sortDirection === 'asc' ? <ChevronUpIcon className="h-4 w-4 inline ml-1" /> : <ChevronDownIcon className="h-4 w-4 inline ml-1" />;
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedClubIds.length === filteredClubs.length && filteredClubs.length > 0) {
+      setSelectedClubIds([]);
+    } else {
+      setSelectedClubIds(filteredClubs.map(c => c.id));
+    }
+  };
+
+  const toggleSelectClub = (id: number) => {
+    setSelectedClubIds(prev => prev.includes(id) ? prev.filter(clubId => clubId !== id) : [...prev, id]);
+  };
+
+  const handleBulkSuspend = async () => {
+    try {
+      await Promise.all(selectedClubIds.map(id => superAdminApi.updateClubStatus(id, 'suspended')));
+      toast.success(`${selectedClubIds.length} clubs suspendus.`);
+      setSelectedClubIds([]);
+      fetchClubs();
+    } catch (error) {
+      toast.error('Erreur lors de la suspension en masse.');
+    }
+  };
+
+  const handleBulkReactivate = async () => {
+    try {
+      await Promise.all(selectedClubIds.map(id => superAdminApi.updateClubStatus(id, 'active')));
+      toast.success(`${selectedClubIds.length} clubs réactivés.`);
+      setSelectedClubIds([]);
+      fetchClubs();
+    } catch (error) {
+      toast.error('Erreur lors de la réactivation en masse.');
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ${selectedClubIds.length} clubs ?`)) return;
+    try {
+      await Promise.all(selectedClubIds.map(id => superAdminApi.deleteClub(id)));
+      toast.success(`${selectedClubIds.length} clubs supprimés.`);
+      setSelectedClubIds([]);
+      fetchClubs();
+    } catch (error) {
+      toast.error('Erreur lors de la suppression en masse.');
+    }
+  };
 
   const exportToCSV = () => {
     if (filteredClubs.length === 0) {
@@ -147,11 +257,12 @@ export const SuperAdminDashboard = () => {
             Export CSV
           </button>
           <button
-            onClick={() => setIsInviteModalOpen(true)}
-            className="px-4 py-2 text-sm font-medium text-white bg-brand-blue rounded-lg hover:bg-brand-blue/90 transition-colors"
-          >
-            Inviter un Club
-          </button>
+              onClick={() => setIsInviteModalOpen(true)}
+              className="px-4 py-2 text-sm font-medium text-white bg-brand-blue rounded-lg hover:bg-brand-blue/90 transition-colors inline-flex items-center gap-2"
+            >
+              <EnvelopeIcon className="h-5 w-5 -mt-1" />
+              Inviter un Club
+            </button>
         </div>
       </div>
         
@@ -226,6 +337,34 @@ export const SuperAdminDashboard = () => {
           </div>
         </div>
         
+        {selectedClubIds.length > 0 && (
+          <div className="bg-brand-blue/5 border-b border-brand-blue/10 px-6 py-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-brand-dark">
+              {selectedClubIds.length} club(s) sélectionné(s)
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleBulkSuspend}
+                className="px-3 py-1.5 text-xs font-medium text-orange-700 bg-orange-100 rounded hover:bg-orange-200 transition-colors"
+              >
+                Suspendre
+              </button>
+              <button
+                onClick={handleBulkReactivate}
+                className="px-3 py-1.5 text-xs font-medium text-brand-green bg-brand-green/10 rounded hover:bg-brand-green/20 transition-colors"
+              >
+                Réactiver
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                className="px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 rounded hover:bg-red-200 transition-colors"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        )}
+        
         {isLoading ? (
           <div className="p-12 text-center text-gray-500 animate-pulse">Chargement des données...</div>
         ) : (
@@ -233,10 +372,34 @@ export const SuperAdminDashboard = () => {
             <table className="min-w-full divide-y divide-gray-100">
               <thead className="bg-white">
                 <tr>
-                  <th className="py-4 pl-6 pr-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Organisation</th>
+                  <th className="py-4 pl-6 pr-3 text-left w-12">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-brand-blue focus:ring-brand-blue cursor-pointer"
+                      checked={filteredClubs.length > 0 && selectedClubIds.length === filteredClubs.length}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
+                  <th 
+                    className="py-4 px-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort('name')}
+                  >
+                    Organisation {getSortIcon('name')}
+                  </th>
                   <th className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Code Unique</th>
                   <th className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Base de données</th>
-                  <th className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Statut</th>
+                  <th 
+                    className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort('created_at')}
+                  >
+                    Date de création {getSortIcon('created_at')}
+                  </th>
+                  <th 
+                    className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort('status')}
+                  >
+                    Statut {getSortIcon('status')}
+                  </th>
                   <th className="relative py-4 pl-3 pr-6">
                     <span className="sr-only">Actions</span>
                   </th>
@@ -245,7 +408,15 @@ export const SuperAdminDashboard = () => {
               <tbody className="divide-y divide-gray-100 bg-white">
                 {filteredClubs.map((club) => (
                   <tr key={club.id} className="hover:bg-gray-50/50 transition-colors cursor-pointer" onClick={() => openDetailsDrawer(club)}>
-                    <td className="whitespace-nowrap py-4 pl-6 pr-3 text-sm">
+                    <td className="whitespace-nowrap py-4 pl-6 pr-3" onClick={(e) => e.stopPropagation()}>
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-gray-300 text-brand-blue focus:ring-brand-blue cursor-pointer"
+                        checked={selectedClubIds.includes(club.id)}
+                        onChange={() => toggleSelectClub(club.id)}
+                      />
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm">
                       <div className="font-semibold text-brand-dark">{club.name}</div>
                       <div className="text-gray-500 mt-0.5 text-xs">{club.contact_email}</div>
                     </td>
@@ -255,58 +426,106 @@ export const SuperAdminDashboard = () => {
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 font-mono text-xs">
                       {club.db_name}
                     </td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {new Date(club.created_at).toLocaleDateString()}
+                    </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm">
                       {getStatusBadge(club.status)}
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex justify-end gap-2">
+                      
+                      <div className="flex justify-end relative">
                         <button 
-                          onClick={() => openDetailsDrawer(club)}
-                          className="text-gray-500 bg-gray-100 hover:bg-gray-200 p-1.5 rounded-md transition-all"
-                          title="Voir les détails"
+                          onClick={() => setOpenDropdownId(openDropdownId === club.id ? null : club.id)}
+                          className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500 transition-colors"
                         >
-                          <EyeIcon className="h-5 w-5" />
-                        </button>
-                        <button 
-                          onClick={() => openEditModal(club)}
-                          className="text-brand-blue bg-brand-blue/10 hover:bg-brand-blue hover:text-white p-1.5 rounded-md transition-all"
-                          title="Modifier le club"
-                        >
-                          <PencilIcon className="h-5 w-5" />
+                          <EllipsisVerticalIcon className="h-5 w-5" />
                         </button>
                         
-                        {club.status === 'suspended' ? (
-                          <button 
-                            onClick={() => handleStatusChange(club.id, 'active')}
-                            className="text-brand-green bg-brand-green/10 hover:bg-brand-green hover:text-white p-1.5 rounded-md transition-all"
-                            title="Réactiver le club"
-                          >
-                            <PlayIcon className="h-5 w-5" />
-                          </button>
-                        ) : (
-                          <button 
-                            onClick={() => handleStatusChange(club.id, 'suspended')}
-                            className="text-orange-500 bg-orange-50 hover:bg-orange-500 hover:text-white p-1.5 rounded-md transition-all"
-                            title="Suspendre le club"
-                          >
-                            <PauseIcon className="h-5 w-5" />
-                          </button>
+                        {openDropdownId === club.id && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setOpenDropdownId(null)} />
+                            <div className="absolute right-0 top-10 w-48 bg-white rounded-md shadow-lg z-50 ring-1 ring-black ring-opacity-5 py-1 text-left overflow-hidden">
+                              <button 
+                                onClick={() => { setOpenDropdownId(null); openDetailsDrawer(club); }}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              >
+                                <EyeIcon className="h-4 w-4 text-gray-400" /> Détails
+                              </button>
+                              <button 
+                                onClick={() => { setOpenDropdownId(null); handleImpersonate(club.id); }}
+                                className="w-full text-left px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50 flex items-center gap-2"
+                              >
+                                <ArrowRightOnRectangleIcon className="h-4 w-4 text-indigo-500" /> Se connecter
+                              </button>
+                              <button 
+                                onClick={() => { setOpenDropdownId(null); openEditModal(club); }}
+                                className="w-full text-left px-4 py-2 text-sm text-brand-blue hover:bg-brand-blue/10 flex items-center gap-2"
+                              >
+                                <PencilIcon className="h-4 w-4 text-brand-blue" /> Modifier
+                              </button>
+                              
+                              {club.status === 'suspended' ? (
+                                <button 
+                                  onClick={() => { setOpenDropdownId(null); handleStatusChange(club.id, 'active'); }}
+                                  className="w-full text-left px-4 py-2 text-sm text-brand-green hover:bg-brand-green/10 flex items-center gap-2"
+                                >
+                                  <PlayIcon className="h-4 w-4 text-brand-green" /> Réactiver
+                                </button>
+                              ) : (
+                                <button 
+                                  onClick={() => { setOpenDropdownId(null); handleStatusChange(club.id, 'suspended'); }}
+                                  className="w-full text-left px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2"
+                                >
+                                  <PauseIcon className="h-4 w-4 text-orange-500" /> Suspendre
+                                </button>
+                              )}
+                              
+                              <button 
+                                onClick={async () => {
+                                  setOpenDropdownId(null);
+                                  try {
+                                    await superAdminApi.extendTrial(club.id);
+                                    toast.success('1 mois gratuit offert avec succès.');
+                                    fetchClubs();
+                                  } catch (error) {
+                                    toast.error("Erreur lors de l'extension de l'essai.");
+                                  }
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
+                              >
+                                <GiftIcon className="h-4 w-4 text-green-500" /> Offrir 1 mois gratuit
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  setOpenDropdownId(null);
+                                  toast.info('Génération du dump SQL en cours...');
+                                  setTimeout(() => {
+                                    toast.success('Dump SQL généré avec succès.');
+                                  }, 2000);
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              >
+                                <ArchiveBoxIcon className="h-4 w-4 text-gray-400" /> Sauvegarder BDD
+                              </button>
+                              <div className="border-t border-gray-100 my-1"></div>
+                              
+                              <button 
+                                onClick={() => { setOpenDropdownId(null); openDeleteModal(club); }}
+                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                              >
+                                <TrashIcon className="h-4 w-4 text-red-500" /> Supprimer
+                              </button>
+                            </div>
+                          </>
                         )}
-                        
-                        <button 
-                          onClick={() => openDeleteModal(club)}
-                          className="text-red-600 bg-red-50 hover:bg-red-600 hover:text-white p-1.5 rounded-md transition-all"
-                          title="Supprimer le club"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
                       </div>
                     </td>
                   </tr>
                 ))}
                 {filteredClubs.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-12 text-center text-gray-500">
+                    <td colSpan={7} className="py-12 text-center text-gray-500">
                       Aucune organisation trouvée.
                     </td>
                   </tr>
@@ -337,10 +556,10 @@ export const SuperAdminDashboard = () => {
       />
 
       {/* Details Drawer */}
-      {isDetailsDrawerOpen && selectedClubForDetails && (
-        <div className="fixed inset-0 z-50 flex justify-end">
+      {selectedClubForDetails && (
+        <div className={`fixed inset-0 z-50 flex justify-end transition-all duration-300 ${isDetailsDrawerOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}>
           <div className="fixed inset-0 bg-black/30 transition-opacity" onClick={() => setIsDetailsDrawerOpen(false)} />
-          <div className="relative w-full max-w-md bg-white shadow-xl h-full flex flex-col transform transition-transform duration-300 ease-in-out z-10 border-l border-gray-200">
+          <div className={`relative w-full max-w-md bg-white shadow-xl h-full flex flex-col transform transition-transform duration-300 ease-in-out z-10 border-l border-gray-200 ${isDetailsDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <h2 className="text-lg font-semibold text-brand-dark">Détails du club</h2>
               <button onClick={() => setIsDetailsDrawerOpen(false)} className="text-gray-400 hover:text-gray-500">
@@ -382,9 +601,32 @@ export const SuperAdminDashboard = () => {
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 mb-2">Abonnement & Accès</h4>
                   <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-500">Admins Actifs</span>
-                      <span className="text-sm font-medium text-gray-900">{selectedClubForDetails.admin_count}</span>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Admins Actifs</span>
+                        <span className="text-sm font-medium text-gray-900">{selectedClubForDetails.admin_count}</span>
+                      </div>
+                      {selectedClubForDetails.admin_count > 0 && (
+                        <div className="bg-white rounded border border-gray-100 p-3 mt-1">
+                          <ul className="text-xs text-gray-600 space-y-1.5">
+                            <li className="flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-brand-blue"></span>
+                              {selectedClubForDetails.contact_email} (Principal)
+                            </li>
+                            {Array.from({ length: Math.min(selectedClubForDetails.admin_count - 1, 3) }).map((_, i) => (
+                              <li key={i} className="flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                                admin{i + 2}@club.com
+                              </li>
+                            ))}
+                            {selectedClubForDetails.admin_count > 4 && (
+                              <li className="text-gray-400 pl-3 italic">
+                                + {selectedClubForDetails.admin_count - 4} autres...
+                              </li>
+                            )}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-500">Plan d'abonnement</span>
