@@ -5,10 +5,12 @@
 
 import { BanknotesIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import { FormField } from "../../../../shared/components/Forms/FormField";
 import { Input } from "../../../../shared/components/Input";
 import { Button } from "../../../../shared/components/Button";
 import { SectionHeader } from "../SectionHeader";
+import { connectStripe } from "../../api/settingsApi";
 
 interface FinanceSectionProps {
   financeForm: {
@@ -34,6 +36,7 @@ export function FinanceSection({
   isSaving,
 }: FinanceSectionProps) {
   const { t } = useTranslation("settings");
+  const [isConnectingStripe, setIsConnectingStripe] = useState(false);
 
   return (
     <div className="bg-white rounded-lg shadow p-6 space-y-6">
@@ -100,6 +103,29 @@ export function FinanceSection({
           data-testid="btn-save-finance"
         >
           {t("actions.save")}
+        </Button>
+      </div>
+
+      <div className="pt-4 border-t border-gray-100">
+        <h4 className="text-md font-medium text-gray-900 mb-2">Paiements en ligne</h4>
+        <p className="text-sm text-gray-500 mb-4">Connectez votre compte Stripe pour recevoir les paiements de vos membres directement sur votre compte bancaire.</p>
+        <Button
+          onClick={async () => {
+            try {
+              setIsConnectingStripe(true);
+              const { url } = await connectStripe();
+              window.location.href = url;
+            } catch (err) {
+              console.error(err);
+              alert("Erreur lors de la connexion à Stripe");
+            } finally {
+              setIsConnectingStripe(false);
+            }
+          }}
+          loading={isConnectingStripe}
+          variant="secondary"
+        >
+          Connecter Stripe
         </Button>
       </div>
     </div>

@@ -25,6 +25,8 @@ import { MarkOrderAsPaidUseCase } from "../../../store/application/use-cases/ord
 
 import { GetQuickPayDataUseCase } from "../../application/use-cases/payments/GetQuickPayDataUseCase.js";
 import jwt from "jsonwebtoken";
+import { tenantContext } from "../../../../core/context/tenantContext.js";
+import pool from "../../../../core/database/connection.js";
 
 // ==================== MODULE-LEVEL INSTANTIATION ====================
 
@@ -479,6 +481,55 @@ export class PaymentController {
     } catch (error: any) {
       console.error("[Webhook Stripe] Erreur de traitement :", error.message);
       res.status(500).json({ success: false, message: String(error.message) });
+    }
+  }
+
+  /**
+   * POST /api/payments/stripe/connect
+   * Connect a Stripe express account for the current organization
+   */
+  async connectStripe(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const tenant = tenantContext.getTenant();
+      const tenantId = tenant?.tenantId;
+
+      if (!tenantId) {
+        res.status(400).json({ success: false, message: "Tenant manquant" });
+        return;
+      }
+
+      // Query the master database to get the organization's stripe_account_id
+      const orgQuery = await tenantContext.run({ tenantId, dbName: null, isMaster: true }, async () => {
+        return await pool.query("SELECT stripe_account_id FROM organizations WHERE id = ?", [tenantId]);
+      });
+      
+      const rows = orgQuery[0] as any[];
+      if (!rows || rows.length === 0) {
+        res.status(404).json({ success: false, message: "Organisation introuvable" });
+        return;
+      }
+
+      let stripeAccountId = rows[0].stripe_account_id;
+
+      if (!stripeAccountId) {
+        const account = await stripeService.createExpressAccount();
+        stripeAccountId = account.id;
+
+        // Update the master database
+        await tenantContext.run({ tenantId, dbName: null, isMaster: true }, async () => {
+          await pool.query("UPDATE organizations SET stripe_account_id = ? WHERE id = ?", [stripeAccountId, tenantId]);
+        });
+      }
+
+      const returnUrl = process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/settings/finance` : "http://localhost:5173/settings/finance";
+      const refreshUrl = returnUrl;
+
+      const accountLink = await stripeService.createAccountLink(stripeAccountId, returnUrl, refreshUrl);
+
+      res.json({ success: true, url: accountLink.url });
+    } catch (error: any) {
+      console.error("[PaymentController] Error connecting Stripe:", error);
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 }

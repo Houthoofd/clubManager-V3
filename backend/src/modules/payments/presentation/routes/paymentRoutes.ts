@@ -132,6 +132,14 @@ router.post(
   (req, res) => paymentCtrl.createStripeIntent(req as any, res),
 );
 
+// POST /api/payments/stripe/connect — connecte un compte Stripe Express (admin)
+router.post(
+  "/stripe/connect",
+  authMiddleware,
+  requireRole(UserRole.ADMIN),
+  (req, res) => paymentCtrl.connectStripe(req as any, res),
+);
+
 // GET /api/payments/user/:userId — historique paiements d'un user
 // Doit être AVANT /:id pour que "user" ne soit pas capturé comme id
 router.get(

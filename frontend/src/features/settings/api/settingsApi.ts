@@ -58,6 +58,16 @@ export const deleteSetting = async (id: number): Promise<void> => {
   await apiClient.delete(`/settings/${id}`);
 };
 
+/**
+ * Connecte un compte Stripe Express (onboarding)
+ */
+export const connectStripe = async (): Promise<{ url: string }> => {
+  const response = await apiClient.post<ApiResponse<{ url: string }>>(
+    "/payments/stripe/connect"
+  );
+  return response.data.data!;
+};
+
 // ─── Security / Audit ─────────────────────────────────────────────────────────
 
 export interface LoginAttemptDto {

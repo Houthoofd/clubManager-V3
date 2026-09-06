@@ -62,4 +62,21 @@ export class StripeService implements IStripeServicePort {
       webhookSecret,
     );
   }
+
+  async createExpressAccount(): Promise<Stripe.Account> {
+    return this.stripe.accounts.create({ type: 'express' });
+  }
+
+  async createAccountLink(accountId: string, returnUrl: string, refreshUrl: string): Promise<Stripe.AccountLink> {
+    return this.stripe.accountLinks.create({
+      account: accountId,
+      refresh_url: refreshUrl,
+      return_url: returnUrl,
+      type: 'account_onboarding',
+    });
+  }
+
+  async getAccountStatus(accountId: string): Promise<Stripe.Account> {
+    return this.stripe.accounts.retrieve(accountId);
+  }
 }
