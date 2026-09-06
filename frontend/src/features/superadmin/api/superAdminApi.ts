@@ -10,6 +10,8 @@ export interface ClubInfo {
   contact_phone?: string;
   status: 'active' | 'suspended' | 'trial';
   created_at: string;
+  subscription_plan?: string;
+  trial_ends_at?: string;
 }
 
 export interface ApiResponse<T = any> {
