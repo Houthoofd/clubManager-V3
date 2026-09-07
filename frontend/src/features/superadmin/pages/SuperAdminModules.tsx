@@ -122,8 +122,6 @@ const MOCK_MODULE_USERS = [
 export const SuperAdminModules: React.FC = () => {
   const [modules, setModules] = useState<SaasModule[]>(MOCK_MODULES);
   const [searchQuery, setSearchQuery] = useState('');
-  const [modules, setModules] = useState<SaasModule[]>(MOCK_MODULES);
-  const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [selectedModule, setSelectedModule] = useState<SaasModule | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
