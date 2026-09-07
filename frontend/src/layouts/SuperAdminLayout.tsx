@@ -101,10 +101,10 @@ export const SuperAdminLayout = () => {
                                   onClick={() => setMobileMenuOpen(false)}
                                   className={
                                     "group flex items-center gap-x-4 rounded-lg px-4 py-2.5 text-sm leading-6 font-semibold transition-all " +
-                                    (isActive ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-white")
+                                    (isActive ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-slate-200")
                                   }
                                 >
-                                  <item.icon className={"h-6 w-6 shrink-0 " + (isActive ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-white")} aria-hidden="true" />
+                                  <item.icon className={"h-6 w-6 shrink-0 " + (isActive ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-slate-400 dark:group-hover:text-slate-200")} aria-hidden="true" />
                                   <span>{item.name}</span>
                                 </Link>
                               </li>
@@ -123,11 +123,11 @@ export const SuperAdminLayout = () => {
                 title={isCollapsed ? "Paramètres" : undefined}
                 className={
                   "group rounded-lg p-2.5 text-sm leading-6 font-semibold transition-all " +
-                  (location.pathname.startsWith('/superadmin/settings') ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-white") + 
+                  (location.pathname.startsWith('/superadmin/settings') ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-slate-200") + 
                   (isCollapsed ? " flex items-center justify-center" : " flex items-center gap-x-4 px-2")
                 }
               >
-                <Cog8ToothIcon className={"h-6 w-6 shrink-0 " + (location.pathname.startsWith('/superadmin/settings') ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-white")} />
+                <Cog8ToothIcon className={"h-6 w-6 shrink-0 " + (location.pathname.startsWith('/superadmin/settings') ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-slate-400 dark:group-hover:text-slate-200")} />
                 {!isCollapsed && <span>Paramètres</span>}
               </Link>
             </div>
@@ -174,11 +174,11 @@ export const SuperAdminLayout = () => {
                             to={item.href}
                             className={
                               "group rounded-lg p-2.5 text-sm leading-6 font-semibold transition-all " +
-                              (isActive ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-white") + 
+                              (isActive ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-slate-200") + 
                               (isCollapsed ? " flex items-center justify-center" : " flex items-center gap-x-4 px-2")
                             }
                           >
-                            <item.icon className={"h-6 w-6 shrink-0 transition-colors " + (isActive ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-white")} aria-hidden="true" />
+                            <item.icon className={"h-6 w-6 shrink-0 transition-colors " + (isActive ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-slate-400 dark:group-hover:text-slate-200")} aria-hidden="true" />
                             {!isCollapsed && <span className="whitespace-nowrap">{item.name}</span>}
                           </Link>
                         </li>
@@ -197,11 +197,11 @@ export const SuperAdminLayout = () => {
                 title={isCollapsed ? "Paramètres" : undefined}
                 className={
                   "group rounded-lg p-2.5 text-sm leading-6 font-semibold transition-all " +
-                  (location.pathname.startsWith('/superadmin/settings') ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-white") + 
+                  (location.pathname.startsWith('/superadmin/settings') ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-slate-200") + 
                   (isCollapsed ? " flex items-center justify-center" : " flex items-center gap-x-4 px-2")
                 }
               >
-                <Cog8ToothIcon className={"h-6 w-6 shrink-0 " + (location.pathname.startsWith('/superadmin/settings') ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-white")} />
+                <Cog8ToothIcon className={"h-6 w-6 shrink-0 " + (location.pathname.startsWith('/superadmin/settings') ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-slate-400 dark:group-hover:text-slate-200")} />
                 {!isCollapsed && <span>Paramètres</span>}
               </Link>
             </div>

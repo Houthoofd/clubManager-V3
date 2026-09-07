@@ -316,7 +316,7 @@ export const SuperAdminDashboard = () => {
               <input
                 type="text"
                 placeholder="Rechercher (nom, code)..."
-                className="pl-9 pr-4 py-2 border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue w-64 bg-white dark:bg-white/5 dark:text-white"
+                className="pl-9 pr-4 py-2 border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue w-64 bg-white dark:bg-white/5 dark:text-slate-300 dark:placeholder-slate-400"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -324,14 +324,14 @@ export const SuperAdminDashboard = () => {
             <div className="relative flex items-center">
               <FunnelIcon className="h-4 w-4 text-gray-400 absolute left-3 pointer-events-none" />
               <select
-                className="pl-9 pr-8 py-2 border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue appearance-none bg-white dark:bg-slate-800 dark:text-white"
+                className="pl-9 pr-8 py-2 border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue appearance-none bg-white dark:bg-slate-800 dark:text-slate-400"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <option className="bg-white dark:bg-slate-800" value="all">Tous les statuts</option>
-                <option className="bg-white dark:bg-slate-800" value="active">Actif</option>
-                <option className="bg-white dark:bg-slate-800" value="suspended">Suspendu</option>
-                <option className="bg-white dark:bg-slate-800" value="trial">En Essai</option>
+                <option className="bg-white dark:bg-slate-800 dark:text-slate-300" value="all">Tous les statuts</option>
+                <option className="bg-white dark:bg-slate-800 dark:text-slate-300" value="active">Actif</option>
+                <option className="bg-white dark:bg-slate-800 dark:text-slate-300" value="suspended">Suspendu</option>
+                <option className="bg-white dark:bg-slate-800 dark:text-slate-300" value="trial">En Essai</option>
               </select>
             </div>
           </div>
@@ -445,78 +445,85 @@ export const SuperAdminDashboard = () => {
                         {openDropdownId === club.id && (
                           <>
                             <div className="fixed inset-0 z-40" onClick={() => setOpenDropdownId(null)} />
-                            <div className="absolute right-0 top-10 w-48 bg-white dark:bg-slate-800 rounded-md shadow-lg z-50 ring-1 ring-black ring-opacity-5 dark:ring-white/10 py-1 text-left overflow-hidden">
-                              <button 
-                                onClick={() => { setOpenDropdownId(null); openDetailsDrawer(club); }}
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2"
-                              >
-                                <EyeIcon className="h-4 w-4 text-gray-400" /> Détails
-                              </button>
-                              <button 
-                                onClick={() => { setOpenDropdownId(null); handleImpersonate(club.id); }}
-                                className="w-full text-left px-4 py-2 text-sm text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 flex items-center gap-2"
-                              >
-                                <ArrowRightOnRectangleIcon className="h-4 w-4 text-indigo-500" /> Se connecter
-                              </button>
-                              <button 
-                                onClick={() => { setOpenDropdownId(null); openEditModal(club); }}
-                                className="w-full text-left px-4 py-2 text-sm text-brand-blue dark:text-brand-blue hover:bg-brand-blue/10 dark:hover:bg-brand-blue/20 flex items-center gap-2"
-                              >
-                                <PencilIcon className="h-4 w-4 text-brand-blue" /> Modifier
-                              </button>
-                              
-                              {club.status === 'suspended' ? (
+                            <div className="absolute right-0 top-10 w-max bg-white dark:bg-slate-800 rounded-lg shadow-xl z-50 ring-1 ring-black ring-opacity-5 dark:ring-white/10 p-1.5 flex flex-row gap-1 items-center">
                                 <button 
-                                  onClick={() => { setOpenDropdownId(null); handleStatusChange(club.id, 'active'); }}
-                                  className="w-full text-left px-4 py-2 text-sm text-brand-green dark:text-brand-green hover:bg-brand-green/10 dark:hover:bg-brand-green/20 flex items-center gap-2"
+                                  onClick={() => { setOpenDropdownId(null); openDetailsDrawer(club); }}
+                                  title="Détails"
+                                  className="p-2 rounded hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                                 >
-                                  <PlayIcon className="h-4 w-4 text-brand-green" /> Réactiver
+                                  <EyeIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                                 </button>
-                              ) : (
                                 <button 
-                                  onClick={() => { setOpenDropdownId(null); handleStatusChange(club.id, 'suspended'); }}
-                                  className="w-full text-left px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 flex items-center gap-2"
+                                  onClick={() => { setOpenDropdownId(null); handleImpersonate(club.id); }}
+                                  title="Se connecter en tant qu'admin"
+                                  className="p-2 rounded hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors"
                                 >
-                                  <PauseIcon className="h-4 w-4 text-orange-500" /> Suspendre
+                                  <ArrowRightOnRectangleIcon className="h-5 w-5 text-indigo-500" />
                                 </button>
-                              )}
-                              
-                              <button 
-                                onClick={async () => {
-                                  setOpenDropdownId(null);
-                                  try {
-                                    await superAdminApi.extendTrial(club.id);
-                                    toast.success('1 mois gratuit offert avec succès.');
-                                    fetchClubs();
-                                  } catch (error) {
-                                    toast.error("Erreur lors de l'extension de l'essai.");
-                                  }
-                                }}
-                                className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
-                              >
-                                <GiftIcon className="h-4 w-4 text-green-500" /> Offrir 1 mois gratuit
-                              </button>
-                              <button 
-                                onClick={() => {
-                                  setOpenDropdownId(null);
-                                  toast.info('Génération du dump SQL en cours...');
-                                  setTimeout(() => {
-                                    toast.success('Dump SQL généré avec succès.');
-                                  }, 2000);
-                                }}
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2"
-                              >
-                                <ArchiveBoxIcon className="h-4 w-4 text-gray-400" /> Sauvegarder BDD
-                              </button>
-                              <div className="border-t border-gray-100 dark:border-white/10 my-1"></div>
-                              
-                              <button 
-                                onClick={() => { setOpenDropdownId(null); openDeleteModal(club); }}
-                                className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-2"
-                              >
-                                <TrashIcon className="h-4 w-4 text-red-500" /> Supprimer
-                              </button>
-                            </div>
+                                <button 
+                                  onClick={() => { setOpenDropdownId(null); openEditModal(club); }}
+                                  title="Modifier"
+                                  className="p-2 rounded hover:bg-brand-blue/10 dark:hover:bg-brand-blue/20 transition-colors"
+                                >
+                                  <PencilIcon className="h-5 w-5 text-brand-blue" />
+                                </button>
+                                
+                                {club.status === 'suspended' ? (
+                                  <button 
+                                    onClick={() => { setOpenDropdownId(null); handleStatusChange(club.id, 'active'); }}
+                                    title="Réactiver"
+                                    className="p-2 rounded hover:bg-brand-green/10 dark:hover:bg-brand-green/20 transition-colors"
+                                  >
+                                    <PlayIcon className="h-5 w-5 text-brand-green" />
+                                  </button>
+                                ) : (
+                                  <button 
+                                    onClick={() => { setOpenDropdownId(null); handleStatusChange(club.id, 'suspended'); }}
+                                    title="Suspendre"
+                                    className="p-2 rounded hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors"
+                                  >
+                                    <PauseIcon className="h-5 w-5 text-orange-500" />
+                                  </button>
+                                )}
+                                
+                                <button 
+                                  onClick={async () => {
+                                    setOpenDropdownId(null);
+                                    try {
+                                      await superAdminApi.extendTrial(club.id);
+                                      toast.success('1 mois gratuit offert avec succès.');
+                                      fetchClubs();
+                                    } catch (error) {
+                                      toast.error("Erreur lors de l'extension de l'essai.");
+                                    }
+                                  }}
+                                  title="Offrir 1 mois gratuit"
+                                  className="p-2 rounded hover:bg-green-50 dark:hover:bg-green-500/10 transition-colors"
+                                >
+                                  <GiftIcon className="h-5 w-5 text-green-500" />
+                                </button>
+                                <button 
+                                  onClick={() => {
+                                    setOpenDropdownId(null);
+                                    toast.info('Génération du dump SQL en cours...');
+                                    setTimeout(() => {
+                                      toast.success('Dump SQL généré avec succès.');
+                                    }, 2000);
+                                  }}
+                                  title="Sauvegarder BDD"
+                                  className="p-2 rounded hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                                >
+                                  <ArchiveBoxIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                </button>
+                                
+                                <button 
+                                  onClick={() => { setOpenDropdownId(null); openDeleteModal(club); }}
+                                  title="Supprimer"
+                                  className="p-2 rounded hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                                >
+                                  <TrashIcon className="h-5 w-5 text-red-500" />
+                                </button>
+                              </div>
                           </>
                         )}
                       </div>
