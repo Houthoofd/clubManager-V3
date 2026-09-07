@@ -126,6 +126,17 @@ export const SuperAdminModules: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [selectedModule, setSelectedModule] = useState<SaasModule | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  
+  const openModuleDrawer = (module: SaasModule) => {
+    setSelectedModule(module);
+    setIsDrawerOpen(true);
+  };
+  
+  const closeModuleDrawer = () => {
+    setIsDrawerOpen(false);
+    setTimeout(() => setSelectedModule(null), 300); // wait for animation
+  };
 
   const toggleModule = (id: string) => {
     setModules(modules.map(mod => 
@@ -260,7 +271,7 @@ export const SuperAdminModules: React.FC = () => {
                   <UserGroupIcon className="h-4 w-4" />
                   <span>{module.clubsUsingCount} clubs</span>
                 </div>
-                <button onClick={() => setSelectedModule(module)} className="flex items-center gap-1.5 text-sm font-semibold text-brand-blue dark:text-blue-400 hover:text-brand-dark dark:hover:text-blue-300 transition-colors">
+                <button onClick={() => openModuleDrawer(module)} className="flex items-center gap-1.5 text-sm font-semibold text-brand-blue dark:text-blue-400 hover:text-brand-dark dark:hover:text-blue-300 transition-colors">
                   <Cog6ToothIcon className="h-4 w-4" />
                   Configurer
                 </button>
@@ -279,37 +290,24 @@ export const SuperAdminModules: React.FC = () => {
       )}
 
       {/* Configuration Drawer */}
-      {selectedModule && (
-        <div className="fixed inset-0 z-[150] overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-gray-900/50 dark:bg-slate-900/80 backdrop-blur-sm transition-opacity" 
-            onClick={() => setSelectedModule(null)} 
-          />
-          <div className="fixed inset-y-0 right-0 flex max-w-full w-[32rem]">
-            <div className="w-screen max-w-md transform transition-transform bg-white dark:bg-slate-900 shadow-2xl flex flex-col h-full">
-              
+      <div className={`fixed inset-0 z-[150] flex justify-end transition-all duration-300 ${isDrawerOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}>
+        <div className="fixed inset-0 bg-black/30 transition-opacity" onClick={closeModuleDrawer} />
+        <div className={`relative w-full max-w-md bg-white dark:bg-slate-800 shadow-xl h-full flex flex-col transform transition-transform duration-300 ease-in-out z-10 border-l border-gray-200 dark:border-white/10 ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          
+          {selectedModule && (
+            <>
               {/* Drawer Header */}
-              <div className="px-6 py-6 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-slate-800/50 flex items-start justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-xl ${selectedModule.colorClass}`}>
-                    <selectedModule.icon className="h-6 w-6" />
+              <div className="flex items-center justify-between h-16 px-6 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-slate-800/50">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${selectedModule.colorClass}`}>
+                    <selectedModule.icon className="h-5 w-5" />
                   </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
-                      {selectedModule.name}
-                    </h2>
-                    <div className="mt-1 flex items-center gap-2">
-                      {getStatusBadge(selectedModule.status)}
-                      {selectedModule.isEnabledGlobally ? (
-                        <span className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Globalement Activé</span>
-                      ) : (
-                        <span className="text-xs text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Désactivé</span>
-                      )}
-                    </div>
-                  </div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                    {selectedModule.name}
+                  </h2>
                 </div>
                 <button 
-                  onClick={() => setSelectedModule(null)}
+                  onClick={closeModuleDrawer}
                   className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                 >
                   <XMarkIcon className="h-6 w-6" />
@@ -337,14 +335,14 @@ export const SuperAdminModules: React.FC = () => {
                   </h3>
                   <div className="space-y-3">
                     <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
-                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'free'} className="mt-1 text-brand-blue focus:ring-brand-blue" />
+                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'free'} className="mt-1 text-brand-blue focus:ring-brand-blue bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600" />
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">Inclus (Gratuit)</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Disponible pour tous les clubs sans surcoût.</p>
                       </div>
                     </label>
                     <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
-                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'paid'} className="mt-1 text-brand-blue focus:ring-brand-blue" />
+                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'paid'} className="mt-1 text-brand-blue focus:ring-brand-blue bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600" />
                       <div className="w-full">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">Option Payante (Add-on)</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Facturé en supplément de l'abonnement.</p>
@@ -357,7 +355,7 @@ export const SuperAdminModules: React.FC = () => {
                       </div>
                     </label>
                     <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
-                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'plan_restricted'} className="mt-1 text-brand-blue focus:ring-brand-blue" />
+                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'plan_restricted'} className="mt-1 text-brand-blue focus:ring-brand-blue bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600" />
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">Restreint par Plan</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Nécessite de configurer la Matrice des Permissions.</p>
@@ -401,23 +399,22 @@ export const SuperAdminModules: React.FC = () => {
               {/* Drawer Footer */}
               <div className="px-6 py-4 border-t border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-slate-800/50 flex justify-end gap-3">
                 <button 
-                  onClick={() => setSelectedModule(null)}
+                  onClick={closeModuleDrawer}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
                 >
                   Annuler
                 </button>
                 <button 
-                  onClick={() => setSelectedModule(null)}
+                  onClick={closeModuleDrawer}
                   className="px-4 py-2 text-sm font-semibold text-white bg-brand-green rounded-lg shadow-sm hover:bg-brand-green/90 transition-colors"
                 >
                   Enregistrer
                 </button>
               </div>
-
-            </div>
-          </div>
+            </>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
