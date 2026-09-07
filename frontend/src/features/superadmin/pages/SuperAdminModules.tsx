@@ -252,11 +252,6 @@ export const SuperAdminModules: React.FC = () => {
                 </button>
               </div>
             </div>
-
-            {/* Inactive Overlay Overlay (Optional effect if disabled globally) */}
-            {!module.isEnabledGlobally && (
-              <div className="absolute inset-0 bg-gray-50/50 dark:bg-slate-900/50 pointer-events-none mix-blend-multiply dark:mix-blend-overlay"></div>
-            )}
           </div>
         ))}
       </div>
