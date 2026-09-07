@@ -10,7 +10,11 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon,
   PlusIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  XMarkIcon,
+  CurrencyEuroIcon,
+  ShieldCheckIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import { Switch } from '@headlessui/react'; // Assuming headless UI is installed, if not, I will use a custom switch. I'll use a custom one to be safe.
 
@@ -108,10 +112,20 @@ const MOCK_MODULES: SaasModule[] = [
   }
 ];
 
+
+const MOCK_MODULE_USERS = [
+  { id: 1, name: 'FC Paris', plan: 'Pro', status: 'Actif', since: '01/09/2026' },
+  { id: 2, name: 'Tennis Club Lyon', plan: 'Enterprise', status: 'Actif', since: '15/08/2026' },
+  { id: 3, name: 'Judo Club Lyon', plan: 'Basic', status: 'Suspendu', since: '10/05/2026' }
+];
+
 export const SuperAdminModules: React.FC = () => {
   const [modules, setModules] = useState<SaasModule[]>(MOCK_MODULES);
   const [searchQuery, setSearchQuery] = useState('');
+  const [modules, setModules] = useState<SaasModule[]>(MOCK_MODULES);
+  const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
+  const [selectedModule, setSelectedModule] = useState<SaasModule | null>(null);
 
   const toggleModule = (id: string) => {
     setModules(modules.map(mod => 
@@ -246,7 +260,7 @@ export const SuperAdminModules: React.FC = () => {
                   <UserGroupIcon className="h-4 w-4" />
                   <span>{module.clubsUsingCount} clubs</span>
                 </div>
-                <button className="flex items-center gap-1.5 text-sm font-semibold text-brand-blue dark:text-blue-400 hover:text-brand-dark dark:hover:text-blue-300 transition-colors">
+                <button onClick={() => setSelectedModule(module)} className="flex items-center gap-1.5 text-sm font-semibold text-brand-blue dark:text-blue-400 hover:text-brand-dark dark:hover:text-blue-300 transition-colors">
                   <Cog6ToothIcon className="h-4 w-4" />
                   Configurer
                 </button>
@@ -261,6 +275,147 @@ export const SuperAdminModules: React.FC = () => {
           <PuzzlePieceIcon className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
           <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">Aucun module trouvé</h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Essayez de modifier vos critères de recherche.</p>
+        </div>
+      )}
+
+      {/* Configuration Drawer */}
+      {selectedModule && (
+        <div className="fixed inset-0 z-[150] overflow-hidden">
+          <div 
+            className="absolute inset-0 bg-gray-900/50 dark:bg-slate-900/80 backdrop-blur-sm transition-opacity" 
+            onClick={() => setSelectedModule(null)} 
+          />
+          <div className="fixed inset-y-0 right-0 flex max-w-full w-[32rem]">
+            <div className="w-screen max-w-md transform transition-transform bg-white dark:bg-slate-900 shadow-2xl flex flex-col h-full">
+              
+              {/* Drawer Header */}
+              <div className="px-6 py-6 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-slate-800/50 flex items-start justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-xl ${selectedModule.colorClass}`}>
+                    <selectedModule.icon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                      {selectedModule.name}
+                    </h2>
+                    <div className="mt-1 flex items-center gap-2">
+                      {getStatusBadge(selectedModule.status)}
+                      {selectedModule.isEnabledGlobally ? (
+                        <span className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Globalement Activé</span>
+                      ) : (
+                        <span className="text-xs text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Désactivé</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedModule(null)}
+                  className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+
+              {/* Drawer Body */}
+              <div className="flex-1 overflow-y-auto p-6">
+                
+                {/* Description */}
+                <div className="mb-8">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
+                  <textarea 
+                    rows={3}
+                    className="w-full rounded-lg border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 text-sm dark:text-white focus:ring-brand-blue focus:border-brand-blue"
+                    defaultValue={selectedModule.description}
+                  />
+                </div>
+
+                {/* Modèle Économique */}
+                <div className="mb-8">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <CurrencyEuroIcon className="h-5 w-5 text-gray-400" />
+                    Modèle Économique
+                  </h3>
+                  <div className="space-y-3">
+                    <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
+                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'free'} className="mt-1 text-brand-blue focus:ring-brand-blue" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">Inclus (Gratuit)</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Disponible pour tous les clubs sans surcoût.</p>
+                      </div>
+                    </label>
+                    <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
+                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'paid'} className="mt-1 text-brand-blue focus:ring-brand-blue" />
+                      <div className="w-full">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">Option Payante (Add-on)</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Facturé en supplément de l'abonnement.</p>
+                        {selectedModule.pricing === 'paid' && (
+                          <div className="flex items-center gap-2">
+                            <input type="number" defaultValue="15" className="w-20 rounded-md border-gray-300 dark:border-white/10 bg-white dark:bg-slate-800 text-sm dark:text-white py-1 px-2 focus:ring-brand-blue focus:border-brand-blue" />
+                            <span className="text-sm text-gray-500 dark:text-gray-400">€ / mois</span>
+                          </div>
+                        )}
+                      </div>
+                    </label>
+                    <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
+                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'plan_restricted'} className="mt-1 text-brand-blue focus:ring-brand-blue" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">Restreint par Plan</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Nécessite de configurer la Matrice des Permissions.</p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Clubs Utilisateurs */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                      <ShieldCheckIcon className="h-5 w-5 text-gray-400" />
+                      Clubs Utilisateurs ({selectedModule.clubsUsingCount})
+                    </h3>
+                  </div>
+                  <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl overflow-hidden">
+                    <ul className="divide-y divide-gray-100 dark:divide-white/10">
+                      {MOCK_MODULE_USERS.map((user) => (
+                        <li key={user.id} className="p-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5">
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Plan {user.plan} • Depuis le {user.since}</p>
+                          </div>
+                          <button className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-colors" title="Révocquer l'accès">
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="p-3 bg-gray-50 dark:bg-slate-800/50 text-center border-t border-gray-100 dark:border-white/10">
+                      <button className="text-xs font-semibold text-brand-blue dark:text-blue-400 hover:underline">
+                        Voir les {selectedModule.clubsUsingCount} clubs
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Drawer Footer */}
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-slate-800/50 flex justify-end gap-3">
+                <button 
+                  onClick={() => setSelectedModule(null)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button 
+                  onClick={() => setSelectedModule(null)}
+                  className="px-4 py-2 text-sm font-semibold text-white bg-brand-green rounded-lg shadow-sm hover:bg-brand-green/90 transition-colors"
+                >
+                  Enregistrer
+                </button>
+              </div>
+
+            </div>
+          </div>
         </div>
       )}
     </div>
