@@ -184,9 +184,9 @@ export const SuperAdminBilling: React.FC = () => {
   };
 
   const renderClubs = () => (
-    <div className="bg-white dark:bg-white/5 shadow rounded-lg overflow-hidden border border-gray-200 dark:border-white/10">
-      <table className="min-w-full divide-y divide-gray-100 dark:divide-white/5">
-        <thead className="bg-gray-50 dark:bg-gray-900/50">
+    <div className="rounded-2xl bg-white dark:bg-slate-800 shadow-sm ring-1 ring-gray-200 dark:ring-white/10 overflow-hidden">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10">
+        <thead className="bg-gray-50 dark:bg-slate-900/40">
           <tr>
             <th className="py-4 px-6 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Club</th>
             <th className="py-4 px-6 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Plan</th>
@@ -196,9 +196,9 @@ export const SuperAdminBilling: React.FC = () => {
             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
-        <tbody className="bg-white dark:bg-white/5 divide-y divide-gray-200 dark:divide-white/5 dark:divide-white/10">
+        <tbody className="divide-y divide-gray-200 dark:divide-white/5 bg-white dark:bg-transparent">
           {subscriptions.map(sub => (
-            <tr key={sub.id} className="hover:bg-gray-50 dark:hover:bg-white/10">
+            <tr key={sub.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{sub.clubName}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{sub.plan}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{getStatusBadge(sub.status)}</td>
@@ -243,9 +243,9 @@ export const SuperAdminBilling: React.FC = () => {
   );
 
   const renderInvoices = () => (
-    <div className="bg-white dark:bg-white/5 shadow rounded-lg overflow-hidden border border-gray-200 dark:border-white/10">
-      <table className="min-w-full divide-y divide-gray-100 dark:divide-white/5">
-        <thead className="bg-gray-50 dark:bg-gray-900/50">
+    <div className="rounded-2xl bg-white dark:bg-slate-800 shadow-sm ring-1 ring-gray-200 dark:ring-white/10 overflow-hidden">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10">
+        <thead className="bg-gray-50 dark:bg-slate-900/40">
           <tr>
             <th className="py-4 px-6 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Référence</th>
             <th className="py-4 px-6 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Club</th>
@@ -255,9 +255,9 @@ export const SuperAdminBilling: React.FC = () => {
             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Action</th>
           </tr>
         </thead>
-        <tbody className="bg-white dark:bg-white/5 divide-y divide-gray-200 dark:divide-white/5 dark:divide-white/10">
+        <tbody className="divide-y divide-gray-200 dark:divide-white/5 bg-white dark:bg-transparent">
           {invoices.map(inv => (
-            <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-white/10">
+            <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{inv.id}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{inv.clubName}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{inv.date}</td>
