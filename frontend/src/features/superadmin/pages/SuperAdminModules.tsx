@@ -168,7 +168,7 @@ export const SuperAdminModules: React.FC = () => {
       </div>
 
       {/* Filters Bar */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm ring-1 ring-gray-200 dark:ring-white/10 p-4 mb-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
+      <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm ring-1 ring-gray-200 dark:ring-white/10 p-4 mb-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
         <div className="relative flex items-center w-full sm:w-96">
           <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 pointer-events-none" />
           <input
@@ -183,7 +183,7 @@ export const SuperAdminModules: React.FC = () => {
         <div className="relative flex items-center w-full sm:w-auto">
           <FunnelIcon className="h-4 w-4 text-gray-400 absolute left-3 pointer-events-none" />
           <select
-            className="pl-9 pr-8 py-2 w-full sm:w-auto border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue appearance-none bg-white dark:bg-slate-800 dark:text-slate-400"
+            className="pl-9 pr-8 py-2 w-full sm:w-auto border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue appearance-none bg-white dark:bg-white/5 dark:text-slate-400"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
           >
@@ -198,7 +198,7 @@ export const SuperAdminModules: React.FC = () => {
       {/* Modules Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredModules.map((module) => (
-          <div key={module.id} className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm ring-1 ring-gray-200 dark:ring-white/10 overflow-hidden flex flex-col hover:shadow-md transition-shadow group">
+          <div key={module.id} className="bg-white dark:bg-white/5 rounded-2xl shadow-sm ring-1 ring-gray-200 dark:ring-white/10 overflow-hidden flex flex-col hover:shadow-md transition-shadow group">
             
             {/* Card Header */}
             <div className="p-6 pb-4 border-b border-gray-100 dark:border-white/10 flex items-start justify-between">
@@ -262,7 +262,7 @@ export const SuperAdminModules: React.FC = () => {
       </div>
       
       {filteredModules.length === 0 && (
-        <div className="text-center py-24 bg-white dark:bg-slate-800 rounded-2xl shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
+        <div className="text-center py-24 bg-white dark:bg-white/5 rounded-2xl shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
           <PuzzlePieceIcon className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
           <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">Aucun module trouvé</h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Essayez de modifier vos critères de recherche.</p>
