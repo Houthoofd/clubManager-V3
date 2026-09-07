@@ -60,6 +60,12 @@ import { OnboardingWizard } from "./features/onboarding/pages/OnboardingWizard";
 import { SuperAdminDashboard } from "./features/superadmin/pages/SuperAdminDashboard";
 import { SuperAdminBilling } from "./features/superadmin/pages/SuperAdminBilling";
 import { SuperAdminSettings } from "./features/superadmin/pages/SuperAdminSettings";
+import { SuperAdminSupport } from "./features/superadmin/pages/SuperAdminSupport";
+import { SuperAdminBroadcasts } from "./features/superadmin/pages/SuperAdminBroadcasts";
+import { SuperAdminAnalytics } from "./features/superadmin/pages/SuperAdminAnalytics";
+import { SuperAdminModules } from "./features/superadmin/pages/SuperAdminModules";
+import { SuperAdminSecurity } from "./features/superadmin/pages/SuperAdminSecurity";
+import { SuperAdminWorkflows } from "./features/superadmin/pages/SuperAdminWorkflows";
 import { SuperAdminLayout } from "./layouts/SuperAdminLayout";
 
 /**
@@ -162,7 +168,7 @@ function App() {
 
           
           <Route path="/onboarding" element={<PublicRoute><OnboardingWizard /></PublicRoute>} />
-          <Route path="/superadmin" element={<ProtectedRoute><SuperAdminLayout /></ProtectedRoute>}><Route index element={<Navigate to="/superadmin/clubs" replace />} /><Route path="clubs" element={<SuperAdminDashboard />} /><Route path="billing" element={<SuperAdminBilling />} /><Route path="settings" element={<SuperAdminSettings />} /></Route>
+          <Route path="/superadmin" element={<ProtectedRoute><SuperAdminLayout /></ProtectedRoute>}><Route index element={<Navigate to="/superadmin/clubs" replace />} /><Route path="clubs" element={<SuperAdminDashboard />} /><Route path="billing" element={<SuperAdminBilling />} /><Route path="support" element={<SuperAdminSupport />} /><Route path="broadcasts" element={<SuperAdminBroadcasts />} /><Route path="analytics" element={<SuperAdminAnalytics />} /><Route path="modules" element={<SuperAdminModules />} /><Route path="security" element={<SuperAdminSecurity />} /><Route path="workflows" element={<SuperAdminWorkflows />} /><Route path="settings" element={<SuperAdminSettings />} /></Route>
           
           {/* Public Routes */}
 

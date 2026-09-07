@@ -124,13 +124,13 @@ export const SuperAdminDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-green/10 px-2.5 py-1.5 text-xs font-semibold text-brand-green ring-1 ring-inset ring-brand-green/20"><CheckCircleIcon className="h-4 w-4" /> Actif</span>;
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-green/10 dark:bg-brand-green/20 px-2.5 py-1.5 text-xs font-semibold text-brand-green ring-1 ring-inset ring-brand-green/20"><CheckCircleIcon className="h-4 w-4" /> Actif</span>;
       case 'trial':
-        return <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-blue/10 px-2.5 py-1.5 text-xs font-semibold text-brand-blue ring-1 ring-inset ring-brand-blue/20">En Essai</span>;
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-blue/10 dark:bg-brand-blue/20 px-2.5 py-1.5 text-xs font-semibold text-brand-blue ring-1 ring-inset ring-brand-blue/20">En Essai</span>;
       case 'suspended':
-        return <span className="inline-flex items-center gap-1.5 rounded-md bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/20">Suspendu</span>;
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-red-50 dark:bg-red-500/10 px-2.5 py-1.5 text-xs font-semibold text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/20 dark:ring-red-500/20">Suspendu</span>;
       default:
-        return <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 ring-1 ring-inset ring-gray-500/20">{status}</span>;
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 dark:bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-inset ring-gray-500/20 dark:ring-gray-400/20">{status}</span>;
     }
   };
 
@@ -242,16 +242,16 @@ export const SuperAdminDashboard = () => {
             <ShieldCheckIcon className="h-8 w-8 text-brand-green" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-brand-dark">
+            <h1 className="text-3xl font-bold tracking-tight text-brand-dark dark:text-white">
               Centre de Contrôle Global
             </h1>
-            <p className="mt-1 text-sm text-gray-500">Vue d'ensemble et gestion des clubs locataires de la plateforme SaaS.</p>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Vue d'ensemble et gestion des clubs locataires de la plateforme SaaS.</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
           >
             <ArrowDownTrayIcon className="h-4 w-4" />
             Export CSV
@@ -268,45 +268,45 @@ export const SuperAdminDashboard = () => {
         
       {/* STATS */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 mb-10">
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+        <div className="rounded-2xl bg-white dark:bg-white/5 p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
           <div className="flex items-center gap-x-4">
             <div className="bg-brand-blue/10 p-2 rounded-lg">
               <BuildingOfficeIcon className="h-6 w-6 text-brand-blue" />
             </div>
-            <h3 className="text-sm font-semibold leading-7 text-gray-600">Total des Clubs</h3>
+            <h3 className="text-sm font-semibold leading-7 text-gray-600 dark:text-gray-400">Total des Clubs</h3>
           </div>
-          <p className="mt-4 text-3xl font-semibold tracking-tight text-brand-dark">{clubs.length}</p>
+          <p className="mt-4 text-3xl font-semibold tracking-tight text-brand-dark dark:text-white">{clubs.length}</p>
         </div>
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+        <div className="rounded-2xl bg-white dark:bg-white/5 p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
           <div className="flex items-center gap-x-4">
             <div className="bg-brand-green/10 p-2 rounded-lg">
               <CheckCircleIcon className="h-6 w-6 text-brand-green" />
             </div>
-            <h3 className="text-sm font-semibold leading-7 text-gray-600">Clubs Actifs</h3>
+            <h3 className="text-sm font-semibold leading-7 text-gray-600 dark:text-gray-400">Clubs Actifs</h3>
           </div>
           <p className="mt-4 text-3xl font-semibold tracking-tight text-brand-green">
             {clubs.filter(c => c.status === 'active' || c.status === 'trial').length}
           </p>
         </div>
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+        <div className="rounded-2xl bg-white dark:bg-white/5 p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
           <div className="flex items-center gap-x-4">
             <div className="bg-brand-blue/10 p-2 rounded-lg">
               <UserGroupIcon className="h-6 w-6 text-brand-blue" />
             </div>
-            <h3 className="text-sm font-semibold leading-7 text-gray-600">Total Admins</h3>
+            <h3 className="text-sm font-semibold leading-7 text-gray-600 dark:text-gray-400">Total Admins</h3>
           </div>
-          <p className="mt-4 text-3xl font-semibold tracking-tight text-brand-dark">
+          <p className="mt-4 text-3xl font-semibold tracking-tight text-brand-dark dark:text-white">
             {clubs.reduce((acc, curr) => acc + curr.admin_count, 0)}
           </p>
         </div>
       </div>
 
       {/* CLUBS TABLE */}
-      <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50/30 gap-4">
+      <div className="rounded-2xl bg-white dark:bg-slate-800 shadow-sm ring-1 ring-gray-200 dark:ring-white/10 overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-100 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 dark:bg-slate-800/50 gap-4">
           <div className="flex items-center gap-3">
             <ChartBarIcon className="h-5 w-5 text-brand-blue" />
-            <h2 className="text-lg font-semibold leading-7 text-brand-dark">Clubs inscrits</h2>
+            <h2 className="text-lg font-semibold leading-7 text-brand-dark dark:text-white">Clubs inscrits</h2>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -316,7 +316,7 @@ export const SuperAdminDashboard = () => {
               <input
                 type="text"
                 placeholder="Rechercher (nom, code)..."
-                className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue w-64"
+                className="pl-9 pr-4 py-2 border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue w-64 bg-white dark:bg-white/5 dark:text-white"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -324,40 +324,40 @@ export const SuperAdminDashboard = () => {
             <div className="relative flex items-center">
               <FunnelIcon className="h-4 w-4 text-gray-400 absolute left-3 pointer-events-none" />
               <select
-                className="pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue appearance-none bg-white"
+                className="pl-9 pr-8 py-2 border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue appearance-none bg-white dark:bg-slate-800 dark:text-white"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <option value="all">Tous les statuts</option>
-                <option value="active">Actif</option>
-                <option value="suspended">Suspendu</option>
-                <option value="trial">En Essai</option>
+                <option className="bg-white dark:bg-slate-800" value="all">Tous les statuts</option>
+                <option className="bg-white dark:bg-slate-800" value="active">Actif</option>
+                <option className="bg-white dark:bg-slate-800" value="suspended">Suspendu</option>
+                <option className="bg-white dark:bg-slate-800" value="trial">En Essai</option>
               </select>
             </div>
           </div>
         </div>
         
         {selectedClubIds.length > 0 && (
-          <div className="bg-brand-blue/5 border-b border-brand-blue/10 px-6 py-3 flex items-center justify-between">
-            <span className="text-sm font-medium text-brand-dark">
+          <div className="bg-brand-blue/5 dark:bg-white/5 border-b border-brand-blue/10 dark:border-white/5 px-6 py-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-brand-dark dark:text-white">
               {selectedClubIds.length} club(s) sélectionné(s)
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleBulkSuspend}
-                className="px-3 py-1.5 text-xs font-medium text-orange-700 bg-orange-100 rounded hover:bg-orange-200 transition-colors"
+                className="px-3 py-1.5 text-xs font-medium text-orange-700 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/10 rounded hover:bg-orange-200 dark:hover:bg-orange-500/20 transition-colors"
               >
                 Suspendre
               </button>
               <button
                 onClick={handleBulkReactivate}
-                className="px-3 py-1.5 text-xs font-medium text-brand-green bg-brand-green/10 rounded hover:bg-brand-green/20 transition-colors"
+                className="px-3 py-1.5 text-xs font-medium text-brand-green dark:text-emerald-400 bg-brand-green/10 dark:bg-emerald-500/10 rounded hover:bg-brand-green/20 dark:hover:bg-emerald-500/20 transition-colors"
               >
                 Réactiver
               </button>
               <button
                 onClick={handleBulkDelete}
-                className="px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 rounded hover:bg-red-200 transition-colors"
+                className="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-500/10 rounded hover:bg-red-200 dark:hover:bg-red-500/20 transition-colors"
               >
                 Supprimer
               </button>
@@ -366,36 +366,36 @@ export const SuperAdminDashboard = () => {
         )}
         
         {isLoading ? (
-          <div className="p-12 text-center text-gray-500 animate-pulse">Chargement des données...</div>
+          <div className="p-12 text-center text-gray-500 dark:text-gray-400 animate-pulse">Chargement des données...</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-white">
+            <table className="min-w-full divide-y divide-gray-100 dark:divide-white/5">
+              <thead className="bg-gray-50 dark:bg-slate-900/40">
                 <tr>
                   <th className="py-4 pl-6 pr-3 text-left w-12">
                     <input 
                       type="checkbox" 
-                      className="rounded border-gray-300 text-brand-blue focus:ring-brand-blue cursor-pointer"
+                      className="rounded border-gray-300 dark:border-white/10 dark:bg-slate-900 text-brand-blue focus:ring-brand-blue cursor-pointer"
                       checked={filteredClubs.length > 0 && selectedClubIds.length === filteredClubs.length}
                       onChange={toggleSelectAll}
                     />
                   </th>
                   <th 
-                    className="py-4 px-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50 select-none"
+                    className="py-4 px-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 select-none"
                     onClick={() => handleSort('name')}
                   >
                     Organisation {getSortIcon('name')}
                   </th>
-                  <th className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Code Unique</th>
-                  <th className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Base de données</th>
+                  <th className="px-3 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Code Unique</th>
+                  <th className="px-3 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Base de données</th>
                   <th 
-                    className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50 select-none"
+                    className="px-3 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 select-none"
                     onClick={() => handleSort('created_at')}
                   >
                     Date de création {getSortIcon('created_at')}
                   </th>
                   <th 
-                    className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50 select-none"
+                    className="px-3 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 select-none"
                     onClick={() => handleSort('status')}
                   >
                     Statut {getSortIcon('status')}
@@ -405,28 +405,28 @@ export const SuperAdminDashboard = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
+              <tbody className="divide-y divide-gray-100 dark:divide-white/5 bg-white dark:bg-transparent">
                 {filteredClubs.map((club) => (
-                  <tr key={club.id} className="hover:bg-gray-50/50 transition-colors cursor-pointer" onClick={() => openDetailsDrawer(club)}>
+                  <tr key={club.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer" onClick={() => openDetailsDrawer(club)}>
                     <td className="whitespace-nowrap py-4 pl-6 pr-3" onClick={(e) => e.stopPropagation()}>
                       <input 
                         type="checkbox" 
-                        className="rounded border-gray-300 text-brand-blue focus:ring-brand-blue cursor-pointer"
+                        className="rounded border-gray-300 dark:border-white/10 dark:bg-slate-900 text-brand-blue focus:ring-brand-blue cursor-pointer"
                         checked={selectedClubIds.includes(club.id)}
                         onChange={() => toggleSelectClub(club.id)}
                       />
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm">
-                      <div className="font-semibold text-brand-dark">{club.name}</div>
-                      <div className="text-gray-500 mt-0.5 text-xs">{club.contact_email}</div>
+                      <div className="font-semibold text-brand-dark dark:text-white">{club.name}</div>
+                      <div className="text-gray-500 dark:text-gray-400 mt-0.5 text-xs">{club.contact_email}</div>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      <span className="font-mono bg-gray-100 px-2.5 py-1 rounded-md text-gray-700 text-xs">{club.code}</span>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                      <span className="font-mono bg-gray-100 dark:bg-white/5 px-2.5 py-1 rounded-md text-gray-700 dark:text-gray-300 text-xs">{club.code}</span>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 font-mono text-xs">
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400 font-mono text-xs">
                       {club.db_name}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {new Date(club.created_at).toLocaleDateString()}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm">
@@ -437,7 +437,7 @@ export const SuperAdminDashboard = () => {
                       <div className="flex justify-end relative">
                         <button 
                           onClick={() => setOpenDropdownId(openDropdownId === club.id ? null : club.id)}
-                          className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500 transition-colors"
+                          className="p-1.5 hover:bg-gray-100 dark:bg-white/5 rounded-md text-gray-500 dark:text-gray-400 transition-colors"
                         >
                           <EllipsisVerticalIcon className="h-5 w-5" />
                         </button>
@@ -445,22 +445,22 @@ export const SuperAdminDashboard = () => {
                         {openDropdownId === club.id && (
                           <>
                             <div className="fixed inset-0 z-40" onClick={() => setOpenDropdownId(null)} />
-                            <div className="absolute right-0 top-10 w-48 bg-white rounded-md shadow-lg z-50 ring-1 ring-black ring-opacity-5 py-1 text-left overflow-hidden">
+                            <div className="absolute right-0 top-10 w-48 bg-white dark:bg-slate-800 rounded-md shadow-lg z-50 ring-1 ring-black ring-opacity-5 dark:ring-white/10 py-1 text-left overflow-hidden">
                               <button 
                                 onClick={() => { setOpenDropdownId(null); openDetailsDrawer(club); }}
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2"
                               >
                                 <EyeIcon className="h-4 w-4 text-gray-400" /> Détails
                               </button>
                               <button 
                                 onClick={() => { setOpenDropdownId(null); handleImpersonate(club.id); }}
-                                className="w-full text-left px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50 flex items-center gap-2"
+                                className="w-full text-left px-4 py-2 text-sm text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 flex items-center gap-2"
                               >
                                 <ArrowRightOnRectangleIcon className="h-4 w-4 text-indigo-500" /> Se connecter
                               </button>
                               <button 
                                 onClick={() => { setOpenDropdownId(null); openEditModal(club); }}
-                                className="w-full text-left px-4 py-2 text-sm text-brand-blue hover:bg-brand-blue/10 flex items-center gap-2"
+                                className="w-full text-left px-4 py-2 text-sm text-brand-blue dark:text-brand-blue hover:bg-brand-blue/10 dark:hover:bg-brand-blue/20 flex items-center gap-2"
                               >
                                 <PencilIcon className="h-4 w-4 text-brand-blue" /> Modifier
                               </button>
@@ -468,14 +468,14 @@ export const SuperAdminDashboard = () => {
                               {club.status === 'suspended' ? (
                                 <button 
                                   onClick={() => { setOpenDropdownId(null); handleStatusChange(club.id, 'active'); }}
-                                  className="w-full text-left px-4 py-2 text-sm text-brand-green hover:bg-brand-green/10 flex items-center gap-2"
+                                  className="w-full text-left px-4 py-2 text-sm text-brand-green dark:text-brand-green hover:bg-brand-green/10 dark:hover:bg-brand-green/20 flex items-center gap-2"
                                 >
                                   <PlayIcon className="h-4 w-4 text-brand-green" /> Réactiver
                                 </button>
                               ) : (
                                 <button 
                                   onClick={() => { setOpenDropdownId(null); handleStatusChange(club.id, 'suspended'); }}
-                                  className="w-full text-left px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2"
+                                  className="w-full text-left px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 flex items-center gap-2"
                                 >
                                   <PauseIcon className="h-4 w-4 text-orange-500" /> Suspendre
                                 </button>
@@ -504,15 +504,15 @@ export const SuperAdminDashboard = () => {
                                     toast.success('Dump SQL généré avec succès.');
                                   }, 2000);
                                 }}
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2"
                               >
                                 <ArchiveBoxIcon className="h-4 w-4 text-gray-400" /> Sauvegarder BDD
                               </button>
-                              <div className="border-t border-gray-100 my-1"></div>
+                              <div className="border-t border-gray-100 dark:border-white/10 my-1"></div>
                               
                               <button 
                                 onClick={() => { setOpenDropdownId(null); openDeleteModal(club); }}
-                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-2"
                               >
                                 <TrashIcon className="h-4 w-4 text-red-500" /> Supprimer
                               </button>
@@ -525,7 +525,7 @@ export const SuperAdminDashboard = () => {
                 ))}
                 {filteredClubs.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-gray-500">
+                    <td colSpan={7} className="py-12 text-center text-gray-500 dark:text-gray-400">
                       Aucune organisation trouvée.
                     </td>
                   </tr>
@@ -559,10 +559,10 @@ export const SuperAdminDashboard = () => {
       {selectedClubForDetails && (
         <div className={`fixed inset-0 z-50 flex justify-end transition-all duration-300 ${isDetailsDrawerOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}>
           <div className="fixed inset-0 bg-black/30 transition-opacity" onClick={() => setIsDetailsDrawerOpen(false)} />
-          <div className={`relative w-full max-w-md bg-white shadow-xl h-full flex flex-col transform transition-transform duration-300 ease-in-out z-10 border-l border-gray-200 ${isDetailsDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-brand-dark">Détails du club</h2>
-              <button onClick={() => setIsDetailsDrawerOpen(false)} className="text-gray-400 hover:text-gray-500">
+          <div className={`relative w-full max-w-md bg-white dark:bg-white/5 shadow-xl h-full flex flex-col transform transition-transform duration-300 ease-in-out z-10 border-l border-gray-200 dark:border-white/10 ${isDetailsDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/10">
+              <h2 className="text-lg font-semibold text-brand-dark dark:text-white">Détails du club</h2>
+              <button onClick={() => setIsDetailsDrawerOpen(false)} className="text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300 dark:text-gray-400">
                 <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
@@ -572,42 +572,42 @@ export const SuperAdminDashboard = () => {
                   {selectedClubForDetails.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">{selectedClubForDetails.name}</h3>
-                  <p className="text-sm text-gray-500">{selectedClubForDetails.code}</p>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{selectedClubForDetails.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{selectedClubForDetails.code}</p>
                 </div>
               </div>
               
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-2">Informations Générales</h4>
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Informations Générales</h4>
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-500">Statut</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Statut</span>
                       <span className="text-sm font-medium">{getStatusBadge(selectedClubForDetails.status)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-500">Date de création</span>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Date de création</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
                         {new Date(selectedClubForDetails.created_at).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-500">Base de données</span>
-                      <span className="text-sm font-medium text-gray-900 font-mono text-xs">{selectedClubForDetails.db_name}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Base de données</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white font-mono text-xs">{selectedClubForDetails.db_name}</span>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-2">Abonnement & Accès</h4>
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Abonnement & Accès</h4>
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-3">
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">Admins Actifs</span>
-                        <span className="text-sm font-medium text-gray-900">{selectedClubForDetails.admin_count}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Admins Actifs</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{selectedClubForDetails.admin_count}</span>
                       </div>
                       {selectedClubForDetails.admin_count > 0 && (
-                        <div className="bg-white rounded border border-gray-100 p-3 mt-1">
+                        <div className="bg-white dark:bg-white/5 rounded border border-gray-100 dark:border-white/10 p-3 mt-1">
                           <ul className="text-xs text-gray-600 space-y-1.5">
                             <li className="flex items-center gap-2">
                               <span className="w-1.5 h-1.5 rounded-full bg-brand-blue"></span>
@@ -629,13 +629,13 @@ export const SuperAdminDashboard = () => {
                       )}
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-500">Plan d'abonnement</span>
-                      <span className="text-sm font-medium text-gray-900 capitalize">{selectedClubForDetails.subscription_plan || 'Non spécifié'}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Plan d'abonnement</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white capitalize">{selectedClubForDetails.subscription_plan || 'Non spécifié'}</span>
                     </div>
                     {selectedClubForDetails.trial_ends_at && (
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">Fin de l'essai</span>
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Fin de l'essai</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
                           {new Date(selectedClubForDetails.trial_ends_at).toLocaleDateString()}
                         </span>
                       </div>
@@ -644,26 +644,26 @@ export const SuperAdminDashboard = () => {
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-2">Contact</h4>
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Contact</h4>
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-500">Email</span>
-                      <span className="text-sm font-medium text-gray-900">{selectedClubForDetails.contact_email}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Email</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{selectedClubForDetails.contact_email}</span>
                     </div>
                     {selectedClubForDetails.contact_phone && (
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-500">Téléphone</span>
-                        <span className="text-sm font-medium text-gray-900">{selectedClubForDetails.contact_phone}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Téléphone</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{selectedClubForDetails.contact_phone}</span>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
             </div>
-            <div className="p-4 border-t border-gray-100 bg-gray-50">
+            <div className="p-4 border-t border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-gray-900">
               <button
                 onClick={() => setIsDetailsDrawerOpen(false)}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/10"
               >
                 Fermer
               </button>
