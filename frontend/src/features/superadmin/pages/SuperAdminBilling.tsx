@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  EllipsisVerticalIcon, PencilIcon, NoSymbolIcon, XMarkIcon, CheckIcon, CurrencyEuroIcon, BanknotesIcon, 
+  EllipsisVerticalIcon, PencilIcon, NoSymbolIcon, XMarkIcon, CheckIcon, CheckCircleIcon, CurrencyEuroIcon, BanknotesIcon, 
   UserGroupIcon, 
   ExclamationCircleIcon,
   ArrowTrendingUpIcon,
@@ -166,20 +166,29 @@ export const SuperAdminBilling: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'Active': return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-500/10 text-green-800 dark:text-green-400">Actif</span>;
-      case 'Trial': return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Essai</span>;
-      case 'Past Due': return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Impayé</span>;
-      case 'Canceled': return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-white/5 text-gray-800">Annulé</span>;
-      default: return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-white/5 text-gray-800">{status}</span>;
+      case 'Active':
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-green/10 dark:bg-brand-green/20 px-2.5 py-1.5 text-xs font-semibold text-brand-green ring-1 ring-inset ring-brand-green/20"><CheckCircleIcon className="h-4 w-4" /> Actif</span>;
+      case 'Trial':
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-blue/10 dark:bg-brand-blue/20 px-2.5 py-1.5 text-xs font-semibold text-brand-blue ring-1 ring-inset ring-brand-blue/20">En Essai</span>;
+      case 'Past Due':
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-red-50 dark:bg-red-500/10 px-2.5 py-1.5 text-xs font-semibold text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/20 dark:ring-red-500/20">Impayé</span>;
+      case 'Canceled':
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 dark:bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-inset ring-gray-500/20 dark:ring-gray-400/20">Annulé</span>;
+      default:
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 dark:bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-inset ring-gray-500/20 dark:ring-gray-400/20">{status}</span>;
     }
   };
 
   const getInvoiceStatusBadge = (status: string) => {
     switch (status) {
-      case 'Paid': return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-500/10 text-green-800 dark:text-green-400">Payée</span>;
-      case 'Open': return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">En attente</span>;
-      case 'Failed': return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Échouée</span>;
-      default: return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-white/5 text-gray-800">{status}</span>;
+      case 'Paid':
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-green/10 dark:bg-brand-green/20 px-2.5 py-1.5 text-xs font-semibold text-brand-green ring-1 ring-inset ring-brand-green/20"><CheckCircleIcon className="h-4 w-4" /> Payée</span>;
+      case 'Open':
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-orange-50 dark:bg-orange-500/10 px-2.5 py-1.5 text-xs font-semibold text-orange-700 dark:text-orange-400 ring-1 ring-inset ring-orange-600/20 dark:ring-orange-500/20">En attente</span>;
+      case 'Failed':
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-red-50 dark:bg-red-500/10 px-2.5 py-1.5 text-xs font-semibold text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/20 dark:ring-red-500/20">Échouée</span>;
+      default:
+        return <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 dark:bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-inset ring-gray-500/20 dark:ring-gray-400/20">{status}</span>;
     }
   };
 
