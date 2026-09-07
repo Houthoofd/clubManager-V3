@@ -120,8 +120,8 @@ export const SuperAdminBilling: React.FC = () => {
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">MRR (Revenu Mensuel)</p>
             <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">{kpis.mrr.toLocaleString()} €</p>
           </div>
-          <div className="p-3 bg-brand-green/10 rounded-full">
-            <CurrencyEuroIcon className="w-6 h-6 text-brand-green" />
+          <div className="p-3 bg-brand-green/10 dark:bg-emerald-500/10 rounded-full">
+            <CurrencyEuroIcon className="w-6 h-6 text-brand-green dark:text-emerald-400" />
           </div>
         </div>
       </div>
@@ -132,8 +132,8 @@ export const SuperAdminBilling: React.FC = () => {
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">ARR (Revenu Annuel)</p>
             <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">{kpis.arr.toLocaleString()} €</p>
           </div>
-          <div className="p-3 bg-brand-blue/10 rounded-full">
-            <ArrowTrendingUpIcon className="w-6 h-6 text-brand-blue" />
+          <div className="p-3 bg-brand-blue/10 dark:bg-blue-500/10 rounded-full">
+            <ArrowTrendingUpIcon className="w-6 h-6 text-brand-blue dark:text-blue-400" />
           </div>
         </div>
       </div>
@@ -144,8 +144,8 @@ export const SuperAdminBilling: React.FC = () => {
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Clubs Actifs</p>
             <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">{kpis.activeClubs}</p>
           </div>
-          <div className="p-3 bg-purple-50 rounded-full">
-            <UserGroupIcon className="w-6 h-6 text-purple-600" />
+          <div className="p-3 bg-purple-50 dark:bg-purple-500/10 rounded-full">
+            <UserGroupIcon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
           </div>
         </div>
       </div>
@@ -154,10 +154,10 @@ export const SuperAdminBilling: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Paiements Échoués</p>
-            <p className="text-2xl font-semibold text-red-600 mt-1">{kpis.failedPayments}</p>
+            <p className="text-2xl font-semibold text-red-600 dark:text-red-400 mt-1">{kpis.failedPayments}</p>
           </div>
-          <div className="p-3 bg-red-100 rounded-full">
-            <ExclamationCircleIcon className="w-6 h-6 text-red-600" />
+          <div className="p-3 bg-red-100 dark:bg-red-500/10 rounded-full">
+            <ExclamationCircleIcon className="w-6 h-6 text-red-600 dark:text-red-400" />
           </div>
         </div>
       </div>
@@ -481,8 +481,8 @@ export const SuperAdminBilling: React.FC = () => {
     <div className="w-full relative">
       <div className="flex items-center gap-4 mb-8 justify-between">
         <div className="flex items-center gap-4">
-          <div className="rounded-full bg-brand-green/10 p-3">
-            <CurrencyEuroIcon className="h-8 w-8 text-brand-green" />
+          <div className="rounded-full bg-brand-green/10 dark:bg-emerald-500/10 p-3">
+            <CurrencyEuroIcon className="h-8 w-8 text-brand-green dark:text-emerald-400" />
           </div>
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-brand-dark dark:text-white">
@@ -500,7 +500,7 @@ export const SuperAdminBilling: React.FC = () => {
             className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'apercu'
                 ? 'border-brand-green text-brand-green'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-white/10'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-white/10'
             }`}
           >
             Aperçu
@@ -510,7 +510,7 @@ export const SuperAdminBilling: React.FC = () => {
             className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'clubs'
                 ? 'border-brand-green text-brand-green'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-white/10'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-white/10'
             }`}
           >
             Clubs
@@ -520,7 +520,7 @@ export const SuperAdminBilling: React.FC = () => {
             className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'factures'
                 ? 'border-brand-green text-brand-green'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-white/10'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-white/10'
             }`}
           >
             Factures
@@ -530,7 +530,7 @@ export const SuperAdminBilling: React.FC = () => {
             className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'plans'
                 ? 'border-brand-green text-brand-green'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-white/10'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-white/10'
             }`}
           >
             Plans
