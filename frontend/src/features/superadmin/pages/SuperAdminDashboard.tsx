@@ -557,10 +557,10 @@ export const SuperAdminDashboard = () => {
 
       {/* Details Drawer */}
       {selectedClubForDetails && (
-        <div className={`fixed inset-0 z-50 flex justify-end transition-all duration-300 ${isDetailsDrawerOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}>
+        <div className={`fixed inset-0 z-[150] flex justify-end transition-all duration-300 ${isDetailsDrawerOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}>
           <div className="fixed inset-0 bg-black/30 transition-opacity" onClick={() => setIsDetailsDrawerOpen(false)} />
-          <div className={`relative w-full max-w-md bg-white dark:bg-white/5 shadow-xl h-full flex flex-col transform transition-transform duration-300 ease-in-out z-10 border-l border-gray-200 dark:border-white/10 ${isDetailsDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/10">
+          <div className={`relative w-full max-w-md bg-white dark:bg-slate-800 shadow-xl h-full flex flex-col transform transition-transform duration-300 ease-in-out z-10 border-l border-gray-200 dark:border-white/10 ${isDetailsDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div className="flex items-center justify-between h-16 px-6 border-b border-gray-100 dark:border-white/10">
               <h2 className="text-lg font-semibold text-brand-dark dark:text-white">Détails du club</h2>
               <button onClick={() => setIsDetailsDrawerOpen(false)} className="text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300 dark:text-gray-400">
                 <XMarkIcon className="h-6 w-6" />
@@ -580,7 +580,7 @@ export const SuperAdminDashboard = () => {
               <div className="space-y-6">
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Informations Générales</h4>
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-3">
+                  <div className="bg-gray-50 dark:bg-slate-900/50 rounded-lg p-4 space-y-3">
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-500 dark:text-gray-400">Statut</span>
                       <span className="text-sm font-medium">{getStatusBadge(selectedClubForDetails.status)}</span>
@@ -600,7 +600,7 @@ export const SuperAdminDashboard = () => {
 
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Abonnement & Accès</h4>
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-3">
+                  <div className="bg-gray-50 dark:bg-slate-900/50 rounded-lg p-4 space-y-3">
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-500 dark:text-gray-400">Admins Actifs</span>
@@ -645,7 +645,7 @@ export const SuperAdminDashboard = () => {
 
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Contact</h4>
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-3">
+                  <div className="bg-gray-50 dark:bg-slate-900/50 rounded-lg p-4 space-y-3">
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-500 dark:text-gray-400">Email</span>
                       <span className="text-sm font-medium text-gray-900 dark:text-white">{selectedClubForDetails.contact_email}</span>
@@ -660,7 +660,7 @@ export const SuperAdminDashboard = () => {
                 </div>
               </div>
             </div>
-            <div className="p-4 border-t border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-gray-900">
+            <div className="p-4 border-t border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-slate-800/50">
               <button
                 onClick={() => setIsDetailsDrawerOpen(false)}
                 className="w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/10"
