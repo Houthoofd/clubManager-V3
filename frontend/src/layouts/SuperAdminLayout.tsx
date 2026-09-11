@@ -14,14 +14,14 @@ import {
   ShieldCheckIcon,
   ArrowRightOnRectangleIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
-,
+  ChevronRightIcon,
   ArrowPathRoundedSquareIcon,
   BellIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   MoonIcon,
   SunIcon,
-    UserCircleIcon
+  UserCircleIcon,
+  ClipboardDocumentListIcon
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../shared/hooks/useAuth";
 import { useTheme } from "../shared/hooks/useTheme";
@@ -35,7 +35,7 @@ const navigation = [
   { name: "Gestion des Modules", href: "/superadmin/modules", icon: PuzzlePieceIcon, category: "Outils & Sécurité" },
   { name: "Gestionnaire de Flux", href: "/superadmin/workflows", icon: ArrowPathRoundedSquareIcon, category: "Outils & Sécurité" },
   { name: "Sécurité & Alertes", href: "/superadmin/security", icon: ShieldCheckIcon, category: "Outils & Sécurité" },
-  { name: "Logs d'Audit", href: "/superadmin/audit", icon: ShieldCheckIcon, category: "Outils & Sécurité" },
+  { name: "Logs d'Audit", href: "/superadmin/audit", icon: ClipboardDocumentListIcon, category: "Outils & Sécurité" },
   { name: "Abonnements", href: "/superadmin/billing", icon: CreditCardIcon, category: "Financier" },
 ];
 
@@ -85,8 +85,8 @@ export const SuperAdminLayout = () => {
                     SuperAdmin
                   </span>
                 </div>
-                <nav className="flex flex-1 flex-col justify-center mt-4 mb-16 px-6">
-                  <ul role="list" className="flex flex-col gap-y-7 my-auto">
+                <nav className="flex flex-1 flex-col mt-4 mb-6 px-6">
+                  <ul role="list" className="flex flex-col gap-y-7">
                     {Object.entries(groupedNavigation).map(([category, items]) => (
                       <li key={category}>
                         <div className="text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider mb-2 text-left px-2">
@@ -156,8 +156,8 @@ export const SuperAdminLayout = () => {
               
           </div>
           
-          <nav className="flex flex-1 flex-col justify-center mt-4 mb-16 px-4">
-            <ul role="list" className="flex flex-col gap-y-7 my-auto">
+          <nav className="flex flex-1 flex-col mt-4 mb-6 px-4">
+            <ul role="list" className="flex flex-col gap-y-7">
               {Object.entries(groupedNavigation).map(([category, items]) => (
                 <li key={category}>
                   {!isCollapsed && (

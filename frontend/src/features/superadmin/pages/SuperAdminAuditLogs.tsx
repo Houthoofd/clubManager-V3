@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import {
   MagnifyingGlassIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ShieldExclamationIcon,
+  ExclamationTriangleIcon,
+  ClipboardDocumentListIcon,
+  FunnelIcon,
 } from "@heroicons/react/24/outline";
 
 // Mock Data
@@ -132,64 +136,76 @@ export const SuperAdminAuditLogs = () => {
 
       {/* KPI Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
-          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Alertes critiques (24h)</div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <div className="text-3xl font-bold text-gray-900 dark:text-white">2</div>
+        <div className="rounded-2xl bg-white dark:bg-white/5 p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
+          <div className="flex items-center gap-x-4">
+            <div className="bg-red-500/10 p-2 rounded-lg">
+              <ShieldExclamationIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+            </div>
+            <h3 className="text-sm font-semibold leading-7 text-gray-600 dark:text-gray-400">Alertes critiques (24h)</h3>
           </div>
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
-          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Avertissements (24h)</div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <div className="text-3xl font-bold text-gray-900 dark:text-white">2</div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
-          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Actions totales</div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <div className="text-3xl font-bold text-gray-900 dark:text-white">6</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters Bar */}
-      <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm ring-1 ring-gray-200 dark:ring-white/10 p-4 mb-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
-        <div className="relative flex items-center w-full sm:w-96">
-          <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Rechercher utilisateur ou action..."
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue bg-white dark:bg-white/5 dark:text-slate-300 dark:placeholder-slate-400"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <p className="mt-4 text-3xl font-semibold tracking-tight text-brand-dark dark:text-white">2</p>
         </div>
         
-        <div className="w-full sm:w-auto relative">
-           <select
-            value={selectedSeverity}
-            onChange={(e) => setSelectedSeverity(e.target.value)}
-            className="w-full sm:w-48 border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue bg-white dark:bg-white/5 dark:text-slate-300 py-2 pl-3 pr-10"
-          >
-            <option value="ALL">Toutes sévérités</option>
-            <option value="CRITICAL">Critique</option>
-            <option value="WARNING">Attention</option>
-            <option value="INFO">Info</option>
-          </select>
+        <div className="rounded-2xl bg-white dark:bg-white/5 p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
+          <div className="flex items-center gap-x-4">
+            <div className="bg-orange-500/10 p-2 rounded-lg">
+              <ExclamationTriangleIcon className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+            </div>
+            <h3 className="text-sm font-semibold leading-7 text-gray-600 dark:text-gray-400">Avertissements (24h)</h3>
+          </div>
+          <p className="mt-4 text-3xl font-semibold tracking-tight text-brand-dark dark:text-white">2</p>
+        </div>
+
+        <div className="rounded-2xl bg-white dark:bg-white/5 p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
+          <div className="flex items-center gap-x-4">
+            <div className="bg-brand-blue/10 p-2 rounded-lg">
+              <ClipboardDocumentListIcon className="h-6 w-6 text-brand-blue" />
+            </div>
+            <h3 className="text-sm font-semibold leading-7 text-gray-600 dark:text-gray-400">Actions totales</h3>
+          </div>
+          <p className="mt-4 text-3xl font-semibold tracking-tight text-brand-dark dark:text-white">6</p>
         </div>
       </div>
 
       {/* Data Table */}
       <div className="rounded-2xl bg-white dark:bg-slate-800 shadow-sm ring-1 ring-gray-200 dark:ring-white/10 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-slate-800/50 flex justify-between items-center">
-          <div>
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white">Historique d'activité</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Registre immuable des événements système.</p>
+        <div className="px-6 py-5 border-b border-gray-100 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 dark:bg-slate-800/50 gap-4">
+          <div className="flex items-center gap-3">
+            <ClipboardDocumentListIcon className="h-5 w-5 text-brand-blue" />
+            <h2 className="text-lg font-semibold leading-7 text-brand-dark dark:text-white">Historique d'activité</h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Rechercher utilisateur ou action..."
+                className="pl-9 pr-4 py-2 border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue w-64 bg-white dark:bg-white/5 dark:text-slate-300 dark:placeholder-slate-400"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="relative flex items-center">
+              <FunnelIcon className="h-4 w-4 text-gray-400 absolute left-3 pointer-events-none" />
+              <select
+                className="pl-9 pr-8 py-2 border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue appearance-none bg-white dark:bg-slate-800 dark:text-slate-400"
+                value={selectedSeverity}
+                onChange={(e) => setSelectedSeverity(e.target.value)}
+              >
+                <option className="bg-white dark:bg-slate-800 dark:text-slate-300" value="ALL">Toutes sévérités</option>
+                <option className="bg-white dark:bg-slate-800 dark:text-slate-300" value="CRITICAL">Critique</option>
+                <option className="bg-white dark:bg-slate-800 dark:text-slate-300" value="WARNING">Attention</option>
+                <option className="bg-white dark:bg-slate-800 dark:text-slate-300" value="INFO">Info</option>
+              </select>
+            </div>
           </div>
         </div>
+        
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10">
-            <thead className="bg-gray-50 dark:bg-slate-900/40">
+            <thead className="bg-white dark:bg-slate-900/40 border-b border-gray-200 dark:border-white/10">
               <tr>
                 <th scope="col" className="w-10 px-6 py-4"></th>
                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Date</th>
