@@ -124,6 +124,30 @@ export const SuperAdminModules: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'matrix'>('grid');
   const [selectedModule, setSelectedModule] = useState<SaasModule | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newModuleForm, setNewModuleForm] = useState({ name: '', description: '', type: 'core', pricing: 'free' });
+
+  const handleCreateModule = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newModuleForm.name.trim()) return;
+    
+    const newModule: SaasModule = {
+      id: 'm_' + Date.now(),
+      name: newModuleForm.name,
+      description: newModuleForm.description,
+      icon: PuzzlePieceIcon,
+      status: 'beta',
+      type: newModuleForm.type as ModuleType,
+      pricing: newModuleForm.pricing as 'free' | 'paid' | 'plan_restricted',
+      clubsUsingCount: 0,
+      isEnabledGlobally: false,
+      colorClass: 'text-gray-600 bg-gray-50 dark:bg-gray-500/10 dark:text-gray-400'
+    };
+    
+    setModules([...modules, newModule]);
+    setIsCreateModalOpen(false);
+    setNewModuleForm({ name: '', description: '', type: 'core', pricing: 'free' });
+  };
   
   const openModuleDrawer = (module: SaasModule) => {
     setSelectedModule(module);
@@ -181,7 +205,7 @@ export const SuperAdminModules: React.FC = () => {
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Gérez les fonctionnalités optionnelles de la plateforme (Feature Flags) et leurs accès.</p>
           </div>
         </div>
-        <button className="inline-flex items-center gap-2 rounded-lg bg-brand-green px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-green/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green transition-all">
+        <button onClick={() => setIsCreateModalOpen(true)} className="inline-flex items-center gap-2 rounded-lg bg-brand-green px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-green/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green transition-all">
           <PlusIcon className="h-5 w-5" />
           Nouveau Module
         </button>
@@ -507,6 +531,91 @@ export const SuperAdminModules: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Create Modal */}
+      <div className={`fixed inset-0 z-[200] flex items-center justify-center transition-all duration-300 ${isCreateModalOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => setIsCreateModalOpen(false)} />
+        <div className={`relative w-full max-w-lg bg-white dark:bg-slate-800 shadow-2xl rounded-2xl flex flex-col transform transition-transform duration-300 ease-out z-10 m-4 ${isCreateModalOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}>
+          <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-brand-green/10 dark:bg-emerald-500/10 text-brand-green dark:text-emerald-400">
+                <PlusIcon className="h-5 w-5" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Nouveau Module</h2>
+            </div>
+            <button onClick={() => setIsCreateModalOpen(false)} className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors">
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+          </div>
+          
+          <form onSubmit={handleCreateModule} className="p-6 space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom du module</label>
+              <input 
+                type="text" 
+                required
+                value={newModuleForm.name}
+                onChange={e => setNewModuleForm({...newModuleForm, name: e.target.value})}
+                placeholder="Ex: Gestion des tournois" 
+                className="w-full rounded-lg border-gray-300 dark:border-white/10 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-brand-blue focus:border-brand-blue sm:text-sm" 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description courte</label>
+              <textarea 
+                rows={2} 
+                value={newModuleForm.description}
+                onChange={e => setNewModuleForm({...newModuleForm, description: e.target.value})}
+                placeholder="Expliquez brièvement l'utilité du module..." 
+                className="w-full rounded-lg border-gray-300 dark:border-white/10 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-brand-blue focus:border-brand-blue sm:text-sm" 
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type de module</label>
+                <select 
+                  value={newModuleForm.type}
+                  onChange={e => setNewModuleForm({...newModuleForm, type: e.target.value})}
+                  className="w-full rounded-lg border-gray-300 dark:border-white/10 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-brand-blue focus:border-brand-blue sm:text-sm"
+                >
+                  <option value="core">Coeur (Core)</option>
+                  <option value="addon">Add-on (Extension)</option>
+                  <option value="integration">Intégration Externe</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stratégie prix</label>
+                <select 
+                  value={newModuleForm.pricing}
+                  onChange={e => setNewModuleForm({...newModuleForm, pricing: e.target.value})}
+                  className="w-full rounded-lg border-gray-300 dark:border-white/10 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-brand-blue focus:border-brand-blue sm:text-sm"
+                >
+                  <option value="free">Inclus (Gratuit)</option>
+                  <option value="plan_restricted">Restreint par plan</option>
+                  <option value="paid">Payant à la carte</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-white/10">
+              <button 
+                type="button" 
+                onClick={() => setIsCreateModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
+              >
+                Annuler
+              </button>
+              <button 
+                type="submit"
+                className="px-4 py-2 text-sm font-semibold text-white bg-brand-green rounded-lg shadow-sm hover:bg-brand-green/90 transition-colors"
+              >
+                Créer le module
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
+
