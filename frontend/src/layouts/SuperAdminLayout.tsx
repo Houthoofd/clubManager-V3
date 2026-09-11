@@ -34,7 +34,8 @@ const navigation = [
   { name: "Communications", href: "/superadmin/broadcasts", icon: MegaphoneIcon, category: "Administratif" },
   { name: "Gestion des Modules", href: "/superadmin/modules", icon: PuzzlePieceIcon, category: "Outils & Sécurité" },
   { name: "Gestionnaire de Flux", href: "/superadmin/workflows", icon: ArrowPathRoundedSquareIcon, category: "Outils & Sécurité" },
-  { name: "Sécurité & Logs", href: "/superadmin/security", icon: ShieldCheckIcon, category: "Outils & Sécurité" },
+  { name: "Sécurité & Alertes", href: "/superadmin/security", icon: ShieldCheckIcon, category: "Outils & Sécurité" },
+  { name: "Logs d'Audit", href: "/superadmin/audit", icon: ShieldCheckIcon, category: "Outils & Sécurité" },
   { name: "Abonnements", href: "/superadmin/billing", icon: CreditCardIcon, category: "Financier" },
 ];
 
