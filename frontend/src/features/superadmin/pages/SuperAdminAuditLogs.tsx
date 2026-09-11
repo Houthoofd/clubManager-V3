@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   MagnifyingGlassIcon,
-  ChevronDownIcon,
   ChevronRightIcon
 } from "@heroicons/react/24/outline";
 
@@ -61,28 +60,28 @@ const MOCK_LOGS = [
   },
   {
     id: "log-005",
-    date: "2026-09-09T11:20:00Z",
+    date: "2026-09-09T13:20:00Z",
     severity: "WARNING",
     action: "data.export.csv",
     actor: "finance@club.com",
     target: "All Members Data",
     metadata: {
-      format: "CSV",
-      rowCount: 45000,
-      ip: "10.0.0.5"
+      recordsExported: 1450,
+      ip: "82.124.65.12",
+      tenantId: "tenant_12"
     }
   },
   {
     id: "log-006",
-    date: "2026-09-08T08:15:30Z",
+    date: "2026-09-08T10:15:30Z",
     severity: "CRITICAL",
     action: "club.deleted",
     actor: "support@club.com",
     target: "Club Test 01",
     metadata: {
+      tenantId: "tenant_999",
       reason: "Requested by owner",
-      deletionType: "soft_delete",
-      scheduledPurge: "2026-10-08T08:15:30Z"
+      confirmationCodeMatched: true
     }
   }
 ];
@@ -90,12 +89,12 @@ const MOCK_LOGS = [
 const SeverityBadge = ({ severity }: { severity: string }) => {
   switch (severity) {
     case "CRITICAL":
-      return <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400">Critique</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset bg-red-50 text-red-700 ring-red-600/10 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">Critique</span>;
     case "WARNING":
-      return <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400">Attention</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-800 ring-yellow-600/20 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">Attention</span>;
     case "INFO":
     default:
-      return <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">Info</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-700 ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">Info</span>;
   }
 };
 
@@ -111,42 +110,46 @@ export const SuperAdminAuditLogs = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight">
           Journaux d'Audit & Sécurité
         </h2>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
           Suivez toutes les actions sensibles effectuées sur la plateforme.
         </p>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="overflow-hidden rounded-lg bg-white dark:bg-slate-800 px-4 py-5 shadow sm:p-6 border border-gray-200 dark:border-white/10">
-          <dt className="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Alertes critiques (24h)</dt>
-          <dd className="mt-1 text-3xl font-semibold tracking-tight text-red-600 dark:text-red-400">2</dd>
+      {/* KPI Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
+          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Alertes critiques (24h)</div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <div className="text-3xl font-bold text-gray-900 dark:text-white">2</div>
+          </div>
         </div>
-        <div className="overflow-hidden rounded-lg bg-white dark:bg-slate-800 px-4 py-5 shadow sm:p-6 border border-gray-200 dark:border-white/10">
-          <dt className="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Avertissements (24h)</dt>
-          <dd className="mt-1 text-3xl font-semibold tracking-tight text-orange-600 dark:text-orange-400">2</dd>
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
+          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Avertissements (24h)</div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <div className="text-3xl font-bold text-gray-900 dark:text-white">2</div>
+          </div>
         </div>
-        <div className="overflow-hidden rounded-lg bg-white dark:bg-slate-800 px-4 py-5 shadow sm:p-6 border border-gray-200 dark:border-white/10">
-          <dt className="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Actions totales</dt>
-          <dd className="mt-1 text-3xl font-semibold tracking-tight text-blue-600 dark:text-blue-400">6</dd>
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
+          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Actions totales</div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <div className="text-3xl font-bold text-gray-900 dark:text-white">6</div>
+          </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-white/10">
-        <div className="relative w-full sm:max-w-xs">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-          </div>
+      {/* Filters Bar */}
+      <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm ring-1 ring-gray-200 dark:ring-white/10 p-4 mb-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
+        <div className="relative flex items-center w-full sm:w-96">
+          <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 pointer-events-none" />
           <input
             type="text"
-            className="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 dark:text-white dark:bg-slate-900 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand-green sm:text-sm sm:leading-6"
             placeholder="Rechercher utilisateur ou action..."
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue bg-white dark:bg-white/5 dark:text-slate-300 dark:placeholder-slate-400"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -156,7 +159,7 @@ export const SuperAdminAuditLogs = () => {
            <select
             value={selectedSeverity}
             onChange={(e) => setSelectedSeverity(e.target.value)}
-            className="block w-full sm:w-48 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 dark:text-white dark:bg-slate-900 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 focus:ring-2 focus:ring-brand-green sm:text-sm sm:leading-6"
+            className="w-full sm:w-48 border border-gray-300 dark:border-white/10 rounded-lg text-sm focus:ring-brand-blue focus:border-brand-blue bg-white dark:bg-white/5 dark:text-slate-300 py-2 pl-3 pr-10"
           >
             <option value="ALL">Toutes sévérités</option>
             <option value="CRITICAL">Critique</option>
@@ -167,65 +170,67 @@ export const SuperAdminAuditLogs = () => {
       </div>
 
       {/* Data Table */}
-      <div className="bg-white dark:bg-slate-800 shadow-sm ring-1 ring-gray-200 dark:ring-white/10 sm:rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10">
-          <thead className="bg-gray-50 dark:bg-slate-900/50">
-            <tr>
-              <th scope="col" className="w-10 px-6 py-3"></th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sévérité</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Action</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acteur</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cible</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-slate-800">
-            {filteredLogs.map((log) => (
-              <React.Fragment key={log.id}>
-                <tr 
-                  className={"hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors " + (expandedRow === log.id ? "bg-gray-50 dark:bg-white/5" : "")}
-                  onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    <ChevronRightIcon className={"h-5 w-5 transition-transform " + (expandedRow === log.id ? "rotate-90" : "")} />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                    {new Date(log.date).toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <SeverityBadge severity={log.severity} />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-200">
-                    {log.action}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {log.actor}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {log.target}
-                  </td>
-                </tr>
-                {expandedRow === log.id && (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-4 bg-gray-50 dark:bg-slate-900/50">
-                      <div className="text-sm text-gray-900 dark:text-gray-200 mb-2 font-medium">Métadonnées de l'action :</div>
-                      <pre className="p-4 rounded-md bg-gray-900 text-gray-300 text-xs overflow-x-auto">
-                        {JSON.stringify(log.metadata, null, 2)}
-                      </pre>
+      <div className="rounded-2xl bg-white dark:bg-slate-800 shadow-sm ring-1 ring-gray-200 dark:ring-white/10 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10">
+            <thead className="bg-gray-50 dark:bg-slate-900/40">
+              <tr>
+                <th scope="col" className="w-10 px-6 py-4"></th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Date</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Sévérité</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Action</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Acteur</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Cible</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-white/5">
+              {filteredLogs.map((log) => (
+                <React.Fragment key={log.id}>
+                  <tr 
+                    className={"hover:bg-gray-50/50 dark:hover:bg-white/5 cursor-pointer transition-colors " + (expandedRow === log.id ? "bg-gray-50/50 dark:bg-white/5" : "")}
+                    onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                      <ChevronRightIcon className={"h-5 w-5 transition-transform " + (expandedRow === log.id ? "rotate-90" : "")} />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                      {new Date(log.date).toLocaleString('fr-FR')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <SeverityBadge severity={log.severity} />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-200">
+                      {log.action}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {log.actor}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {log.target}
                     </td>
                   </tr>
-                )}
-              </React.Fragment>
-            ))}
-            {filteredLogs.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
-                  Aucun log trouvé pour ces critères.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  {expandedRow === log.id && (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-4 bg-gray-50/50 dark:bg-slate-900/20 border-t border-gray-100 dark:border-white/5">
+                        <div className="text-sm text-gray-900 dark:text-gray-200 mb-2 font-medium">Métadonnées de l'action :</div>
+                        <pre className="p-4 rounded-xl bg-gray-900 text-gray-300 text-xs overflow-x-auto shadow-inner ring-1 ring-white/10">
+                          {JSON.stringify(log.metadata, null, 2)}
+                        </pre>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+              {filteredLogs.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                    Aucun log trouvé pour ces critères.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

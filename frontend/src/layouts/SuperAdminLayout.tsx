@@ -78,7 +78,7 @@ export const SuperAdminLayout = () => {
                 </button>
               </div>
 
-              <div className="flex grow flex-col gap-y-5 overflow-y-auto pb-2">
+              <div className="flex grow flex-col gap-y-5 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-2">
                 <div className="flex h-16 shrink-0 items-center border-b border-gray-100 dark:border-white/10 px-6">
                   <span className="text-brand-dark dark:text-white font-bold text-xl flex items-center gap-2">
                     <span className="bg-brand-green text-white p-1.5 rounded-lg text-sm">SA</span>
@@ -142,7 +142,7 @@ export const SuperAdminLayout = () => {
       {/* Sidebar statique (Desktop) */}
       <div className={"hidden lg:fixed lg:inset-y-0 lg:z-[120] lg:flex lg:flex-col transition-all duration-300 " + (isCollapsed ? "lg:w-20" : "lg:w-72")}>
 
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-white/5 border-r border-gray-200 dark:border-white/10 transition-colors duration-200 relative">
+        <div className="flex grow flex-col gap-y-5 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] bg-white dark:bg-white/5 border-r border-gray-200 dark:border-white/10 transition-colors duration-200 relative">
 
           
           <div className={"flex h-16 shrink-0 items-center border-b border-gray-100 dark:border-white/10 px-4 " + (isCollapsed ? "justify-center" : "justify-between")}>
