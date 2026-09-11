@@ -20,6 +20,7 @@ import path from "path";
 import authRoutes from "./modules/auth/presentation/routes/authRoutes.js";
 import onboardingRoutes from "./modules/onboarding/presentation/routes/onboardingRoutes.js";
 import superAdminRoutes from "./modules/superadmin/presentation/routes/superAdminRoutes.js";
+import saasRoutes from "./modules/saas/presentation/routes/saasRoutes.js";
 import familyRoutes from "./modules/families/presentation/routes/familyRoutes.js";
 import userRoutes from "./modules/users/presentation/routes/userRoutes.js";
 import messagingRoutes from "./modules/messaging/presentation/routes/messagingRoutes.js";
@@ -118,6 +119,7 @@ const createApp = (): Express => {
   app.use("/api/auth", authRoutes);
   app.use("/api/onboarding", onboardingRoutes);
   app.use("/api/superadmin", superAdminRoutes);
+  app.use("/api/superadmin/saas", saasRoutes);
   app.use("/api/families", familyRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/messages", messagingRoutes);
