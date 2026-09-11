@@ -1,4 +1,4 @@
-﻿import { pool } from "@/core/database/connection.js";
+import { pool } from "@/core/database/connection.js";
 import type { RowDataPacket, ResultSetHeader } from "mysql2/promise";
 import { v4 as uuidv4 } from "uuid";
 import { AuditLog } from "../domain/AuditLog.js";
@@ -7,11 +7,11 @@ import { IAuditLogRepository, AuditLogFilters } from "../domain/IAuditLogReposit
 export class MySQLAuditLogRepository implements IAuditLogRepository {
   async create(log: Omit<AuditLog, "id" | "created_at">): Promise<AuditLog> {
     const id = uuidv4();
-    const query = \
+    const query = `
       INSERT INTO audit_logs (
         id, club_id, user_id, action, entity_type, entity_id, metadata, severity
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    \;
+    `;
     const params = [
       id,
       log.club_id ?? null,
