@@ -89,7 +89,7 @@ export const SuperAdminLayout = () => {
                   <ul role="list" className="flex flex-col gap-y-7">
                     {Object.entries(groupedNavigation).map(([category, items]) => (
                       <li key={category}>
-                        <div className="text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider mb-2 text-left px-2">
+                        <div className="text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider mb-2 text-left px-4">
                           {category}
                         </div>
                         <ul role="list" className="-mx-2 space-y-2">
@@ -123,9 +123,9 @@ export const SuperAdminLayout = () => {
                 to="/superadmin/settings"
                 title={isCollapsed ? "Paramètres" : undefined}
                 className={
-                  "group rounded-lg p-2.5 text-sm leading-6 font-semibold transition-all " +
-                  (location.pathname.startsWith('/superadmin/settings') ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-slate-200") + 
-                  (isCollapsed ? " flex items-center justify-center" : " flex items-center gap-x-4 px-2")
+                  "group rounded-lg py-2 text-sm leading-6 font-semibold transition-all " +
+                    (location.pathname.startsWith('/superadmin/settings') ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-slate-200") + 
+                    (isCollapsed ? " flex items-center justify-center px-2" : " flex items-center gap-x-4 px-4")
                 }
               >
                 <Cog8ToothIcon className={"h-6 w-6 shrink-0 " + (location.pathname.startsWith('/superadmin/settings') ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-slate-400 dark:group-hover:text-slate-200")} />
@@ -161,25 +161,29 @@ export const SuperAdminLayout = () => {
               {Object.entries(groupedNavigation).map(([category, items]) => (
                 <li key={category}>
                   {!isCollapsed && (
-                    <div className="text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider mb-2 text-left px-2">
+                    <div className="text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider mb-2 text-left px-4">
                       {category}
                     </div>
-                  )}
-                  
-                  <ul role="list" className="space-y-2">
-                    {items.map((item) => {
-                      const isActive = location.pathname === item.href || (location.pathname.startsWith(item.href) && item.href !== '/superadmin');
-                      return (
-                        <li key={item.name} title={isCollapsed ? item.name : undefined}>
-                          <Link
-                            to={item.href}
-                            className={
-                              "group rounded-lg p-2.5 text-sm leading-6 font-semibold transition-all " +
-                              (isActive ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-slate-200") + 
-                              (isCollapsed ? " flex items-center justify-center" : " flex items-center gap-x-4 px-2")
-                            }
-                          >
-                            <item.icon className={"h-6 w-6 shrink-0 transition-colors " + (isActive ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-slate-400 dark:group-hover:text-slate-200")} aria-hidden="true" />
+                  <li key={category}>
+                    {!isCollapsed && (
+                      <div className="text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider mb-2 text-left px-4">
+                        {category}
+                      </div>
+                    )}
+                    
+                    <ul role="list" className="space-y-1">
+                      {items.map((item) => {
+                        const isActive = location.pathname === item.href || (location.pathname.startsWith(item.href) && item.href !== '/superadmin');
+                        return (
+                          <li key={item.name} title={isCollapsed ? item.name : undefined}>
+                            <Link
+                              to={item.href}
+                              className={
+                                "group rounded-lg py-2 text-sm leading-6 font-semibold transition-all " +
+                                (isActive ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-slate-200") + 
+                                (isCollapsed ? " flex items-center justify-center px-2" : " flex items-center gap-x-4 px-4")
+                              }
+                            ><item.icon className={"h-6 w-6 shrink-0 transition-colors " + (isActive ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-slate-400 dark:group-hover:text-slate-200")} aria-hidden="true" />
                             {!isCollapsed && <span className="whitespace-nowrap">{item.name}</span>}
                           </Link>
                         </li>
@@ -197,9 +201,9 @@ export const SuperAdminLayout = () => {
                 to="/superadmin/settings"
                 title={isCollapsed ? "Paramètres" : undefined}
                 className={
-                  "group rounded-lg p-2.5 text-sm leading-6 font-semibold transition-all " +
-                  (location.pathname.startsWith('/superadmin/settings') ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-slate-200") + 
-                  (isCollapsed ? " flex items-center justify-center" : " flex items-center gap-x-4 px-2")
+                  "group rounded-lg py-2 text-sm leading-6 font-semibold transition-all " +
+                    (location.pathname.startsWith('/superadmin/settings') ? "bg-brand-green/10 dark:bg-brand-green/20 text-brand-green dark:text-brand-green" : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-slate-200") + 
+                    (isCollapsed ? " flex items-center justify-center px-2" : " flex items-center gap-x-4 px-4")
                 }
               >
                 <Cog8ToothIcon className={"h-6 w-6 shrink-0 " + (location.pathname.startsWith('/superadmin/settings') ? "text-brand-green" : "text-gray-400 group-hover:text-brand-dark dark:text-slate-400 dark:group-hover:text-slate-200")} />
