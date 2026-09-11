@@ -16,7 +16,8 @@ import {
   ShieldCheckIcon,
   TrashIcon,
   TableCellsIcon,
-  Squares2X2Icon
+  Squares2X2Icon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { Switch } from '@headlessui/react';
 
@@ -34,6 +35,7 @@ interface SaasModule {
   clubsUsingCount: number;
   isEnabledGlobally: boolean;
   colorClass: string;
+  dependencies?: string[];
 }
 
 const MOCK_MODULES: SaasModule[] = [
@@ -47,7 +49,8 @@ const MOCK_MODULES: SaasModule[] = [
     pricing: 'paid',
     clubsUsingCount: 84,
     isEnabledGlobally: true,
-    colorClass: 'text-brand-blue bg-brand-blue/10 dark:bg-blue-500/10 dark:text-blue-400'
+    colorClass: 'text-brand-blue bg-brand-blue/10 dark:bg-blue-500/10 dark:text-blue-400',
+    dependencies: ['m_accounting']
   },
   {
     id: 'm_booking',
@@ -59,7 +62,8 @@ const MOCK_MODULES: SaasModule[] = [
     pricing: 'plan_restricted',
     clubsUsingCount: 132,
     isEnabledGlobally: true,
-    colorClass: 'text-brand-green bg-brand-green/10 dark:bg-emerald-500/10 dark:text-emerald-400'
+    colorClass: 'text-brand-green bg-brand-green/10 dark:bg-emerald-500/10 dark:text-emerald-400',
+    dependencies: []
   },
   {
     id: 'm_chat',
@@ -125,6 +129,7 @@ export const SuperAdminModules: React.FC = () => {
   const [selectedModule, setSelectedModule] = useState<SaasModule | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [drawerTab, setDrawerTab] = useState<'config' | 'clubs' | 'changelog'>('config');
   const [newModuleForm, setNewModuleForm] = useState({ name: '', description: '', type: 'core', pricing: 'free' });
 
   const handleCreateModule = (e: React.FormEvent) => {
@@ -141,7 +146,8 @@ export const SuperAdminModules: React.FC = () => {
       pricing: newModuleForm.pricing as 'free' | 'paid' | 'plan_restricted',
       clubsUsingCount: 0,
       isEnabledGlobally: false,
-      colorClass: 'text-gray-600 bg-gray-50 dark:bg-gray-500/10 dark:text-gray-400'
+      colorClass: 'text-gray-600 bg-gray-50 dark:bg-gray-500/10 dark:text-gray-400',
+      dependencies: []
     };
     
     setModules([...modules, newModule]);
@@ -151,6 +157,7 @@ export const SuperAdminModules: React.FC = () => {
   
   const openModuleDrawer = (module: SaasModule) => {
     setSelectedModule(module);
+    setDrawerTab('config');
     setIsDrawerOpen(true);
   };
   
@@ -209,6 +216,32 @@ export const SuperAdminModules: React.FC = () => {
           <PlusIcon className="h-5 w-5" />
           Nouveau Module
         </button>
+      </div>
+
+      
+      {/* KPI Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
+          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Modules Actifs</div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <div className="text-3xl font-bold text-gray-900 dark:text-white">24</div>
+            <div className="text-sm font-medium text-brand-green bg-brand-green/10 px-2 py-0.5 rounded-full">+2 ce mois</div>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
+          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Revenus Add-ons (MRR)</div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <div className="text-3xl font-bold text-gray-900 dark:text-white">4 250 €</div>
+            <div className="text-sm font-medium text-brand-green bg-brand-green/10 px-2 py-0.5 rounded-full">+12%</div>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm ring-1 ring-gray-200 dark:ring-white/10">
+          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Adoption Moyenne</div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <div className="text-3xl font-bold text-gray-900 dark:text-white">68%</div>
+            <div className="text-sm font-medium text-gray-500 dark:text-gray-400">des clubs</div>
+          </div>
+        </div>
       </div>
 
       {/* Filters Bar */}
@@ -431,85 +464,151 @@ export const SuperAdminModules: React.FC = () => {
               </div>
 
               {/* Drawer Body */}
-              <div className="flex-1 overflow-y-auto p-6">
-                
-                {/* Description */}
-                <div className="mb-8">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
-                  <textarea 
-                    rows={3}
-                    className="w-full rounded-lg border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 text-sm dark:text-white focus:ring-brand-blue focus:border-brand-blue"
-                    defaultValue={selectedModule.description}
-                  />
+              <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Tabs */}
+                <div className="flex items-center gap-6 px-6 border-b border-gray-100 dark:border-white/10 pt-2 bg-gray-50 dark:bg-slate-800/50">
+                  <button 
+                    onClick={() => setDrawerTab('config')}
+                    className={`pb-3 text-sm font-medium border-b-2 transition-colors ${drawerTab === 'config' ? 'border-brand-blue text-brand-blue dark:text-blue-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
+                  >
+                    Configuration
+                  </button>
+                  <button 
+                    onClick={() => setDrawerTab('clubs')}
+                    className={`pb-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${drawerTab === 'clubs' ? 'border-brand-blue text-brand-blue dark:text-blue-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
+                  >
+                    Clubs Utilisateurs
+                    <span className="bg-gray-200 dark:bg-white/10 px-2 py-0.5 rounded-full text-xs">{selectedModule.clubsUsingCount}</span>
+                  </button>
+                  <button 
+                    onClick={() => setDrawerTab('changelog')}
+                    className={`pb-3 text-sm font-medium border-b-2 transition-colors ${drawerTab === 'changelog' ? 'border-brand-blue text-brand-blue dark:text-blue-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
+                  >
+                    Notes de mise à jour
+                  </button>
                 </div>
 
-                {/* Modèle Économique */}
-                <div className="mb-8">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <CurrencyEuroIcon className="h-5 w-5 text-gray-400" />
-                    Modèle Économique
-                  </h3>
-                  <div className="space-y-3">
-                    <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
-                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'free'} className="mt-1 text-brand-blue focus:ring-brand-blue bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">Inclus (Gratuit)</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Disponible pour tous les clubs sans surcoût.</p>
-                      </div>
-                    </label>
-                    <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
-                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'paid'} className="mt-1 text-brand-blue focus:ring-brand-blue bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600" />
-                      <div className="w-full">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">Option Payante (Add-on)</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Facturé en supplément de l'abonnement.</p>
-                        {selectedModule.pricing === 'paid' && (
-                          <div className="flex items-center gap-2">
-                            <input type="number" defaultValue="15" className="w-20 rounded-md border-gray-300 dark:border-white/10 bg-white dark:bg-slate-800 text-sm dark:text-white py-1 px-2 focus:ring-brand-blue focus:border-brand-blue" />
-                            <span className="text-sm text-gray-500 dark:text-gray-400">€ / mois</span>
-                          </div>
-                        )}
-                      </div>
-                    </label>
-                    <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
-                      <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'plan_restricted'} className="mt-1 text-brand-blue focus:ring-brand-blue bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">Restreint par Plan</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Nécessite de configurer la Matrice des Permissions.</p>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Clubs Utilisateurs */}
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                      <ShieldCheckIcon className="h-5 w-5 text-gray-400" />
-                      Clubs Utilisateurs ({selectedModule.clubsUsingCount})
-                    </h3>
-                  </div>
-                  <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl overflow-hidden">
-                    <ul className="divide-y divide-gray-100 dark:divide-white/10">
-                      {MOCK_MODULE_USERS.map((user) => (
-                        <li key={user.id} className="p-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5">
+                <div className="flex-1 overflow-y-auto p-6">
+                  {drawerTab === 'config' && (
+                    <div className="space-y-8">
+                      {/* Dependencies Warning */}
+                      {selectedModule.dependencies && selectedModule.dependencies.length > 0 && (
+                        <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl p-4 flex gap-3">
+                          <ExclamationTriangleIcon className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
                           <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Plan {user.plan} • Depuis le {user.since}</p>
+                            <h4 className="text-sm font-semibold text-amber-800 dark:text-amber-300">Dépendances requises</h4>
+                            <p className="mt-1 text-sm text-amber-700 dark:text-amber-400/80">
+                              ⚠️ Nécessite l'activation des modules suivants : {
+                                selectedModule.dependencies.map(depId => modules.find(m => m.id === depId)?.name || depId).join(', ')
+                              }
+                            </p>
                           </div>
-                          <button className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-colors" title="Révocquer l'accès">
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="p-3 bg-gray-50 dark:bg-slate-800/50 text-center border-t border-gray-100 dark:border-white/10">
-                      <button className="text-xs font-semibold text-brand-blue dark:text-blue-400 hover:underline">
-                        Voir les {selectedModule.clubsUsingCount} clubs
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                        </div>
+                      )}
 
+                      {/* Description */}
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
+                        <textarea 
+                          rows={3}
+                          className="w-full rounded-lg border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 text-sm dark:text-white focus:ring-brand-blue focus:border-brand-blue"
+                          defaultValue={selectedModule.description}
+                        />
+                      </div>
+
+                      {/* Modèle Économique */}
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                          <CurrencyEuroIcon className="h-5 w-5 text-gray-400" />
+                          Modèle Économique
+                        </h3>
+                        <div className="space-y-3">
+                          <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
+                            <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'free'} className="mt-1 text-brand-blue focus:ring-brand-blue bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">Inclus (Gratuit)</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Disponible pour tous les clubs sans surcoût.</p>
+                            </div>
+                          </label>
+                          <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
+                            <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'paid'} className="mt-1 text-brand-blue focus:ring-brand-blue bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600" />
+                            <div className="w-full">
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">Option Payante (Add-on)</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Facturé en supplément de l'abonnement.</p>
+                              {selectedModule.pricing === 'paid' && (
+                                <div className="flex items-center gap-2">
+                                  <input type="number" defaultValue="15" className="w-20 rounded-md border-gray-300 dark:border-white/10 bg-white dark:bg-slate-800 text-sm dark:text-white py-1 px-2 focus:ring-brand-blue focus:border-brand-blue" />
+                                  <span className="text-sm text-gray-500 dark:text-gray-400">€ / mois</span>
+                                </div>
+                              )}
+                            </div>
+                          </label>
+                          <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
+                            <input type="radio" name="pricing" defaultChecked={selectedModule.pricing === 'plan_restricted'} className="mt-1 text-brand-blue focus:ring-brand-blue bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">Restreint par Plan</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Nécessite de configurer la Matrice des Permissions.</p>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {drawerTab === 'clubs' && (
+                    <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl overflow-hidden">
+                      <ul className="divide-y divide-gray-100 dark:divide-white/10">
+                        {MOCK_MODULE_USERS.map((user) => (
+                          <li key={user.id} className="p-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5">
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Plan {user.plan} • Depuis le {user.since}</p>
+                            </div>
+                            <button className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-colors" title="Révocquer l'accès">
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="p-3 bg-gray-50 dark:bg-slate-800/50 text-center border-t border-gray-100 dark:border-white/10">
+                        <button className="text-xs font-semibold text-brand-blue dark:text-blue-400 hover:underline">
+                          Voir les {selectedModule.clubsUsingCount} clubs
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {drawerTab === 'changelog' && (
+                    <div className="space-y-6">
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Historique des versions</h3>
+                        <button className="text-sm font-medium text-brand-blue dark:text-blue-400 hover:text-brand-dark dark:hover:text-blue-300 bg-brand-blue/10 dark:bg-blue-500/10 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+                          <PlusIcon className="h-4 w-4" />
+                          Publier une nouveauté
+                        </button>
+                      </div>
+
+                      <div className="relative border-l border-gray-200 dark:border-white/10 ml-3 space-y-8">
+                        <div className="relative pl-6">
+                          <span className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full bg-brand-blue ring-4 ring-white dark:ring-slate-800"></span>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Aujourd'hui</div>
+                          <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-white/10 p-4 shadow-sm">
+                            <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-2">Amélioration des performances</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">Optimisation du temps de chargement pour les clubs avec un grand nombre d'inscrits.</p>
+                          </div>
+                        </div>
+                        <div className="relative pl-6">
+                          <span className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-600 ring-4 ring-white dark:ring-slate-800"></span>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Il y a 2 semaines</div>
+                          <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-white/10 p-4 shadow-sm">
+                            <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-2">Nouvelle fonctionnalité : Export Excel</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">Il est désormais possible d'exporter les données du module directement au format Excel (.xlsx).</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Drawer Footer */}
