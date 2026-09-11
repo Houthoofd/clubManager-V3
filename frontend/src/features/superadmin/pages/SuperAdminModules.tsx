@@ -83,7 +83,7 @@ const MOCK_MODULES: SaasModule[] = [
     pricing: 'paid',
     clubsUsingCount: 45,
     isEnabledGlobally: true,
-    colorClass: 'text-brand-red bg-brand-red/10 dark:bg-red-500/10 dark:text-red-400'
+    colorClass: 'text-red-600 bg-red-50 dark:bg-red-500/10 dark:text-red-400'
   },
   {
     id: 'm_hr',
