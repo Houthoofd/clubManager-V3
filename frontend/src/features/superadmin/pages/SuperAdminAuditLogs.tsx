@@ -110,14 +110,24 @@ export const SuperAdminAuditLogs = () => {
   });
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight">
-          Journaux d'Audit & Sécurité
-        </h2>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          Suivez toutes les actions sensibles effectuées sur la plateforme.
-        </p>
+    <div className="w-full relative pb-12">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8 justify-between">
+        <div className="flex items-center gap-4">
+          <div className="rounded-full bg-brand-green/10 dark:bg-emerald-500/10 p-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-brand-green dark:text-emerald-400">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-brand-dark dark:text-white">
+              Journaux d'Audit & Sécurité
+            </h1>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Suivez toutes les actions sensibles effectuées sur la plateforme.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* KPI Stats */}
@@ -171,6 +181,12 @@ export const SuperAdminAuditLogs = () => {
 
       {/* Data Table */}
       <div className="rounded-2xl bg-white dark:bg-slate-800 shadow-sm ring-1 ring-gray-200 dark:ring-white/10 overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-slate-800/50 flex justify-between items-center">
+          <div>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">Historique d'activité</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Registre immuable des événements système.</p>
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10">
             <thead className="bg-gray-50 dark:bg-slate-900/40">
