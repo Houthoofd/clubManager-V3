@@ -85,8 +85,8 @@ export const SuperAdminLayout = () => {
                     SuperAdmin
                   </span>
                 </div>
-                <nav className="flex flex-1 flex-col mt-4 mb-6 px-6">
-                  <ul role="list" className="flex flex-col gap-y-7">
+                <nav className="flex flex-1 flex-col justify-center px-6">
+                  <ul role="list" className="flex flex-col gap-y-7 my-auto">
                     {Object.entries(groupedNavigation).map(([category, items]) => (
                       <li key={category}>
                         <div className="text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider mb-2 text-left">
@@ -160,8 +160,8 @@ export const SuperAdminLayout = () => {
               
           </div>
           
-          <nav className="flex flex-1 flex-col mt-4 mb-6 px-4">
-            <ul role="list" className="flex flex-col gap-y-7">
+          <nav className="flex flex-1 flex-col justify-center px-4">
+            <ul role="list" className="flex flex-col gap-y-7 my-auto">
               {Object.entries(groupedNavigation).map(([category, items]) => (
                 <li key={category}>
                   {!isCollapsed && (
