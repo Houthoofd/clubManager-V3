@@ -164,12 +164,7 @@ export const SuperAdminLayout = () => {
                     <div className="text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider mb-2 text-left px-4">
                       {category}
                     </div>
-                  <li key={category}>
-                    {!isCollapsed && (
-                      <div className="text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider mb-2 text-left px-4">
-                        {category}
-                      </div>
-                    )}
+                  )}
                     
                     <ul role="list" className="space-y-1">
                       {items.map((item) => {
