@@ -127,7 +127,7 @@ public impersonateClub = async (req: Request, res: Response): Promise<void> => {
         userId: admin.id,
         email: admin.email,
         userIdString: `ADMIN-${admin.id}`,
-        role_app: 'org_admin', // Use valid role
+        role_app: 'admin', // Use valid role
         tenantDbName: admin.db_name,
         isImpersonating: true
       } as any);
@@ -143,7 +143,7 @@ public impersonateClub = async (req: Request, res: Response): Promise<void> => {
             email: admin.email,
             first_name: 'Admin',
             last_name: 'Club',
-            role_app: 'org_admin',
+            role_app: 'admin',
             tenantDbName: admin.db_name
           }
         }
