@@ -1,3 +1,4 @@
+import { useAuthStore } from '../../stores/authStore';
 import React from 'react';
 import { setAccessToken, setUserData } from '../../api/apiClient';
 
@@ -13,7 +14,9 @@ export const ImpersonationBanner = () => {
     // Restore Super Admin tokens
     setAccessToken(superAdminToken);
     if (superAdminUser) {
-      setUserData(JSON.parse(superAdminUser));
+      const userObj = JSON.parse(superAdminUser);
+      setUserData(userObj);
+      useAuthStore.getState().setUser(userObj);
     }
     
     // Clear impersonation data

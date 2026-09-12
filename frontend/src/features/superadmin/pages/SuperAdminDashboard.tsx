@@ -25,6 +25,7 @@ import {
 import { toast } from 'sonner';
 import { getAccessToken, setAccessToken, getUserData, setUserData } from '../../../shared/api/apiClient';
 import { superAdminApi, ClubInfo } from '../api/superAdminApi';
+import { useAuthStore } from '../../../shared/stores/authStore';
 import { EditClubModal } from '../components/EditClubModal';
 import { DeleteClubModal } from '../components/DeleteClubModal';
 import { InviteClubModal } from '../components/InviteClubModal';
@@ -88,11 +89,12 @@ export const SuperAdminDashboard = () => {
         // Set the new club admin credentials
         setAccessToken(response.data.token);
         setUserData(response.data.user);
-        
-        toast.success("Connecté en tant que club !");
-        setTimeout(() => {
-            window.location.href = '/dashboard';
-        }, 1000);
+          useAuthStore.getState().setUser(response.data.user);
+          
+          toast.success("Connecté en tant que club !");
+          setTimeout(() => {
+              window.location.href = '/dashboard';
+          }, 100);
       }
     } catch (error: any) {
       console.error(error);
