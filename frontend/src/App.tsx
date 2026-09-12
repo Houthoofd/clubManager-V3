@@ -13,6 +13,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { Toaster } from "sonner";
+import { ImpersonationBanner } from "./shared/components/Navigation/ImpersonationBanner";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./i18n";
 import { useAuthStore } from "./shared/stores/authStore";
@@ -163,6 +164,7 @@ function App() {
         {/* Toaster pour les notifications */}
         <Toaster position="top-right" richColors closeButton duration={4000} />
 
+        <ImpersonationBanner />
         <BrowserRouter>
         <Routes>
           {/* Redirect root based on auth state */}

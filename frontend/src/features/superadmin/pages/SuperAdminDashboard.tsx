@@ -77,11 +77,17 @@ export const SuperAdminDashboard = () => {
       toast.info("Connexion en cours...");
       const response = await superAdminApi.impersonateClub(clubId);
       if (response.success && response.data) {
-        // Save the new token
-        localStorage.setItem('auth_token', response.data.token);
-        if (response.data.refreshToken) {
-            localStorage.setItem('auth_refresh', response.data.refreshToken);
-        }
+        
+        // Save current super admin tokens for restoring later
+        const currentToken = getAccessToken();
+        const currentUser = getUserData();
+        if (currentToken) localStorage.setItem('superadmin_accessToken', currentToken);
+        if (currentUser) localStorage.setItem('superadmin_user', JSON.stringify(currentUser));
+
+        // Set the new club admin credentials
+        setAccessToken(response.data.token);
+        setUserData(response.data.user);
+        
         toast.success("Connecté en tant que club !");
         setTimeout(() => {
             window.location.href = '/dashboard';

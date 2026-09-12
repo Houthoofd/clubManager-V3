@@ -134,14 +134,16 @@ public impersonateClub = async (req: Request, res: Response): Promise<void> => {
       const admin = admins[0];
 
       // Générer un token pour cet admin
-      const tokens = JwtService.generateTokenPair({
-        userId: admin.id,
-        email: admin.email,
-        userIdString: 'IMPERSONATED',
-        role_app: 'admin',
-        global_role: 'org_admin',
-        dbName: admin.db_name
-      });
+              // Générer un token pour cet admin
+        const tokens = JwtService.generateTokenPair({
+          userId: admin.id,
+          email: admin.email,
+          userIdString: 'IMPERSONATED',
+          role_app: 'admin' as any,
+          global_role: 'org_admin' as any,
+          tenantDbName: admin.db_name,
+          isImpersonating: true
+        } as any);
 
       res.json({
         success: true,
