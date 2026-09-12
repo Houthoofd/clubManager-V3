@@ -1,3 +1,4 @@
+import { tenantContext } from '@/core/context/tenantContext.js';
 // @ts-nocheck
 /**
  * authMiddleware
@@ -18,6 +19,7 @@ export interface AuthRequest extends Request {
     email: string;
     userIdString: string;
     role_app?: UserRole;
+    tenantDbName?: string;
   };
   token?: string;
 }
@@ -76,12 +78,22 @@ export const authMiddleware = async (
       email: decoded.email,
       userIdString: decoded.userIdString,
       role_app: decoded.role_app,
+        tenantDbName: decoded.tenantDbName,
     };
 
     (req as AuthRequest).token = token;
 
     // 4. Passer au middleware suivant
-    next();
+    
+        const contextData = {
+          tenantId: null,
+          dbName: (req as any).user?.tenantDbName || null,
+          isMaster: !(req as any).user?.tenantDbName || (req as any).user?.role_app === 'super_admin'
+        };
+        tenantContext.run(contextData, () => {
+          next();
+        });
+
   } catch (error) {
     console.error("[AuthMiddleware] Error:", error);
     res.status(500).json({
@@ -107,7 +119,16 @@ export const optionalAuthMiddleware = async (
 
     if (!token) {
       // Pas de token, mais on continue quand même
-      next();
+      
+        const contextData = {
+          tenantId: null,
+          dbName: (req as any).user?.tenantDbName || null,
+          isMaster: !(req as any).user?.tenantDbName || (req as any).user?.role_app === 'super_admin'
+        };
+        tenantContext.run(contextData, () => {
+          next();
+        });
+
       return;
     }
 
@@ -119,6 +140,7 @@ export const optionalAuthMiddleware = async (
         email: decoded.email,
         userIdString: decoded.userIdString,
         role_app: decoded.role_app,
+        tenantDbName: decoded.tenantDbName,
       };
 
       (req as AuthRequest).token = token;
@@ -127,10 +149,28 @@ export const optionalAuthMiddleware = async (
       console.warn("[OptionalAuthMiddleware] Invalid token:", error);
     }
 
-    next();
+    
+        const contextData = {
+          tenantId: null,
+          dbName: (req as any).user?.tenantDbName || null,
+          isMaster: !(req as any).user?.tenantDbName || (req as any).user?.role_app === 'super_admin'
+        };
+        tenantContext.run(contextData, () => {
+          next();
+        });
+
   } catch (error) {
     console.error("[OptionalAuthMiddleware] Error:", error);
-    next();
+    
+        const contextData = {
+          tenantId: null,
+          dbName: (req as any).user?.tenantDbName || null,
+          isMaster: !(req as any).user?.tenantDbName || (req as any).user?.role_app === 'super_admin'
+        };
+        tenantContext.run(contextData, () => {
+          next();
+        });
+
   }
 };
 
@@ -165,7 +205,16 @@ export const requireRole = (...allowedRoles: UserRole[]) => {
         return;
       }
 
-      next();
+      
+        const contextData = {
+          tenantId: null,
+          dbName: (req as any).user?.tenantDbName || null,
+          isMaster: !(req as any).user?.tenantDbName || (req as any).user?.role_app === 'super_admin'
+        };
+        tenantContext.run(contextData, () => {
+          next();
+        });
+
     } catch (error) {
       console.error("[RequireRole] Error:", error);
       res.status(500).json({
@@ -211,7 +260,16 @@ export const requireEmailVerified = () => {
       //   return;
       // }
 
-      next();
+      
+        const contextData = {
+          tenantId: null,
+          dbName: (req as any).user?.tenantDbName || null,
+          isMaster: !(req as any).user?.tenantDbName || (req as any).user?.role_app === 'super_admin'
+        };
+        tenantContext.run(contextData, () => {
+          next();
+        });
+
     } catch (error) {
       console.error("[RequireEmailVerified] Error:", error);
       res.status(500).json({

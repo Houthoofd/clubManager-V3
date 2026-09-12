@@ -1592,5 +1592,5 @@ CREATE TABLE IF NOT EXISTS event_registrations (
     PRIMARY KEY (id),
     UNIQUE KEY uq_event_user (event_id, user_id),
     CONSTRAINT fk_registration_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-    CONSTRAINT fk_registration_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT fk_registration_user FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
