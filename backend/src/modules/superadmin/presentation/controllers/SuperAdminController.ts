@@ -113,7 +113,7 @@ public impersonateClub = async (req: Request, res: Response): Promise<void> => {
       const { id } = req.params;
       
       // Ensure caller is superadmin
-      if ((req.user as any)?.global_role !== 'super_admin') {
+      if ((req.user as any)?.role_app !== 'super_admin' && (req.user as any)?.global_role !== 'super_admin') {
         res.status(403).json({ success: false, message: 'Accès interdit' });
         return;
       }
