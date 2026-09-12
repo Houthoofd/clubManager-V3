@@ -141,6 +141,8 @@ public impersonateClub = async (req: Request, res: Response): Promise<void> => {
           user: {
             id: admin.id,
             email: admin.email,
+            first_name: 'Admin',
+            last_name: 'Club',
             role_app: 'org_admin',
             tenantDbName: admin.db_name
           }

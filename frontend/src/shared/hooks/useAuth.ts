@@ -151,7 +151,9 @@ export const useAuth = () => {
    */
   const getInitials = useCallback((): string => {
     if (!user) return "";
-    return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
+    const first = user.first_name || 'A';
+    const last = user.last_name || 'C';
+    return `${first[0]}${last[0]}`.toUpperCase();
   }, [user]);
 
   return {
