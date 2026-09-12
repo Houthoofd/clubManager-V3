@@ -55,10 +55,10 @@ export const SuperAdminBilling: React.FC = () => {
     setLoading(true);
     try {
       const [kpiData, subsData, invData, plansData] = await Promise.all([
-        saasBillingApi.getKPIs().catch(() => MOCK_KPIS),
-        saasBillingApi.getSubscriptions().catch(() => MOCK_SUBSCRIPTIONS),
-        saasBillingApi.getInvoices().catch(() => MOCK_INVOICES),
-        saasBillingApi.getPlans().catch(() => [])
+        saasBillingApi.getKPIs(),
+        saasBillingApi.getSubscriptions(),
+        saasBillingApi.getInvoices(),
+        saasBillingApi.getPlans()
       ]);
       setKpis(kpiData);
       setSubscriptions(subsData);

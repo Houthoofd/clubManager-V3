@@ -13,10 +13,10 @@ export declare const baseEventSchema: z.ZodObject<{
     visibility: z.ZodDefault<z.ZodOptional<z.ZodEnum<["PUBLIC", "MEMBERS_ONLY", "SPECIFIC_GRADES"]>>>;
     min_grade_id: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
 }, "strip", z.ZodTypeAny, {
+    price: number;
     title: string;
     start_date: Date;
     end_date: Date;
-    price: number;
     visibility: "PUBLIC" | "MEMBERS_ONLY" | "SPECIFIC_GRADES";
     description?: string | undefined;
     min_grade_id?: number | null | undefined;
@@ -27,10 +27,10 @@ export declare const baseEventSchema: z.ZodObject<{
     start_date: Date;
     end_date: Date;
     description?: string | undefined;
+    price?: number | undefined;
     min_grade_id?: number | null | undefined;
     capacity?: number | null | undefined;
     location?: string | undefined;
-    price?: number | undefined;
     visibility?: "PUBLIC" | "MEMBERS_ONLY" | "SPECIFIC_GRADES" | undefined;
 }>;
 export declare const createEventSchema: z.ZodEffects<z.ZodObject<{
@@ -44,10 +44,10 @@ export declare const createEventSchema: z.ZodEffects<z.ZodObject<{
     visibility: z.ZodDefault<z.ZodOptional<z.ZodEnum<["PUBLIC", "MEMBERS_ONLY", "SPECIFIC_GRADES"]>>>;
     min_grade_id: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
 }, "strip", z.ZodTypeAny, {
+    price: number;
     title: string;
     start_date: Date;
     end_date: Date;
-    price: number;
     visibility: "PUBLIC" | "MEMBERS_ONLY" | "SPECIFIC_GRADES";
     description?: string | undefined;
     min_grade_id?: number | null | undefined;
@@ -58,16 +58,16 @@ export declare const createEventSchema: z.ZodEffects<z.ZodObject<{
     start_date: Date;
     end_date: Date;
     description?: string | undefined;
+    price?: number | undefined;
     min_grade_id?: number | null | undefined;
     capacity?: number | null | undefined;
     location?: string | undefined;
-    price?: number | undefined;
     visibility?: "PUBLIC" | "MEMBERS_ONLY" | "SPECIFIC_GRADES" | undefined;
 }>, {
+    price: number;
     title: string;
     start_date: Date;
     end_date: Date;
-    price: number;
     visibility: "PUBLIC" | "MEMBERS_ONLY" | "SPECIFIC_GRADES";
     description?: string | undefined;
     min_grade_id?: number | null | undefined;
@@ -78,10 +78,10 @@ export declare const createEventSchema: z.ZodEffects<z.ZodObject<{
     start_date: Date;
     end_date: Date;
     description?: string | undefined;
+    price?: number | undefined;
     min_grade_id?: number | null | undefined;
     capacity?: number | null | undefined;
     location?: string | undefined;
-    price?: number | undefined;
     visibility?: "PUBLIC" | "MEMBERS_ONLY" | "SPECIFIC_GRADES" | undefined;
 }>;
 export declare const updateEventSchema: z.ZodEffects<z.ZodObject<{
@@ -96,43 +96,43 @@ export declare const updateEventSchema: z.ZodEffects<z.ZodObject<{
     min_grade_id: z.ZodOptional<z.ZodNullable<z.ZodOptional<z.ZodNumber>>>;
 }, "strip", z.ZodTypeAny, {
     description?: string | undefined;
+    price?: number | undefined;
     title?: string | undefined;
     min_grade_id?: number | null | undefined;
     capacity?: number | null | undefined;
     location?: string | undefined;
     start_date?: Date | undefined;
     end_date?: Date | undefined;
-    price?: number | undefined;
     visibility?: "PUBLIC" | "MEMBERS_ONLY" | "SPECIFIC_GRADES" | undefined;
 }, {
     description?: string | undefined;
+    price?: number | undefined;
     title?: string | undefined;
     min_grade_id?: number | null | undefined;
     capacity?: number | null | undefined;
     location?: string | undefined;
     start_date?: Date | undefined;
     end_date?: Date | undefined;
-    price?: number | undefined;
     visibility?: "PUBLIC" | "MEMBERS_ONLY" | "SPECIFIC_GRADES" | undefined;
 }>, {
     description?: string | undefined;
+    price?: number | undefined;
     title?: string | undefined;
     min_grade_id?: number | null | undefined;
     capacity?: number | null | undefined;
     location?: string | undefined;
     start_date?: Date | undefined;
     end_date?: Date | undefined;
-    price?: number | undefined;
     visibility?: "PUBLIC" | "MEMBERS_ONLY" | "SPECIFIC_GRADES" | undefined;
 }, {
     description?: string | undefined;
+    price?: number | undefined;
     title?: string | undefined;
     min_grade_id?: number | null | undefined;
     capacity?: number | null | undefined;
     location?: string | undefined;
     start_date?: Date | undefined;
     end_date?: Date | undefined;
-    price?: number | undefined;
     visibility?: "PUBLIC" | "MEMBERS_ONLY" | "SPECIFIC_GRADES" | undefined;
 }>;
 export declare const registerToEventSchema: z.ZodObject<{

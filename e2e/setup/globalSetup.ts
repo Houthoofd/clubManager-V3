@@ -149,7 +149,7 @@ async function loginAndSaveState(
     response = await fetch(`${BACKEND_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, password }),
+      body: JSON.stringify({ identifier: userId, password }),
     });
   } catch (err: unknown) {
     // ECONNREFUSED ou AggregateError → le backend n'est pas démarré

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   PuzzlePieceIcon, 
   ShoppingCartIcon, 
@@ -20,100 +20,25 @@ import {
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { Switch } from '@headlessui/react';
+import { saasModulesApi, SaasModule } from '../api/saasModulesApi';
 
 type ModuleStatus = 'active' | 'beta' | 'deprecated';
 type ModuleType = 'core' | 'addon' | 'integration';
 
-interface SaasModule {
-  id: string;
-  name: string;
-  description: string;
-  icon: React.ElementType;
-  status: ModuleStatus;
-  type: ModuleType;
-  pricing: 'free' | 'paid' | 'plan_restricted';
-  clubsUsingCount: number;
-  isEnabledGlobally: boolean;
-  colorClass: string;
-  dependencies?: string[];
-}
+const IconMapper: Record<string, React.ElementType> = {
+  ShoppingCartIcon,
+  CalendarIcon,
+  ChatBubbleLeftRightIcon,
+  DocumentTextIcon,
+  DevicePhoneMobileIcon,
+  UserGroupIcon,
+};
 
-const MOCK_MODULES: SaasModule[] = [
-  {
-    id: 'm_shop',
-    name: 'Boutique en Ligne',
-    description: 'Permet aux clubs de vendre des équipements et abonnements directement en ligne via Stripe.',
-    icon: ShoppingCartIcon,
-    status: 'active',
-    type: 'addon',
-    pricing: 'paid',
-    clubsUsingCount: 84,
-    isEnabledGlobally: true,
-    colorClass: 'text-brand-blue bg-brand-blue/10 dark:bg-blue-500/10 dark:text-blue-400',
-    dependencies: ['m_accounting']
-  },
-  {
-    id: 'm_booking',
-    name: 'Réservation de Terrains',
-    description: 'Moteur de réservation complet avec règles complexes, invités et paiement partagé.',
-    icon: CalendarIcon,
-    status: 'active',
-    type: 'core',
-    pricing: 'plan_restricted',
-    clubsUsingCount: 132,
-    isEnabledGlobally: true,
-    colorClass: 'text-brand-green bg-brand-green/10 dark:bg-emerald-500/10 dark:text-emerald-400',
-    dependencies: []
-  },
-  {
-    id: 'm_chat',
-    name: 'Messagerie Interne',
-    description: 'Système de messagerie instantanée entre les membres et les administrateurs du club.',
-    icon: ChatBubbleLeftRightIcon,
-    status: 'beta',
-    type: 'core',
-    pricing: 'free',
-    clubsUsingCount: 12,
-    isEnabledGlobally: false,
-    colorClass: 'text-purple-600 bg-purple-50 dark:bg-purple-500/10 dark:text-purple-400'
-  },
-  {
-    id: 'm_accounting',
-    name: 'Comptabilité Avancée',
-    description: 'Génération automatique de journaux comptables, rapprochement bancaire et exports FEC.',
-    icon: DocumentTextIcon,
-    status: 'active',
-    type: 'addon',
-    pricing: 'paid',
-    clubsUsingCount: 45,
-    isEnabledGlobally: true,
-    colorClass: 'text-red-600 bg-red-50 dark:bg-red-500/10 dark:text-red-400'
-  },
-  {
-    id: 'm_hr',
-    name: 'Gestion RH & Coachs',
-    description: 'Planning des coachs, pointage des heures, contrats et fiches de paie simplifiées.',
-    icon: UserGroupIcon,
-    status: 'active',
-    type: 'core',
-    pricing: 'plan_restricted',
-    clubsUsingCount: 67,
-    isEnabledGlobally: true,
-    colorClass: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 dark:text-indigo-400'
-  },
-  {
-    id: 'm_mobile',
-    name: 'App Mobile Marque Blanche',
-    description: 'Application iOS et Android personnalisée aux couleurs du club et publiée sur les stores.',
-    icon: DevicePhoneMobileIcon,
-    status: 'active',
-    type: 'integration',
-    pricing: 'paid',
-    clubsUsingCount: 8,
-    isEnabledGlobally: true,
-    colorClass: 'text-pink-600 bg-pink-50 dark:bg-pink-500/10 dark:text-pink-400'
-  }
-];
+const getIcon = (iconName?: string | React.ElementType) => {
+  if (typeof iconName === 'string' && IconMapper[iconName]) return IconMapper[iconName];
+  if (typeof iconName === 'function' || typeof iconName === 'object') return iconName as React.ElementType;
+  return PuzzlePieceIcon;
+};
 
 const MOCK_MODULE_USERS = [
   { id: 1, name: 'FC Paris', plan: 'Pro', status: 'Actif', since: '01/09/2026' },
@@ -122,7 +47,8 @@ const MOCK_MODULE_USERS = [
 ];
 
 export const SuperAdminModules: React.FC = () => {
-  const [modules, setModules] = useState<SaasModule[]>(MOCK_MODULES);
+  const [modules, setModules] = useState<SaasModule[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'matrix'>('grid');
@@ -132,27 +58,45 @@ export const SuperAdminModules: React.FC = () => {
   const [drawerTab, setDrawerTab] = useState<'config' | 'clubs' | 'changelog'>('config');
   const [newModuleForm, setNewModuleForm] = useState({ name: '', description: '', type: 'core', pricing: 'free' });
 
-  const handleCreateModule = (e: React.FormEvent) => {
+  const fetchModules = async () => {
+    try {
+      const data = await saasModulesApi.getModules();
+      const mappedData = data.map(mod => ({
+        ...mod,
+        icon: getIcon(mod.icon),
+      }));
+      setModules(mappedData);
+    } catch (error) {
+      console.error('Failed to fetch modules', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchModules();
+  }, []);
+
+  const handleCreateModule = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newModuleForm.name.trim()) return;
     
-    const newModule: SaasModule = {
-      id: 'm_' + Date.now(),
-      name: newModuleForm.name,
-      description: newModuleForm.description,
-      icon: PuzzlePieceIcon,
-      status: 'beta',
-      type: newModuleForm.type as ModuleType,
-      pricing: newModuleForm.pricing as 'free' | 'paid' | 'plan_restricted',
-      clubsUsingCount: 0,
-      isEnabledGlobally: false,
-      colorClass: 'text-gray-600 bg-gray-50 dark:bg-gray-500/10 dark:text-gray-400',
-      dependencies: []
-    };
-    
-    setModules([...modules, newModule]);
-    setIsCreateModalOpen(false);
-    setNewModuleForm({ name: '', description: '', type: 'core', pricing: 'free' });
+    try {
+      await saasModulesApi.createModule({
+        name: newModuleForm.name,
+        description: newModuleForm.description,
+        type: newModuleForm.type as ModuleType,
+        pricing: newModuleForm.pricing as 'free' | 'paid' | 'plan_restricted',
+        isEnabledGlobally: false,
+        status: 'beta',
+        colorClass: 'text-gray-600 bg-gray-50 dark:bg-gray-500/10 dark:text-gray-400',
+      });
+      setIsCreateModalOpen(false);
+      setNewModuleForm({ name: '', description: '', type: 'core', pricing: 'free' });
+      fetchModules();
+    } catch (error) {
+      console.error('Failed to create module', error);
+    }
   };
   
   const openModuleDrawer = (module: SaasModule) => {
@@ -166,10 +110,19 @@ export const SuperAdminModules: React.FC = () => {
     setTimeout(() => setSelectedModule(null), 300); // wait for animation
   };
 
-  const toggleModule = (id: string) => {
+  const toggleModule = async (id: string) => {
+    // Optimistic UI update
     setModules(modules.map(mod => 
       mod.id === id ? { ...mod, isEnabledGlobally: !mod.isEnabledGlobally } : mod
     ));
+    try {
+      await saasModulesApi.toggleModule(id);
+      fetchModules();
+    } catch (error) {
+      console.error('Failed to toggle module', error);
+      // Revert on failure
+      fetchModules();
+    }
   };
 
   const filteredModules = modules.filter(mod => {

@@ -79,4 +79,38 @@ export class SaaSBillingController {
       res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
   };
+
+  public getAllSubscriptions = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const masterPool = tenantManager.getMasterPool();
+      const [rows] = await masterPool.query('SELECT * FROM saas_subscriptions ORDER BY created_at DESC');
+      res.json({ success: true, data: rows });
+    } catch (error: any) {
+      console.error('[SaaSBillingController] Error fetching subscriptions:', error);
+      res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+  };
+
+  public getAllInvoices = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const masterPool = tenantManager.getMasterPool();
+      const [rows] = await masterPool.query('SELECT * FROM saas_invoices ORDER BY created_at DESC');
+      res.json({ success: true, data: rows });
+    } catch (error: any) {
+      console.error('[SaaSBillingController] Error fetching invoices:', error);
+      res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+  };
+
+  public cancelSubscription = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const masterPool = tenantManager.getMasterPool();
+      await masterPool.query('UPDATE saas_subscriptions SET status = ? WHERE id = ?', ['canceled', id]);
+      res.json({ success: true, message: 'Abonnement annulé' });
+    } catch (error: any) {
+      console.error('[SaaSBillingController] Error canceling subscription:', error);
+      res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+  };
 }

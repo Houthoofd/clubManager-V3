@@ -129,6 +129,7 @@ export default defineConfig({
       // profile.spec.ts  → réservé chromium-member (data race sur e2e_member)
       // tests/member/*   → réservés chromium-member (fixtures memberPage)
       testIgnore: [
+          /tests\/superadmin\/.*/,
         /tests\/auth\/.*/,
         /tests\/navigation\/profile\.spec\.ts/,
         /tests\/member\/.*/,
@@ -150,6 +151,7 @@ export default defineConfig({
       // tests/flows/*     → réservés chromium-admin (évite double exécution)
       // tests/professor/* → réservés chromium-admin (fixtures professorPage)
       testIgnore: [
+          /tests\/superadmin\/.*/,
         /tests\/auth\/.*/,
         /tests\/admin\/.*/,
         /tests\/flows\/.*/,
@@ -184,6 +186,14 @@ export default defineConfig({
         // Pas de storageState : chaque test part d'un browser vierge
       },
     },
+    {
+      name: "chromium-superadmin",
+      testMatch: /tests\/superadmin\/.*/,
+      use: {
+        ...devices["Desktop Chrome"],
+      },
+    },
+
   ],
 
   // ============================================================
