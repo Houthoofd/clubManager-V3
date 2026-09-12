@@ -23,6 +23,7 @@ import {
   ArchiveBoxIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'sonner';
+import { getAccessToken, setAccessToken, getUserData, setUserData } from '../../../shared/api/apiClient';
 import { superAdminApi, ClubInfo } from '../api/superAdminApi';
 import { EditClubModal } from '../components/EditClubModal';
 import { DeleteClubModal } from '../components/DeleteClubModal';
@@ -93,8 +94,10 @@ export const SuperAdminDashboard = () => {
             window.location.href = '/dashboard';
         }, 1000);
       }
-    } catch (error) {
-      toast.error("Erreur lors de l'impersonation. Vérifiez qu'un administrateur existe pour ce club.");
+    } catch (error: any) {
+      console.error(error);
+      const msg = error.response?.data?.message || error.message || "Erreur inconnue";
+      toast.error("Erreur d'impersonation: " + msg);
     }
   };
 
