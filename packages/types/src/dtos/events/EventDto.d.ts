@@ -9,6 +9,7 @@ export interface CreateEventDto {
     price?: number;
     visibility?: EventVisibility;
     min_grade_id?: number;
+    image_url?: string;
 }
 export interface UpdateEventDto {
     title?: string;
@@ -20,6 +21,7 @@ export interface UpdateEventDto {
     price?: number;
     visibility?: EventVisibility;
     min_grade_id?: number;
+    image_url?: string;
 }
 export interface RegisterToEventDto {
     event_id: number;

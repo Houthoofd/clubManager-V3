@@ -603,20 +603,20 @@ export declare const latePaymentSchema: z.ZodObject<{
     jours_retard: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
     utilisateur_id: number;
+    echeance_id: number;
     montant: number;
     date_echeance: Date;
     jours_retard: number;
     utilisateur_nom: string;
     utilisateur_prenom: string;
-    echeance_id: number;
 }, {
     utilisateur_id: number;
+    echeance_id: number;
     montant: number;
     date_echeance: Date;
     jours_retard: number;
     utilisateur_nom: string;
     utilisateur_prenom: string;
-    echeance_id: number;
 }>;
 export type LatePayment = z.infer<typeof latePaymentSchema>;
 export declare const financialAnalyticsResponseSchema: z.ZodObject<{
@@ -696,20 +696,20 @@ export declare const financialAnalyticsResponseSchema: z.ZodObject<{
         jours_retard: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
         utilisateur_id: number;
+        echeance_id: number;
         montant: number;
         date_echeance: Date;
         jours_retard: number;
         utilisateur_nom: string;
         utilisateur_prenom: string;
-        echeance_id: number;
     }, {
         utilisateur_id: number;
+        echeance_id: number;
         montant: number;
         date_echeance: Date;
         jours_retard: number;
         utilisateur_nom: string;
         utilisateur_prenom: string;
-        echeance_id: number;
     }>, "many">;
     date_range: z.ZodOptional<z.ZodEffects<z.ZodObject<{
         date_debut: z.ZodDate;
@@ -754,12 +754,12 @@ export declare const financialAnalyticsResponseSchema: z.ZodObject<{
     }[];
     late_payments: {
         utilisateur_id: number;
+        echeance_id: number;
         montant: number;
         date_echeance: Date;
         jours_retard: number;
         utilisateur_nom: string;
         utilisateur_prenom: string;
-        echeance_id: number;
     }[];
     date_range?: {
         date_debut: Date;
@@ -792,12 +792,12 @@ export declare const financialAnalyticsResponseSchema: z.ZodObject<{
     }[];
     late_payments: {
         utilisateur_id: number;
+        echeance_id: number;
         montant: number;
         date_echeance: Date;
         jours_retard: number;
         utilisateur_nom: string;
         utilisateur_prenom: string;
-        echeance_id: number;
     }[];
     date_range?: {
         date_debut: Date;
@@ -1947,20 +1947,20 @@ export declare const dashboardAnalyticsSchema: z.ZodObject<{
             jours_retard: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             utilisateur_id: number;
+            echeance_id: number;
             montant: number;
             date_echeance: Date;
             jours_retard: number;
             utilisateur_nom: string;
             utilisateur_prenom: string;
-            echeance_id: number;
         }, {
             utilisateur_id: number;
+            echeance_id: number;
             montant: number;
             date_echeance: Date;
             jours_retard: number;
             utilisateur_nom: string;
             utilisateur_prenom: string;
-            echeance_id: number;
         }>, "many">;
         date_range: z.ZodOptional<z.ZodEffects<z.ZodObject<{
             date_debut: z.ZodDate;
@@ -2005,12 +2005,12 @@ export declare const dashboardAnalyticsSchema: z.ZodObject<{
         }[];
         late_payments: {
             utilisateur_id: number;
+            echeance_id: number;
             montant: number;
             date_echeance: Date;
             jours_retard: number;
             utilisateur_nom: string;
             utilisateur_prenom: string;
-            echeance_id: number;
         }[];
         date_range?: {
             date_debut: Date;
@@ -2043,12 +2043,12 @@ export declare const dashboardAnalyticsSchema: z.ZodObject<{
         }[];
         late_payments: {
             utilisateur_id: number;
+            echeance_id: number;
             montant: number;
             date_echeance: Date;
             jours_retard: number;
             utilisateur_nom: string;
             utilisateur_prenom: string;
-            echeance_id: number;
         }[];
         date_range?: {
             date_debut: Date;
@@ -2609,12 +2609,12 @@ export declare const dashboardAnalyticsSchema: z.ZodObject<{
         }[];
         late_payments: {
             utilisateur_id: number;
+            echeance_id: number;
             montant: number;
             date_echeance: Date;
             jours_retard: number;
             utilisateur_nom: string;
             utilisateur_prenom: string;
-            echeance_id: number;
         }[];
         date_range?: {
             date_debut: Date;
@@ -2808,12 +2808,12 @@ export declare const dashboardAnalyticsSchema: z.ZodObject<{
         }[];
         late_payments: {
             utilisateur_id: number;
+            echeance_id: number;
             montant: number;
             date_echeance: Date;
             jours_retard: number;
             utilisateur_nom: string;
             utilisateur_prenom: string;
-            echeance_id: number;
         }[];
         date_range?: {
             date_debut: Date;

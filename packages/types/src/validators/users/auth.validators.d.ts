@@ -1,23 +1,23 @@
 import { z } from "zod";
 export declare const loginSchema: z.ZodObject<{
-    userId: z.ZodString;
+    identifier: z.ZodString;
     password: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     password: string;
-    userId: string;
+    identifier: string;
 }, {
     password: string;
-    userId: string;
+    identifier: string;
 }>;
 export declare const loginByUserIdSchema: z.ZodObject<{
     userId: z.ZodString;
     password: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    password: string;
     userId: string;
+    password: string;
 }, {
-    password: string;
     userId: string;
+    password: string;
 }>;
 export declare const registerSchema: z.ZodObject<{
     first_name: z.ZodString;
@@ -29,8 +29,8 @@ export declare const registerSchema: z.ZodObject<{
     genre_id: z.ZodNumber;
     abonnement_id: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    password: string;
     email: string;
+    password: string;
     first_name: string;
     last_name: string;
     date_of_birth: string;
@@ -38,8 +38,8 @@ export declare const registerSchema: z.ZodObject<{
     nom_utilisateur?: string | undefined;
     abonnement_id?: number | undefined;
 }, {
-    password: string;
     email: string;
+    password: string;
     first_name: string;
     last_name: string;
     date_of_birth: string;
@@ -59,8 +59,8 @@ export declare const registerWithConfirmSchema: z.ZodEffects<z.ZodObject<{
 } & {
     confirmPassword: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    password: string;
     email: string;
+    password: string;
     confirmPassword: string;
     first_name: string;
     last_name: string;
@@ -69,8 +69,8 @@ export declare const registerWithConfirmSchema: z.ZodEffects<z.ZodObject<{
     nom_utilisateur?: string | undefined;
     abonnement_id?: number | undefined;
 }, {
-    password: string;
     email: string;
+    password: string;
     confirmPassword: string;
     first_name: string;
     last_name: string;
@@ -79,8 +79,8 @@ export declare const registerWithConfirmSchema: z.ZodEffects<z.ZodObject<{
     nom_utilisateur?: string | undefined;
     abonnement_id?: number | undefined;
 }>, {
-    password: string;
     email: string;
+    password: string;
     confirmPassword: string;
     first_name: string;
     last_name: string;
@@ -89,8 +89,8 @@ export declare const registerWithConfirmSchema: z.ZodEffects<z.ZodObject<{
     nom_utilisateur?: string | undefined;
     abonnement_id?: number | undefined;
 }, {
-    password: string;
     email: string;
+    password: string;
     confirmPassword: string;
     first_name: string;
     last_name: string;

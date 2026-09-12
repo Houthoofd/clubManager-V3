@@ -1,6 +1,6 @@
 import type { UserRole } from "../../enums/UserRole.enum.js";
 export interface LoginDto {
-    userId: string;
+    identifier: string;
     password: string;
 }
 export interface LoginByUserIdDto {
@@ -58,6 +58,8 @@ export interface JwtPayload {
     email: string;
     userIdString: string;
     role_app: UserRole;
+    tenantDbName?: string;
+    global_role?: string;
     type: "access" | "refresh";
 }
 export interface DecodedToken extends JwtPayload {

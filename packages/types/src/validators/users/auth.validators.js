@@ -24,7 +24,7 @@ const tokenSchema = z
     .min(32, "Le token doit contenir au moins 32 caractères")
     .max(255, "Le token ne peut pas dépasser 255 caractères");
 export const loginSchema = z.object({
-    userId: userIdSchema,
+    identifier: z.string().min(1, "L'identifiant est requis"),
     password: passwordSchema,
 });
 export const loginByUserIdSchema = z.object({

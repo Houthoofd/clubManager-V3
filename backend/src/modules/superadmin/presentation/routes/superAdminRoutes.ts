@@ -1,17 +1,27 @@
+import { authMiddleware } from '../../../../shared/middleware/authMiddleware.js';
 import { Router, Request, Response, NextFunction } from 'express';
-import { SuperAdminController } from '../controllers/SuperAdminController';
-import { SaaSBillingController } from '../controllers/SaaSBillingController';
+import { SuperAdminController } from '../controllers/SuperAdminController.js';
+import { SaaSBillingController } from '../controllers/SaaSBillingController.js';
 
 const router = Router();
 const superAdminController = new SuperAdminController();
 const saasBillingController = new SaaSBillingController();
 
-// Middleware minimal pour s'assurer que c'est un Super Admin
+// Appliquer l'authentification à TOUTES les routes superadmin
+router.use(authMiddleware);
+
+// Middleware pour s'assurer que c'est un Super Admin
 const checkSuperAdmin = (req: Request, res: Response, next: NextFunction) => {
+  const user = (req as any).user;
+  if (user?.role_app !== 'super_admin' && user?.global_role !== 'super_admin') {
+    res.status(403).json({ success: false, message: 'Accès interdit: rôle super_admin requis' });
+    return;
+  }
   next();
 };
 
 router.use(checkSuperAdmin);
+
 router.get('/clubs', superAdminController.getClubs);
 router.patch('/clubs/:id/status', superAdminController.updateClubStatus);
 router.put('/clubs/:id', superAdminController.updateClub);
@@ -23,8 +33,11 @@ router.post('/clubs/:id/extend-trial', superAdminController.extendTrial);
 
 // Plans Tarifaires
 router.get('/billing/plans', saasBillingController.getPlans);
-router.post('/billing/plans', saasBillingController.createPlan);
-router.put('/billing/plans/:id', saasBillingController.updatePlan);
-router.delete('/billing/plans/:id', saasBillingController.deletePlan);
+// router.post('/billing/plans', saasBillingController.createPlan);
+// router.put('/billing/plans/:id', saasBillingController.updatePlan);
+
+// Abonnements & Factures (Super Admin view)
+// router.get('/billing/subscriptions', saasBillingController.getAllSubscriptions);
+// router.get('/billing/invoices', saasBillingController.getAllInvoices);
 
 export default router;

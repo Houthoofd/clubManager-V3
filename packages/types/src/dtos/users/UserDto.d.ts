@@ -84,6 +84,7 @@ export interface UserListItemDto {
     status_id: number;
     role_app?: string;
     langue_preferee?: string;
+    abonnement_id?: number | null;
     date_inscription: string;
 }
 export interface UpdateUserRoleDto {

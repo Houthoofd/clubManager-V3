@@ -13,8 +13,8 @@ export declare const createUserSchema: z.ZodObject<{
     abonnement_id: z.ZodOptional<z.ZodNumber>;
     status_id: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    password: string;
     email: string;
+    password: string;
     first_name: string;
     last_name: string;
     date_of_birth: string;
@@ -26,8 +26,8 @@ export declare const createUserSchema: z.ZodObject<{
     abonnement_id?: number | undefined;
     status_id?: number | undefined;
 }, {
-    password: string;
     email: string;
+    password: string;
     first_name: string;
     last_name: string;
     date_of_birth: string;
@@ -55,8 +55,8 @@ export declare const updateUserSchema: z.ZodObject<{
     status_id: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     id: number;
-    password?: string | undefined;
     email?: string | undefined;
+    password?: string | undefined;
     first_name?: string | undefined;
     last_name?: string | undefined;
     nom_utilisateur?: string | undefined;
@@ -69,8 +69,8 @@ export declare const updateUserSchema: z.ZodObject<{
     status_id?: number | undefined;
 }, {
     id: number;
-    password?: string | undefined;
     email?: string | undefined;
+    password?: string | undefined;
     first_name?: string | undefined;
     last_name?: string | undefined;
     nom_utilisateur?: string | undefined;
